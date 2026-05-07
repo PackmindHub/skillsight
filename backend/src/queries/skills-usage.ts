@@ -92,7 +92,8 @@ export async function getSkillsTable(days: number) {
 		  COUNT(*)::int AS total,
 		  COUNT(*) FILTER (WHERE attributes->>'invocation_trigger' = 'user-slash')::int AS user_slash,
 		  COUNT(*) FILTER (WHERE attributes->>'invocation_trigger' = 'claude-proactive')::int AS claude_proactive,
-		  COUNT(*) FILTER (WHERE attributes->>'invocation_trigger' = 'nested-skill')::int AS nested_skill
+		  COUNT(*) FILTER (WHERE attributes->>'invocation_trigger' = 'nested-skill')::int AS nested_skill,
+		  array_remove(array_agg(DISTINCT attributes->>'marketplace.name'), NULL) AS marketplace_names
 		FROM events
 		WHERE event_name = 'claude_code.skill_activated'
 		  AND timestamp >= NOW() - (${days} || ' days')::interval
@@ -106,5 +107,6 @@ export async function getSkillsTable(days: number) {
 		user_slash: number;
 		claude_proactive: number;
 		nested_skill: number;
+		marketplace_names: string[];
 	}>;
 }

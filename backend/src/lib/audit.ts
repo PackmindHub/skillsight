@@ -10,7 +10,9 @@ type AuditAction =
 	| "allowlist_removed"
 	| "integration_created"
 	| "integration_updated"
-	| "integration_deleted";
+	| "integration_deleted"
+	| "marketplace_status_changed"
+	| "marketplace_updated";
 
 export async function logAuditEvent(params: {
 	actorEmail: string | null;

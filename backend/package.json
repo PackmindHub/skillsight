@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "migrate:generate": "drizzle-kit generate",
     "migrate:run": "drizzle-kit migrate",
-    "migrate:push": "drizzle-kit push"
+    "migrate:push": "drizzle-kit push",
+    "test": "bun test"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",

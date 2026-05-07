@@ -1,6 +1,21 @@
 import { api } from "@/lib/api";
-import type { SkillTableRow } from "@/types/api";
+import type { MarketplaceRef, SkillTableRow } from "@/types/api";
 import { useEffect, useState } from "react";
+
+const MP_STATUS_STYLES: Record<string, string> = {
+	approved: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+	denied: "bg-red-500/20 text-red-300 border-red-500/30",
+	to_review: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+};
+
+function MarketplaceBadge({ mp }: { mp: MarketplaceRef }) {
+	const style = MP_STATUS_STYLES[mp.status] ?? MP_STATUS_STYLES.to_review;
+	return (
+		<span className={`inline-flex items-center rounded border px-1.5 py-0.5 text-xs font-mono ${style}`}>
+			{mp.name}
+		</span>
+	);
+}
 
 const TRIGGERS: { key: keyof SkillTableRow; label: string; color: string }[] = [
 	{ key: "user_slash", label: "user-slash", color: "bg-indigo-500" },
@@ -57,6 +72,7 @@ export default function SkillsTablePage() {
 							<tr>
 								<th className="text-left px-4 py-3 font-medium text-gray-600">Skill</th>
 								<th className="text-right px-4 py-3 font-medium text-gray-600">Total</th>
+								<th className="text-left px-4 py-3 font-medium text-gray-600">Marketplaces</th>
 								{TRIGGERS.map(({ key, label, color }) => (
 									<th key={key} className="px-4 py-3 font-medium text-gray-600 min-w-32">
 										<div className="flex items-center gap-1.5">
@@ -72,6 +88,17 @@ export default function SkillsTablePage() {
 								<tr key={row.skill_name} className="border-b border-gray-100 hover:bg-gray-50">
 									<td className="px-4 py-3 font-mono text-gray-900">{row.skill_name}</td>
 									<td className="px-4 py-3 text-right text-gray-700">{row.total}</td>
+									<td className="px-4 py-3">
+										{row.marketplaces.length > 0 ? (
+											<div className="flex flex-wrap gap-1">
+												{row.marketplaces.map((mp) => (
+													<MarketplaceBadge key={mp.name} mp={mp} />
+												))}
+											</div>
+										) : (
+											<span className="text-gray-400">—</span>
+										)}
+									</td>
 									{TRIGGERS.map(({ key, color }) => (
 										<ProgressCell
 											key={key}

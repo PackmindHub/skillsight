@@ -64,12 +64,28 @@ export interface AllowedSkill {
 	addedBy: string | null;
 }
 
+export type MarketplaceStatus = "to_review" | "approved" | "denied";
+
+export interface MarketplaceRef {
+	name: string;
+	status: MarketplaceStatus;
+}
+
+export interface Marketplace extends MarketplaceRef {
+	url: string | null;
+	description: string | null;
+	firstSeenAt: string;
+	lastSeenAt: string;
+	activationCount: number;
+}
+
 export interface SkillTableRow {
 	skill_name: string;
 	total: number;
 	user_slash: number;
 	claude_proactive: number;
 	nested_skill: number;
+	marketplaces: MarketplaceRef[];
 }
 
 export interface SkillsTableResponse {

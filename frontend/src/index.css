@@ -1,1 +1,26 @@
 @import "tailwindcss";
+
+@theme {
+  --color-surface-950: #070812;
+  --color-surface-900: #0d1021;
+  --color-surface-800: #131729;
+  --color-surface-700: #1a2040;
+  --color-surface-600: #252d4a;
+  --color-edge-dim:    #1e2540;
+  --color-edge:        #252d4a;
+}
+
+@layer base {
+  :root { color-scheme: dark; }
+  body {
+    background-color: #070812;
+    color: #e2e8f0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@utility dot-grid {
+  background-image: radial-gradient(circle, #252d4a 1px, transparent 1px);
+  background-size: 24px 24px;
+}

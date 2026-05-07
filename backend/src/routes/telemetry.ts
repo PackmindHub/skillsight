@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { db } from "@/db/client";
-import { events } from "@/db/schema";
+import { events, marketplaces } from "@/db/schema";
 import { ingestionAuth } from "@/middleware/ingestion-auth";
 import { parseOtlpBody, type ParsedEvent } from "@/lib/otlp-parser";
 
@@ -37,6 +37,28 @@ telemetryRoute.post("/v1/logs", ingestionAuth, async (c) => {
 			attributes: e.attributes,
 		})),
 	);
+
+	const mpNames = [
+		...new Set(
+			parsed
+				.filter(
+					(e) =>
+						e.eventName === "claude_code.skill_activated" &&
+						typeof e.attributes["marketplace.name"] === "string",
+				)
+				.map((e) => e.attributes["marketplace.name"] as string),
+		),
+	];
+	if (mpNames.length > 0) {
+		const now = new Date();
+		await db
+			.insert(marketplaces)
+			.values(mpNames.map((name) => ({ name, lastSeenAt: now })))
+			.onConflictDoUpdate({
+				target: marketplaces.name,
+				set: { lastSeenAt: now },
+			});
+	}
 
 	return c.json({ partialSuccess: {} }, 200);
 });

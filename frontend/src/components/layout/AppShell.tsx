@@ -4,7 +4,7 @@ import { TopBar } from "./TopBar";
 
 export function AppShell({ children }: { children: ReactNode }) {
 	return (
-		<div className="flex h-screen bg-gray-50">
+		<div className="flex h-screen bg-surface-950">
 			<Sidebar />
 			<div className="flex flex-1 flex-col overflow-hidden">
 				<TopBar />

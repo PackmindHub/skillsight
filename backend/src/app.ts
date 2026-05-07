@@ -13,6 +13,7 @@ import { shadowRoute } from "@/routes/skills/shadow";
 import { allowedRoute } from "@/routes/skills/allowed";
 import { auditRoute, configRoute } from "@/routes/audit";
 import { integrationsRoute } from "@/routes/integrations";
+import { marketplacesRoute } from "@/routes/marketplaces";
 
 const STATIC_ROOT =
 	process.env.NODE_ENV === "production"
@@ -29,7 +30,7 @@ export function createApp() {
 		cors({
 			origin: config.PUBLIC_BASE_URL,
 			credentials: true,
-			allowMethods: ["GET", "POST", "DELETE", "OPTIONS"],
+			allowMethods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
 			allowHeaders: ["Content-Type", "Authorization"],
 		}),
 	);
@@ -45,6 +46,7 @@ export function createApp() {
 	app.route("/api/audit", auditRoute);
 	app.route("/api/config", configRoute);
 	app.route("/api/integrations", integrationsRoute);
+	app.route("/api/marketplaces", marketplacesRoute);
 
 	// Static files (frontend build)
 	app.use("/*", serveStatic({ root: STATIC_ROOT }));

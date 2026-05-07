@@ -9,6 +9,7 @@ import OnboardingPage from "@/pages/OnboardingPage";
 import ShadowDetectionPage from "@/pages/ShadowDetectionPage";
 import SkillsTablePage from "@/pages/SkillsTablePage";
 import TokensPage from "@/pages/TokensPage";
+import MarketplacesPage from "@/pages/MarketplacesPage";
 import IntegrationsPage from "@/pages/settings/IntegrationsPage";
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router-dom";
 
@@ -35,6 +36,7 @@ export default function App() {
 						<Route path="/onboarding" element={<OnboardingPage />} />
 						<Route path="/dashboard" element={<DashboardPage />} />
 						<Route path="/skills" element={<SkillsTablePage />} />
+						<Route path="/marketplaces" element={<MarketplacesPage />} />
 						<Route path="/shadow" element={<ShadowDetectionPage />} />
 						<Route path="/allowlist" element={<AllowlistPage />} />
 						<Route path="/tokens" element={<TokensPage />} />

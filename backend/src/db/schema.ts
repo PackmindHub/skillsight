@@ -86,6 +86,15 @@ export const integrations = pgTable("integrations", {
 	updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const marketplaces = pgTable("marketplaces", {
+	name: varchar("name", { length: 255 }).primaryKey(),
+	status: varchar("status", { length: 20 }).notNull().default("to_review"),
+	url: varchar("url", { length: 1000 }),
+	description: text("description"),
+	firstSeenAt: timestamp("first_seen_at").defaultNow().notNull(),
+	lastSeenAt: timestamp("last_seen_at").defaultNow().notNull(),
+});
+
 // Partial functional index for skill name lookups (created manually in migration)
 export const skillNamePartialIndexSql = sql`
   CREATE INDEX IF NOT EXISTS events_skill_name_partial_idx

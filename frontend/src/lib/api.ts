@@ -2,6 +2,7 @@ import type {
 	AllowedSkill,
 	AuditResponse,
 	Integration,
+	Marketplace,
 	ShadowSkill,
 	SkillsTableResponse,
 	Token,
@@ -72,6 +73,17 @@ export const api = {
 	},
 	config: {
 		get: () => apiFetch<{ baseUrl: string }>("/api/config"),
+	},
+	marketplaces: {
+		list: () => apiFetch<{ marketplaces: Marketplace[] }>("/api/marketplaces"),
+		update: (
+			name: string,
+			body: { status?: string; url?: string | null; description?: string | null },
+		) =>
+			apiFetch<Marketplace>(`/api/marketplaces/${encodeURIComponent(name)}`, {
+				method: "PATCH",
+				body: JSON.stringify(body),
+			}),
 	},
 	integrations: {
 		list: () => apiFetch<Integration[]>("/api/integrations"),
