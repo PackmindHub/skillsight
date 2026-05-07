@@ -29,45 +29,45 @@ export default function ShadowDetectionPage() {
 		}
 	}
 
-	if (loading) return <p className="text-gray-500 text-sm">Loading…</p>;
-	if (error) return <p className="text-red-600 text-sm">{error}</p>;
+	if (loading) return <p className="text-text-3 text-sm">Loading…</p>;
+	if (error) return <p className="text-danger text-sm">{error}</p>;
 
 	return (
 		<div className="space-y-4">
-			<h1 className="text-lg font-semibold text-gray-900">Shadow Detection</h1>
-			<p className="text-sm text-gray-500">Skills activated that are not on the allowlist.</p>
+			<h1 className="text-lg font-semibold text-text-1">Shadow Detection</h1>
+			<p className="text-sm text-text-3">Skills activated that are not on the allowlist.</p>
 
 			{rows.length === 0 ? (
-				<div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center text-green-700 text-sm">
+				<div className="bg-success/10 border border-success/25 rounded-lg p-6 text-center text-success text-sm">
 					All activated skills are on the allowlist.
 				</div>
 			) : (
-				<div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+				<div className="bg-surface-900 rounded-lg border border-edge overflow-hidden">
 					<table className="w-full text-sm">
-						<thead className="bg-gray-50 border-b border-gray-200">
+						<thead className="bg-surface-800 border-b border-edge">
 							<tr>
-								<th className="text-left px-4 py-3 font-medium text-gray-600">Skill</th>
-								<th className="text-right px-4 py-3 font-medium text-gray-600">Activations</th>
-								<th className="text-left px-4 py-3 font-medium text-gray-600">First seen</th>
-								<th className="text-left px-4 py-3 font-medium text-gray-600">Last seen</th>
-								<th className="text-right px-4 py-3 font-medium text-gray-600">Users</th>
+								<th className="text-left px-4 py-3 font-medium text-text-3">Skill</th>
+								<th className="text-right px-4 py-3 font-medium text-text-3">Activations</th>
+								<th className="text-left px-4 py-3 font-medium text-text-3">First seen</th>
+								<th className="text-left px-4 py-3 font-medium text-text-3">Last seen</th>
+								<th className="text-right px-4 py-3 font-medium text-text-3">Users</th>
 								<th className="px-4 py-3" />
 							</tr>
 						</thead>
 						<tbody>
 							{rows.map((row) => (
-								<tr key={row.skill_name} className="border-b border-gray-100 hover:bg-gray-50">
-									<td className="px-4 py-3 font-mono text-gray-900">{row.skill_name}</td>
-									<td className="px-4 py-3 text-right text-gray-700">{row.count}</td>
-									<td className="px-4 py-3 text-gray-500">{formatDateTime(row.first_seen)}</td>
-									<td className="px-4 py-3 text-gray-500">{formatDateTime(row.last_seen)}</td>
-									<td className="px-4 py-3 text-right text-gray-700">{row.distinct_users}</td>
+								<tr key={row.skill_name} className="border-b border-edge-dim hover:bg-surface-800 transition-colors">
+									<td className="px-4 py-3 font-mono text-text-1">{row.skill_name}</td>
+									<td className="px-4 py-3 text-right text-text-2">{row.count}</td>
+									<td className="px-4 py-3 text-text-3">{formatDateTime(row.first_seen)}</td>
+									<td className="px-4 py-3 text-text-3">{formatDateTime(row.last_seen)}</td>
+									<td className="px-4 py-3 text-right text-text-2">{row.distinct_users}</td>
 									<td className="px-4 py-3 text-right">
 										<button
 											type="button"
 											onClick={() => addToAllowlist(row.skill_name)}
 											disabled={adding === row.skill_name}
-											className="text-xs bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 disabled:opacity-50"
+											className="btn-primary text-xs px-3 py-1 rounded"
 										>
 											{adding === row.skill_name ? "Adding…" : "Add to allowlist"}
 										</button>

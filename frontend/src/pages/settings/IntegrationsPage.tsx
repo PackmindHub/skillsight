@@ -130,30 +130,32 @@ export default function IntegrationsPage() {
 		}
 	}
 
-	if (loading) return <p className="text-gray-500 text-sm">Loading…</p>;
+	const inputClass = "w-full rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 placeholder:text-text-4 focus:outline-none focus:ring-2 focus:ring-accent-bright";
+
+	if (loading) return <p className="text-text-3 text-sm">Loading…</p>;
 
 	return (
 		<div className="space-y-4">
 			<div className="flex items-center justify-between">
-				<h1 className="text-lg font-semibold text-gray-900">Integrations</h1>
+				<h1 className="text-lg font-semibold text-text-1">Integrations</h1>
 				<button
 					type="button"
 					onClick={openCreate}
-					className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+					className="btn-primary rounded-md px-4 py-2 text-sm font-medium"
 				>
 					Add integration
 				</button>
 			</div>
 
 			{showForm && (
-				<div className="bg-white rounded-lg border border-gray-200 p-4">
-					<h2 className="text-sm font-medium text-gray-900 mb-3">
+				<div className="bg-surface-700 rounded-lg border border-edge p-4">
+					<h2 className="text-sm font-medium text-text-1 mb-3">
 						{editingId ? "Edit integration" : "New integration"}
 					</h2>
 					<form onSubmit={handleSubmit} className="space-y-4">
 						<div className="grid grid-cols-2 gap-3">
 							<div>
-								<label htmlFor="int-name" className="block text-xs text-gray-500 mb-1">
+								<label htmlFor="int-name" className="block text-xs text-text-3 mb-1">
 									Name *
 								</label>
 								<input
@@ -161,12 +163,12 @@ export default function IntegrationsPage() {
 									required
 									value={form.name}
 									onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-									className="w-full rounded border border-gray-300 px-3 py-1.5 text-sm"
+									className={inputClass}
 									placeholder="My Loki"
 								/>
 							</div>
 							<div>
-								<label htmlFor="int-url" className="block text-xs text-gray-500 mb-1">
+								<label htmlFor="int-url" className="block text-xs text-text-3 mb-1">
 									Loki URL *
 								</label>
 								<input
@@ -175,17 +177,17 @@ export default function IntegrationsPage() {
 									type="url"
 									value={form.url}
 									onChange={(e) => setForm((f) => ({ ...f, url: e.target.value }))}
-									className="w-full rounded border border-gray-300 px-3 py-1.5 text-sm"
+									className={inputClass}
 									placeholder="https://loki.example.com"
 								/>
 							</div>
 						</div>
 
 						<div>
-							<p className="text-xs text-gray-500 mb-1.5">Authentication</p>
+							<p className="text-xs text-text-3 mb-1.5">Authentication</p>
 							<div className="flex gap-4">
 								{(["none", "basic"] as AuthType[]).map((val) => (
-									<label key={val} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+									<label key={val} className="flex items-center gap-2 text-sm text-text-2 cursor-pointer">
 										<input
 											type="radio"
 											name="authType"
@@ -202,19 +204,19 @@ export default function IntegrationsPage() {
 						{form.authType === "basic" && (
 							<div className="grid grid-cols-2 gap-3">
 								<div>
-									<label htmlFor="int-user" className="block text-xs text-gray-500 mb-1">
+									<label htmlFor="int-user" className="block text-xs text-text-3 mb-1">
 										Username
 									</label>
 									<input
 										id="int-user"
 										value={form.authUsername}
 										onChange={(e) => setForm((f) => ({ ...f, authUsername: e.target.value }))}
-										className="w-full rounded border border-gray-300 px-3 py-1.5 text-sm"
+										className={inputClass}
 										autoComplete="off"
 									/>
 								</div>
 								<div>
-									<label htmlFor="int-pass" className="block text-xs text-gray-500 mb-1">
+									<label htmlFor="int-pass" className="block text-xs text-text-3 mb-1">
 										Password{editingId ? " (leave blank to keep existing)" : ""}
 									</label>
 									<input
@@ -222,7 +224,7 @@ export default function IntegrationsPage() {
 										type="password"
 										value={form.authPassword}
 										onChange={(e) => setForm((f) => ({ ...f, authPassword: e.target.value }))}
-										className="w-full rounded border border-gray-300 px-3 py-1.5 text-sm"
+										className={inputClass}
 										placeholder={editingId ? "••••••" : ""}
 										autoComplete="new-password"
 									/>
@@ -232,18 +234,18 @@ export default function IntegrationsPage() {
 
 						<div className="grid grid-cols-2 gap-3">
 							<div>
-								<label htmlFor="int-query" className="block text-xs text-gray-500 mb-1">
+								<label htmlFor="int-query" className="block text-xs text-text-3 mb-1">
 									LogQL query
 								</label>
 								<input
 									id="int-query"
 									value={form.lokiQuery}
 									onChange={(e) => setForm((f) => ({ ...f, lokiQuery: e.target.value }))}
-									className="w-full rounded border border-gray-300 px-3 py-1.5 text-sm font-mono"
+									className={`${inputClass} font-mono`}
 								/>
 							</div>
 							<div>
-								<label htmlFor="int-interval" className="block text-xs text-gray-500 mb-1">
+								<label htmlFor="int-interval" className="block text-xs text-text-3 mb-1">
 									Sync interval (seconds)
 								</label>
 								<input
@@ -252,12 +254,12 @@ export default function IntegrationsPage() {
 									min="5"
 									value={form.syncIntervalSecs}
 									onChange={(e) => setForm((f) => ({ ...f, syncIntervalSecs: e.target.value }))}
-									className="w-full rounded border border-gray-300 px-3 py-1.5 text-sm"
+									className={inputClass}
 								/>
 							</div>
 						</div>
 
-						<label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+						<label className="flex items-center gap-2 text-sm text-text-2 cursor-pointer">
 							<input
 								type="checkbox"
 								checked={form.enabled}
@@ -270,14 +272,14 @@ export default function IntegrationsPage() {
 							<button
 								type="submit"
 								disabled={saving}
-								className="rounded bg-indigo-600 px-3 py-1.5 text-sm text-white hover:bg-indigo-700 disabled:opacity-50"
+								className="btn-primary rounded px-3 py-1.5 text-sm"
 							>
 								{saving ? "Saving…" : editingId ? "Update" : "Create"}
 							</button>
 							<button
 								type="button"
 								onClick={closeForm}
-								className="rounded border border-gray-300 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50"
+								className="rounded border border-edge px-3 py-1.5 text-sm text-text-3 hover:bg-surface-800 hover:text-text-1 transition-colors"
 							>
 								Cancel
 							</button>
@@ -286,15 +288,17 @@ export default function IntegrationsPage() {
 				</div>
 			)}
 
-			<div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+			<div className="bg-surface-900 rounded-lg border border-edge overflow-hidden">
 				<table className="w-full text-sm">
-					<thead className="bg-gray-50 border-b border-gray-200">
+					<thead className="bg-surface-800 border-b border-edge">
 						<tr>
-							<th className="text-left px-4 py-3 font-medium text-gray-600">Name</th>
-							<th className="text-left px-4 py-3 font-medium text-gray-600">URL</th>
-							<th className="text-left px-4 py-3 font-medium text-gray-600">Auth</th>
-							<th className="text-left px-4 py-3 font-medium text-gray-600">Interval</th>
-							<th className="text-left px-4 py-3 font-medium text-gray-600">Last sync</th>
+							<th className="text-left px-4 py-3 font-medium text-text-3">Name</th>
+							<th className="text-left px-4 py-3 font-medium text-text-3">Type</th>
+							<th className="text-left px-4 py-3 font-medium text-text-3">URL</th>
+							<th className="text-left px-4 py-3 font-medium text-text-3">Auth</th>
+							<th className="text-left px-4 py-3 font-medium text-text-3">Interval</th>
+							<th className="text-left px-4 py-3 font-medium text-text-3">Last sync</th>
+							<th className="text-left px-4 py-3 font-medium text-text-3">Ingested</th>
 							<th className="px-4 py-3" />
 						</tr>
 					</thead>
@@ -304,39 +308,43 @@ export default function IntegrationsPage() {
 							const hasError = integration.lastSyncError !== null;
 
 							return (
-								<tr key={integration.id} className={`border-b border-gray-100 ${!integration.enabled ? "opacity-50" : ""}`}>
-									<td className="px-4 py-3 font-medium text-gray-900">
+								<tr key={integration.id} className={`border-b border-edge-dim transition-colors ${!integration.enabled ? "opacity-40" : "hover:bg-surface-800"}`}>
+									<td className="px-4 py-3 font-medium text-text-1">
 										{integration.name}
 										{!integration.enabled && (
-											<span className="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs bg-gray-100 text-gray-500">
-												disabled
-											</span>
+											<span className="ml-2 badge badge-neutral">disabled</span>
 										)}
 									</td>
-									<td className="px-4 py-3 text-gray-500 max-w-xs truncate">
+									<td className="px-4 py-3 text-text-3">
+										{integration.type.charAt(0).toUpperCase() + integration.type.slice(1)}
+									</td>
+									<td className="px-4 py-3 text-text-3 max-w-xs truncate">
 										<span title={integration.url}>{integration.url}</span>
 									</td>
-									<td className="px-4 py-3 text-gray-500">
+									<td className="px-4 py-3 text-text-3">
 										{integration.authType === "basic" ? "Basic" : "None"}
 									</td>
-									<td className="px-4 py-3 text-gray-500">
+									<td className="px-4 py-3 text-text-3">
 										{Math.round(integration.syncIntervalMs / 1000)}s
 									</td>
 									<td className="px-4 py-3">
 										{hasError ? (
-											<span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs bg-red-100 text-red-700" title={integration.lastSyncError ?? ""}>
+											<span className="badge badge-danger" title={integration.lastSyncError ?? ""}>
 												Error
 											</span>
 										) : integration.lastSyncAt ? (
-											<span className="text-gray-500 text-xs">
+											<span className="text-text-3 text-xs">
 												{formatDateTime(integration.lastSyncAt)}
 											</span>
 										) : (
-											<span className="text-gray-400 text-xs">Never</span>
+											<span className="text-text-4 text-xs">Never</span>
 										)}
 										{sr && !sr.error && (
-											<span className="ml-2 text-xs text-green-600">Synced</span>
+											<span className="ml-2 text-xs text-success">Synced</span>
 										)}
+									</td>
+									<td className="px-4 py-3 text-text-3 text-xs">
+										{integration.eventCount.toLocaleString()}
 									</td>
 									<td className="px-4 py-3 text-right">
 										<div className="flex items-center justify-end gap-3">
@@ -344,14 +352,14 @@ export default function IntegrationsPage() {
 												type="button"
 												disabled={syncingId === integration.id}
 												onClick={() => handleSyncNow(integration.id)}
-												className="text-xs text-indigo-600 hover:text-indigo-800 disabled:opacity-50"
+												className="text-xs text-accent-soft hover:opacity-80 disabled:opacity-40 transition-opacity"
 											>
 												{syncingId === integration.id ? "Syncing…" : "Sync now"}
 											</button>
 											<button
 												type="button"
 												onClick={() => openEdit(integration)}
-												className="text-xs text-gray-500 hover:text-gray-700"
+												className="text-xs text-text-3 hover:text-text-1 transition-colors"
 											>
 												Edit
 											</button>
@@ -359,7 +367,7 @@ export default function IntegrationsPage() {
 												type="button"
 												disabled={deletingId === integration.id}
 												onClick={() => handleDelete(integration.id)}
-												className="text-xs text-red-600 hover:text-red-800 disabled:opacity-50"
+												className="text-xs text-danger hover:opacity-80 disabled:opacity-40 transition-opacity"
 											>
 												{deletingId === integration.id ? "Deleting…" : "Delete"}
 											</button>
@@ -370,7 +378,7 @@ export default function IntegrationsPage() {
 						})}
 						{integrations.length === 0 && (
 							<tr>
-								<td colSpan={6} className="px-4 py-6 text-center text-gray-400">
+								<td colSpan={8} className="px-4 py-6 text-center text-text-4">
 									No integrations yet.
 								</td>
 							</tr>

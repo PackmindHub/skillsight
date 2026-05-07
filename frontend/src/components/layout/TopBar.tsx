@@ -12,11 +12,11 @@ export function TopBar() {
 
 	return (
 		<header className="h-12 shrink-0 border-b border-edge bg-surface-900 flex items-center justify-end px-6 gap-4">
-			{user && <span className="text-sm text-slate-400">{user.email}</span>}
+			{user && <span className="text-sm text-text-3">{user.email}</span>}
 			<button
 				type="button"
 				onClick={handleLogout}
-				className="text-sm text-slate-500 hover:text-slate-200 transition-colors"
+				className="text-sm text-text-3 hover:text-text-1 transition-colors"
 			>
 				Logout
 			</button>

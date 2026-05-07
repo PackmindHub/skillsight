@@ -2,10 +2,11 @@ import { api } from "@/lib/api";
 import type { MarketplaceRef, SkillTableRow } from "@/types/api";
 import { useEffect, useState } from "react";
 
+// Marketplace status colors reference status tokens in index.css
 const MP_STATUS_STYLES: Record<string, string> = {
-	approved: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-	denied: "bg-red-500/20 text-red-300 border-red-500/30",
-	to_review: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+	approved: "bg-success/15 text-success border-success/30",
+	denied:   "bg-danger/15  text-danger  border-danger/30",
+	to_review: "bg-warning/15 text-warning border-warning/30",
 };
 
 function MarketplaceBadge({ mp }: { mp: MarketplaceRef }) {
@@ -17,23 +18,24 @@ function MarketplaceBadge({ mp }: { mp: MarketplaceRef }) {
 	);
 }
 
+// Trigger colors reference --color-accent-bright, --color-success, --color-warning in index.css
 const TRIGGERS: { key: keyof SkillTableRow; label: string; color: string }[] = [
-	{ key: "user_slash", label: "user-slash", color: "bg-indigo-500" },
-	{ key: "claude_proactive", label: "claude-proactive", color: "bg-emerald-500" },
-	{ key: "nested_skill", label: "nested-skill", color: "bg-amber-500" },
+	{ key: "user_slash", label: "user-slash", color: "bg-accent-bright" },
+	{ key: "claude_proactive", label: "claude-proactive", color: "bg-success" },
+	{ key: "nested_skill", label: "nested-skill", color: "bg-warning" },
 ];
 
 function ProgressCell({ count, total, color }: { count: number; total: number; color: string }) {
 	const pct = total > 0 ? (count / total) * 100 : 0;
 	return (
 		<td className="px-4 py-3 group/cell relative">
-			<div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
+			<div className="h-3 w-full bg-surface-700 rounded-full overflow-hidden">
 				<div
 					className={`h-full rounded-full ${color}`}
 					style={{ width: `${pct}%` }}
 				/>
 			</div>
-			<span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover/cell:block whitespace-nowrap rounded bg-gray-800 px-2 py-1 text-xs text-white z-10">
+			<span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover/cell:block whitespace-nowrap rounded bg-surface-800 border border-edge px-2 py-1 text-xs text-text-1 z-10">
 				{count} ({pct.toFixed(1)}%)
 			</span>
 		</td>
@@ -53,28 +55,28 @@ export default function SkillsTablePage() {
 			.finally(() => setLoading(false));
 	}, []);
 
-	if (loading) return <p className="text-gray-500 text-sm">Loading…</p>;
-	if (error) return <p className="text-red-600 text-sm">{error}</p>;
+	if (loading) return <p className="text-text-3 text-sm">Loading…</p>;
+	if (error) return <p className="text-danger text-sm">{error}</p>;
 
 	return (
 		<div className="space-y-4">
-			<h1 className="text-lg font-semibold text-gray-900">Skills</h1>
-			<p className="text-sm text-gray-500">All skills activated in the last 30 days, with trigger breakdown.</p>
+			<h1 className="text-lg font-semibold text-text-1">Skills</h1>
+			<p className="text-sm text-text-3">All skills activated in the last 30 days, with trigger breakdown.</p>
 
 			{rows.length === 0 ? (
-				<div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center text-gray-500 text-sm">
+				<div className="bg-surface-900 border border-edge rounded-lg p-6 text-center text-text-3 text-sm">
 					No skill activations recorded.
 				</div>
 			) : (
-				<div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+				<div className="bg-surface-900 rounded-lg border border-edge overflow-hidden">
 					<table className="w-full text-sm">
-						<thead className="bg-gray-50 border-b border-gray-200">
+						<thead className="bg-surface-800 border-b border-edge">
 							<tr>
-								<th className="text-left px-4 py-3 font-medium text-gray-600">Skill</th>
-								<th className="text-right px-4 py-3 font-medium text-gray-600">Total</th>
-								<th className="text-left px-4 py-3 font-medium text-gray-600">Marketplaces</th>
+								<th className="text-left px-4 py-3 font-medium text-text-3">Skill</th>
+								<th className="text-right px-4 py-3 font-medium text-text-3">Total</th>
+								<th className="text-left px-4 py-3 font-medium text-text-3">Marketplaces</th>
 								{TRIGGERS.map(({ key, label, color }) => (
-									<th key={key} className="px-4 py-3 font-medium text-gray-600 min-w-32">
+									<th key={key} className="px-4 py-3 font-medium text-text-3 min-w-32">
 										<div className="flex items-center gap-1.5">
 											<span className={`inline-block w-2.5 h-2.5 rounded-sm ${color}`} />
 											{label}
@@ -85,9 +87,9 @@ export default function SkillsTablePage() {
 						</thead>
 						<tbody>
 							{rows.map((row) => (
-								<tr key={row.skill_name} className="border-b border-gray-100 hover:bg-gray-50">
-									<td className="px-4 py-3 font-mono text-gray-900">{row.skill_name}</td>
-									<td className="px-4 py-3 text-right text-gray-700">{row.total}</td>
+								<tr key={row.skill_name} className="border-b border-edge-dim hover:bg-surface-800 transition-colors">
+									<td className="px-4 py-3 font-mono text-text-1">{row.skill_name}</td>
+									<td className="px-4 py-3 text-right text-text-2">{row.total}</td>
 									<td className="px-4 py-3">
 										{row.marketplaces.length > 0 ? (
 											<div className="flex flex-wrap gap-1">
@@ -96,7 +98,7 @@ export default function SkillsTablePage() {
 												))}
 											</div>
 										) : (
-											<span className="text-gray-400">—</span>
+											<span className="text-text-4">—</span>
 										)}
 									</td>
 									{TRIGGERS.map(({ key, color }) => (

@@ -123,4 +123,5 @@ export interface Integration {
 	lastSyncError: string | null;
 	createdAt: string;
 	updatedAt: string;
+	eventCount: number;
 }

@@ -40,6 +40,8 @@ export const events = pgTable(
 		eventName: varchar("event_name", { length: 255 }).notNull(),
 		timestamp: timestamp("timestamp").notNull(),
 		attributes: jsonb("attributes"),
+		source: varchar("source", { length: 20 }).notNull().default("direct"),
+		sourceIntegrationId: uuid("source_integration_id"),
 	},
 	(table) => [
 		index("events_event_name_ts_idx").on(table.eventName, table.timestamp),
@@ -84,6 +86,17 @@ export const integrations = pgTable("integrations", {
 	lastSyncError: text("last_sync_error"),
 	createdAt: timestamp("created_at").defaultNow().notNull(),
 	updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const plugins = pgTable("plugins", {
+	pluginName: varchar("plugin_name", { length: 255 }).primaryKey(),
+	marketplaceName: varchar("marketplace_name", { length: 255 }),
+	pluginVersion: varchar("plugin_version", { length: 100 }),
+	installTrigger: varchar("install_trigger", { length: 20 }),
+	marketplaceIsOfficial: boolean("marketplace_is_official"),
+	status: varchar("status", { length: 20 }).notNull().default("unknown"),
+	firstSeenAt: timestamp("first_seen_at").defaultNow().notNull(),
+	lastSeenAt: timestamp("last_seen_at").defaultNow().notNull(),
 });
 
 export const marketplaces = pgTable("marketplaces", {

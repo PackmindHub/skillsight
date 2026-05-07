@@ -1,26 +1,155 @@
 @import "tailwindcss";
 
+/* ============================================================
+   DESIGN TOKENS
+   All color values live here. Do not add hex/rgb/hsl values
+   directly in component files — use the tokens below.
+   ============================================================ */
+
 @theme {
+  /* Surfaces */
   --color-surface-950: #070812;
-  --color-surface-900: #0d1021;
-  --color-surface-800: #131729;
-  --color-surface-700: #1a2040;
-  --color-surface-600: #252d4a;
-  --color-edge-dim:    #1e2540;
-  --color-edge:        #252d4a;
+  --color-surface-900: #0f1a2e;  /* was #0d1021 — cards now visibly pop from page bg */
+  --color-surface-800: #172038;
+  --color-surface-700: #1d2845;
+  --color-surface-600: #263152;
+
+  /* Borders */
+  --color-edge-dim: #212b42;
+  --color-edge:     #2a3454;
+
+  /* Text scale */
+  --color-text-1: #e2e8f0;
+  --color-text-2: #94a3b8;
+  --color-text-3: #7e97b2;  /* was #64748b — lifted for readable section labels */
+  --color-text-4: #576e88;  /* was #3d4866 — lifted for readable placeholder text */
+
+  /* Accent — violet (primary) */
+  --color-accent:        #6d28d9;
+  --color-accent-bright: #8b5cf6;
+  --color-accent-soft:   #a78bfa;
+
+  /* Accent 2 — cyan (secondary highlights) */
+  --color-accent-2: #06b6d4;
+
+  /* Status */
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-danger:  #f87171;
+  --color-info:    #60a5fa;
+  --color-caution: #fb923c;
+  --color-neutral: #64748b;
 }
+
+/* ============================================================
+   BASE
+   ============================================================ */
 
 @layer base {
   :root { color-scheme: dark; }
+
   body {
-    background-color: #070812;
-    color: #e2e8f0;
+    background-color: var(--color-surface-950);
+    color: var(--color-text-1);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 }
 
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+
+/* Full-screen dot-grid background for auth pages */
 @utility dot-grid {
-  background-image: radial-gradient(circle, #252d4a 1px, transparent 1px);
+  background-image: radial-gradient(circle, var(--color-edge) 1px, transparent 1px);
   background-size: 24px 24px;
+}
+
+/* Primary gradient button — use alongside layout/size classes */
+@utility btn-primary {
+  background-image: linear-gradient(135deg, var(--color-accent), var(--color-accent-bright));
+  color: white;
+  transition: box-shadow 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background-image: linear-gradient(135deg, var(--color-accent-bright), var(--color-accent-soft));
+    box-shadow: 0 0 20px color-mix(in srgb, var(--color-accent-bright) 40%, transparent);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+/* Active nav item (sidebar + settings sub-nav) */
+@utility nav-active {
+  position: relative;
+  background: linear-gradient(to right, color-mix(in srgb, var(--color-accent-bright) 20%, transparent), transparent);
+  color: var(--color-accent-soft);
+  font-weight: 500;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.25rem;
+    bottom: 0.25rem;
+    width: 2px;
+    border-radius: 9999px;
+    background-color: var(--color-accent-bright);
+  }
+}
+
+/* Badge base — combine with a badge-* variant for color */
+@utility badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+@utility badge-success {
+  background-color: color-mix(in srgb, var(--color-success) 15%, transparent);
+  color: var(--color-success);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-success) 30%, transparent);
+}
+
+@utility badge-warning {
+  background-color: color-mix(in srgb, var(--color-warning) 15%, transparent);
+  color: var(--color-warning);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-warning) 30%, transparent);
+}
+
+@utility badge-danger {
+  background-color: color-mix(in srgb, var(--color-danger) 15%, transparent);
+  color: var(--color-danger);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-danger) 30%, transparent);
+}
+
+@utility badge-info {
+  background-color: color-mix(in srgb, var(--color-info) 15%, transparent);
+  color: var(--color-info);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-info) 30%, transparent);
+}
+
+@utility badge-accent {
+  background-color: color-mix(in srgb, var(--color-accent-bright) 15%, transparent);
+  color: var(--color-accent-soft);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent-bright) 30%, transparent);
+}
+
+@utility badge-caution {
+  background-color: color-mix(in srgb, var(--color-caution) 15%, transparent);
+  color: var(--color-caution);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-caution) 30%, transparent);
+}
+
+@utility badge-neutral {
+  background-color: color-mix(in srgb, var(--color-neutral) 15%, transparent);
+  color: var(--color-neutral);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-neutral) 30%, transparent);
 }

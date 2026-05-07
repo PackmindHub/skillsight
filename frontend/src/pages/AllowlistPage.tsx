@@ -51,12 +51,12 @@ export default function AllowlistPage() {
 		}
 	}
 
-	if (loading) return <p className="text-gray-500 text-sm">Loading…</p>;
+	if (loading) return <p className="text-text-3 text-sm">Loading…</p>;
 
 	return (
 		<div className="space-y-4">
-			<h1 className="text-lg font-semibold text-gray-900">Allowlist</h1>
-			<p className="text-sm text-gray-500">
+			<h1 className="text-lg font-semibold text-text-1">Allowlist</h1>
+			<p className="text-sm text-text-3">
 				Skills on this list are excluded from shadow detection.
 			</p>
 
@@ -66,46 +66,46 @@ export default function AllowlistPage() {
 					placeholder="skill-name"
 					value={newSkill}
 					onChange={(e) => setNewSkill(e.target.value)}
-					className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+					className="flex-1 rounded-md border border-edge bg-surface-800 px-3 py-2 text-sm text-text-1 placeholder:text-text-4 focus:outline-none focus:ring-2 focus:ring-accent-bright focus:border-accent-bright"
 				/>
 				<button
 					type="submit"
 					disabled={adding || !newSkill.trim()}
-					className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+					className="btn-primary rounded-md px-4 py-2 text-sm font-medium"
 				>
 					{adding ? "Adding…" : "Add skill"}
 				</button>
 			</form>
-			{error && <p className="text-sm text-red-600">{error}</p>}
+			{error && <p className="text-sm text-danger">{error}</p>}
 
-			<div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+			<div className="bg-surface-900 rounded-lg border border-edge overflow-hidden">
 				{skills.length === 0 ? (
-					<p className="px-4 py-6 text-center text-gray-400 text-sm">
+					<p className="px-4 py-6 text-center text-text-4 text-sm">
 						No skills on the allowlist yet.
 					</p>
 				) : (
 					<table className="w-full text-sm">
-						<thead className="bg-gray-50 border-b border-gray-200">
+						<thead className="bg-surface-800 border-b border-edge">
 							<tr>
-								<th className="text-left px-4 py-3 font-medium text-gray-600">Skill name</th>
-								<th className="text-left px-4 py-3 font-medium text-gray-600">Source</th>
-								<th className="text-left px-4 py-3 font-medium text-gray-600">Added</th>
-								<th className="text-left px-4 py-3 font-medium text-gray-600">By</th>
+								<th className="text-left px-4 py-3 font-medium text-text-3">Skill name</th>
+								<th className="text-left px-4 py-3 font-medium text-text-3">Source</th>
+								<th className="text-left px-4 py-3 font-medium text-text-3">Added</th>
+								<th className="text-left px-4 py-3 font-medium text-text-3">By</th>
 								<th className="px-4 py-3" />
 							</tr>
 						</thead>
 						<tbody>
 							{skills.map((skill) => (
-								<tr key={skill.skillName} className="border-b border-gray-100">
-									<td className="px-4 py-3 font-mono text-gray-900">{skill.skillName}</td>
-									<td className="px-4 py-3 text-gray-500">{skill.source ?? "—"}</td>
-									<td className="px-4 py-3 text-gray-500">{formatDate(skill.addedAt)}</td>
-									<td className="px-4 py-3 text-gray-500">{skill.addedBy ?? "—"}</td>
+								<tr key={skill.skillName} className="border-b border-edge-dim hover:bg-surface-800 transition-colors">
+									<td className="px-4 py-3 font-mono text-text-1">{skill.skillName}</td>
+									<td className="px-4 py-3 text-text-3">{skill.source ?? "—"}</td>
+									<td className="px-4 py-3 text-text-3">{formatDate(skill.addedAt)}</td>
+									<td className="px-4 py-3 text-text-3">{skill.addedBy ?? "—"}</td>
 									<td className="px-4 py-3 text-right">
 										<button
 											type="button"
 											onClick={() => handleRemove(skill.skillName)}
-											className="text-xs text-red-600 hover:text-red-800"
+											className="text-xs text-danger hover:opacity-80 transition-opacity"
 										>
 											Remove
 										</button>

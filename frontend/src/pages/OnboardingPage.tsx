@@ -49,40 +49,42 @@ export default function OnboardingPage() {
 	}
 
 	return (
-		<div className="min-h-screen flex items-center justify-center bg-gray-50">
-			<div className="w-full max-w-2xl bg-white rounded-xl shadow-sm border border-gray-200 p-8 space-y-6">
-				<h1 className="text-xl font-semibold text-gray-900">Welcome — Setup Claude Code</h1>
-				<p className="text-sm text-gray-600">
+		<div className="min-h-screen flex items-center justify-center bg-surface-950 dot-grid">
+			<div className="w-full max-w-2xl bg-surface-700 rounded-xl shadow-2xl shadow-black/60 border border-edge p-8 space-y-6">
+				<div>
+					<span className="text-accent-soft text-2xl leading-none">◈</span>
+					<h1 className="mt-3 text-xl font-semibold text-text-1">Welcome — Setup Claude Code</h1>
+				</div>
+				<p className="text-sm text-text-2">
 					Add this block to your team's{" "}
-					<code className="bg-gray-100 px-1 rounded">settings.json</code> to start sending telemetry
-					to this instance. The token has been generated and saved.
+					<code className="bg-surface-800 text-accent-soft border border-edge-dim px-1 rounded text-[11px]">settings.json</code>{" "}
+					to start sending telemetry to this instance. The token has been generated and saved.
 				</p>
 
-				{error && <p className="text-sm text-red-600">Failed to generate token: {error}</p>}
+				{error && <p className="text-sm text-danger">Failed to generate token: {error}</p>}
 
 				<div className="relative">
-					<pre className="rounded-lg bg-gray-900 text-gray-100 text-xs p-4 overflow-x-auto font-mono">
+					<pre className="rounded-lg bg-surface-950 text-text-2 text-xs p-4 overflow-x-auto font-mono border border-edge">
 						{envBlock}
 					</pre>
 					<button
 						type="button"
 						onClick={copy}
-						className="absolute top-3 right-3 text-xs bg-gray-700 hover:bg-gray-600 text-white px-2 py-1 rounded"
+						className="absolute top-3 right-3 text-xs bg-surface-600 hover:bg-surface-700 text-text-2 px-2 py-1 rounded border border-edge transition-colors"
 					>
 						{copied ? "Copied!" : "Copy"}
 					</button>
 				</div>
 
-				<p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
-					The token is shown here only once. If you lose it, generate a new one from the Tokens
-					page.
+				<p className="text-xs text-warning bg-warning/10 border border-warning/25 rounded-md px-3 py-2">
+					The token is shown here only once. If you lose it, generate a new one from the Tokens page.
 				</p>
 
 				<button
 					type="button"
 					onClick={finish}
 					disabled={!jwt}
-					className="w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+					className="btn-primary w-full rounded-md px-4 py-2 text-sm font-medium"
 				>
 					Go to Dashboard
 				</button>

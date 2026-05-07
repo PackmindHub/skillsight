@@ -3,6 +3,14 @@ import { formatDate, formatDateTime } from "@/lib/utils";
 import type { Token } from "@/types/api";
 import { type FormEvent, useEffect, useState } from "react";
 
+// Badge classes use semantic utilities from index.css
+const STATUS_BADGE: Record<string, string> = {
+	active:   "badge badge-success",
+	expiring: "badge badge-warning",
+	expired:  "badge badge-neutral",
+	revoked:  "badge badge-danger",
+};
+
 export default function TokensPage() {
 	const [tokens, setTokens] = useState<Token[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -54,50 +62,50 @@ export default function TokensPage() {
 		setTimeout(() => setJwtCopied(false), 2000);
 	}
 
-	if (loading) return <p className="text-gray-500 text-sm">Loading…</p>;
+	if (loading) return <p className="text-text-3 text-sm">Loading…</p>;
 
 	return (
 		<div className="space-y-4">
 			<div className="flex items-center justify-between">
-				<h1 className="text-lg font-semibold text-gray-900">Ingestion Tokens</h1>
+				<h1 className="text-lg font-semibold text-text-1">Ingestion Tokens</h1>
 				<button
 					type="button"
 					onClick={() => setShowCreate(true)}
-					className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+					className="btn-primary rounded-md px-4 py-2 text-sm font-medium"
 				>
 					Create token
 				</button>
 			</div>
 
 			{expiringSoon.length > 0 && (
-				<div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm text-amber-800">
+				<div className="bg-warning/10 border border-warning/25 rounded-lg px-4 py-3 text-sm text-warning">
 					{expiringSoon.length} token{expiringSoon.length > 1 ? "s" : ""} expiring within 7 days:{" "}
 					{expiringSoon.map((t) => t.name).join(", ")}
 				</div>
 			)}
 
 			{newJwt && (
-				<div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-2">
-					<p className="text-sm font-medium text-green-800">
+				<div className="bg-success/10 border border-success/25 rounded-lg p-4 space-y-2">
+					<p className="text-sm font-medium text-success">
 						Token created — copy it now, it won't be shown again.
 					</p>
 					<div className="flex gap-2">
 						<input
 							readOnly
 							value={newJwt}
-							className="flex-1 rounded border border-green-300 bg-white px-3 py-1.5 text-xs font-mono text-gray-700"
+							className="flex-1 rounded border border-edge bg-surface-800 px-3 py-1.5 text-xs font-mono text-text-2"
 						/>
 						<button
 							type="button"
 							onClick={copyJwt}
-							className="text-xs bg-green-700 text-white px-3 py-1 rounded hover:bg-green-800"
+							className="text-xs bg-success/20 text-success border border-success/30 px-3 py-1 rounded hover:bg-success/30 transition-colors"
 						>
 							{jwtCopied ? "Copied!" : "Copy"}
 						</button>
 						<button
 							type="button"
 							onClick={() => setNewJwt(null)}
-							className="text-xs text-gray-400 hover:text-gray-600"
+							className="text-xs text-text-3 hover:text-text-1 transition-colors"
 						>
 							Dismiss
 						</button>
@@ -106,12 +114,12 @@ export default function TokensPage() {
 			)}
 
 			{showCreate && (
-				<div className="bg-white rounded-lg border border-gray-200 p-4">
-					<h2 className="text-sm font-medium text-gray-900 mb-3">New token</h2>
+				<div className="bg-surface-700 rounded-lg border border-edge p-4">
+					<h2 className="text-sm font-medium text-text-1 mb-3">New token</h2>
 					<form onSubmit={handleCreate} className="space-y-3">
 						<div className="grid grid-cols-2 gap-3">
 							<div>
-								<label htmlFor="token-name" className="block text-xs text-gray-500 mb-1">
+								<label htmlFor="token-name" className="block text-xs text-text-3 mb-1">
 									Name *
 								</label>
 								<input
@@ -119,23 +127,23 @@ export default function TokensPage() {
 									required
 									value={form.name}
 									onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-									className="w-full rounded border border-gray-300 px-3 py-1.5 text-sm"
+									className="w-full rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 focus:outline-none focus:ring-2 focus:ring-accent-bright"
 								/>
 							</div>
 							<div>
-								<label htmlFor="token-user-label" className="block text-xs text-gray-500 mb-1">
+								<label htmlFor="token-user-label" className="block text-xs text-text-3 mb-1">
 									User / Team label
 								</label>
 								<input
 									id="token-user-label"
 									value={form.userLabel}
 									onChange={(e) => setForm((f) => ({ ...f, userLabel: e.target.value }))}
-									className="w-full rounded border border-gray-300 px-3 py-1.5 text-sm"
+									className="w-full rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 focus:outline-none focus:ring-2 focus:ring-accent-bright"
 								/>
 							</div>
 						</div>
 						<div>
-							<label htmlFor="token-expires-at" className="block text-xs text-gray-500 mb-1">
+							<label htmlFor="token-expires-at" className="block text-xs text-text-3 mb-1">
 								Expires at (leave blank = no expiry)
 							</label>
 							<input
@@ -143,21 +151,21 @@ export default function TokensPage() {
 								type="datetime-local"
 								value={form.expiresAt}
 								onChange={(e) => setForm((f) => ({ ...f, expiresAt: e.target.value }))}
-								className="rounded border border-gray-300 px-3 py-1.5 text-sm"
+								className="rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 focus:outline-none focus:ring-2 focus:ring-accent-bright"
 							/>
 						</div>
 						<div className="flex gap-2">
 							<button
 								type="submit"
 								disabled={creating}
-								className="rounded bg-indigo-600 px-3 py-1.5 text-sm text-white hover:bg-indigo-700 disabled:opacity-50"
+								className="btn-primary rounded px-3 py-1.5 text-sm"
 							>
 								{creating ? "Creating…" : "Create"}
 							</button>
 							<button
 								type="button"
 								onClick={() => setShowCreate(false)}
-								className="rounded border border-gray-300 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50"
+								className="rounded border border-edge px-3 py-1.5 text-sm text-text-3 hover:bg-surface-800 hover:text-text-1 transition-colors"
 							>
 								Cancel
 							</button>
@@ -166,15 +174,15 @@ export default function TokensPage() {
 				</div>
 			)}
 
-			<div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+			<div className="bg-surface-900 rounded-lg border border-edge overflow-hidden">
 				<table className="w-full text-sm">
-					<thead className="bg-gray-50 border-b border-gray-200">
+					<thead className="bg-surface-800 border-b border-edge">
 						<tr>
-							<th className="text-left px-4 py-3 font-medium text-gray-600">Name</th>
-							<th className="text-left px-4 py-3 font-medium text-gray-600">Label</th>
-							<th className="text-left px-4 py-3 font-medium text-gray-600">Created</th>
-							<th className="text-left px-4 py-3 font-medium text-gray-600">Expires</th>
-							<th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
+							<th className="text-left px-4 py-3 font-medium text-text-3">Name</th>
+							<th className="text-left px-4 py-3 font-medium text-text-3">Label</th>
+							<th className="text-left px-4 py-3 font-medium text-text-3">Created</th>
+							<th className="text-left px-4 py-3 font-medium text-text-3">Expires</th>
+							<th className="text-left px-4 py-3 font-medium text-text-3">Status</th>
 							<th className="px-4 py-3" />
 						</tr>
 					</thead>
@@ -189,28 +197,20 @@ export default function TokensPage() {
 									: token.expiresSoon
 										? "expiring"
 										: "active";
-							const statusColor = {
-								active: "bg-green-100 text-green-700",
-								expiring: "bg-amber-100 text-amber-700",
-								expired: "bg-gray-100 text-gray-500",
-								revoked: "bg-red-100 text-red-600",
-							}[status];
 
 							return (
 								<tr
 									key={token.id}
-									className={`border-b border-gray-100 ${isRevoked ? "opacity-50" : ""}`}
+									className={`border-b border-edge-dim transition-colors ${isRevoked ? "opacity-40" : "hover:bg-surface-800"}`}
 								>
-									<td className="px-4 py-3 font-medium text-gray-900">{token.name}</td>
-									<td className="px-4 py-3 text-gray-500">{token.userLabel ?? "—"}</td>
-									<td className="px-4 py-3 text-gray-500">{formatDateTime(token.createdAt)}</td>
-									<td className="px-4 py-3 text-gray-500">
+									<td className="px-4 py-3 font-medium text-text-1">{token.name}</td>
+									<td className="px-4 py-3 text-text-3">{token.userLabel ?? "—"}</td>
+									<td className="px-4 py-3 text-text-3">{formatDateTime(token.createdAt)}</td>
+									<td className="px-4 py-3 text-text-3">
 										{token.expiresAt ? formatDate(token.expiresAt) : "Never"}
 									</td>
 									<td className="px-4 py-3">
-										<span
-											className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${statusColor}`}
-										>
+										<span className={STATUS_BADGE[status]}>
 											{status}
 										</span>
 									</td>
@@ -219,7 +219,7 @@ export default function TokensPage() {
 											<button
 												type="button"
 												onClick={() => handleRevoke(token.id)}
-												className="text-xs text-red-600 hover:text-red-800"
+												className="text-xs text-danger hover:opacity-80 transition-opacity"
 											>
 												Revoke
 											</button>
@@ -230,7 +230,7 @@ export default function TokensPage() {
 						})}
 						{tokens.length === 0 && (
 							<tr>
-								<td colSpan={6} className="px-4 py-6 text-center text-gray-400">
+								<td colSpan={6} className="px-4 py-6 text-center text-text-4">
 									No tokens yet.
 								</td>
 							</tr>
