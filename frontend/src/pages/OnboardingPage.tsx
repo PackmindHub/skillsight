@@ -1,17 +1,21 @@
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 
 export default function OnboardingPage() {
 	const navigate = useNavigate();
-	const { markOnboardingComplete } = useAuth();
+	const { firstLogin, markOnboardingComplete } = useAuth();
 	const [baseUrl, setBaseUrl] = useState("https://your-domain.com");
 	const [jwt, setJwt] = useState<string | null>(null);
 	const [copied, setCopied] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const tokenCreated = useRef(false);
 
 	useEffect(() => {
+		if (!firstLogin || tokenCreated.current) return;
+		tokenCreated.current = true;
+
 		const expiresAt = new Date();
 		expiresAt.setFullYear(expiresAt.getFullYear() + 1);
 
@@ -22,7 +26,9 @@ export default function OnboardingPage() {
 				.then((t) => setJwt(t.jwt))
 				.catch((e) => setError(String(e))),
 		]).catch(() => {});
-	}, []);
+	}, [firstLogin]);
+
+	if (!firstLogin) return <Navigate to="/dashboard" replace />;
 
 	const envBlock = `{
   "env": {

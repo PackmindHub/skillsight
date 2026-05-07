@@ -6,6 +6,9 @@ import type { NewEvent } from "@/domain/event";
 import { decrypt } from "@/infrastructure/crypto/encrypt";
 import { parseOtlpBody } from "@/parsers/otlp-parser";
 
+// Must match the limit used in LokiHttpGateway
+const LOKI_PAGE_LIMIT = 5000;
+
 interface SyncDeps {
 	integrations: IIntegrationRepository;
 	events: IEventRepository;
@@ -17,8 +20,7 @@ export async function syncIntegration(
 	integration: IntegrationWithSecret,
 ): Promise<{ syncedAt: Date | null; error: string | null }> {
 	const now = new Date();
-	const from =
-		integration.lastSyncAt ?? new Date(now.getTime() - integration.syncIntervalMs);
+	const from = integration.lastSyncAt ?? null;
 
 	const password =
 		integration.authType === "basic" && integration.authPasswordEncrypted
@@ -40,22 +42,41 @@ export async function syncIntegration(
 
 		await deps.events.insertMany(parsedEvents);
 
+		// If we hit the page limit there may be more data behind us; advance to the
+		// last received event's timestamp (+1 ms) so the next scheduled run picks up
+		// where we left off instead of jumping to now and leaving a gap.
+		const hitLimit = streams.reduce((n, s) => n + s.values.length, 0) >= LOKI_PAGE_LIMIT;
+		const syncedAt = hitLimit ? lastEventTimestamp(streams) ?? now : now;
+
 		await deps.integrations.updateSyncStatus(integration.id, {
-			lastSyncAt: now,
+			lastSyncAt: syncedAt,
 			lastSyncError: null,
 		});
 
 		console.log(
-			`[loki-sync] ${integration.name}: synced ${parsedEvents.length} events from ${from.toISOString()} to ${now.toISOString()}`,
+			`[loki-sync] ${integration.name}: synced ${parsedEvents.length} events from ${from?.toISOString() ?? "beginning"} to ${syncedAt.toISOString()}${hitLimit ? " (more pages pending)" : ""}`,
 		);
 
-		return { syncedAt: now, error: null };
+		return { syncedAt, error: null };
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
 		await deps.integrations.updateSyncStatus(integration.id, { lastSyncError: message });
 		console.error(`[loki-sync] ${integration.name}: sync failed — ${message}`);
 		return { syncedAt: null, error: message };
 	}
+}
+
+function lastEventTimestamp(streams: LokiStreamResult[]): Date | null {
+	let maxNs = 0n;
+	for (const { values } of streams) {
+		for (const [tsNs] of values) {
+			const ns = BigInt(tsNs);
+			if (ns > maxNs) maxNs = ns;
+		}
+	}
+	if (maxNs === 0n) return null;
+	// +1 ms so the boundary event is not re-fetched on the next page
+	return new Date(Number(maxNs / 1_000_000n) + 1);
 }
 
 function parseStreams(streams: LokiStreamResult[], integrationId: string): NewEvent[] {
@@ -76,23 +97,18 @@ function parseStreams(streams: LokiStreamResult[], integrationId: string): NewEv
 			}
 
 			if (parsed.length > 0) {
+				const allowed = parsed.filter(
+					(e) =>
+						e.eventName === "claude_code.skill_activated" ||
+						e.eventName === "claude_code.plugin_installed",
+				);
 				results.push(
-					...parsed.map((e) => ({
+					...allowed.map((e) => ({
 						...e,
 						source: "integration" as const,
 						sourceIntegrationId: integrationId,
 					})),
 				);
-			} else {
-				results.push({
-					userEmail: null,
-					sessionId: null,
-					eventName: "claude_code.loki_raw",
-					timestamp,
-					attributes: { raw: logLine, labels: stream, integration_id: integrationId },
-					source: "integration" as const,
-					sourceIntegrationId: integrationId,
-				});
 			}
 		}
 	}

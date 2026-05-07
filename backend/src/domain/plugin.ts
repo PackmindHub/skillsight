@@ -1,4 +1,4 @@
-export type PluginStatus = "unknown" | "to_review" | "approved";
+export type PluginStatus = "unknown" | "to_review" | "approved" | "removed";
 
 export interface Plugin {
 	pluginName: string;

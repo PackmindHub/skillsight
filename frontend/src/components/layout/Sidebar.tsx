@@ -5,8 +5,7 @@ const mainLinks = [
 	{ to: "/dashboard", label: "Dashboard" },
 	{ to: "/skills", label: "Skills" },
 	{ to: "/marketplaces", label: "Marketplaces" },
-	{ to: "/shadow", label: "Shadow Detection" },
-	{ to: "/allowlist", label: "Allowlist" },
+	{ to: "/plugins", label: "Plugins" },
 	{ to: "/tokens", label: "Tokens" },
 	{ to: "/audit", label: "Audit Log" },
 ];

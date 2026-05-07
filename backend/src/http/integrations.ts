@@ -7,7 +7,9 @@ import { listIntegrations } from "@/application/integrations/list-integrations";
 import { createIntegration } from "@/application/integrations/create-integration";
 import { updateIntegration } from "@/application/integrations/update-integration";
 import { deleteIntegration } from "@/application/integrations/delete-integration";
+import { clearIntegrationData } from "@/application/integrations/clear-integration-data";
 import { syncIntegration } from "@/application/integrations/sync-integration";
+import { previewIntegration } from "@/application/integrations/preview-integration";
 import {
 	scheduleIntegration,
 	rescheduleIntegration,
@@ -20,13 +22,22 @@ const createSchema = z.object({
 	authType: z.enum(["none", "basic"]),
 	authUsername: z.string().max(255).optional().nullable(),
 	authPassword: z.string().optional().nullable(),
-	lokiQuery: z.string().max(500).default('{job="claude-code"}'),
+	lokiQuery: z.string().max(500).default('{service_name="claude-code"} | event_name=~`skill_activated|plugin_installed`'),
 	syncIntervalMs: z.number().int().min(5000).default(30000),
 	enabled: z.boolean().default(true),
 });
 
 const updateSchema = createSchema.partial().omit({ authPassword: true }).extend({
 	authPassword: z.string().optional().nullable(),
+});
+
+const previewSchema = z.object({
+	url: z.string().url().max(1000),
+	authType: z.enum(["none", "basic"]),
+	authUsername: z.string().max(255).optional().nullable(),
+	authPassword: z.string().optional().nullable(),
+	lokiQuery: z.string().max(500),
+	integrationId: z.string().uuid().optional().nullable(),
 });
 
 export function createIntegrationsRoute(
@@ -43,6 +54,15 @@ export function createIntegrationsRoute(
 		return c.json(await listIntegrations(deps));
 	});
 
+	route.post("/preview", async (c) => {
+		const body = previewSchema.parse(await c.req.json());
+		const results = await previewIntegration(
+			{ integrations: deps.integrations, loki: deps.loki },
+			body,
+		);
+		return c.json(results);
+	});
+
 	route.post("/", async (c) => {
 		const body = createSchema.parse(await c.req.json());
 		const result = await createIntegration(
@@ -51,7 +71,7 @@ export function createIntegrationsRoute(
 		);
 		const integration = await deps.integrations.findById(result.id);
 		if (integration) scheduleIntegration(integration, makeSyncFn);
-		return c.json(result, 201);
+		return c.json({ ...result, eventCount: 0 }, 201);
 	});
 
 	route.put("/:id", async (c) => {
@@ -63,7 +83,7 @@ export function createIntegrationsRoute(
 		);
 		if ("error" in result) return c.json({ error: "Not found" }, 404);
 		await rescheduleIntegration(id, deps.integrations, makeSyncFn);
-		return c.json(result);
+		return c.json({ ...result, eventCount: 0 });
 	});
 
 	route.delete("/:id", async (c) => {
@@ -74,6 +94,24 @@ export function createIntegrationsRoute(
 			{ id, actorEmail: c.get("user").email },
 		);
 		if (result && "error" in result) return c.json({ error: "Not found" }, 404);
+		return c.body(null, 204);
+	});
+
+	route.delete("/:id/data", async (c) => {
+		const id = c.req.param("id");
+		const result = await clearIntegrationData(
+			{ integrations: deps.integrations, events: deps.events, audit: deps.audit },
+			{ id, actorEmail: c.get("user").email },
+		);
+		if (result && "error" in result) return c.json({ error: "Not found" }, 404);
+		return c.body(null, 204);
+	});
+
+	route.post("/:id/reset-cursor", async (c) => {
+		const id = c.req.param("id");
+		const integration = await deps.integrations.findById(id);
+		if (!integration) return c.json({ error: "Not found" }, 404);
+		await deps.integrations.updateSyncStatus(id, { lastSyncAt: null, lastSyncError: null });
 		return c.body(null, 204);
 	});
 

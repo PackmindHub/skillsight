@@ -3,7 +3,7 @@ import type { AppDeps } from "@/bootstrap/compose";
 import { ingestionAuth } from "@/middleware/ingestion-auth";
 import { ingestEvents } from "@/application/telemetry/ingest-events";
 
-export function createTelemetryRoute(deps: Pick<AppDeps, "events" | "marketplaces" | "tokens">) {
+export function createTelemetryRoute(deps: Pick<AppDeps, "events" | "marketplaces" | "plugins" | "tokens">) {
 	const route = new Hono();
 
 	route.post("/v1/logs", ingestionAuth(deps.tokens), async (c) => {

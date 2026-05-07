@@ -103,7 +103,7 @@ export class DrizzleIntegrationRepository implements IIntegrationRepository {
 
 	async updateSyncStatus(
 		id: string,
-		status: { lastSyncAt?: Date; lastSyncError?: string | null },
+		status: { lastSyncAt?: Date | null; lastSyncError?: string | null },
 	): Promise<void> {
 		const now = new Date();
 		await this.db

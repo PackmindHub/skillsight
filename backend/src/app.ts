@@ -10,11 +10,13 @@ import { createTelemetryRoute } from "@/http/telemetry";
 import { createAuthRoute } from "@/http/auth";
 import { createTokensRoute } from "@/http/tokens";
 import { createUsageRoute } from "@/http/skills/usage";
-import { createShadowRoute } from "@/http/skills/shadow";
-import { createAllowedRoute } from "@/http/skills/allowed";
 import { createAuditRoute } from "@/http/audit";
 import { createIntegrationsRoute } from "@/http/integrations";
 import { createMarketplacesRoute } from "@/http/marketplaces";
+import { createPluginsRoute } from "@/http/plugins";
+import { createMarketplaceSourcesRoute } from "@/http/marketplace-sources";
+import { eventBus } from "@/lib/event-bus";
+import { syncPluginStatuses } from "@/application/plugins/sync-plugin-statuses";
 
 const STATIC_ROOT =
 	process.env.NODE_ENV === "production"
@@ -23,6 +25,11 @@ const STATIC_ROOT =
 
 export function createApp() {
 	const deps = buildDeps();
+
+	eventBus.onMarketplaceStatusChanged(({ name, newStatus }) => {
+		syncPluginStatuses(deps, name, newStatus).catch(console.error);
+	});
+
 	const app = new Hono();
 
 	app.use("*", logger());
@@ -43,11 +50,11 @@ export function createApp() {
 	app.route("/api/auth", createAuthRoute(deps));
 	app.route("/api/tokens", createTokensRoute(deps));
 	app.route("/api/skills/usage", createUsageRoute(deps));
-	app.route("/api/skills/shadow", createShadowRoute(deps));
-	app.route("/api/skills/allowed", createAllowedRoute(deps));
 	app.route("/api/audit", createAuditRoute(deps));
 	app.route("/api/integrations", createIntegrationsRoute(deps));
 	app.route("/api/marketplaces", createMarketplacesRoute(deps));
+	app.route("/api/plugins", createPluginsRoute(deps));
+	app.route("/api/marketplace-sources", createMarketplaceSourcesRoute(deps));
 	app.get("/api/config", (c) => c.json({ baseUrl: config.PUBLIC_BASE_URL }));
 
 	// Static files (frontend build)

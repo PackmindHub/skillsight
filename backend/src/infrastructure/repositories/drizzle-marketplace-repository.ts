@@ -16,7 +16,9 @@ export class DrizzleMarketplaceRepository implements IMarketplaceRepository {
 			  m.description,
 			  m.first_seen_at AS "firstSeenAt",
 			  m.last_seen_at AS "lastSeenAt",
-			  COALESCE(stats.count, 0)::int AS "activationCount"
+			  COALESCE(stats.count, 0)::int AS "activationCount",
+			  COALESCE(installs.count, 0)::int AS "pluginInstallCount",
+			  COALESCE(linked.count, 0)::int AS "skillActivatedLinkedCount"
 			FROM marketplaces m
 			LEFT JOIN (
 			  SELECT attributes->>'marketplace.name' AS mp_name, COUNT(*)::int AS count
@@ -26,6 +28,22 @@ export class DrizzleMarketplaceRepository implements IMarketplaceRepository {
 			    AND attributes->>'marketplace.name' IS NOT NULL
 			  GROUP BY mp_name
 			) stats ON stats.mp_name = m.name
+			LEFT JOIN (
+			  SELECT attributes->>'marketplace.name' AS mp_name, COUNT(*)::int AS count
+			  FROM events
+			  WHERE event_name = 'claude_code.plugin_installed'
+			    AND attributes->>'marketplace.name' IS NOT NULL
+			  GROUP BY mp_name
+			) installs ON installs.mp_name = m.name
+			LEFT JOIN (
+			  SELECT pl.marketplace_name, COUNT(*)::int AS count
+			  FROM events e
+			  JOIN plugin_skills ps ON ps.skill_name = e.attributes->>'skill.name'
+			  JOIN plugins pl ON pl.plugin_name = ps.plugin_name
+			  WHERE e.event_name = 'claude_code.skill_activated'
+			    AND e.attributes->>'skill.name' IS NOT NULL
+			  GROUP BY pl.marketplace_name
+			) linked ON linked.marketplace_name = m.name
 			ORDER BY "activationCount" DESC, m.name
 		`);
 		return rows as unknown as MarketplaceWithStats[];
@@ -69,6 +87,32 @@ export class DrizzleMarketplaceRepository implements IMarketplaceRepository {
 			firstSeenAt: row.firstSeenAt,
 			lastSeenAt: row.lastSeenAt,
 		};
+	}
+
+	async upsertFromImport(data: {
+		name: string;
+		url?: string | null;
+		description?: string | null;
+	}): Promise<void> {
+		const now = new Date();
+		await this.db
+			.insert(marketplaces)
+			.values({
+				name: data.name,
+				status: "approved",
+				url: data.url ?? null,
+				description: data.description ?? null,
+				firstSeenAt: now,
+				lastSeenAt: now,
+			})
+			.onConflictDoUpdate({
+				target: marketplaces.name,
+				set: {
+					url: data.url ?? null,
+					description: data.description ?? null,
+					lastSeenAt: now,
+				},
+			});
 	}
 
 	async upsertSeen(names: string[]): Promise<void> {

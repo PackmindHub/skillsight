@@ -1,36 +1,10 @@
-import { eq, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import type { AppDb } from "@/db/client";
-import { allowedSkills } from "@/db/schema";
 import type { ISkillRepository } from "@/domain/ports/skill-repository";
-import type { AllowedSkill, ShadowSkill, SkillTableRow } from "@/domain/skill";
+import type { SkillTableRow } from "@/domain/skill";
 
 export class DrizzleSkillRepository implements ISkillRepository {
 	constructor(private readonly db: AppDb) {}
-
-	async listAllowed(): Promise<AllowedSkill[]> {
-		return this.db.select().from(allowedSkills).orderBy(allowedSkills.skillName);
-	}
-
-	async addAllowed(data: {
-		skillName: string;
-		source: string;
-		addedBy: string;
-	}): Promise<AllowedSkill | null> {
-		const [row] = await this.db
-			.insert(allowedSkills)
-			.values(data)
-			.onConflictDoNothing()
-			.returning();
-		return row ?? null;
-	}
-
-	async removeAllowed(skillName: string): Promise<AllowedSkill | null> {
-		const [deleted] = await this.db
-			.delete(allowedSkills)
-			.where(eq(allowedSkills.skillName, skillName))
-			.returning();
-		return deleted ?? null;
-	}
 
 	async getTopSkills(days: number): Promise<Array<{ skillName: string; count: number }>> {
 		const rows = await this.db.execute(sql`
@@ -124,69 +98,51 @@ export class DrizzleSkillRepository implements ISkillRepository {
 
 	async getSkillsTable(days: number): Promise<SkillTableRow[]> {
 		const rows = await this.db.execute(sql`
+			WITH skill_plugin_status AS (
+			  SELECT
+			    ps.skill_name,
+			    BOOL_AND(p.status = 'removed') AS all_removed
+			  FROM plugin_skills ps
+			  JOIN plugins p ON p.plugin_name = ps.plugin_name
+			  GROUP BY ps.skill_name
+			)
 			SELECT
-			  attributes->>'skill.name' AS skill_name,
+			  e.attributes->>'skill.name' AS skill_name,
+			  MIN(e.attributes->>'skill.source') AS skill_source,
 			  COUNT(*)::int AS total,
-			  COUNT(*) FILTER (WHERE attributes->>'invocation_trigger' = 'user-slash')::int AS user_slash,
-			  COUNT(*) FILTER (WHERE attributes->>'invocation_trigger' = 'claude-proactive')::int AS claude_proactive,
-			  COUNT(*) FILTER (WHERE attributes->>'invocation_trigger' = 'nested-skill')::int AS nested_skill,
-			  array_remove(array_agg(DISTINCT attributes->>'marketplace.name'), NULL) AS marketplace_names
-			FROM events
-			WHERE event_name = 'claude_code.skill_activated'
-			  AND timestamp >= NOW() - (${days} || ' days')::interval
-			  AND attributes->>'skill.name' IS NOT NULL
-			GROUP BY 1
+			  COUNT(*) FILTER (WHERE e.attributes->>'invocation_trigger' = 'user-slash')::int AS user_slash,
+			  COUNT(*) FILTER (WHERE e.attributes->>'invocation_trigger' = 'claude-proactive')::int AS claude_proactive,
+			  COUNT(*) FILTER (WHERE e.attributes->>'invocation_trigger' = 'nested-skill')::int AS nested_skill,
+			  array_remove(array_agg(DISTINCT e.attributes->>'marketplace.name'), NULL) AS marketplace_names,
+			  CASE WHEN sps.all_removed IS TRUE THEN 'removed' ELSE NULL END AS status
+			FROM events e
+			LEFT JOIN skill_plugin_status sps ON sps.skill_name = e.attributes->>'skill.name'
+			WHERE e.event_name = 'claude_code.skill_activated'
+			  AND e.timestamp >= NOW() - (${days} || ' days')::interval
+			  AND e.attributes->>'skill.name' IS NOT NULL
+			GROUP BY 1, sps.all_removed
 			ORDER BY total DESC
 		`);
 		return (
 			rows as unknown as Array<{
 				skill_name: string;
+				skill_source: string | null;
 				total: number;
 				user_slash: number;
 				claude_proactive: number;
 				nested_skill: number;
 				marketplace_names: string[];
+				status: "removed" | null;
 			}>
 		).map((r) => ({
 			skillName: r.skill_name,
+			skillSource: r.skill_source ?? null,
 			total: r.total,
 			userSlash: r.user_slash,
 			claudeProactive: r.claude_proactive,
 			nestedSkill: r.nested_skill,
 			marketplaceNames: r.marketplace_names ?? [],
-		}));
-	}
-
-	async getShadowSkills(): Promise<ShadowSkill[]> {
-		const rows = await this.db.execute(sql`
-			SELECT
-			  e.attributes->>'skill.name' AS skill_name,
-			  COUNT(*)::int AS count,
-			  MIN(e.timestamp) AS first_seen,
-			  MAX(e.timestamp) AS last_seen,
-			  COUNT(DISTINCT e.user_email)::int AS distinct_users
-			FROM events e
-			LEFT JOIN allowed_skills a ON a.skill_name = e.attributes->>'skill.name'
-			WHERE e.event_name = 'claude_code.skill_activated'
-			  AND e.attributes->>'skill.name' IS NOT NULL
-			  AND a.skill_name IS NULL
-			GROUP BY 1
-			ORDER BY count DESC
-		`);
-		return (
-			rows as unknown as Array<{
-				skill_name: string;
-				count: number;
-				first_seen: string;
-				last_seen: string;
-				distinct_users: number;
-			}>
-		).map((r) => ({
-			skillName: r.skill_name,
-			count: r.count,
-			firstSeen: r.first_seen,
-			lastSeen: r.last_seen,
-			distinctUsers: r.distinct_users,
+			status: r.status ?? null,
 		}));
 	}
 }

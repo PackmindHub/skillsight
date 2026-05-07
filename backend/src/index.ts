@@ -8,6 +8,8 @@ import { createApp } from "@/app";
 import { config } from "@/config/env";
 import { startScheduler } from "@/infrastructure/scheduler/sync-scheduler";
 import { syncIntegration } from "@/application/integrations/sync-integration";
+import { startMarketplaceSourceScheduler } from "@/infrastructure/scheduler/marketplace-source-scheduler";
+import { syncMarketplaceSource } from "@/application/marketplace-sources/sync-marketplace-source";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -31,6 +33,18 @@ async function main() {
 			syncIntegration(
 				{ integrations: deps.integrations, events: deps.events, loki: deps.loki },
 				integration,
+			),
+		);
+		await startMarketplaceSourceScheduler(deps.marketplaceSources, (source) =>
+			syncMarketplaceSource(
+				{
+					marketplaceSources: deps.marketplaceSources,
+					marketplaces: deps.marketplaces,
+					plugins: deps.plugins,
+					pluginSkills: deps.pluginSkills,
+					gitMarketplace: deps.gitMarketplace,
+				},
+				source,
 			),
 		);
 	});

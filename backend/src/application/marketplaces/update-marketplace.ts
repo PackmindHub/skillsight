@@ -1,6 +1,7 @@
 import type { IMarketplaceRepository } from "@/domain/ports/marketplace-repository";
 import type { IAuditRepository } from "@/domain/ports/audit-repository";
 import type { Marketplace, MarketplaceStatus } from "@/domain/marketplace";
+import { eventBus } from "@/lib/event-bus";
 
 export async function updateMarketplace(
 	deps: { marketplaces: IMarketplaceRepository; audit: IAuditRepository },
@@ -29,6 +30,7 @@ export async function updateMarketplace(
 			target: input.name,
 			metadata: { from: existing.status, to: input.status },
 		});
+		eventBus.emitMarketplaceStatusChanged({ name: input.name, newStatus: input.status });
 	} else if (Object.keys(updates).length > 0) {
 		await deps.audit.log({
 			actorEmail: input.actorEmail,

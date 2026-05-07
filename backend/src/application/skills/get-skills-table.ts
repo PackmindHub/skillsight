@@ -13,8 +13,9 @@ export async function getSkillsTable(
 
 	const mpStatusMap = new Map(statuses.map((m) => [m.name, m.status]));
 
-	return rawRows.map(({ marketplaceNames, ...rest }) => ({
+	return rawRows.map(({ marketplaceNames, status, ...rest }) => ({
 		...rest,
+		status,
 		marketplaces: marketplaceNames.map((name) => ({
 			name,
 			status: (mpStatusMap.get(name) ?? "to_review") as MarketplaceStatus,

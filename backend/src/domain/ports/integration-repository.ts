@@ -12,7 +12,7 @@ export interface IIntegrationRepository {
 	delete(id: string): Promise<void>;
 	updateSyncStatus(
 		id: string,
-		status: { lastSyncAt?: Date; lastSyncError?: string | null },
+		status: { lastSyncAt?: Date | null; lastSyncError?: string | null },
 	): Promise<void>;
 	countEventsByIntegration(): Promise<Map<string, number>>;
 }

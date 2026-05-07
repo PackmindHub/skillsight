@@ -1,8 +1,8 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, notInArray, sql } from "drizzle-orm";
 import type { AppDb } from "@/db/client";
 import { plugins } from "@/db/schema";
 import type { IPluginRepository } from "@/domain/ports/plugin-repository";
-import type { NewPlugin, Plugin, PluginStatus, PluginWithStats } from "@/domain/plugin";
+import type { NewPlugin, PluginStatus, PluginWithStats } from "@/domain/plugin";
 
 export class DrizzlePluginRepository implements IPluginRepository {
 	constructor(private readonly db: AppDb) {}
@@ -70,16 +70,22 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			.where(eq(plugins.marketplaceName, marketplaceName));
 	}
 
-	private mapRow(row: typeof plugins.$inferSelect): Plugin {
-		return {
-			pluginName: row.pluginName,
-			marketplaceName: row.marketplaceName,
-			pluginVersion: row.pluginVersion,
-			installTrigger: row.installTrigger,
-			marketplaceIsOfficial: row.marketplaceIsOfficial,
-			status: row.status as PluginStatus,
-			firstSeenAt: row.firstSeenAt,
-			lastSeenAt: row.lastSeenAt,
-		};
+	async markRemovedByMarketplace(marketplaceName: string, activePluginNames: string[]): Promise<void> {
+		if (activePluginNames.length === 0) {
+			await this.db
+				.update(plugins)
+				.set({ status: "removed" })
+				.where(eq(plugins.marketplaceName, marketplaceName));
+		} else {
+			await this.db
+				.update(plugins)
+				.set({ status: "removed" })
+				.where(
+					and(
+						eq(plugins.marketplaceName, marketplaceName),
+						notInArray(plugins.pluginName, activePluginNames),
+					),
+				);
+		}
 	}
 }

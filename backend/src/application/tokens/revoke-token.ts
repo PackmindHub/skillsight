@@ -4,7 +4,7 @@ import type { IAuditRepository } from "@/domain/ports/audit-repository";
 export async function revokeToken(
 	deps: { tokens: ITokenRepository; audit: IAuditRepository },
 	input: { id: string; actorEmail: string },
-): Promise<void | { error: "not_found" | "already_revoked" }> {
+): Promise<undefined | { error: "not_found" | "already_revoked" }> {
 	const token = await deps.tokens.findById(input.id);
 	if (!token) return { error: "not_found" };
 	if (token.revokedAt) return { error: "already_revoked" };

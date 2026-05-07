@@ -1,6 +1,6 @@
 import { api } from "@/lib/api";
 import { formatDateTime } from "@/lib/utils";
-import type { Integration } from "@/types/api";
+import type { Integration, IntegrationPreviewEvent } from "@/types/api";
 import { type FormEvent, useEffect, useState } from "react";
 
 type AuthType = "none" | "basic";
@@ -22,7 +22,7 @@ const defaultForm: FormState = {
 	authType: "none",
 	authUsername: "",
 	authPassword: "",
-	lokiQuery: '{job="claude-code"}',
+	lokiQuery: '{service_name="claude-code"} | event_name=~`skill_activated|plugin_installed`',
 	syncIntervalSecs: "30",
 	enabled: true,
 };
@@ -35,8 +35,13 @@ export default function IntegrationsPage() {
 	const [form, setForm] = useState<FormState>(defaultForm);
 	const [saving, setSaving] = useState(false);
 	const [deletingId, setDeletingId] = useState<string | null>(null);
+	const [clearingDataId, setClearingDataId] = useState<string | null>(null);
 	const [syncingId, setSyncingId] = useState<string | null>(null);
+	const [resettingId, setResettingId] = useState<string | null>(null);
 	const [syncResult, setSyncResult] = useState<Record<string, { syncedAt: string | null; error: string | null }>>({});
+	const [previewEvents, setPreviewEvents] = useState<IntegrationPreviewEvent[] | null>(null);
+	const [previewing, setPreviewing] = useState(false);
+	const [previewError, setPreviewError] = useState<string | null>(null);
 
 	useEffect(() => {
 		api.integrations
@@ -69,6 +74,13 @@ export default function IntegrationsPage() {
 	function closeForm() {
 		setShowForm(false);
 		setEditingId(null);
+		setPreviewEvents(null);
+		setPreviewError(null);
+	}
+
+	function resetPreview() {
+		setPreviewEvents(null);
+		setPreviewError(null);
 	}
 
 	async function handleSubmit(e: FormEvent) {
@@ -106,6 +118,53 @@ export default function IntegrationsPage() {
 			setIntegrations((prev) => prev.filter((i) => i.id !== id));
 		} finally {
 			setDeletingId(null);
+		}
+	}
+
+	async function handleClearData(id: string) {
+		setClearingDataId(id);
+		try {
+			await api.integrations.clearData(id);
+			setIntegrations((prev) =>
+				prev.map((i) =>
+					i.id === id ? { ...i, eventCount: 0, lastSyncAt: null, lastSyncError: null } : i,
+				),
+			);
+		} finally {
+			setClearingDataId(null);
+		}
+	}
+
+	async function handlePreview() {
+		setPreviewing(true);
+		setPreviewEvents(null);
+		setPreviewError(null);
+		try {
+			const results = await api.integrations.preview({
+				url: form.url,
+				authType: form.authType,
+				authUsername: form.authType === "basic" ? form.authUsername || null : null,
+				authPassword: form.authType === "basic" && form.authPassword ? form.authPassword : null,
+				lokiQuery: form.lokiQuery,
+				integrationId: editingId,
+			});
+			setPreviewEvents(results);
+		} catch (err) {
+			setPreviewError(err instanceof Error ? err.message : "Preview failed");
+		} finally {
+			setPreviewing(false);
+		}
+	}
+
+	async function handleResetCursor(id: string) {
+		setResettingId(id);
+		try {
+			await api.integrations.resetCursor(id);
+			setIntegrations((prev) =>
+				prev.map((i) => (i.id === id ? { ...i, lastSyncAt: null, lastSyncError: null } : i)),
+			);
+		} finally {
+			setResettingId(null);
 		}
 	}
 
@@ -237,12 +296,25 @@ export default function IntegrationsPage() {
 								<label htmlFor="int-query" className="block text-xs text-text-3 mb-1">
 									LogQL query
 								</label>
-								<input
-									id="int-query"
-									value={form.lokiQuery}
-									onChange={(e) => setForm((f) => ({ ...f, lokiQuery: e.target.value }))}
-									className={`${inputClass} font-mono`}
-								/>
+								<div className="flex gap-2">
+									<input
+										id="int-query"
+										value={form.lokiQuery}
+										onChange={(e) => {
+											setForm((f) => ({ ...f, lokiQuery: e.target.value }));
+											resetPreview();
+										}}
+										className={`${inputClass} font-mono flex-1`}
+									/>
+									<button
+										type="button"
+										disabled={previewing || !form.url}
+										onClick={handlePreview}
+										className="rounded border border-edge px-3 py-1.5 text-xs text-text-2 hover:bg-surface-800 hover:text-text-1 disabled:opacity-40 transition-colors whitespace-nowrap"
+									>
+										{previewing ? "Loading…" : "Preview ▶"}
+									</button>
+								</div>
 							</div>
 							<div>
 								<label htmlFor="int-interval" className="block text-xs text-text-3 mb-1">
@@ -258,6 +330,40 @@ export default function IntegrationsPage() {
 								/>
 							</div>
 						</div>
+
+						{(previewEvents !== null || previewError) && (
+							<div className="rounded border border-edge bg-surface-800 p-3 text-xs space-y-2">
+								<p className="text-text-3 font-medium">Preview — last 7 days</p>
+								{previewError && (
+									<p className="text-danger">{previewError}</p>
+								)}
+								{previewEvents !== null && previewEvents.length === 0 && (
+									<p className="text-text-4">No matching events found in the last 7 days.</p>
+								)}
+								{previewEvents !== null && previewEvents.length > 0 && (
+									<ul className="space-y-2">
+										{previewEvents.map((ev, i) => {
+											const label = ev.eventName.replace("claude_code.", "");
+											const skillName = ev.attributes["skill.name"] as string | undefined;
+											const pluginName = ev.attributes["plugin.name"] as string | undefined;
+											const detail = skillName ?? pluginName ?? null;
+											return (
+												// biome-ignore lint/suspicious/noArrayIndexKey: static preview list
+												<li key={i} className="flex flex-col gap-0.5">
+													<div className="flex items-center gap-2">
+														<span className="badge badge-neutral">{label}</span>
+														{detail && <span className="text-text-1 font-medium">{detail}</span>}
+													</div>
+													<div className="text-text-4">
+														{ev.userEmail ?? "unknown"} · {formatDateTime(ev.timestamp)}
+													</div>
+												</li>
+											);
+										})}
+									</ul>
+								)}
+							</div>
+						)}
 
 						<label className="flex items-center gap-2 text-sm text-text-2 cursor-pointer">
 							<input
@@ -344,7 +450,7 @@ export default function IntegrationsPage() {
 										)}
 									</td>
 									<td className="px-4 py-3 text-text-3 text-xs">
-										{integration.eventCount.toLocaleString()}
+										{(integration.eventCount ?? 0).toLocaleString()}
 									</td>
 									<td className="px-4 py-3 text-right">
 										<div className="flex items-center justify-end gap-3">
@@ -355,6 +461,24 @@ export default function IntegrationsPage() {
 												className="text-xs text-accent-soft hover:opacity-80 disabled:opacity-40 transition-opacity"
 											>
 												{syncingId === integration.id ? "Syncing…" : "Sync now"}
+											</button>
+											<button
+												type="button"
+												disabled={resettingId === integration.id}
+												onClick={() => handleResetCursor(integration.id)}
+												className="text-xs text-text-3 hover:text-warning disabled:opacity-40 transition-colors"
+												title="Clear sync cursor — next sync will fetch from the beginning"
+											>
+												{resettingId === integration.id ? "Resetting…" : "Reset cursor"}
+											</button>
+											<button
+												type="button"
+												disabled={clearingDataId === integration.id}
+												onClick={() => handleClearData(integration.id)}
+												className="text-xs text-text-3 hover:text-warning disabled:opacity-40 transition-colors"
+												title="Delete all ingested events and reset sync cursor"
+											>
+												{clearingDataId === integration.id ? "Clearing…" : "Delete data"}
 											</button>
 											<button
 												type="button"

@@ -8,6 +8,7 @@ export type AuditAction =
 	| "integration_created"
 	| "integration_updated"
 	| "integration_deleted"
+	| "integration_data_cleared"
 	| "marketplace_status_changed"
 	| "marketplace_updated";
 

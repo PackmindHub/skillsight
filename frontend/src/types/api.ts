@@ -49,22 +49,23 @@ export interface UsageResponse {
 	stats: UsageStats;
 }
 
-export interface ShadowSkill {
-	skill_name: string;
-	count: number;
-	first_seen: string;
-	last_seen: string;
-	distinct_users: number;
-}
-
-export interface AllowedSkill {
-	skillName: string;
-	source: string | null;
-	addedAt: string;
-	addedBy: string | null;
-}
 
 export type MarketplaceStatus = "to_review" | "approved" | "denied";
+
+export type PluginStatus = "unknown" | "to_review" | "approved" | "removed";
+
+export interface Plugin {
+	pluginName: string;
+	marketplaceName: string | null;
+	pluginVersion: string | null;
+	installTrigger: string | null;
+	marketplaceIsOfficial: boolean | null;
+	status: PluginStatus;
+	firstSeenAt: string;
+	lastSeenAt: string;
+	installationCount: number;
+	uniqueUserCount: number;
+}
 
 export interface MarketplaceRef {
 	name: string;
@@ -77,15 +78,19 @@ export interface Marketplace extends MarketplaceRef {
 	firstSeenAt: string;
 	lastSeenAt: string;
 	activationCount: number;
+	pluginInstallCount: number;
+	skillActivatedLinkedCount: number;
 }
 
 export interface SkillTableRow {
 	skill_name: string;
+	skillSource: string | null;
 	total: number;
 	user_slash: number;
 	claude_proactive: number;
 	nested_skill: number;
 	marketplaces: MarketplaceRef[];
+	status?: "removed" | null;
 }
 
 export interface SkillsTableResponse {
@@ -108,6 +113,21 @@ export interface AuditResponse {
 	limit: number;
 }
 
+export interface MarketplaceSource {
+	id: string;
+	gitUrl: string;
+	hasToken: boolean;
+	branch: string | null;
+	marketplaceName: string | null;
+	syncIntervalMs: number;
+	enabled: boolean;
+	importPluginsAndSkills: boolean;
+	lastSyncAt: string | null;
+	lastSyncError: string | null;
+	createdAt: string;
+	updatedAt: string;
+}
+
 export interface Integration {
 	id: string;
 	type: "loki";
@@ -124,4 +144,11 @@ export interface Integration {
 	createdAt: string;
 	updatedAt: string;
 	eventCount: number;
+}
+
+export interface IntegrationPreviewEvent {
+	eventName: string;
+	userEmail: string | null;
+	timestamp: string;
+	attributes: Record<string, unknown>;
 }

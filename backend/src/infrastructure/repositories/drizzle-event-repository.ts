@@ -2,6 +2,7 @@ import type { AppDb } from "@/db/client";
 import { events } from "@/db/schema";
 import type { IEventRepository } from "@/domain/ports/event-repository";
 import type { NewEvent } from "@/domain/event";
+import { eq } from "drizzle-orm";
 
 export class DrizzleEventRepository implements IEventRepository {
 	constructor(private readonly db: AppDb) {}
@@ -22,5 +23,9 @@ export class DrizzleEventRepository implements IEventRepository {
 				})),
 			)
 			.onConflictDoNothing();
+	}
+
+	async deleteByIntegrationId(integrationId: string): Promise<void> {
+		await this.db.delete(events).where(eq(events.sourceIntegrationId, integrationId));
 	}
 }

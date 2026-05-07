@@ -1,4 +1,5 @@
 import { useAuth } from "@/context/AuthContext";
+import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export function TopBar() {
@@ -16,8 +17,9 @@ export function TopBar() {
 			<button
 				type="button"
 				onClick={handleLogout}
-				className="text-sm text-text-3 hover:text-text-1 transition-colors"
+				className="flex items-center gap-1.5 text-sm text-text-3 hover:text-text-1 transition-colors"
 			>
+				<LogOut size={14} />
 				Logout
 			</button>
 		</header>

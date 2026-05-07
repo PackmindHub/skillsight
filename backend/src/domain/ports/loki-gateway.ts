@@ -10,7 +10,7 @@ export interface ILokiGateway {
 		username?: string | null;
 		password?: string | null;
 		query: string;
-		from: Date;
+		from: Date | null;
 		to: Date;
 	}): Promise<LokiStreamResult[]>;
 }

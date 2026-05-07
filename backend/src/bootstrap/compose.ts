@@ -5,8 +5,12 @@ import { DrizzleTokenRepository } from "@/infrastructure/repositories/drizzle-to
 import { DrizzleEventRepository } from "@/infrastructure/repositories/drizzle-event-repository";
 import { DrizzleIntegrationRepository } from "@/infrastructure/repositories/drizzle-integration-repository";
 import { DrizzleMarketplaceRepository } from "@/infrastructure/repositories/drizzle-marketplace-repository";
+import { DrizzlePluginRepository } from "@/infrastructure/repositories/drizzle-plugin-repository";
+import { DrizzlePluginSkillRepository } from "@/infrastructure/repositories/drizzle-plugin-skill-repository";
 import { DrizzleSkillRepository } from "@/infrastructure/repositories/drizzle-skill-repository";
 import { LokiHttpGateway } from "@/infrastructure/gateways/loki-http-gateway";
+import { GitMarketplaceHttpGateway } from "@/infrastructure/gateways/git-marketplace-http-gateway";
+import { DrizzleMarketplaceSourceRepository } from "@/infrastructure/repositories/drizzle-marketplace-source-repository";
 
 export function buildDeps() {
 	return {
@@ -16,8 +20,12 @@ export function buildDeps() {
 		events: new DrizzleEventRepository(db),
 		integrations: new DrizzleIntegrationRepository(db),
 		marketplaces: new DrizzleMarketplaceRepository(db),
+		marketplaceSources: new DrizzleMarketplaceSourceRepository(db),
+		plugins: new DrizzlePluginRepository(db),
+		pluginSkills: new DrizzlePluginSkillRepository(db),
 		skills: new DrizzleSkillRepository(db),
 		loki: new LokiHttpGateway(),
+		gitMarketplace: new GitMarketplaceHttpGateway(),
 	};
 }
 

@@ -19,12 +19,15 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: builder
-    command: sh -c "cd frontend && bun run dev"
+    command: sh -c "bun install --frozen-lockfile && cd frontend && bun run dev"
     environment:
       API_BASE_URL: "http://app:4200"
     volumes:
       - ./frontend/src:/app/frontend/src
+      - ./bun.lock:/app/bun.lock
+      - ./package.json:/app/package.json
+      - ./frontend/package.json:/app/frontend/package.json
+      - ./backend/package.json:/app/backend/package.json
     ports:
       - "5173:5173"
     depends_on:
@@ -34,8 +37,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: builder
-    command: sh -c "cd backend && bun --hot src/index.ts"
+    command: sh -c "bun install --frozen-lockfile && cd backend && bun --hot src/index.ts"
     environment:
       DATABASE_URL: "postgres://skills_obs:dev_password@postgres:5432/skills_obs"
       JWT_SECRET: "dev-secret-change-in-prod-at-least-32c"
@@ -47,6 +49,10 @@ services:
       NODE_ENV: development
     volumes:
       - ./backend/src:/app/backend/src
+      - ./bun.lock:/app/bun.lock
+      - ./package.json:/app/package.json
+      - ./frontend/package.json:/app/frontend/package.json
+      - ./backend/package.json:/app/backend/package.json
     ports:
       - "4200:4200"
     depends_on:

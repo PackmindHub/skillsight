@@ -1,9 +1,10 @@
 import type {
-	AllowedSkill,
 	AuditResponse,
 	Integration,
+	IntegrationPreviewEvent,
 	Marketplace,
-	ShadowSkill,
+	MarketplaceSource,
+	Plugin,
 	SkillsTableResponse,
 	Token,
 	UsageResponse,
@@ -44,19 +45,6 @@ export const api = {
 	skills: {
 		usage: (days = 30) => apiFetch<UsageResponse>(`/api/skills/usage?days=${days}`),
 		table: (days = 30) => apiFetch<SkillsTableResponse>(`/api/skills/usage/table?days=${days}`),
-		shadow: () => apiFetch<ShadowSkill[]>("/api/skills/shadow"),
-		allowed: {
-			list: () => apiFetch<AllowedSkill[]>("/api/skills/allowed"),
-			add: (skill_name: string) =>
-				apiFetch<AllowedSkill>("/api/skills/allowed", {
-					method: "POST",
-					body: JSON.stringify({ skill_name }),
-				}),
-			remove: (name: string) =>
-				apiFetch<void>(`/api/skills/allowed/${encodeURIComponent(name)}`, {
-					method: "DELETE",
-				}),
-		},
 	},
 	tokens: {
 		list: () => apiFetch<Token[]>("/api/tokens"),
@@ -73,6 +61,9 @@ export const api = {
 	},
 	config: {
 		get: () => apiFetch<{ baseUrl: string }>("/api/config"),
+	},
+	plugins: {
+		list: () => apiFetch<{ plugins: Plugin[] }>("/api/plugins"),
 	},
 	marketplaces: {
 		list: () => apiFetch<{ marketplaces: Marketplace[] }>("/api/marketplaces"),
@@ -122,6 +113,58 @@ export const api = {
 		syncNow: (id: string) =>
 			apiFetch<{ syncedAt: string | null; error: string | null }>(
 				`/api/integrations/${id}/sync`,
+				{ method: "POST" },
+			),
+		resetCursor: (id: string) =>
+			apiFetch<void>(`/api/integrations/${id}/reset-cursor`, { method: "POST" }),
+		clearData: (id: string) =>
+			apiFetch<void>(`/api/integrations/${id}/data`, { method: "DELETE" }),
+		preview: (data: {
+			url: string;
+			authType: string;
+			authUsername?: string | null;
+			authPassword?: string | null;
+			lokiQuery: string;
+			integrationId?: string | null;
+		}) =>
+			apiFetch<IntegrationPreviewEvent[]>("/api/integrations/preview", {
+				method: "POST",
+				body: JSON.stringify(data),
+			}),
+	},
+	marketplaceSources: {
+		list: () => apiFetch<MarketplaceSource[]>("/api/marketplace-sources"),
+		create: (data: {
+			gitUrl: string;
+			accessToken?: string | null;
+			branch?: string | null;
+			syncIntervalMs?: number;
+			enabled?: boolean;
+			importPluginsAndSkills?: boolean;
+		}) =>
+			apiFetch<MarketplaceSource>("/api/marketplace-sources", {
+				method: "POST",
+				body: JSON.stringify(data),
+			}),
+		update: (
+			id: string,
+			data: {
+				gitUrl?: string;
+				accessToken?: string | null;
+				branch?: string | null;
+				syncIntervalMs?: number;
+				enabled?: boolean;
+				importPluginsAndSkills?: boolean;
+			},
+		) =>
+			apiFetch<MarketplaceSource>(`/api/marketplace-sources/${id}`, {
+				method: "PUT",
+				body: JSON.stringify(data),
+			}),
+		remove: (id: string) => apiFetch<void>(`/api/marketplace-sources/${id}`, { method: "DELETE" }),
+		syncNow: (id: string) =>
+			apiFetch<{ syncedAt: string | null; pluginCount: number; skillCount: number; error: string | null }>(
+				`/api/marketplace-sources/${id}/sync`,
 				{ method: "POST" },
 			),
 	},

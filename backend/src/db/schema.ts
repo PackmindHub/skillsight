@@ -6,6 +6,7 @@ import {
 	integer,
 	jsonb,
 	pgTable,
+	primaryKey,
 	text,
 	timestamp,
 	uuid,
@@ -50,12 +51,6 @@ export const events = pgTable(
 	],
 );
 
-export const allowedSkills = pgTable("allowed_skills", {
-	skillName: varchar("skill_name", { length: 255 }).primaryKey(),
-	source: varchar("source", { length: 100 }),
-	addedAt: timestamp("added_at").defaultNow().notNull(),
-	addedBy: varchar("added_by", { length: 255 }),
-});
 
 export const auditEvents = pgTable("audit_events", {
 	id: bigserial("id", { mode: "number" }).primaryKey(),
@@ -79,7 +74,7 @@ export const integrations = pgTable("integrations", {
 	authType: varchar("auth_type", { length: 20 }).notNull().default("none"),
 	authUsername: varchar("auth_username", { length: 255 }),
 	authPasswordEncrypted: text("auth_password_encrypted"),
-	lokiQuery: varchar("loki_query", { length: 500 }).notNull().default('{job="claude-code"}'),
+	lokiQuery: varchar("loki_query", { length: 500 }).notNull().default('{service_name="claude-code"} | event_name=~`skill_activated|plugin_installed`'),
 	syncIntervalMs: integer("sync_interval_ms").notNull().default(30000),
 	enabled: boolean("enabled").notNull().default(true),
 	lastSyncAt: timestamp("last_sync_at"),
@@ -99,6 +94,21 @@ export const plugins = pgTable("plugins", {
 	lastSeenAt: timestamp("last_seen_at").defaultNow().notNull(),
 });
 
+export const marketplaceSources = pgTable("marketplace_sources", {
+	id: uuid("id").defaultRandom().primaryKey(),
+	gitUrl: varchar("git_url", { length: 1000 }).notNull(),
+	accessTokenEncrypted: text("access_token_encrypted"),
+	branch: varchar("branch", { length: 255 }),
+	marketplaceName: varchar("marketplace_name", { length: 255 }),
+	syncIntervalMs: integer("sync_interval_ms").notNull().default(3600000),
+	enabled: boolean("enabled").notNull().default(true),
+	importPluginsAndSkills: boolean("import_plugins_and_skills").notNull().default(false),
+	lastSyncAt: timestamp("last_sync_at"),
+	lastSyncError: text("last_sync_error"),
+	createdAt: timestamp("created_at").defaultNow().notNull(),
+	updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const marketplaces = pgTable("marketplaces", {
 	name: varchar("name", { length: 255 }).primaryKey(),
 	status: varchar("status", { length: 20 }).notNull().default("to_review"),
@@ -114,3 +124,16 @@ export const skillNamePartialIndexSql = sql`
   ON events ((attributes->>'skill.name'), timestamp)
   WHERE event_name = 'claude_code.skill_activated'
 `;
+
+export const pluginSkills = pgTable(
+	"plugin_skills",
+	{
+		pluginName: varchar("plugin_name", { length: 255 })
+			.notNull()
+			.references(() => plugins.pluginName),
+		skillName: varchar("skill_name", { length: 255 }).notNull(),
+		firstSeenAt: timestamp("first_seen_at").notNull().defaultNow(),
+		lastSeenAt: timestamp("last_seen_at").notNull().defaultNow(),
+	},
+	(t) => [primaryKey({ columns: [t.pluginName, t.skillName] })],
+);

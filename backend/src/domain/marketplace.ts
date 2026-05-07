@@ -11,4 +11,6 @@ export interface Marketplace {
 
 export interface MarketplaceWithStats extends Marketplace {
 	activationCount: number;
+	pluginInstallCount: number;
+	skillActivatedLinkedCount: number;
 }

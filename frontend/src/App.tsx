@@ -1,15 +1,14 @@
 import { AppShell } from "@/components/layout/AppShell";
 import { SettingsLayout } from "@/components/layout/SettingsLayout";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
-import AllowlistPage from "@/pages/AllowlistPage";
 import AuditLogPage from "@/pages/AuditLogPage";
 import DashboardPage from "@/pages/DashboardPage";
 import LoginPage from "@/pages/LoginPage";
 import OnboardingPage from "@/pages/OnboardingPage";
-import ShadowDetectionPage from "@/pages/ShadowDetectionPage";
 import SkillsTablePage from "@/pages/SkillsTablePage";
 import TokensPage from "@/pages/TokensPage";
 import MarketplacesPage from "@/pages/MarketplacesPage";
+import PluginsPage from "@/pages/PluginsPage";
 import IntegrationsPage from "@/pages/settings/IntegrationsPage";
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router-dom";
 
@@ -37,8 +36,7 @@ export default function App() {
 						<Route path="/dashboard" element={<DashboardPage />} />
 						<Route path="/skills" element={<SkillsTablePage />} />
 						<Route path="/marketplaces" element={<MarketplacesPage />} />
-						<Route path="/shadow" element={<ShadowDetectionPage />} />
-						<Route path="/allowlist" element={<AllowlistPage />} />
+						<Route path="/plugins" element={<PluginsPage />} />
 						<Route path="/tokens" element={<TokensPage />} />
 						<Route path="/audit" element={<AuditLogPage />} />
 						<Route path="/settings" element={<SettingsLayout />}>

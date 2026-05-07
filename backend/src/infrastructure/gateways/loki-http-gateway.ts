@@ -15,18 +15,20 @@ export class LokiHttpGateway implements ILokiGateway {
 		username?: string | null;
 		password?: string | null;
 		query: string;
-		from: Date;
+		from: Date | null;
 		to: Date;
 	}): Promise<LokiStreamResult[]> {
 		const { url, authType, username, password, query, from, to } = opts;
 
 		const params = new URLSearchParams({
 			query,
-			start: (from.getTime() * 1_000_000).toString(),
 			end: (to.getTime() * 1_000_000).toString(),
 			limit: "5000",
 			direction: "forward",
 		});
+		if (from !== null) {
+			params.set("start", (from.getTime() * 1_000_000).toString());
+		}
 
 		const headers: Record<string, string> = { "Content-Type": "application/json" };
 		if (authType === "basic" && username && password) {

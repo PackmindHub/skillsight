@@ -1,6 +1,6 @@
 import { api } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
-import type { UsageResponse } from "@/types/api";
+import type { Marketplace, UsageResponse } from "@/types/api";
 import { useEffect, useState } from "react";
 import {
 	Bar,
@@ -43,6 +43,7 @@ function StatCard({ label, value }: { label: string; value: number | string }) {
 
 export default function DashboardPage() {
 	const [data, setData] = useState<UsageResponse | null>(null);
+	const [pendingReview, setPendingReview] = useState<number | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
@@ -52,6 +53,17 @@ export default function DashboardPage() {
 			.then((d) => setData(d))
 			.catch((e: unknown) => setError(String(e)))
 			.finally(() => setLoading(false));
+	}, []);
+
+	useEffect(() => {
+		api.marketplaces
+			.list()
+			.then(({ marketplaces }) =>
+				setPendingReview(
+					(marketplaces as Marketplace[]).filter((m) => m.status === "to_review").length,
+				),
+			)
+			.catch(() => {});
 	}, []);
 
 	if (loading) return <p className="text-text-3 text-sm">Loading…</p>;
@@ -64,11 +76,12 @@ export default function DashboardPage() {
 		<div className="space-y-6">
 			<h1 className="text-lg font-semibold text-text-1">Dashboard — last 30 days</h1>
 
-			<div className="grid grid-cols-4 gap-4">
+			<div className="grid grid-cols-5 gap-4">
 				<StatCard label="Total activations" value={data.stats.totalActivations} />
 				<StatCard label="Unique skills" value={data.stats.uniqueSkills} />
 				<StatCard label="Active users" value={data.stats.activeUsers} />
 				<StatCard label="Top trigger" value={topTrigger} />
+				<StatCard label="Marketplaces to review" value={pendingReview ?? "—"} />
 			</div>
 
 			<div className="grid grid-cols-2 gap-6">
