@@ -38,6 +38,8 @@ export default function IntegrationsPage() {
 	const [clearingDataId, setClearingDataId] = useState<string | null>(null);
 	const [syncingId, setSyncingId] = useState<string | null>(null);
 	const [resettingId, setResettingId] = useState<string | null>(null);
+	const [pausingId, setPausingId] = useState<string | null>(null);
+	const [resumingId, setResumingId] = useState<string | null>(null);
 	const [syncResult, setSyncResult] = useState<Record<string, { syncedAt: string | null; error: string | null }>>({});
 	const [previewEvents, setPreviewEvents] = useState<IntegrationPreviewEvent[] | null>(null);
 	const [previewing, setPreviewing] = useState(false);
@@ -186,6 +188,27 @@ export default function IntegrationsPage() {
 			);
 		} finally {
 			setSyncingId(null);
+		}
+	}
+
+	async function handlePause(id: string) {
+		setPausingId(id);
+		try {
+			const updated = await api.integrations.pause(id);
+			setIntegrations((prev) => prev.map((i) => (i.id === id ? { ...i, ...updated } : i)));
+		} finally {
+			setPausingId(null);
+		}
+	}
+
+	async function handleResume(id: string) {
+		setResumingId(id);
+		try {
+			await api.integrations.resume(id);
+			const refreshed = await api.integrations.list();
+			setIntegrations(refreshed);
+		} finally {
+			setResumingId(null);
 		}
 	}
 
@@ -418,7 +441,7 @@ export default function IntegrationsPage() {
 									<td className="px-4 py-3 font-medium text-text-1">
 										{integration.name}
 										{!integration.enabled && (
-											<span className="ml-2 badge badge-neutral">disabled</span>
+											<span className="ml-2 badge badge-neutral">paused</span>
 										)}
 									</td>
 									<td className="px-4 py-3 text-text-3">
@@ -454,9 +477,30 @@ export default function IntegrationsPage() {
 									</td>
 									<td className="px-4 py-3 text-right">
 										<div className="flex items-center justify-end gap-3">
+											{integration.enabled ? (
+												<button
+													type="button"
+													disabled={pausingId === integration.id}
+													onClick={() => handlePause(integration.id)}
+													className="text-xs text-warning hover:opacity-80 disabled:opacity-40 transition-opacity"
+													title="Stop the periodic sync. lastSyncAt is preserved."
+												>
+													{pausingId === integration.id ? "Pausing…" : "Pause sync"}
+												</button>
+											) : (
+												<button
+													type="button"
+													disabled={resumingId === integration.id}
+													onClick={() => handleResume(integration.id)}
+													className="text-xs text-success hover:opacity-80 disabled:opacity-40 transition-opacity"
+													title="Restart the periodic sync and immediately fetch data since the last sync."
+												>
+													{resumingId === integration.id ? "Resuming…" : "Resume sync"}
+												</button>
+											)}
 											<button
 												type="button"
-												disabled={syncingId === integration.id}
+												disabled={syncingId === integration.id || !integration.enabled}
 												onClick={() => handleSyncNow(integration.id)}
 												className="text-xs text-accent-soft hover:opacity-80 disabled:opacity-40 transition-opacity"
 											>

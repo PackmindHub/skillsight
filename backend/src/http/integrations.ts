@@ -126,5 +126,31 @@ export function createIntegrationsRoute(
 		});
 	});
 
+	route.post("/:id/pause", async (c) => {
+		const id = c.req.param("id");
+		const result = await updateIntegration(
+			{ integrations: deps.integrations, audit: deps.audit },
+			{ id, data: { enabled: false }, actorEmail: c.get("user").email },
+		);
+		if ("error" in result) return c.json({ error: "Not found" }, 404);
+		cancelIntegration(id);
+		return c.json({ ...result, eventCount: 0 });
+	});
+
+	route.post("/:id/resume", async (c) => {
+		const id = c.req.param("id");
+		const result = await updateIntegration(
+			{ integrations: deps.integrations, audit: deps.audit },
+			{ id, data: { enabled: true }, actorEmail: c.get("user").email },
+		);
+		if ("error" in result) return c.json({ error: "Not found" }, 404);
+		await rescheduleIntegration(id, deps.integrations, makeSyncFn);
+		const integration = await deps.integrations.findById(id);
+		if (integration) {
+			await syncIntegration(syncDeps, integration).catch(() => {});
+		}
+		return c.json({ ...result, eventCount: 0 });
+	});
+
 	return route;
 }
