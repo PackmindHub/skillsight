@@ -1,0 +1,57 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: skills_obs
+      POSTGRES_USER: skills_obs
+      POSTGRES_PASSWORD: dev_password
+    volumes:
+      - pgdata_dev:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U skills_obs"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    command: sh -c "cd frontend && bun run dev"
+    environment:
+      API_BASE_URL: "http://app:4200"
+    volumes:
+      - ./frontend/src:/app/frontend/src
+    ports:
+      - "5173:5173"
+    depends_on:
+      - app
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    command: sh -c "cd backend && bun --hot src/index.ts"
+    environment:
+      DATABASE_URL: "postgres://skills_obs:dev_password@postgres:5432/skills_obs"
+      JWT_SECRET: "dev-secret-change-in-prod-at-least-32c"
+      JWT_SECRET_PREVIOUS: ""
+      PUBLIC_BASE_URL: "http://localhost:4200"
+      ADMIN_EMAIL: "admin@example.com"
+      ADMIN_PASSWORD_INITIAL: "admin"
+      PORT: "4200"
+      NODE_ENV: development
+    volumes:
+      - ./backend/src:/app/backend/src
+    ports:
+      - "4200:4200"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata_dev:

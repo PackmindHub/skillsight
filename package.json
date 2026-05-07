@@ -1,0 +1,12 @@
+{
+  "name": "skills-observability",
+  "private": true,
+  "workspaces": ["backend", "frontend"],
+  "scripts": {
+    "dev": "bun run --filter backend dev & bun run --filter frontend dev",
+    "build": "bun run --filter frontend build && bun run --filter backend build",
+    "lint": "bun run --filter frontend lint && bun run --filter backend lint",
+    "lint:frontend": "bun run --filter frontend lint",
+    "lint:backend": "bun run --filter backend lint"
+  }
+}

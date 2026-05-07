@@ -1,0 +1,30 @@
+{
+  "name": "backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --hot src/index.ts",
+    "build": "bun build src/index.ts --outdir dist --target node --external argon2 --sourcemap",
+    "lint": "biome lint src",
+    "typecheck": "tsc --noEmit",
+    "migrate:generate": "drizzle-kit generate",
+    "migrate:run": "drizzle-kit migrate",
+    "migrate:push": "drizzle-kit push"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "@node-rs/argon2": "^2.0.2",
+    "drizzle-orm": "^0.44.0",
+    "hono": "^4.7.7",
+    "jose": "^5.10.0",
+    "postgres": "^3.4.5",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/node": "^22.15.3",
+    "drizzle-kit": "^0.31.0",
+    "typescript": "^5.8.3"
+  }
+}

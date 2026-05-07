@@ -1,0 +1,45 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-skills_obs}
+      POSTGRES_USER: ${POSTGRES_USER:-skills_obs}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - internal
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-skills_obs}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    image: skills-observability:latest
+    environment:
+      DATABASE_URL: "postgres://${POSTGRES_USER:-skills_obs}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-skills_obs}"
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required (min 32 chars)}
+      JWT_SECRET_PREVIOUS: ${JWT_SECRET_PREVIOUS:-}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:?PUBLIC_BASE_URL is required}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?ADMIN_EMAIL is required}
+      ADMIN_PASSWORD_INITIAL: ${ADMIN_PASSWORD_INITIAL:?ADMIN_PASSWORD_INITIAL is required}
+      PORT: "4200"
+      NODE_ENV: production
+    networks:
+      - internal
+    ports:
+      - "127.0.0.1:4200:4200"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+networks:
+  internal:
+    driver: bridge
+    internal: true
+
+volumes:
+  pgdata:
