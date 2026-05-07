@@ -4,16 +4,17 @@ import { logger } from "hono/logger";
 import { secureHeaders } from "hono/secure-headers";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { config } from "@/config/env";
-import { healthRoute } from "@/routes/health";
-import { telemetryRoute } from "@/routes/telemetry";
-import { authRoute } from "@/routes/auth";
-import { tokensRoute } from "@/routes/tokens";
-import { usageRoute } from "@/routes/skills/usage";
-import { shadowRoute } from "@/routes/skills/shadow";
-import { allowedRoute } from "@/routes/skills/allowed";
-import { auditRoute, configRoute } from "@/routes/audit";
-import { integrationsRoute } from "@/routes/integrations";
-import { marketplacesRoute } from "@/routes/marketplaces";
+import { buildDeps } from "@/bootstrap/compose";
+import { createHealthRoute } from "@/http/health";
+import { createTelemetryRoute } from "@/http/telemetry";
+import { createAuthRoute } from "@/http/auth";
+import { createTokensRoute } from "@/http/tokens";
+import { createUsageRoute } from "@/http/skills/usage";
+import { createShadowRoute } from "@/http/skills/shadow";
+import { createAllowedRoute } from "@/http/skills/allowed";
+import { createAuditRoute } from "@/http/audit";
+import { createIntegrationsRoute } from "@/http/integrations";
+import { createMarketplacesRoute } from "@/http/marketplaces";
 
 const STATIC_ROOT =
 	process.env.NODE_ENV === "production"
@@ -21,6 +22,7 @@ const STATIC_ROOT =
 		: "../frontend/dist";
 
 export function createApp() {
+	const deps = buildDeps();
 	const app = new Hono();
 
 	app.use("*", logger());
@@ -30,23 +32,23 @@ export function createApp() {
 		cors({
 			origin: config.PUBLIC_BASE_URL,
 			credentials: true,
-			allowMethods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+			allowMethods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
 			allowHeaders: ["Content-Type", "Authorization"],
 		}),
 	);
 
 	// API routes (must be before static middleware)
-	app.route("/health", healthRoute);
-	app.route("/api/v0/telemetry", telemetryRoute);
-	app.route("/api/auth", authRoute);
-	app.route("/api/tokens", tokensRoute);
-	app.route("/api/skills/usage", usageRoute);
-	app.route("/api/skills/shadow", shadowRoute);
-	app.route("/api/skills/allowed", allowedRoute);
-	app.route("/api/audit", auditRoute);
-	app.route("/api/config", configRoute);
-	app.route("/api/integrations", integrationsRoute);
-	app.route("/api/marketplaces", marketplacesRoute);
+	app.route("/health", createHealthRoute());
+	app.route("/api/v0/telemetry", createTelemetryRoute(deps));
+	app.route("/api/auth", createAuthRoute(deps));
+	app.route("/api/tokens", createTokensRoute(deps));
+	app.route("/api/skills/usage", createUsageRoute(deps));
+	app.route("/api/skills/shadow", createShadowRoute(deps));
+	app.route("/api/skills/allowed", createAllowedRoute(deps));
+	app.route("/api/audit", createAuditRoute(deps));
+	app.route("/api/integrations", createIntegrationsRoute(deps));
+	app.route("/api/marketplaces", createMarketplacesRoute(deps));
+	app.get("/api/config", (c) => c.json({ baseUrl: config.PUBLIC_BASE_URL }));
 
 	// Static files (frontend build)
 	app.use("/*", serveStatic({ root: STATIC_ROOT }));

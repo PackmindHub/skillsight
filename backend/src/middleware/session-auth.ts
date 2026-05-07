@@ -1,6 +1,6 @@
 import { createMiddleware } from "hono/factory";
 import { getCookie } from "hono/cookie";
-import { verifyToken } from "@/lib/jwt";
+import { verifyToken } from "@/infrastructure/crypto/jwt";
 import type { AppVariables } from "@/types";
 
 export const sessionAuth = createMiddleware<{

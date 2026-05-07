@@ -1,6 +1,6 @@
 import { db } from "@/db/client";
 import { users } from "@/db/schema";
-import { hashPassword } from "@/lib/password";
+import { hashPassword } from "@/infrastructure/crypto/password";
 import { config } from "@/config/env";
 
 export async function seedAdmin(): Promise<void> {

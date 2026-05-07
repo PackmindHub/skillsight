@@ -3,9 +3,11 @@ import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { serve } from "@hono/node-server";
 import { db } from "@/db/client";
 import { seedAdmin } from "@/bootstrap/seed-admin";
+import { buildDeps } from "@/bootstrap/compose";
 import { createApp } from "@/app";
 import { config } from "@/config/env";
-import { startScheduler } from "@/lib/sync-scheduler";
+import { startScheduler } from "@/infrastructure/scheduler/sync-scheduler";
+import { syncIntegration } from "@/application/integrations/sync-integration";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -14,8 +16,6 @@ const __dirname = path.dirname(__filename);
 
 async function main() {
 	console.log("[startup] Running migrations...");
-	// In dev: __dirname = src/, migrations at src/db/migrations
-	// In Docker: __dirname = dist/server/, migrations copied to dist/server/db/migrations
 	await migrate(db, {
 		migrationsFolder: path.join(__dirname, "db/migrations"),
 	});
@@ -26,7 +26,13 @@ async function main() {
 	const app = createApp();
 	serve({ fetch: app.fetch, port: config.PORT, hostname: "0.0.0.0" }, async (info) => {
 		console.log(`[server] Listening on http://localhost:${info.port}`);
-		await startScheduler();
+		const deps = buildDeps();
+		await startScheduler(deps.integrations, (integration) =>
+			syncIntegration(
+				{ integrations: deps.integrations, events: deps.events, loki: deps.loki },
+				integration,
+			),
+		);
 	});
 }
 
