@@ -1,7 +1,8 @@
 import { api } from "@/lib/api";
 import { formatDateTime } from "@/lib/utils";
 import type { Marketplace, MarketplaceSource, MarketplaceStatus } from "@/types/api";
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 const STATUS_OPTIONS: { value: MarketplaceStatus; label: string }[] = [
 	{ value: "to_review", label: "To Review" },
@@ -44,6 +45,13 @@ const defaultSourceForm: SourceForm = {
 	importPluginsAndSkills: false,
 };
 
+type StatusFilter = "all" | MarketplaceStatus;
+const STATUS_FILTERS: StatusFilter[] = ["all", "to_review", "approved", "denied"];
+
+function pickStatus(raw: string | null): StatusFilter {
+	return STATUS_FILTERS.includes((raw ?? "") as StatusFilter) ? (raw as StatusFilter) : "all";
+}
+
 export default function MarketplacesPage() {
 	const [items, setItems] = useState<Marketplace[]>([]);
 	const [sources, setSources] = useState<MarketplaceSource[]>([]);
@@ -51,6 +59,22 @@ export default function MarketplacesPage() {
 	const [error, setError] = useState<string | null>(null);
 	const [editing, setEditing] = useState<Record<string, EditState>>({});
 	const [saving, setSaving] = useState<Record<string, boolean>>({});
+	const [searchParams, setSearchParams] = useSearchParams();
+
+	const statusFilter = pickStatus(searchParams.get("status"));
+	const search = searchParams.get("search") ?? "";
+
+	function updateParam(key: string, value: string, defaultValue: string) {
+		setSearchParams(
+			(prev) => {
+				const next = new URLSearchParams(prev);
+				if (!value || value === defaultValue) next.delete(key);
+				else next.set(key, value);
+				return next;
+			},
+			{ replace: true },
+		);
+	}
 
 	// Source form state
 	const [showSourceForm, setShowSourceForm] = useState(false);
@@ -194,6 +218,14 @@ export default function MarketplacesPage() {
 
 	const inputClass =
 		"w-full rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 placeholder:text-text-4 focus:outline-none focus:ring-2 focus:ring-accent-bright";
+
+	const filteredItems = useMemo(() => {
+		return items.filter((m) => {
+			if (statusFilter !== "all" && m.status !== statusFilter) return false;
+			if (search && !m.name.toLowerCase().includes(search.toLowerCase())) return false;
+			return true;
+		});
+	}, [items, statusFilter, search]);
 
 	if (loading) return <p className="text-text-3 text-sm">Loading…</p>;
 
@@ -431,6 +463,35 @@ export default function MarketplacesPage() {
 					<h2 className="text-sm font-medium text-text-2">Discovered marketplaces</h2>
 				)}
 
+				{items.length > 0 && (
+					<div className="flex flex-wrap items-center gap-2">
+						<input
+							type="text"
+							placeholder="Search marketplace name…"
+							value={search}
+							onChange={(e) => updateParam("search", e.target.value, "")}
+							className="rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 placeholder:text-text-4 focus:outline-none focus:ring-1 focus:ring-accent-bright min-w-48"
+						/>
+						<select
+							value={statusFilter}
+							onChange={(e) => updateParam("status", e.target.value, "all")}
+							className="rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 focus:outline-none focus:ring-1 focus:ring-accent-bright"
+						>
+							<option value="all">Status: All</option>
+							{STATUS_OPTIONS.map((opt) => (
+								<option key={opt.value} value={opt.value}>
+									{opt.label}
+								</option>
+							))}
+						</select>
+						{filteredItems.length !== items.length && (
+							<span className="text-xs text-text-4">
+								{filteredItems.length} / {items.length}
+							</span>
+						)}
+					</div>
+				)}
+
 				{items.length === 0 ? (
 					<div className="bg-surface-900 border border-edge rounded-lg p-12 flex flex-col items-center gap-3 text-center">
 						<div className="w-12 h-12 rounded-full bg-surface-800 border border-edge flex items-center justify-center">
@@ -461,7 +522,14 @@ export default function MarketplacesPage() {
 								</tr>
 							</thead>
 							<tbody>
-								{items.map((mp) => {
+								{filteredItems.length === 0 ? (
+									<tr>
+										<td colSpan={8} className="px-4 py-8 text-center text-gray-400 text-sm">
+											No marketplaces match the current filters.
+										</td>
+									</tr>
+								) : null}
+								{filteredItems.map((mp) => {
 									const isEditing = !!editing[mp.name];
 									const isSaving = saving[mp.name] ?? false;
 									const editState = editing[mp.name];

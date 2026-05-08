@@ -14,6 +14,7 @@ function makeSkills(rows: SkillTableRow[]): ISkillRepository {
 		getUniqueSkillsCount: async () => 0,
 		getActiveUsersCount: async () => 0,
 		getSkillsTable: async () => rows,
+		getMonthlyTrends: async () => ({ invocations: [], uniqueSkills: [], uniqueUsers: [] }),
 	};
 }
 

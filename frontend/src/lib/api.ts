@@ -1,9 +1,11 @@
 import type {
 	AuditResponse,
+	DashboardPeriod,
 	Integration,
 	IntegrationPreviewEvent,
 	Marketplace,
 	MarketplaceSource,
+	MonthlyTrendsResponse,
 	Plugin,
 	SkillsTableResponse,
 	Token,
@@ -43,8 +45,11 @@ export const api = {
 		onboardingComplete: () => apiFetch<void>("/api/auth/onboarding-complete", { method: "POST" }),
 	},
 	skills: {
-		usage: (days = 30) => apiFetch<UsageResponse>(`/api/skills/usage?days=${days}`),
-		table: (days = 30) => apiFetch<SkillsTableResponse>(`/api/skills/usage/table?days=${days}`),
+		usage: (period: DashboardPeriod = 30) =>
+			apiFetch<UsageResponse>(`/api/skills/usage?days=${period}`),
+		table: (period: DashboardPeriod = 30) =>
+			apiFetch<SkillsTableResponse>(`/api/skills/usage/table?days=${period}`),
+		monthlyTrends: () => apiFetch<MonthlyTrendsResponse>("/api/skills/usage/monthly"),
 	},
 	tokens: {
 		list: () => apiFetch<Token[]>("/api/tokens"),
