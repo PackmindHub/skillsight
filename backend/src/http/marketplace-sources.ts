@@ -8,6 +8,7 @@ import { createMarketplaceSource } from "@/application/marketplace-sources/creat
 import { updateMarketplaceSource } from "@/application/marketplace-sources/update-marketplace-source";
 import { deleteMarketplaceSource } from "@/application/marketplace-sources/delete-marketplace-source";
 import { syncMarketplaceSource } from "@/application/marketplace-sources/sync-marketplace-source";
+import { testMarketplaceSourceConnection } from "@/application/marketplace-sources/test-marketplace-source-connection";
 import {
 	scheduleMarketplaceSource,
 	rescheduleMarketplaceSource,
@@ -32,6 +33,13 @@ const updateSchema = z.object({
 	importPluginsAndSkills: z.boolean().optional(),
 });
 
+const testConnectionSchema = z.object({
+	gitUrl: z.string().min(1).max(1000),
+	accessToken: z.string().nullable().optional(),
+	branch: z.string().max(255).nullable().optional(),
+	sourceId: z.string().uuid().nullable().optional(),
+});
+
 export function createMarketplaceSourcesRoute(
 	deps: Pick<AppDeps, "marketplaceSources" | "marketplaces" | "plugins" | "pluginSkills" | "gitMarketplace">,
 ) {
@@ -50,8 +58,25 @@ export function createMarketplaceSourcesRoute(
 		return c.json(await listMarketplaceSources(deps));
 	});
 
+	route.post("/test-connection", async (c) => {
+		const body = testConnectionSchema.parse(await c.req.json());
+		const result = await testMarketplaceSourceConnection(deps, {
+			gitUrl: body.gitUrl,
+			accessToken: body.accessToken ?? null,
+			branch: body.branch ?? null,
+			sourceId: body.sourceId ?? null,
+		});
+		return c.json(result);
+	});
+
 	route.post("/", async (c) => {
 		const body = createSchema.parse(await c.req.json());
+		const test = await testMarketplaceSourceConnection(deps, {
+			gitUrl: body.gitUrl,
+			accessToken: body.accessToken ?? null,
+			branch: body.branch ?? null,
+		});
+		if (!test.ok) return c.json({ error: test.error }, 400);
 		const source = await createMarketplaceSource(deps, {
 			gitUrl: body.gitUrl,
 			accessToken: body.accessToken ?? undefined,
@@ -72,6 +97,15 @@ export function createMarketplaceSourcesRoute(
 	route.put("/:id", async (c) => {
 		const id = c.req.param("id");
 		const body = updateSchema.parse(await c.req.json());
+		const existing = await deps.marketplaceSources.findById(id);
+		if (!existing) return c.json({ error: "Not found" }, 404);
+		const test = await testMarketplaceSourceConnection(deps, {
+			gitUrl: body.gitUrl ?? existing.gitUrl,
+			accessToken: body.accessToken ?? null,
+			branch: body.branch !== undefined ? body.branch : existing.branch,
+			sourceId: id,
+		});
+		if (!test.ok) return c.json({ error: test.error }, 400);
 		const result = await updateMarketplaceSource(deps, id, {
 			gitUrl: body.gitUrl,
 			accessToken: body.accessToken,

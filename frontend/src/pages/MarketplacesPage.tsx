@@ -91,6 +91,11 @@ export default function MarketplacesPage() {
 	const [sourceSyncResult, setSourceSyncResult] = useState<
 		Record<string, { syncedAt: string | null; pluginCount: number; skillCount: number; error: string | null }>
 	>({});
+	const [testingConnection, setTestingConnection] = useState(false);
+	const [connectionTestResult, setConnectionTestResult] = useState<
+		{ ok: true; name: string; pluginCount: number } | { ok: false; error: string } | null
+	>(null);
+	const [submitError, setSubmitError] = useState<string | null>(null);
 
 	useEffect(() => {
 		Promise.all([
@@ -150,6 +155,8 @@ export default function MarketplacesPage() {
 	function openCreateSource() {
 		setEditingSourceId(null);
 		setSourceForm(defaultSourceForm);
+		setConnectionTestResult(null);
+		setSubmitError(null);
 		setShowSourceForm(true);
 	}
 
@@ -163,6 +170,8 @@ export default function MarketplacesPage() {
 			enabled: source.enabled,
 			importPluginsAndSkills: source.importPluginsAndSkills,
 		});
+		setConnectionTestResult(null);
+		setSubmitError(null);
 		setShowSourceForm(true);
 	}
 
@@ -171,9 +180,45 @@ export default function MarketplacesPage() {
 		setEditingSourceId(null);
 	}
 
+	function updateSourceField<K extends keyof SourceForm>(key: K, value: SourceForm[K]) {
+		setSourceForm((f) => ({ ...f, [key]: value }));
+		if (key === "gitUrl" || key === "accessToken" || key === "branch") {
+			setConnectionTestResult(null);
+			setSubmitError(null);
+		}
+	}
+
+	async function handleTestConnection() {
+		setTestingConnection(true);
+		setConnectionTestResult(null);
+		try {
+			const result = await api.marketplaceSources.testConnection({
+				gitUrl: sourceForm.gitUrl.trim(),
+				accessToken: sourceForm.accessToken || null,
+				branch: sourceForm.branch.trim() || null,
+				sourceId: editingSourceId,
+			});
+			setConnectionTestResult(result);
+		} catch (e) {
+			setConnectionTestResult({ ok: false, error: e instanceof Error ? e.message : String(e) });
+		} finally {
+			setTestingConnection(false);
+		}
+	}
+
+	function extractErrorMessage(e: unknown): string {
+		const raw = e instanceof Error ? e.message : String(e);
+		try {
+			const parsed = JSON.parse(raw);
+			if (parsed && typeof parsed.error === "string") return parsed.error;
+		} catch {}
+		return raw;
+	}
+
 	async function handleSourceSubmit(e: FormEvent) {
 		e.preventDefault();
 		setSavingSource(true);
+		setSubmitError(null);
 		try {
 			const payload = {
 				gitUrl: sourceForm.gitUrl.trim(),
@@ -192,6 +237,8 @@ export default function MarketplacesPage() {
 			}
 			closeSourceForm();
 			refreshSourcesHealth();
+		} catch (e) {
+			setSubmitError(extractErrorMessage(e));
 		} finally {
 			setSavingSource(false);
 		}
@@ -277,7 +324,7 @@ export default function MarketplacesPage() {
 										id="ms-url"
 										required
 										value={sourceForm.gitUrl}
-										onChange={(e) => setSourceForm((f) => ({ ...f, gitUrl: e.target.value }))}
+										onChange={(e) => updateSourceField("gitUrl", e.target.value)}
 										className={inputClass}
 										placeholder="owner/repo  or  https://github.com/owner/repo"
 									/>
@@ -295,7 +342,7 @@ export default function MarketplacesPage() {
 											id="ms-token"
 											type="password"
 											value={sourceForm.accessToken}
-											onChange={(e) => setSourceForm((f) => ({ ...f, accessToken: e.target.value }))}
+											onChange={(e) => updateSourceField("accessToken", e.target.value)}
 											className={inputClass}
 											placeholder={editingSourceId ? "••••••" : "Leave blank for public repos"}
 											autoComplete="new-password"
@@ -308,7 +355,7 @@ export default function MarketplacesPage() {
 										<input
 											id="ms-branch"
 											value={sourceForm.branch}
-											onChange={(e) => setSourceForm((f) => ({ ...f, branch: e.target.value }))}
+											onChange={(e) => updateSourceField("branch", e.target.value)}
 											className={inputClass}
 											placeholder="main"
 										/>
@@ -349,6 +396,20 @@ export default function MarketplacesPage() {
 									Import plugins and skills into registry
 								</label>
 
+								{connectionTestResult && (
+									connectionTestResult.ok ? (
+										<p className="text-xs text-success">
+											Connected — found {connectionTestResult.pluginCount} plugin
+											{connectionTestResult.pluginCount === 1 ? "" : "s"} in “
+											{connectionTestResult.name}”.
+										</p>
+									) : (
+										<p className="text-xs text-danger">{connectionTestResult.error}</p>
+									)
+								)}
+
+								{submitError && <p className="text-xs text-danger">{submitError}</p>}
+
 								<div className="flex gap-2">
 									<button
 										type="submit"
@@ -356,6 +417,14 @@ export default function MarketplacesPage() {
 										className="btn-primary rounded px-3 py-1.5 text-sm"
 									>
 										{savingSource ? "Saving…" : editingSourceId ? "Update" : "Import"}
+									</button>
+									<button
+										type="button"
+										onClick={handleTestConnection}
+										disabled={testingConnection || !sourceForm.gitUrl.trim()}
+										className="rounded border border-edge px-3 py-1.5 text-sm text-text-2 hover:bg-surface-800 hover:text-text-1 transition-colors disabled:opacity-40"
+									>
+										{testingConnection ? "Testing…" : "Test connection"}
 									</button>
 									<button
 										type="button"

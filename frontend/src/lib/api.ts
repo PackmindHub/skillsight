@@ -181,5 +181,18 @@ export const api = {
 				`/api/marketplace-sources/${id}/sync`,
 				{ method: "POST" },
 			),
+		testConnection: (data: {
+			gitUrl: string;
+			accessToken?: string | null;
+			branch?: string | null;
+			sourceId?: string | null;
+		}) =>
+			apiFetch<
+				| { ok: true; name: string; description?: string; pluginCount: number }
+				| { ok: false; error: string }
+			>("/api/marketplace-sources/test-connection", {
+				method: "POST",
+				body: JSON.stringify(data),
+			}),
 	},
 };
