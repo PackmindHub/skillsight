@@ -2,24 +2,25 @@ import type { DaysWindow, ISkillRepository } from "@/domain/ports/skill-reposito
 import type { IMarketplaceRepository } from "@/domain/ports/marketplace-repository";
 import type { MarketplaceStatus } from "@/domain/marketplace";
 
-export async function getSkillsTable(
+export async function getSkillDetail(
 	deps: { skills: ISkillRepository; marketplaces: IMarketplaceRepository },
-	input: { days: DaysWindow },
+	input: { skillName: string; days: DaysWindow },
 ) {
-	const [rawRows, statuses] = await Promise.all([
-		deps.skills.getSkillsTable(input.days),
+	const [raw, statuses] = await Promise.all([
+		deps.skills.getSkillDetail(input.skillName, input.days),
 		deps.marketplaces.listStatuses(),
 	]);
 
-	const mpStatusMap = new Map(statuses.map((m) => [m.name, m.status]));
+	if (!raw) return null;
 
-	return rawRows.map(({ marketplaceNames, status, ...rest }) => ({
+	const mpStatusMap = new Map(statuses.map((m) => [m.name, m.status]));
+	const { marketplaceNames, ...rest } = raw;
+
+	return {
 		...rest,
-		status,
 		marketplaces: marketplaceNames.map((name) => ({
 			name,
 			status: (mpStatusMap.get(name) ?? "to_review") as MarketplaceStatus,
 		})),
-	}));
+	};
 }
-

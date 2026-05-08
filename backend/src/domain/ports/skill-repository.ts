@@ -1,4 +1,4 @@
-import type { SkillTableRow } from "@/domain/skill";
+import type { SkillDetailRow, SkillTableRow } from "@/domain/skill";
 
 export type DaysWindow = number | "all";
 
@@ -22,5 +22,6 @@ export interface ISkillRepository {
 	getUniqueSkillsCount(days: DaysWindow): Promise<number>;
 	getActiveUsersCount(days: DaysWindow): Promise<number>;
 	getSkillsTable(days: DaysWindow): Promise<SkillTableRow[]>;
+	getSkillDetail(skillName: string, days: DaysWindow): Promise<SkillDetailRow | null>;
 	getMonthlyTrends(): Promise<MonthlyTrends>;
 }

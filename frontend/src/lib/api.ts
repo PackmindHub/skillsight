@@ -7,6 +7,7 @@ import type {
 	MarketplaceSource,
 	MonthlyTrendsResponse,
 	Plugin,
+	SkillDetail,
 	SkillsTableResponse,
 	Token,
 	UsageResponse,
@@ -49,6 +50,10 @@ export const api = {
 			apiFetch<UsageResponse>(`/api/skills/usage?days=${period}`),
 		table: (period: DashboardPeriod = 30) =>
 			apiFetch<SkillsTableResponse>(`/api/skills/usage/table?days=${period}`),
+		detail: (skillName: string, period: DashboardPeriod = 30) =>
+			apiFetch<SkillDetail>(
+				`/api/skills/usage/detail?days=${period}&skill=${encodeURIComponent(skillName)}`,
+			),
 		monthlyTrends: () => apiFetch<MonthlyTrendsResponse>("/api/skills/usage/monthly"),
 	},
 	tokens: {

@@ -45,6 +45,7 @@ const PERIOD_OPTIONS: { value: DashboardPeriod; label: string }[] = [
 ];
 
 const PERIOD_HEADING: Record<DashboardPeriod, string> = {
+	7: "Dashboard — 7 derniers jours",
 	30: "Dashboard — 30 derniers jours",
 	90: "Dashboard — 90 derniers jours",
 	all: "Dashboard — depuis le début",
@@ -244,7 +245,7 @@ export default function DashboardPage() {
 							/>
 							<YAxis
 								type="category"
-								dataKey="skill_name"
+								dataKey="skillName"
 								width={120}
 								stroke={AXIS_COLOR}
 								tick={{ fill: TICK_COLOR, fontSize: 11 }}
