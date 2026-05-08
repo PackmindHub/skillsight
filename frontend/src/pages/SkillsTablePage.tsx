@@ -42,6 +42,7 @@ function ProgressCell({ count, total, color }: { count: number; total: number; c
 
 type TriggerKey = "all" | "user_slash" | "claude_proactive" | "nested_skill";
 type SourceFilter = "all" | "bundled" | "external";
+type UsageFilter = "all" | "activated" | "never_used";
 
 export default function SkillsTablePage() {
 	const [rows, setRows] = useState<SkillTableRow[]>([]);
@@ -52,6 +53,7 @@ export default function SkillsTablePage() {
 	const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
 	const [marketplaceFilter, setMarketplaceFilter] = useState("all");
 	const [triggerFilter, setTriggerFilter] = useState<TriggerKey>("all");
+	const [usageFilter, setUsageFilter] = useState<UsageFilter>("all");
 
 	useEffect(() => {
 		api.skills
@@ -76,9 +78,11 @@ export default function SkillsTablePage() {
 			if (sourceFilter === "external" && row.skillSource === "bundled") return false;
 			if (marketplaceFilter !== "all" && !row.marketplaces.some((mp) => mp.name === marketplaceFilter)) return false;
 			if (triggerFilter !== "all" && (row[triggerFilter] as number) === 0) return false;
+			if (usageFilter === "activated" && row.total === 0) return false;
+			if (usageFilter === "never_used" && row.total !== 0) return false;
 			return true;
 		});
-	}, [rows, search, sourceFilter, marketplaceFilter, triggerFilter]);
+	}, [rows, search, sourceFilter, marketplaceFilter, triggerFilter, usageFilter]);
 
 	if (loading) return <p className="text-text-3 text-sm">Loading…</p>;
 	if (error) return <p className="text-danger text-sm">{error}</p>;
@@ -86,11 +90,11 @@ export default function SkillsTablePage() {
 	return (
 		<div className="space-y-4">
 			<h1 className="text-lg font-semibold text-text-1">Skills</h1>
-			<p className="text-sm text-text-3">All skills activated in the last 30 days, with trigger breakdown.</p>
+			<p className="text-sm text-text-3">All known skills, with activations in the last 30 days.</p>
 
 			{rows.length === 0 ? (
 				<div className="bg-surface-900 border border-edge rounded-lg p-6 text-center text-text-3 text-sm">
-					No skill activations recorded.
+					No skills found.
 				</div>
 			) : (
 				<>
@@ -131,6 +135,15 @@ export default function SkillsTablePage() {
 								<option key={key} value={key}>{label}</option>
 							))}
 						</select>
+						<select
+							value={usageFilter}
+							onChange={(e) => setUsageFilter(e.target.value as UsageFilter)}
+							className="rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 focus:outline-none focus:ring-1 focus:ring-accent-bright"
+						>
+							<option value="all">Usage: All</option>
+							<option value="activated">Activated</option>
+							<option value="never_used">Never used</option>
+						</select>
 						{filteredRows.length !== rows.length && (
 							<span className="text-xs text-text-4">{filteredRows.length} / {rows.length}</span>
 						)}
@@ -170,6 +183,11 @@ export default function SkillsTablePage() {
 										{row.status === "removed" && (
 											<span className="inline-flex items-center rounded border border-red-500/30 bg-red-500/10 px-1.5 py-0.5 text-xs font-medium text-red-400">
 												Removed
+											</span>
+										)}
+										{row.total === 0 && (
+											<span className="inline-flex items-center rounded border border-edge bg-surface-800 px-1.5 py-0.5 text-xs text-text-3">
+												Never used
 											</span>
 										)}
 									</span>

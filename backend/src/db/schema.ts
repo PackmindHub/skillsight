@@ -135,5 +135,8 @@ export const pluginSkills = pgTable(
 		firstSeenAt: timestamp("first_seen_at").notNull().defaultNow(),
 		lastSeenAt: timestamp("last_seen_at").notNull().defaultNow(),
 	},
-	(t) => [primaryKey({ columns: [t.pluginName, t.skillName] })],
+	(t) => [
+		primaryKey({ columns: [t.pluginName, t.skillName] }),
+		index("plugin_skills_skill_name_idx").on(t.skillName),
+	],
 );
