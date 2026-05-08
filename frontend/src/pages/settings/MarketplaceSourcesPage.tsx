@@ -1,6 +1,7 @@
 import { api } from "@/lib/api";
 import { formatDateTime } from "@/lib/utils";
 import type { MarketplaceSource } from "@/types/api";
+import { ExternalLink } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
 
 interface FormState {
@@ -265,9 +266,16 @@ export default function MarketplaceSourcesPage() {
 								>
 									<td className="px-4 py-3 text-text-1 max-w-xs">
 										<div className="flex items-center gap-2 truncate">
-											<span className="font-mono text-xs truncate" title={source.gitUrl}>
-												{source.gitUrl}
-											</span>
+											<a
+												href={source.gitUrl}
+												target="_blank"
+												rel="noopener noreferrer"
+												title={source.gitUrl}
+												className="inline-flex items-center gap-1 font-mono text-xs truncate text-indigo-400 hover:text-indigo-300 hover:underline"
+											>
+												<span className="truncate">{source.gitUrl}</span>
+												<ExternalLink className="h-3 w-3 shrink-0" aria-hidden="true" />
+											</a>
 											{source.hasToken && (
 												<span className="badge badge-neutral shrink-0">token</span>
 											)}
