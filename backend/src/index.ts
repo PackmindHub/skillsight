@@ -27,7 +27,7 @@ async function main() {
 
 	const app = createApp();
 	serve({ fetch: app.fetch, port: config.PORT, hostname: "0.0.0.0" }, async (info) => {
-		console.log(`[server] Listening on http://localhost:${info.port}`);
+		console.log(`[server] Listening on 0.0.0.0:${info.port}`);
 		const deps = buildDeps();
 		await startScheduler(deps.integrations, (integration) =>
 			syncIntegration(

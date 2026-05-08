@@ -16,7 +16,6 @@ docker build -t skills-observability:latest .
 # Start (supply required env vars inline or via a .env file)
 POSTGRES_PASSWORD=changeme \
 JWT_SECRET=change-me-in-production-at-least-32-chars \
-PUBLIC_BASE_URL=http://localhost:4200 \
 ADMIN_EMAIL=admin@example.com \
 ADMIN_PASSWORD_INITIAL=admin \
   docker compose up -d
@@ -30,13 +29,15 @@ Open http://localhost:4200 and sign in with the credentials you set above.
 |---|---|
 | `POSTGRES_PASSWORD` | PostgreSQL password |
 | `JWT_SECRET` | HS256 signing secret, minimum 32 characters |
-| `PUBLIC_BASE_URL` | Public URL of the app (e.g. `http://localhost:4200`) |
 | `ADMIN_EMAIL` | Bootstrap admin email |
 | `ADMIN_PASSWORD_INITIAL` | Bootstrap admin password (used once on first start) |
 
-Optional: `JWT_SECRET_PREVIOUS` for zero-downtime secret rotation.
+Optional:
+- `JWT_SECRET_PREVIOUS` — for zero-downtime secret rotation.
+- `PUBLIC_BASE_URL` — when set, locks CORS to this origin and uses it in onboarding instructions. When unset, the app derives the base URL from the incoming request (`Host` / `X-Forwarded-*`), so it works on any URL out of the box.
+- `HOST_BIND` (default `0.0.0.0`) and `HOST_PORT` (default `4200`) — control how the production container's port is published on the host.
 
-> **Note**: The production compose file binds to `127.0.0.1:4200`. Put a reverse proxy (nginx, Caddy, etc.) in front for HTTPS or to expose it on the network.
+> **Reverse proxies**: If you put nginx / Caddy / Traefik in front for HTTPS, make sure it forwards `X-Forwarded-Proto` and `X-Forwarded-Host` so the app can build correct URLs and mark cookies `Secure` under HTTPS.
 
 ## Development mode
 

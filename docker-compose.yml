@@ -22,7 +22,7 @@ services:
       DATABASE_URL: "postgres://${POSTGRES_USER:-skills_obs}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-skills_obs}"
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required (min 32 chars)}
       JWT_SECRET_PREVIOUS: ${JWT_SECRET_PREVIOUS:-}
-      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:?PUBLIC_BASE_URL is required}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-}
       ADMIN_EMAIL: ${ADMIN_EMAIL:?ADMIN_EMAIL is required}
       ADMIN_PASSWORD_INITIAL: ${ADMIN_PASSWORD_INITIAL:?ADMIN_PASSWORD_INITIAL is required}
       PORT: "4200"
@@ -30,7 +30,7 @@ services:
     networks:
       - internal
     ports:
-      - "127.0.0.1:4200:4200"
+      - "${HOST_BIND:-0.0.0.0}:${HOST_PORT:-4200}:4200"
     depends_on:
       postgres:
         condition: service_healthy
