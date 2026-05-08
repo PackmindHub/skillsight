@@ -64,6 +64,13 @@
       "when": 1778600000000,
       "tag": "0008_plugin_skills_skill_name_idx",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1778700000000,
+      "tag": "0009_audit_indexes",
+      "breakpoints": true
     }
   ]
 }

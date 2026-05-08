@@ -2,6 +2,13 @@ import { describe, expect, it } from "bun:test";
 import { updateMarketplaceSource } from "./update-marketplace-source";
 import type { MarketplaceSource, MarketplaceSourceWithSecret } from "@/domain/marketplace-source";
 import type { IMarketplaceSourceRepository } from "@/domain/ports/marketplace-source-repository";
+import type { IAuditRepository } from "@/domain/ports/audit-repository";
+
+const audit: IAuditRepository = {
+	log: async () => {},
+	list: async () => ({ items: [], total: 0 }),
+	listAll: async () => [],
+};
 
 // --- helpers ---
 
@@ -42,14 +49,14 @@ function makeRepo(existing: MarketplaceSourceWithSecret | null = BASE_SOURCE) {
 describe("updateMarketplaceSource", () => {
 	it("returns null when source does not exist", async () => {
 		const { repo } = makeRepo(null);
-		const result = await updateMarketplaceSource({ marketplaceSources: repo }, "missing", {});
+		const result = await updateMarketplaceSource({ marketplaceSources: repo, audit }, "missing", {});
 		expect(result).toBeNull();
 	});
 
 	it("passes importPluginsAndSkills: true when explicitly set", async () => {
 		const { repo, updateCalls } = makeRepo();
 		await updateMarketplaceSource(
-			{ marketplaceSources: repo },
+			{ marketplaceSources: repo, audit },
 			"src-1",
 			{ importPluginsAndSkills: true },
 		);
@@ -62,7 +69,7 @@ describe("updateMarketplaceSource", () => {
 			importPluginsAndSkills: true,
 		});
 		await updateMarketplaceSource(
-			{ marketplaceSources: repo },
+			{ marketplaceSources: repo, audit },
 			"src-1",
 			{ importPluginsAndSkills: false },
 		);
@@ -72,7 +79,7 @@ describe("updateMarketplaceSource", () => {
 	it("does NOT include importPluginsAndSkills in update when not provided", async () => {
 		const { repo, updateCalls } = makeRepo();
 		await updateMarketplaceSource(
-			{ marketplaceSources: repo },
+			{ marketplaceSources: repo, audit },
 			"src-1",
 			{ gitUrl: "github.com/org/other" },
 		);
@@ -86,7 +93,7 @@ describe("updateMarketplaceSource", () => {
 			hasToken: true,
 		});
 		await updateMarketplaceSource(
-			{ marketplaceSources: repo },
+			{ marketplaceSources: repo, audit },
 			"src-1",
 			{ accessToken: null },
 		);
@@ -96,7 +103,7 @@ describe("updateMarketplaceSource", () => {
 	it("encrypts new accessToken when a string is passed", async () => {
 		const { repo, updateCalls } = makeRepo();
 		await updateMarketplaceSource(
-			{ marketplaceSources: repo },
+			{ marketplaceSources: repo, audit },
 			"src-1",
 			{ accessToken: "new-secret" },
 		);
@@ -107,7 +114,7 @@ describe("updateMarketplaceSource", () => {
 	it("does not touch accessToken when undefined is passed", async () => {
 		const { repo, updateCalls } = makeRepo();
 		await updateMarketplaceSource(
-			{ marketplaceSources: repo },
+			{ marketplaceSources: repo, audit },
 			"src-1",
 			{ gitUrl: "github.com/org/other" },
 		);

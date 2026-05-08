@@ -147,6 +147,21 @@ export interface AuditResponse {
 	limit: number;
 }
 
+export interface AuditFilters {
+	actor?: string;
+	actions?: string[];
+	target?: string;
+	from?: string;
+	to?: string;
+	search?: string;
+}
+
+export interface AuditDiffMetadata {
+	before: Record<string, unknown>;
+	after: Record<string, unknown>;
+	changedFields: string[];
+}
+
 export interface MarketplaceSource {
 	id: string;
 	gitUrl: string;

@@ -28,8 +28,8 @@ const STATIC_ROOT =
 export function createApp() {
 	const deps = buildDeps();
 
-	eventBus.onMarketplaceStatusChanged(({ name, newStatus }) => {
-		syncPluginStatuses(deps, name, newStatus).catch(console.error);
+	eventBus.onMarketplaceStatusChanged(({ name, newStatus, actorEmail }) => {
+		syncPluginStatuses(deps, name, newStatus, { actorEmail }).catch(console.error);
 	});
 
 	const app = new Hono();

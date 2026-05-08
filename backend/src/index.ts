@@ -31,8 +31,14 @@ async function main() {
 		const deps = buildDeps();
 		await startScheduler(deps.integrations, (integration) =>
 			syncIntegration(
-				{ integrations: deps.integrations, events: deps.events, loki: deps.loki },
+				{
+					integrations: deps.integrations,
+					events: deps.events,
+					loki: deps.loki,
+					audit: deps.audit,
+				},
 				integration,
+				{ mode: "scheduled" },
 			),
 		);
 		await startMarketplaceSourceScheduler(deps.marketplaceSources, (source) =>
@@ -43,8 +49,10 @@ async function main() {
 					plugins: deps.plugins,
 					pluginSkills: deps.pluginSkills,
 					gitMarketplace: deps.gitMarketplace,
+					audit: deps.audit,
 				},
 				source,
+				{ mode: "scheduled" },
 			),
 		);
 	});
