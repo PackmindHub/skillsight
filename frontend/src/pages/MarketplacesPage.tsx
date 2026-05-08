@@ -3,6 +3,7 @@ import { useMarketplaceSourcesHealth } from "@/context/MarketplaceSourcesHealthC
 import { api } from "@/lib/api";
 import { formatDateTime } from "@/lib/utils";
 import type { Marketplace, MarketplaceSource, MarketplaceStatus } from "@/types/api";
+import { ExternalLink } from "lucide-react";
 import { Fragment, type FormEvent, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -391,9 +392,16 @@ export default function MarketplacesPage() {
 											>
 												<td className="px-4 py-2.5 text-text-1">
 													<div className="flex items-center gap-2">
-														<span className="font-mono text-xs truncate max-w-64" title={source.gitUrl}>
-															{source.gitUrl}
-														</span>
+														<a
+															href={source.gitUrl}
+															target="_blank"
+															rel="noopener noreferrer"
+															title={source.gitUrl}
+															className="inline-flex items-center gap-1 font-mono text-xs truncate max-w-64 text-indigo-400 hover:text-indigo-300 hover:underline"
+														>
+															<span className="truncate">{source.gitUrl}</span>
+															<ExternalLink className="h-3 w-3 shrink-0" aria-hidden="true" />
+														</a>
 														{source.hasToken && (
 															<span className="badge badge-neutral shrink-0">token</span>
 														)}
