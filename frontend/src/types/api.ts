@@ -16,7 +16,7 @@ export interface Token {
 }
 
 export interface SkillUsageStat {
-	skill_name: string;
+	skillName: string;
 	count: number;
 }
 
@@ -49,7 +49,7 @@ export interface UsageResponse {
 	stats: UsageStats;
 }
 
-export type DashboardPeriod = 30 | 90 | "all";
+export type DashboardPeriod = 7 | 30 | 90 | "all";
 
 export interface MonthlyPoint {
 	month: string;
@@ -96,18 +96,39 @@ export interface Marketplace extends MarketplaceRef {
 }
 
 export interface SkillTableRow {
-	skill_name: string;
+	skillName: string;
 	skillSource: string | null;
 	total: number;
-	user_slash: number;
-	claude_proactive: number;
-	nested_skill: number;
+	userSlash: number;
+	claudeProactive: number;
+	nestedSkill: number;
+	dailyCounts: number[];
 	marketplaces: MarketplaceRef[];
-	status?: "removed" | null;
+	status: "removed" | null;
 }
 
 export interface SkillsTableResponse {
 	rows: SkillTableRow[];
+}
+
+export interface SkillDetailTopUser {
+	userEmail: string;
+	count: number;
+}
+
+export interface SkillDetail {
+	skillName: string;
+	skillSource: string | null;
+	total: number;
+	userSlash: number;
+	claudeProactive: number;
+	nestedSkill: number;
+	dailyCounts: { date: string; count: number }[];
+	topUsers: SkillDetailTopUser[];
+	firstSeenAt: string | null;
+	lastSeenAt: string | null;
+	marketplaces: MarketplaceRef[];
+	status: "removed" | null;
 }
 
 export interface AuditEvent {

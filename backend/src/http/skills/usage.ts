@@ -4,6 +4,7 @@ import type { AppDeps } from "@/bootstrap/compose";
 import { sessionAuth } from "@/middleware/session-auth";
 import { getUsageStats } from "@/application/skills/get-usage-stats";
 import { getSkillsTable } from "@/application/skills/get-skills-table";
+import { getSkillDetail } from "@/application/skills/get-skill-detail";
 import { getMonthlyTrends } from "@/application/skills/get-monthly-trends";
 import type { DaysWindow } from "@/domain/ports/skill-repository";
 
@@ -28,6 +29,16 @@ export function createUsageRoute(deps: Pick<AppDeps, "skills" | "marketplaces">)
 		const days = parseDays(c.req.query("days"));
 		if (typeof days === "object") return c.json(days, 400);
 		return c.json({ rows: await getSkillsTable(deps, { days }) });
+	});
+
+	route.get("/detail", async (c) => {
+		const days = parseDays(c.req.query("days"));
+		if (typeof days === "object") return c.json(days, 400);
+		const skillName = c.req.query("skill");
+		if (!skillName) return c.json({ error: "Missing skill parameter" }, 400);
+		const detail = await getSkillDetail(deps, { skillName, days });
+		if (!detail) return c.json({ error: "Skill not found" }, 404);
+		return c.json(detail);
 	});
 
 	route.get("/monthly", async (c) => {

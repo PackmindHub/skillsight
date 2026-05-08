@@ -14,6 +14,7 @@ function makeSkills(rows: SkillTableRow[]): ISkillRepository {
 		getUniqueSkillsCount: async () => 0,
 		getActiveUsersCount: async () => 0,
 		getSkillsTable: async () => rows,
+		getSkillDetail: async () => null,
 		getMonthlyTrends: async () => ({ invocations: [], uniqueSkills: [], uniqueUsers: [] }),
 	};
 }
@@ -49,6 +50,7 @@ describe("getSkillsTable", () => {
 					userSlash: 0,
 					claudeProactive: 0,
 					nestedSkill: 0,
+					dailyCounts: [],
 					marketplaceNames: ["acme"],
 					status: null,
 				},
@@ -74,6 +76,7 @@ describe("getSkillsTable", () => {
 					userSlash: 0,
 					claudeProactive: 0,
 					nestedSkill: 0,
+					dailyCounts: [],
 					marketplaceNames: ["mystery-mp"],
 					status: null,
 				},
@@ -96,6 +99,7 @@ describe("getSkillsTable", () => {
 					userSlash: 0,
 					claudeProactive: 0,
 					nestedSkill: 0,
+					dailyCounts: [],
 					marketplaceNames: [],
 					status: "removed",
 				},
@@ -119,6 +123,7 @@ describe("getSkillsTable", () => {
 					userSlash: 5,
 					claudeProactive: 7,
 					nestedSkill: 0,
+					dailyCounts: [1, 2, 3, 1, 0, 2, 3],
 					marketplaceNames: ["acme"],
 					status: null,
 				},
@@ -135,6 +140,7 @@ describe("getSkillsTable", () => {
 			userSlash: 5,
 			claudeProactive: 7,
 			nestedSkill: 0,
+			dailyCounts: [1, 2, 3, 1, 0, 2, 3],
 			status: null,
 			marketplaces: [{ name: "acme", status: "approved" }],
 		});
