@@ -33,19 +33,15 @@ export async function verifyToken(token: string): Promise<JWTPayload> {
 export async function createIngestionToken(
 	name: string,
 	userLabel: string | undefined,
-	expiresAt: Date | undefined,
+	expiresAt: Date,
 ): Promise<string> {
 	const jti = crypto.randomUUID();
-	const builder = new SignJWT({ jti, name, userLabel, type: "ingestion" })
+	return new SignJWT({ jti, name, userLabel, type: "ingestion" })
 		.setProtectedHeader({ alg: "HS256" })
 		.setJti(jti)
-		.setIssuedAt();
-
-	if (expiresAt) {
-		builder.setExpirationTime(Math.floor(expiresAt.getTime() / 1000));
-	}
-
-	return builder.sign(encodeSecret(config.JWT_SECRET));
+		.setIssuedAt()
+		.setExpirationTime(Math.floor(expiresAt.getTime() / 1000))
+		.sign(encodeSecret(config.JWT_SECRET));
 }
 
 export function extractJti(token: string): string | undefined {

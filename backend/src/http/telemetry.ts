@@ -13,7 +13,7 @@ export function createTelemetryRoute(deps: Pick<AppDeps, "events" | "marketplace
 		} catch {
 			return c.json(
 				{ partialSuccess: { rejectedLogRecords: 1, errorMessage: "Invalid JSON" } },
-				200,
+				400,
 			);
 		}
 

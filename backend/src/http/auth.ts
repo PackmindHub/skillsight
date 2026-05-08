@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { setCookie, deleteCookie } from "hono/cookie";
+import { z } from "zod";
 import type { AppVariables } from "@/types";
 import type { AppDeps } from "@/bootstrap/compose";
 import { sessionAuth } from "@/middleware/session-auth";
@@ -8,11 +9,16 @@ import { getCurrentUser } from "@/application/auth/get-current-user";
 import { completeOnboarding } from "@/application/auth/complete-onboarding";
 import { isHttps } from "@/lib/request-url";
 
+const loginSchema = z.object({
+	email: z.string().email(),
+	password: z.string().min(1),
+});
+
 export function createAuthRoute(deps: Pick<AppDeps, "users" | "audit">) {
 	const route = new Hono<{ Variables: AppVariables }>();
 
 	route.post("/login", async (c) => {
-		const { email, password } = await c.req.json<{ email: string; password: string }>();
+		const { email, password } = loginSchema.parse(await c.req.json());
 		const result = await login(deps, { email, password });
 
 		if ("error" in result) return c.json({ error: "Invalid credentials" }, 401);

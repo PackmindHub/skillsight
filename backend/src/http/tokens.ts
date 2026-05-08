@@ -1,10 +1,17 @@
 import { Hono } from "hono";
+import { z } from "zod";
 import type { AppVariables } from "@/types";
 import type { AppDeps } from "@/bootstrap/compose";
 import { sessionAuth } from "@/middleware/session-auth";
 import { listTokens } from "@/application/tokens/list-tokens";
 import { createToken } from "@/application/tokens/create-token";
 import { revokeToken } from "@/application/tokens/revoke-token";
+
+const createTokenSchema = z.object({
+	name: z.string().min(1).max(255),
+	userLabel: z.string().max(255).optional().nullable(),
+	expiresAt: z.string().datetime(),
+});
 
 export function createTokensRoute(deps: Pick<AppDeps, "tokens" | "audit">) {
 	const route = new Hono<{ Variables: AppVariables }>();
@@ -15,16 +22,11 @@ export function createTokensRoute(deps: Pick<AppDeps, "tokens" | "audit">) {
 	});
 
 	route.post("/", async (c) => {
-		const { name, userLabel, expiresAt: expiresAtStr } = await c.req.json<{
-			name: string;
-			userLabel?: string;
-			expiresAt?: string;
-		}>();
-		const expiresAt = expiresAtStr ? new Date(expiresAtStr) : null;
+		const { name, userLabel, expiresAt } = createTokenSchema.parse(await c.req.json());
 		const result = await createToken(deps, {
 			name,
 			userLabel,
-			expiresAt,
+			expiresAt: new Date(expiresAt),
 			actorEmail: c.get("user").email,
 		});
 		return c.json(result, 201);

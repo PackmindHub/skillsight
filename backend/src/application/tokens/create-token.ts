@@ -8,14 +8,14 @@ export async function createToken(
 	input: {
 		name: string;
 		userLabel?: string | null;
-		expiresAt?: Date | null;
+		expiresAt: Date;
 		actorEmail: string;
 	},
 ): Promise<TokenWithJwt> {
 	const jwt = await createIngestionToken(
 		input.name,
 		input.userLabel ?? undefined,
-		input.expiresAt ?? undefined,
+		input.expiresAt,
 	);
 	const jti = extractJti(jwt);
 	if (!jti) throw new Error("Failed to extract jti from generated token");
