@@ -115,6 +115,10 @@ export const api = {
 				`/api/integrations/${id}/sync`,
 				{ method: "POST" },
 			),
+		pause: (id: string) =>
+			apiFetch<Integration>(`/api/integrations/${id}/pause`, { method: "POST" }),
+		resume: (id: string) =>
+			apiFetch<Integration>(`/api/integrations/${id}/resume`, { method: "POST" }),
 		resetCursor: (id: string) =>
 			apiFetch<void>(`/api/integrations/${id}/reset-cursor`, { method: "POST" }),
 		clearData: (id: string) =>
