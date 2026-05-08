@@ -98,7 +98,38 @@ export class DrizzleSkillRepository implements ISkillRepository {
 
 	async getSkillsTable(days: number): Promise<SkillTableRow[]> {
 		const rows = await this.db.execute(sql`
-			WITH skill_plugin_status AS (
+			WITH known_skills AS (
+			  SELECT DISTINCT attributes->>'skill.name' AS skill_name
+			  FROM events
+			  WHERE event_name = 'claude_code.skill_activated'
+			    AND attributes->>'skill.name' IS NOT NULL
+			  UNION
+			  SELECT DISTINCT skill_name FROM plugin_skills
+			),
+			windowed_events AS (
+			  SELECT
+			    e.attributes->>'skill.name' AS skill_name,
+			    MIN(e.attributes->>'skill.source') AS skill_source,
+			    COUNT(*)::int AS total,
+			    COUNT(*) FILTER (WHERE e.attributes->>'invocation_trigger' = 'user-slash')::int AS user_slash,
+			    COUNT(*) FILTER (WHERE e.attributes->>'invocation_trigger' = 'claude-proactive')::int AS claude_proactive,
+			    COUNT(*) FILTER (WHERE e.attributes->>'invocation_trigger' = 'nested-skill')::int AS nested_skill,
+			    array_remove(array_agg(DISTINCT e.attributes->>'marketplace.name'), NULL) AS event_marketplace_names
+			  FROM events e
+			  WHERE e.event_name = 'claude_code.skill_activated'
+			    AND e.timestamp >= NOW() - (${days} || ' days')::interval
+			    AND e.attributes->>'skill.name' IS NOT NULL
+			  GROUP BY 1
+			),
+			plugin_marketplaces AS (
+			  SELECT
+			    ps.skill_name,
+			    array_remove(array_agg(DISTINCT p.marketplace_name), NULL) AS plugin_marketplace_names
+			  FROM plugin_skills ps
+			  JOIN plugins p ON p.plugin_name = ps.plugin_name
+			  GROUP BY ps.skill_name
+			),
+			skill_plugin_status AS (
 			  SELECT
 			    ps.skill_name,
 			    BOOL_AND(p.status = 'removed') AS all_removed
@@ -107,21 +138,27 @@ export class DrizzleSkillRepository implements ISkillRepository {
 			  GROUP BY ps.skill_name
 			)
 			SELECT
-			  e.attributes->>'skill.name' AS skill_name,
-			  MIN(e.attributes->>'skill.source') AS skill_source,
-			  COUNT(*)::int AS total,
-			  COUNT(*) FILTER (WHERE e.attributes->>'invocation_trigger' = 'user-slash')::int AS user_slash,
-			  COUNT(*) FILTER (WHERE e.attributes->>'invocation_trigger' = 'claude-proactive')::int AS claude_proactive,
-			  COUNT(*) FILTER (WHERE e.attributes->>'invocation_trigger' = 'nested-skill')::int AS nested_skill,
-			  array_remove(array_agg(DISTINCT e.attributes->>'marketplace.name'), NULL) AS marketplace_names,
+			  ks.skill_name,
+			  we.skill_source AS skill_source,
+			  COALESCE(we.total, 0)::int AS total,
+			  COALESCE(we.user_slash, 0)::int AS user_slash,
+			  COALESCE(we.claude_proactive, 0)::int AS claude_proactive,
+			  COALESCE(we.nested_skill, 0)::int AS nested_skill,
+			  ARRAY(
+			    SELECT DISTINCT x
+			    FROM unnest(
+			      COALESCE(we.event_marketplace_names, ARRAY[]::text[]) ||
+			      COALESCE(pm.plugin_marketplace_names, ARRAY[]::text[])
+			    ) AS x
+			    WHERE x IS NOT NULL
+			    ORDER BY x
+			  ) AS marketplace_names,
 			  CASE WHEN sps.all_removed IS TRUE THEN 'removed' ELSE NULL END AS status
-			FROM events e
-			LEFT JOIN skill_plugin_status sps ON sps.skill_name = e.attributes->>'skill.name'
-			WHERE e.event_name = 'claude_code.skill_activated'
-			  AND e.timestamp >= NOW() - (${days} || ' days')::interval
-			  AND e.attributes->>'skill.name' IS NOT NULL
-			GROUP BY 1, sps.all_removed
-			ORDER BY total DESC
+			FROM known_skills ks
+			LEFT JOIN windowed_events we ON we.skill_name = ks.skill_name
+			LEFT JOIN plugin_marketplaces pm ON pm.skill_name = ks.skill_name
+			LEFT JOIN skill_plugin_status sps ON sps.skill_name = ks.skill_name
+			ORDER BY total DESC, ks.skill_name ASC
 		`);
 		return (
 			rows as unknown as Array<{
