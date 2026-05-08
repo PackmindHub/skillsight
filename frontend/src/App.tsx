@@ -2,6 +2,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { SettingsLayout } from "@/components/layout/SettingsLayout";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { IntegrationsHealthProvider } from "@/context/IntegrationsHealthContext";
+import { MarketplaceSourcesHealthProvider } from "@/context/MarketplaceSourcesHealthContext";
 import AuditLogPage from "@/pages/AuditLogPage";
 import DashboardPage from "@/pages/DashboardPage";
 import LoginPage from "@/pages/LoginPage";
@@ -20,9 +21,11 @@ function ProtectedRoute() {
 	if (!user) return <Navigate to="/login" replace />;
 	return (
 		<IntegrationsHealthProvider>
-			<AppShell>
-				<Outlet />
-			</AppShell>
+			<MarketplaceSourcesHealthProvider>
+				<AppShell>
+					<Outlet />
+				</AppShell>
+			</MarketplaceSourcesHealthProvider>
 		</IntegrationsHealthProvider>
 	);
 }

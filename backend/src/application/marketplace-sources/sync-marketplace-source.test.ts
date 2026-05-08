@@ -35,14 +35,22 @@ const BASE_MARKETPLACE_DATA: MarketplaceJsonData = {
 
 // --- mock builders ---
 
-function makeMarketplaceSources(): IMarketplaceSourceRepository {
+type UpdateSyncStatusCall = Parameters<IMarketplaceSourceRepository["updateSyncStatus"]>;
+
+function makeMarketplaceSources(): IMarketplaceSourceRepository & {
+	updateSyncStatusCalls: UpdateSyncStatusCall[];
+} {
+	const updateSyncStatusCalls: UpdateSyncStatusCall[] = [];
 	return {
 		findAll: async () => [],
 		findById: async () => null,
 		create: async () => ({ ...BASE_SOURCE }),
 		update: async () => ({ ...BASE_SOURCE }),
 		delete: async () => {},
-		updateSyncStatus: async () => {},
+		updateSyncStatus: async (...args) => {
+			updateSyncStatusCalls.push(args);
+		},
+		updateSyncStatusCalls,
 	};
 }
 
@@ -86,10 +94,13 @@ function makePluginSkills(): IPluginSkillRepository {
 	};
 }
 
-function makeGateway(result: MarketplaceJsonData | "throw" = BASE_MARKETPLACE_DATA): IGitMarketplaceGateway {
+function makeGateway(
+	result: MarketplaceJsonData | "throw" | { error: string } = BASE_MARKETPLACE_DATA,
+): IGitMarketplaceGateway {
 	return {
 		fetchMarketplaceJson: async () => {
 			if (result === "throw") throw new Error("network error");
+			if (typeof result === "object" && "error" in result) throw new Error(result.error);
 			return result;
 		},
 	};
@@ -211,6 +222,77 @@ describe("syncMarketplaceSource", () => {
 			expect(result.pluginCount).toBe(0);
 			expect(result.skillCount).toBe(0);
 			expect(result.error).toBe("network error");
+		});
+	});
+
+	describe("error persistence", () => {
+		it("persists the error message via updateSyncStatus when the gateway throws (broken URL)", async () => {
+			const { repo: plugins } = makePlugins();
+			const marketplaceSources = makeMarketplaceSources();
+
+			await syncMarketplaceSource(
+				{
+					marketplaceSources,
+					marketplaces: makeMarketplaces(),
+					plugins,
+					pluginSkills: makePluginSkills(),
+					gitMarketplace: makeGateway({
+						error: 'marketplace.json not found (HTTP 404). Check the git URL and branch ("main").',
+					}),
+				},
+				BASE_SOURCE,
+			);
+
+			expect(marketplaceSources.updateSyncStatusCalls).toHaveLength(1);
+			const [id, status] = marketplaceSources.updateSyncStatusCalls[0];
+			expect(id).toBe(BASE_SOURCE.id);
+			expect(status.lastSyncError).toBe(
+				'marketplace.json not found (HTTP 404). Check the git URL and branch ("main").',
+			);
+			expect(status.lastSyncAt).toBeUndefined();
+		});
+
+		it("persists an authentication failure message (broken credentials)", async () => {
+			const { repo: plugins } = makePlugins();
+			const marketplaceSources = makeMarketplaceSources();
+
+			await syncMarketplaceSource(
+				{
+					marketplaceSources,
+					marketplaces: makeMarketplaces(),
+					plugins,
+					pluginSkills: makePluginSkills(),
+					gitMarketplace: makeGateway({
+						error: "Authentication failed (HTTP 401). Check the access token.",
+					}),
+				},
+				BASE_SOURCE,
+			);
+
+			const [, status] = marketplaceSources.updateSyncStatusCalls[0];
+			expect(status.lastSyncError).toBe(
+				"Authentication failed (HTTP 401). Check the access token.",
+			);
+		});
+
+		it("clears lastSyncError on a successful sync", async () => {
+			const { repo: plugins } = makePlugins();
+			const marketplaceSources = makeMarketplaceSources();
+
+			await syncMarketplaceSource(
+				{
+					marketplaceSources,
+					marketplaces: makeMarketplaces(),
+					plugins,
+					pluginSkills: makePluginSkills(),
+					gitMarketplace: makeGateway(),
+				},
+				{ ...BASE_SOURCE, lastSyncError: "previous failure" },
+			);
+
+			const [, status] = marketplaceSources.updateSyncStatusCalls[0];
+			expect(status.lastSyncError).toBeNull();
+			expect(status.lastSyncAt).toBeInstanceOf(Date);
 		});
 	});
 });

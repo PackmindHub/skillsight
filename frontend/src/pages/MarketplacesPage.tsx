@@ -1,7 +1,9 @@
+import { SourceErrorBanner } from "@/components/marketplaces/SourceErrorBanner";
+import { useMarketplaceSourcesHealth } from "@/context/MarketplaceSourcesHealthContext";
 import { api } from "@/lib/api";
 import { formatDateTime } from "@/lib/utils";
 import type { Marketplace, MarketplaceSource, MarketplaceStatus } from "@/types/api";
-import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { Fragment, type FormEvent, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 const STATUS_OPTIONS: { value: MarketplaceStatus; label: string }[] = [
@@ -60,6 +62,8 @@ export default function MarketplacesPage() {
 	const [editing, setEditing] = useState<Record<string, EditState>>({});
 	const [saving, setSaving] = useState<Record<string, boolean>>({});
 	const [searchParams, setSearchParams] = useSearchParams();
+
+	const { refresh: refreshSourcesHealth } = useMarketplaceSourcesHealth();
 
 	const statusFilter = pickStatus(searchParams.get("status"));
 	const search = searchParams.get("search") ?? "";
@@ -186,6 +190,7 @@ export default function MarketplacesPage() {
 				setSources((prev) => [created, ...prev]);
 			}
 			closeSourceForm();
+			refreshSourcesHealth();
 		} finally {
 			setSavingSource(false);
 		}
@@ -196,6 +201,7 @@ export default function MarketplacesPage() {
 		try {
 			await api.marketplaceSources.remove(id);
 			setSources((prev) => prev.filter((s) => s.id !== id));
+			refreshSourcesHealth();
 		} finally {
 			setDeletingSourceId(null);
 		}
@@ -211,6 +217,7 @@ export default function MarketplacesPage() {
 				api.marketplaces.list().then((res) => setItems(res.marketplaces)),
 				api.marketplaceSources.list().then(setSources),
 			]);
+			refreshSourcesHealth();
 		} finally {
 			setSyncingSourceId(null);
 		}
@@ -378,8 +385,8 @@ export default function MarketplacesPage() {
 										const sr = sourceSyncResult[source.id];
 										const hasError = source.lastSyncError !== null;
 										return (
+											<Fragment key={source.id}>
 											<tr
-												key={source.id}
 												className={`border-b border-edge-dim transition-colors ${!source.enabled ? "opacity-40" : "hover:bg-surface-800"}`}
 											>
 												<td className="px-4 py-2.5 text-text-1">
@@ -448,6 +455,14 @@ export default function MarketplacesPage() {
 													</div>
 												</td>
 											</tr>
+											{hasError && (
+												<tr>
+													<td colSpan={5} className="px-0 pb-3">
+														<SourceErrorBanner message={source.lastSyncError ?? ""} />
+													</td>
+												</tr>
+											)}
+										</Fragment>
 										);
 									})}
 								</tbody>
