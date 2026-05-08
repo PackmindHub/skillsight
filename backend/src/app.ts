@@ -3,6 +3,7 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { secureHeaders } from "hono/secure-headers";
 import { serveStatic } from "@hono/node-server/serve-static";
+import { ZodError } from "zod";
 import { config } from "@/config/env";
 import { buildDeps } from "@/bootstrap/compose";
 import { createHealthRoute } from "@/http/health";
@@ -32,6 +33,17 @@ export function createApp() {
 	});
 
 	const app = new Hono();
+
+	app.onError((err, c) => {
+		if (err instanceof ZodError) {
+			return c.json({ error: "Invalid input", issues: err.issues }, 400);
+		}
+		if (err instanceof SyntaxError) {
+			return c.json({ error: "Invalid JSON" }, 400);
+		}
+		console.error(err);
+		return c.json({ error: "Internal server error" }, 500);
+	});
 
 	app.use("*", logger());
 	app.use("*", secureHeaders());
