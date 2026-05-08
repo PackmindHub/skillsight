@@ -1,6 +1,7 @@
 import { api } from "@/lib/api";
 import type { MarketplaceRef, SkillTableRow } from "@/types/api";
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 const MP_STATUS_STYLES: Record<string, string> = {
 	approved: "bg-success/15 text-success border-success/30",
@@ -44,16 +45,37 @@ type TriggerKey = "all" | "user_slash" | "claude_proactive" | "nested_skill";
 type SourceFilter = "all" | "bundled" | "external";
 type UsageFilter = "all" | "activated" | "never_used";
 
+const TRIGGER_VALUES: TriggerKey[] = ["all", "user_slash", "claude_proactive", "nested_skill"];
+const SOURCE_VALUES: SourceFilter[] = ["all", "bundled", "external"];
+const USAGE_VALUES: UsageFilter[] = ["all", "activated", "never_used"];
+
+function pick<T extends string>(raw: string | null, values: readonly T[], fallback: T): T {
+	return values.includes((raw ?? "") as T) ? (raw as T) : fallback;
+}
+
 export default function SkillsTablePage() {
 	const [rows, setRows] = useState<SkillTableRow[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const [searchParams, setSearchParams] = useSearchParams();
 
-	const [search, setSearch] = useState("");
-	const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
-	const [marketplaceFilter, setMarketplaceFilter] = useState("all");
-	const [triggerFilter, setTriggerFilter] = useState<TriggerKey>("all");
-	const [usageFilter, setUsageFilter] = useState<UsageFilter>("all");
+	const search = searchParams.get("search") ?? "";
+	const sourceFilter = pick<SourceFilter>(searchParams.get("source"), SOURCE_VALUES, "all");
+	const marketplaceFilter = searchParams.get("marketplace") ?? "all";
+	const triggerFilter = pick<TriggerKey>(searchParams.get("trigger"), TRIGGER_VALUES, "all");
+	const usageFilter = pick<UsageFilter>(searchParams.get("usage"), USAGE_VALUES, "all");
+
+	function updateParam(key: string, value: string, defaultValue: string) {
+		setSearchParams(
+			(prev) => {
+				const next = new URLSearchParams(prev);
+				if (!value || value === defaultValue) next.delete(key);
+				else next.set(key, value);
+				return next;
+			},
+			{ replace: true },
+		);
+	}
 
 	useEffect(() => {
 		api.skills
@@ -103,12 +125,12 @@ export default function SkillsTablePage() {
 							type="text"
 							placeholder="Search skill name…"
 							value={search}
-							onChange={(e) => setSearch(e.target.value)}
+							onChange={(e) => updateParam("search", e.target.value, "")}
 							className="rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 placeholder:text-text-4 focus:outline-none focus:ring-1 focus:ring-accent-bright min-w-48"
 						/>
 						<select
 							value={sourceFilter}
-							onChange={(e) => setSourceFilter(e.target.value as SourceFilter)}
+							onChange={(e) => updateParam("source", e.target.value, "all")}
 							className="rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 focus:outline-none focus:ring-1 focus:ring-accent-bright"
 						>
 							<option value="all">Source: All</option>
@@ -117,7 +139,7 @@ export default function SkillsTablePage() {
 						</select>
 						<select
 							value={marketplaceFilter}
-							onChange={(e) => setMarketplaceFilter(e.target.value)}
+							onChange={(e) => updateParam("marketplace", e.target.value, "all")}
 							className="rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 focus:outline-none focus:ring-1 focus:ring-accent-bright"
 						>
 							<option value="all">Marketplace: All</option>
@@ -127,7 +149,7 @@ export default function SkillsTablePage() {
 						</select>
 						<select
 							value={triggerFilter}
-							onChange={(e) => setTriggerFilter(e.target.value as TriggerKey)}
+							onChange={(e) => updateParam("trigger", e.target.value, "all")}
 							className="rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 focus:outline-none focus:ring-1 focus:ring-accent-bright"
 						>
 							<option value="all">Trigger: All</option>
@@ -137,7 +159,7 @@ export default function SkillsTablePage() {
 						</select>
 						<select
 							value={usageFilter}
-							onChange={(e) => setUsageFilter(e.target.value as UsageFilter)}
+							onChange={(e) => updateParam("usage", e.target.value, "all")}
 							className="rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 focus:outline-none focus:ring-1 focus:ring-accent-bright"
 						>
 							<option value="all">Usage: All</option>

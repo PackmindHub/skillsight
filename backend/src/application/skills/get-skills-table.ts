@@ -1,10 +1,10 @@
-import type { ISkillRepository } from "@/domain/ports/skill-repository";
+import type { DaysWindow, ISkillRepository } from "@/domain/ports/skill-repository";
 import type { IMarketplaceRepository } from "@/domain/ports/marketplace-repository";
 import type { MarketplaceStatus } from "@/domain/marketplace";
 
 export async function getSkillsTable(
 	deps: { skills: ISkillRepository; marketplaces: IMarketplaceRepository },
-	input: { days: number },
+	input: { days: DaysWindow },
 ) {
 	const [rawRows, statuses] = await Promise.all([
 		deps.skills.getSkillsTable(input.days),

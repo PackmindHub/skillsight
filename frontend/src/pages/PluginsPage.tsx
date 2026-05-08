@@ -1,6 +1,7 @@
 import { api } from "@/lib/api";
 import type { Plugin, PluginStatus } from "@/types/api";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 const STATUS_BADGE: Record<PluginStatus, string> = {
 	unknown: "bg-gray-100 text-gray-600 border-gray-200",
@@ -16,10 +17,33 @@ const STATUS_LABEL: Record<PluginStatus, string> = {
 	removed: "Removed",
 };
 
+type StatusFilter = "all" | PluginStatus;
+const STATUS_FILTERS: StatusFilter[] = ["all", "unknown", "to_review", "approved", "removed"];
+
+function pickStatus(raw: string | null): StatusFilter {
+	return STATUS_FILTERS.includes((raw ?? "") as StatusFilter) ? (raw as StatusFilter) : "all";
+}
+
 export default function PluginsPage() {
 	const [items, setItems] = useState<Plugin[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const [searchParams, setSearchParams] = useSearchParams();
+
+	const search = searchParams.get("search") ?? "";
+	const statusFilter = pickStatus(searchParams.get("status"));
+
+	function updateParam(key: string, value: string, defaultValue: string) {
+		setSearchParams(
+			(prev) => {
+				const next = new URLSearchParams(prev);
+				if (!value || value === defaultValue) next.delete(key);
+				else next.set(key, value);
+				return next;
+			},
+			{ replace: true },
+		);
+	}
 
 	useEffect(() => {
 		api.plugins
@@ -28,6 +52,14 @@ export default function PluginsPage() {
 			.catch((e) => setError(String(e)))
 			.finally(() => setLoading(false));
 	}, []);
+
+	const filteredItems = useMemo(() => {
+		return items.filter((p) => {
+			if (statusFilter !== "all" && (p.status ?? "unknown") !== statusFilter) return false;
+			if (search && !p.pluginName.toLowerCase().includes(search.toLowerCase())) return false;
+			return true;
+		});
+	}, [items, statusFilter, search]);
 
 	if (loading) return <p className="text-text-3 text-sm">Loading…</p>;
 
@@ -60,68 +92,103 @@ export default function PluginsPage() {
 					</div>
 				</div>
 			) : (
-				<div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-					<table className="w-full text-sm">
-						<thead className="bg-gray-50 border-b border-gray-200">
-							<tr>
-								<th className="text-left px-4 py-3 font-medium text-gray-600">Plugin</th>
-								<th className="text-left px-4 py-3 font-medium text-gray-600">Marketplace</th>
-								<th className="text-left px-4 py-3 font-medium text-gray-600">Version</th>
-								<th className="text-left px-4 py-3 font-medium text-gray-600">Trigger</th>
-								<th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
-								<th className="text-right px-4 py-3 font-medium text-gray-600">Installations</th>
-								<th className="text-right px-4 py-3 font-medium text-gray-600">Unique Users</th>
-							</tr>
-						</thead>
-						<tbody>
-							{items.map((plugin) => {
-								const status = (plugin.status ?? "unknown") as PluginStatus;
-								return (
-									<tr
-										key={plugin.pluginName}
-										className="border-b border-gray-100 hover:bg-gray-50"
-									>
-										<td className="px-4 py-3 font-mono text-gray-900 whitespace-nowrap">
-											{plugin.pluginName}
-										</td>
-										<td className="px-4 py-3 text-gray-500">
-											{plugin.marketplaceName ?? (
-												<span className="text-gray-400">—</span>
-											)}
-										</td>
-										<td className="px-4 py-3 text-gray-500">
-											{plugin.pluginVersion ?? (
-												<span className="text-gray-400">—</span>
-											)}
-										</td>
-										<td className="px-4 py-3">
-											{plugin.installTrigger ? (
-												<span className="inline-block rounded border border-gray-200 bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
-													{plugin.installTrigger}
-												</span>
-											) : (
-												<span className="text-gray-400">—</span>
-											)}
-										</td>
-										<td className="px-4 py-3">
-											<span
-												className={`inline-block rounded border px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[status]}`}
-											>
-												{STATUS_LABEL[status]}
-											</span>
-										</td>
-										<td className="px-4 py-3 text-right text-gray-700">
-											{plugin.installationCount}
-										</td>
-										<td className="px-4 py-3 text-right text-gray-700">
-											{plugin.uniqueUserCount}
+				<>
+					<div className="flex flex-wrap items-center gap-2">
+						<input
+							type="text"
+							placeholder="Search plugin name…"
+							value={search}
+							onChange={(e) => updateParam("search", e.target.value, "")}
+							className="rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 placeholder:text-text-4 focus:outline-none focus:ring-1 focus:ring-accent-bright min-w-48"
+						/>
+						<select
+							value={statusFilter}
+							onChange={(e) => updateParam("status", e.target.value, "all")}
+							className="rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 focus:outline-none focus:ring-1 focus:ring-accent-bright"
+						>
+							<option value="all">Status: All</option>
+							{(["unknown", "to_review", "approved", "removed"] as PluginStatus[]).map((s) => (
+								<option key={s} value={s}>
+									{STATUS_LABEL[s]}
+								</option>
+							))}
+						</select>
+						{filteredItems.length !== items.length && (
+							<span className="text-xs text-text-4">{filteredItems.length} / {items.length}</span>
+						)}
+					</div>
+
+					<div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+						<table className="w-full text-sm">
+							<thead className="bg-gray-50 border-b border-gray-200">
+								<tr>
+									<th className="text-left px-4 py-3 font-medium text-gray-600">Plugin</th>
+									<th className="text-left px-4 py-3 font-medium text-gray-600">Marketplace</th>
+									<th className="text-left px-4 py-3 font-medium text-gray-600">Version</th>
+									<th className="text-left px-4 py-3 font-medium text-gray-600">Trigger</th>
+									<th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
+									<th className="text-right px-4 py-3 font-medium text-gray-600">Installations</th>
+									<th className="text-right px-4 py-3 font-medium text-gray-600">Unique Users</th>
+								</tr>
+							</thead>
+							<tbody>
+								{filteredItems.length === 0 ? (
+									<tr>
+										<td colSpan={7} className="px-4 py-8 text-center text-gray-400 text-sm">
+											No plugins match the current filters.
 										</td>
 									</tr>
-								);
-							})}
-						</tbody>
-					</table>
-				</div>
+								) : (
+									filteredItems.map((plugin) => {
+										const status = (plugin.status ?? "unknown") as PluginStatus;
+										return (
+											<tr
+												key={plugin.pluginName}
+												className="border-b border-gray-100 hover:bg-gray-50"
+											>
+												<td className="px-4 py-3 font-mono text-gray-900 whitespace-nowrap">
+													{plugin.pluginName}
+												</td>
+												<td className="px-4 py-3 text-gray-500">
+													{plugin.marketplaceName ?? (
+														<span className="text-gray-400">—</span>
+													)}
+												</td>
+												<td className="px-4 py-3 text-gray-500">
+													{plugin.pluginVersion ?? (
+														<span className="text-gray-400">—</span>
+													)}
+												</td>
+												<td className="px-4 py-3">
+													{plugin.installTrigger ? (
+														<span className="inline-block rounded border border-gray-200 bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+															{plugin.installTrigger}
+														</span>
+													) : (
+														<span className="text-gray-400">—</span>
+													)}
+												</td>
+												<td className="px-4 py-3">
+													<span
+														className={`inline-block rounded border px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[status]}`}
+													>
+														{STATUS_LABEL[status]}
+													</span>
+												</td>
+												<td className="px-4 py-3 text-right text-gray-700">
+													{plugin.installationCount}
+												</td>
+												<td className="px-4 py-3 text-right text-gray-700">
+													{plugin.uniqueUserCount}
+												</td>
+											</tr>
+										);
+									})
+								)}
+							</tbody>
+						</table>
+					</div>
+				</>
 			)}
 		</div>
 	);

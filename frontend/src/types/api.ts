@@ -49,6 +49,19 @@ export interface UsageResponse {
 	stats: UsageStats;
 }
 
+export type DashboardPeriod = 30 | 90 | "all";
+
+export interface MonthlyPoint {
+	month: string;
+	count: number;
+}
+
+export interface MonthlyTrendsResponse {
+	invocations: MonthlyPoint[];
+	uniqueSkills: MonthlyPoint[];
+	uniqueUsers: MonthlyPoint[];
+}
+
 
 export type MarketplaceStatus = "to_review" | "approved" | "denied";
 

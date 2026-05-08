@@ -1,17 +1,27 @@
 import { sql } from "drizzle-orm";
 import type { AppDb } from "@/db/client";
-import type { ISkillRepository } from "@/domain/ports/skill-repository";
+import type {
+	DaysWindow,
+	ISkillRepository,
+	MonthlyTrends,
+} from "@/domain/ports/skill-repository";
 import type { SkillTableRow } from "@/domain/skill";
+
+function timeFilter(days: DaysWindow) {
+	return days === "all"
+		? sql``
+		: sql`AND timestamp >= NOW() - (${days} || ' days')::interval`;
+}
 
 export class DrizzleSkillRepository implements ISkillRepository {
 	constructor(private readonly db: AppDb) {}
 
-	async getTopSkills(days: number): Promise<Array<{ skillName: string; count: number }>> {
+	async getTopSkills(days: DaysWindow): Promise<Array<{ skillName: string; count: number }>> {
 		const rows = await this.db.execute(sql`
 			SELECT attributes->>'skill.name' AS skill_name, COUNT(*)::int AS count
 			FROM events
 			WHERE event_name = 'claude_code.skill_activated'
-			  AND timestamp >= NOW() - (${days} || ' days')::interval
+			  ${timeFilter(days)}
 			  AND attributes->>'skill.name' IS NOT NULL
 			GROUP BY 1
 			ORDER BY count DESC
@@ -23,24 +33,24 @@ export class DrizzleSkillRepository implements ISkillRepository {
 		}));
 	}
 
-	async getDailyTrend(days: number): Promise<Array<{ date: string; count: number }>> {
+	async getDailyTrend(days: DaysWindow): Promise<Array<{ date: string; count: number }>> {
 		const rows = await this.db.execute(sql`
 			SELECT DATE_TRUNC('day', timestamp)::date AS date, COUNT(*)::int AS count
 			FROM events
 			WHERE event_name = 'claude_code.skill_activated'
-			  AND timestamp >= NOW() - (${days} || ' days')::interval
+			  ${timeFilter(days)}
 			GROUP BY 1
 			ORDER BY 1
 		`);
 		return rows as unknown as Array<{ date: string; count: number }>;
 	}
 
-	async getTopUsers(days: number): Promise<Array<{ userEmail: string; count: number }>> {
+	async getTopUsers(days: DaysWindow): Promise<Array<{ userEmail: string; count: number }>> {
 		const rows = await this.db.execute(sql`
 			SELECT user_email, COUNT(*)::int AS count
 			FROM events
 			WHERE event_name = 'claude_code.skill_activated'
-			  AND timestamp >= NOW() - (${days} || ' days')::interval
+			  ${timeFilter(days)}
 			  AND user_email IS NOT NULL
 			GROUP BY user_email
 			ORDER BY count DESC
@@ -52,51 +62,51 @@ export class DrizzleSkillRepository implements ISkillRepository {
 		}));
 	}
 
-	async getByTrigger(days: number): Promise<Array<{ trigger: string | null; count: number }>> {
+	async getByTrigger(days: DaysWindow): Promise<Array<{ trigger: string | null; count: number }>> {
 		const rows = await this.db.execute(sql`
 			SELECT attributes->>'invocation_trigger' AS trigger, COUNT(*)::int AS count
 			FROM events
 			WHERE event_name = 'claude_code.skill_activated'
-			  AND timestamp >= NOW() - (${days} || ' days')::interval
+			  ${timeFilter(days)}
 			GROUP BY 1
 			ORDER BY count DESC
 		`);
 		return rows as unknown as Array<{ trigger: string | null; count: number }>;
 	}
 
-	async getTotalActivations(days: number): Promise<number> {
+	async getTotalActivations(days: DaysWindow): Promise<number> {
 		const [row] = await this.db.execute(sql`
 			SELECT COUNT(*)::int AS count
 			FROM events
 			WHERE event_name = 'claude_code.skill_activated'
-			  AND timestamp >= NOW() - (${days} || ' days')::interval
+			  ${timeFilter(days)}
 		`) as Array<{ count: number }>;
 		return row?.count ?? 0;
 	}
 
-	async getUniqueSkillsCount(days: number): Promise<number> {
+	async getUniqueSkillsCount(days: DaysWindow): Promise<number> {
 		const [row] = await this.db.execute(sql`
 			SELECT COUNT(DISTINCT attributes->>'skill.name')::int AS count
 			FROM events
 			WHERE event_name = 'claude_code.skill_activated'
-			  AND timestamp >= NOW() - (${days} || ' days')::interval
+			  ${timeFilter(days)}
 			  AND attributes->>'skill.name' IS NOT NULL
 		`) as Array<{ count: number }>;
 		return row?.count ?? 0;
 	}
 
-	async getActiveUsersCount(days: number): Promise<number> {
+	async getActiveUsersCount(days: DaysWindow): Promise<number> {
 		const [row] = await this.db.execute(sql`
 			SELECT COUNT(DISTINCT user_email)::int AS count
 			FROM events
 			WHERE event_name = 'claude_code.skill_activated'
-			  AND timestamp >= NOW() - (${days} || ' days')::interval
+			  ${timeFilter(days)}
 			  AND user_email IS NOT NULL
 		`) as Array<{ count: number }>;
 		return row?.count ?? 0;
 	}
 
-	async getSkillsTable(days: number): Promise<SkillTableRow[]> {
+	async getSkillsTable(days: DaysWindow): Promise<SkillTableRow[]> {
 		const rows = await this.db.execute(sql`
 			WITH known_skills AS (
 			  SELECT DISTINCT attributes->>'skill.name' AS skill_name
@@ -117,7 +127,7 @@ export class DrizzleSkillRepository implements ISkillRepository {
 			    array_remove(array_agg(DISTINCT e.attributes->>'marketplace.name'), NULL) AS event_marketplace_names
 			  FROM events e
 			  WHERE e.event_name = 'claude_code.skill_activated'
-			    AND e.timestamp >= NOW() - (${days} || ' days')::interval
+			    ${days === "all" ? sql`` : sql`AND e.timestamp >= NOW() - (${days} || ' days')::interval`}
 			    AND e.attributes->>'skill.name' IS NOT NULL
 			  GROUP BY 1
 			),
@@ -181,5 +191,41 @@ export class DrizzleSkillRepository implements ISkillRepository {
 			marketplaceNames: r.marketplace_names ?? [],
 			status: r.status ?? null,
 		}));
+	}
+
+	async getMonthlyTrends(): Promise<MonthlyTrends> {
+		const [invocationsRows, uniqueSkillsRows, uniqueUsersRows] = await Promise.all([
+			this.db.execute(sql`
+				SELECT to_char(DATE_TRUNC('month', timestamp), 'YYYY-MM-DD') AS month, COUNT(*)::int AS count
+				FROM events
+				WHERE event_name = 'claude_code.skill_activated'
+				GROUP BY DATE_TRUNC('month', timestamp)
+				ORDER BY 1
+			`),
+			this.db.execute(sql`
+				SELECT to_char(DATE_TRUNC('month', timestamp), 'YYYY-MM-DD') AS month,
+				       COUNT(DISTINCT attributes->>'skill.name')::int AS count
+				FROM events
+				WHERE event_name = 'claude_code.skill_activated'
+				  AND attributes->>'skill.name' IS NOT NULL
+				GROUP BY DATE_TRUNC('month', timestamp)
+				ORDER BY 1
+			`),
+			this.db.execute(sql`
+				SELECT to_char(DATE_TRUNC('month', timestamp), 'YYYY-MM-DD') AS month,
+				       COUNT(DISTINCT user_email)::int AS count
+				FROM events
+				WHERE event_name = 'claude_code.skill_activated'
+				  AND user_email IS NOT NULL
+				GROUP BY DATE_TRUNC('month', timestamp)
+				ORDER BY 1
+			`),
+		]);
+
+		return {
+			invocations: invocationsRows as unknown as Array<{ month: string; count: number }>,
+			uniqueSkills: uniqueSkillsRows as unknown as Array<{ month: string; count: number }>,
+			uniqueUsers: uniqueUsersRows as unknown as Array<{ month: string; count: number }>,
+		};
 	}
 }

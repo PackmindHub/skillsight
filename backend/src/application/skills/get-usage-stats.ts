@@ -1,8 +1,8 @@
-import type { ISkillRepository } from "@/domain/ports/skill-repository";
+import type { DaysWindow, ISkillRepository } from "@/domain/ports/skill-repository";
 
 export async function getUsageStats(
 	deps: { skills: ISkillRepository },
-	input: { days: number },
+	input: { days: DaysWindow },
 ) {
 	const [topSkills, dailyTrend, topUsers, byTrigger, totalActivations, uniqueSkills, activeUsers] =
 		await Promise.all([
