@@ -1,3 +1,4 @@
+import { useIntegrationsHealth } from "@/context/IntegrationsHealthContext";
 import { cn } from "@/lib/utils";
 import { NavLink } from "react-router-dom";
 
@@ -10,27 +11,42 @@ const mainLinks = [
 	{ to: "/audit", label: "Audit Log" },
 ];
 
-const settingsLinks = [{ to: "/settings/integrations", label: "Integrations" }];
+interface NavBadge {
+	count: number;
+	tone: "danger";
+}
 
-function NavItem({ to, label }: { to: string; label: string }) {
+function NavItem({ to, label, badge }: { to: string; label: string; badge?: NavBadge }) {
 	return (
 		<NavLink
 			to={to}
 			className={({ isActive }) =>
 				cn(
-					"block rounded-md px-3 py-2 text-sm transition-colors",
+					"flex items-center rounded-md px-3 py-2 text-sm transition-colors",
 					isActive
 						? "nav-active"
 						: "text-text-3 hover:bg-surface-800 hover:text-text-1",
 				)
 			}
 		>
-			{label}
+			<span className="flex-1">{label}</span>
+			{badge && badge.count > 0 && (
+				<span
+					className="ml-2 inline-flex min-w-[18px] items-center justify-center rounded-full bg-danger px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white"
+					aria-label={`${badge.count} integration(s) en échec`}
+				>
+					{badge.count}
+				</span>
+			)}
 		</NavLink>
 	);
 }
 
 export function Sidebar() {
+	const { errorCount } = useIntegrationsHealth();
+	const integrationsBadge: NavBadge | undefined =
+		errorCount > 0 ? { count: errorCount, tone: "danger" } : undefined;
+
 	return (
 		<aside className="w-56 shrink-0 bg-surface-900 border-r border-edge flex flex-col">
 			<div className="px-5 py-4 border-b border-edge">
@@ -50,9 +66,7 @@ export function Sidebar() {
 						Settings
 					</p>
 					<div className="space-y-1">
-						{settingsLinks.map(({ to, label }) => (
-							<NavItem key={to} to={to} label={label} />
-						))}
+						<NavItem to="/settings/integrations" label="Integrations" badge={integrationsBadge} />
 					</div>
 				</div>
 			</nav>
