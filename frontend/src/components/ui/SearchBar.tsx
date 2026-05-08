@@ -54,10 +54,6 @@ export function SearchBar({
 		return () => document.removeEventListener("mousedown", onClick);
 	}, [open]);
 
-	useEffect(() => {
-		setHighlight(0);
-	}, [value]);
-
 	const showSuggestions = open && value.length > 0 && suggestions.length > 0;
 
 	function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -109,6 +105,7 @@ export function SearchBar({
 					onChange={(e) => {
 						onChange(e.target.value);
 						setOpen(true);
+						setHighlight(0);
 					}}
 					onFocus={() => setOpen(true)}
 					onKeyDown={handleKeyDown}

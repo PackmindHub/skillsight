@@ -56,6 +56,8 @@ const USAGE_VALUES: UsageFilter[] = ["all", "activated", "never_used"];
 const SORT_KEYS: SortKey[] = ["skillName", "total", "userSlash", "claudeProactive", "nestedSkill"];
 const TRIGGER_KEYS = TRIGGERS.map((t) => t.key);
 const SKELETON_KEYS = ["a", "b", "c", "d", "e", "f", "g", "h"];
+const NO_MARKETPLACE = "__none__";
+const NO_MARKETPLACE_LABEL = "(none)";
 
 const PERIOD_OPTIONS: { value: DashboardPeriod; label: string }[] = [
 	{ value: 7, label: "7d" },
@@ -109,7 +111,11 @@ export default function SkillsTablePage() {
 		return Array.from(names).sort();
 	}, [rows]);
 
-	const marketplaces = pickList(searchParams.get("marketplace"), allMarketplaceNames);
+	const marketplaceFilterValues = useMemo(
+		() => [...allMarketplaceNames, NO_MARKETPLACE],
+		[allMarketplaceNames],
+	);
+	const marketplaces = pickList(searchParams.get("marketplace"), marketplaceFilterValues);
 	const triggers = pickList(searchParams.get("trigger"), TRIGGER_KEYS);
 
 	const debouncedSearch = useDebouncedValue(search, 150);
@@ -194,7 +200,13 @@ export default function SkillsTablePage() {
 		for (const row of rows) {
 			if (sourceFilter === "bundled" && row.skillSource !== "bundled") continue;
 			if (sourceFilter === "external" && row.skillSource === "bundled") continue;
-			if (marketplaces.length > 0 && !row.marketplaces.some((mp) => marketplaces.includes(mp.name))) continue;
+			if (marketplaces.length > 0) {
+				const wantsNone = marketplaces.includes(NO_MARKETPLACE);
+				const wantedNames = marketplaces.filter((m) => m !== NO_MARKETPLACE);
+				const hasNone = row.marketplaces.length === 0;
+				const matchesNamed = row.marketplaces.some((mp) => wantedNames.includes(mp.name));
+				if (!((wantsNone && hasNone) || matchesNamed)) continue;
+			}
 			if (triggers.length > 0 && !triggers.some((t) => (row[t as keyof SkillTableRow] as number) > 0)) continue;
 			if (usageFilter === "activated" && row.total === 0) continue;
 			if (usageFilter === "never_used" && row.total !== 0) continue;
@@ -247,7 +259,10 @@ export default function SkillsTablePage() {
 	}, [rows, debouncedSearch]);
 
 	const triggerOptions = TRIGGERS.map((t) => ({ value: t.key, label: t.label }));
-	const marketplaceOptions = allMarketplaceNames.map((n) => ({ value: n, label: n }));
+	const marketplaceOptions = [
+		...allMarketplaceNames.map((n) => ({ value: n, label: n })),
+		{ value: NO_MARKETPLACE, label: NO_MARKETPLACE_LABEL },
+	];
 
 	const filtersActive =
 		search !== "" ||
@@ -346,7 +361,7 @@ export default function SkillsTablePage() {
 					{marketplaces.map((m) => (
 						<FilterPill
 							key={`mp-${m}`}
-							label={`Marketplace: ${m}`}
+							label={`Marketplace: ${m === NO_MARKETPLACE ? NO_MARKETPLACE_LABEL : m}`}
 							onRemove={() => setListParam("marketplace", marketplaces.filter((x) => x !== m))}
 						/>
 					))}

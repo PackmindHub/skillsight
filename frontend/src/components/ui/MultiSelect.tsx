@@ -39,7 +39,12 @@ export function MultiSelect({ label, options, values, onChange, className }: Mul
 		onChange(next);
 	}
 
-	const summary = values.length === 0 ? "All" : values.length === 1 ? values[0] : `${values.length} selected`;
+	const summary =
+		values.length === 0
+			? "All"
+			: values.length === 1
+				? (options.find((o) => o.value === values[0])?.label ?? values[0])
+				: `${values.length} selected`;
 
 	return (
 		<div ref={containerRef} className={cn("relative inline-block", className)}>
