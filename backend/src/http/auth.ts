@@ -6,6 +6,7 @@ import { sessionAuth } from "@/middleware/session-auth";
 import { login } from "@/application/auth/login";
 import { getCurrentUser } from "@/application/auth/get-current-user";
 import { completeOnboarding } from "@/application/auth/complete-onboarding";
+import { isHttps } from "@/lib/request-url";
 
 export function createAuthRoute(deps: Pick<AppDeps, "users" | "audit">) {
 	const route = new Hono<{ Variables: AppVariables }>();
@@ -18,7 +19,7 @@ export function createAuthRoute(deps: Pick<AppDeps, "users" | "audit">) {
 
 		setCookie(c, "session", result.sessionJwt, {
 			httpOnly: true,
-			secure: false,
+			secure: isHttps(c),
 			sameSite: "Strict",
 			maxAge: 86400,
 			path: "/",

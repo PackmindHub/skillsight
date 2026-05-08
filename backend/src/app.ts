@@ -16,6 +16,7 @@ import { createMarketplacesRoute } from "@/http/marketplaces";
 import { createPluginsRoute } from "@/http/plugins";
 import { createMarketplaceSourcesRoute } from "@/http/marketplace-sources";
 import { eventBus } from "@/lib/event-bus";
+import { getBaseUrl } from "@/lib/request-url";
 import { syncPluginStatuses } from "@/application/plugins/sync-plugin-statuses";
 
 const STATIC_ROOT =
@@ -37,7 +38,9 @@ export function createApp() {
 	app.use(
 		"/api/*",
 		cors({
-			origin: config.PUBLIC_BASE_URL,
+			// When PUBLIC_BASE_URL is set, restrict to it. Otherwise echo the request
+			// origin so the app works behind any host/proxy without configuration.
+			origin: (origin) => config.PUBLIC_BASE_URL ?? origin ?? "*",
 			credentials: true,
 			allowMethods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
 			allowHeaders: ["Content-Type", "Authorization"],
@@ -55,7 +58,7 @@ export function createApp() {
 	app.route("/api/marketplaces", createMarketplacesRoute(deps));
 	app.route("/api/plugins", createPluginsRoute(deps));
 	app.route("/api/marketplace-sources", createMarketplaceSourcesRoute(deps));
-	app.get("/api/config", (c) => c.json({ baseUrl: config.PUBLIC_BASE_URL }));
+	app.get("/api/config", (c) => c.json({ baseUrl: getBaseUrl(c) }));
 
 	// Static files (frontend build)
 	app.use("/*", serveStatic({ root: STATIC_ROOT }));
