@@ -82,10 +82,8 @@ function lastEventTimestamp(streams: LokiStreamResult[]): Date | null {
 function parseStreams(streams: LokiStreamResult[], integrationId: string): NewEvent[] {
 	const results: NewEvent[] = [];
 
-	for (const { stream, values } of streams) {
-		for (const [tsNs, logLine] of values) {
-			const timestamp = new Date(Number(BigInt(tsNs) / 1_000_000n));
-
+	for (const { values } of streams) {
+		for (const [, logLine] of values) {
 			let parsed: ReturnType<typeof parseOtlpBody> = [];
 			try {
 				const json = JSON.parse(logLine) as Record<string, unknown>;

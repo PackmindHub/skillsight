@@ -55,7 +55,7 @@ function buildHeaders(host: string, accessToken?: string): Record<string, string
 	if (host === "gitlab") {
 		headers["PRIVATE-TOKEN"] = accessToken;
 	} else {
-		headers["Authorization"] = `Bearer ${accessToken}`;
+		headers.Authorization = `Bearer ${accessToken}`;
 	}
 	return headers;
 }
