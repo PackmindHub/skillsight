@@ -5,10 +5,8 @@ type SyncFn = (integration: IntegrationWithSecret) => Promise<unknown>;
 
 // Stored on globalThis so Bun's --hot in-process reload doesn't lose live handles
 const g = globalThis as Record<string, unknown>;
-const handles = (g.__syncHandles ??= new Map<string, ReturnType<typeof setInterval>>()) as Map<
-	string,
-	ReturnType<typeof setInterval>
->;
+g.__syncHandles ??= new Map<string, ReturnType<typeof setInterval>>();
+const handles = g.__syncHandles as Map<string, ReturnType<typeof setInterval>>;
 
 export async function startScheduler(
 	integrationRepo: IIntegrationRepository,

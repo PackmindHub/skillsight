@@ -4,10 +4,8 @@ import type { MarketplaceSourceWithSecret } from "@/domain/marketplace-source";
 type SyncFn = (source: MarketplaceSourceWithSecret) => Promise<unknown>;
 
 const g = globalThis as Record<string, unknown>;
-const handles = (g.__msHandles ??= new Map<string, ReturnType<typeof setInterval>>()) as Map<
-	string,
-	ReturnType<typeof setInterval>
->;
+g.__msHandles ??= new Map<string, ReturnType<typeof setInterval>>();
+const handles = g.__msHandles as Map<string, ReturnType<typeof setInterval>>;
 
 export async function startMarketplaceSourceScheduler(
 	repo: IMarketplaceSourceRepository,
