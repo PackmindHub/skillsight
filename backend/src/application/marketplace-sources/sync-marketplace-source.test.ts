@@ -90,7 +90,6 @@ function makePlugins() {
 function makePluginSkills(): IPluginSkillRepository {
 	return {
 		upsertMany: async () => {},
-		listByPlugin: async () => [],
 	};
 }
 
