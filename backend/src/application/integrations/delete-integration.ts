@@ -1,5 +1,6 @@
 import type { IIntegrationRepository } from "@/domain/ports/integration-repository";
 import type { IAuditRepository } from "@/domain/ports/audit-repository";
+import { recordAudit } from "@/application/audit/record-audit";
 
 export async function deleteIntegration(
 	deps: { integrations: IIntegrationRepository; audit: IAuditRepository },
@@ -10,9 +11,10 @@ export async function deleteIntegration(
 
 	await deps.integrations.delete(input.id);
 
-	await deps.audit.log({
+	await recordAudit(deps, {
 		actorEmail: input.actorEmail,
 		action: "integration_deleted",
-		target: existing.name,
+		target: existing.id,
+		metadata: { name: existing.name, url: existing.url },
 	});
 }

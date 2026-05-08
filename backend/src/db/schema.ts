@@ -52,14 +52,22 @@ export const events = pgTable(
 );
 
 
-export const auditEvents = pgTable("audit_events", {
-	id: bigserial("id", { mode: "number" }).primaryKey(),
-	actorEmail: varchar("actor_email", { length: 255 }),
-	action: varchar("action", { length: 100 }).notNull(),
-	target: varchar("target", { length: 500 }),
-	timestamp: timestamp("timestamp").defaultNow().notNull(),
-	metadata: jsonb("metadata"),
-});
+export const auditEvents = pgTable(
+	"audit_events",
+	{
+		id: bigserial("id", { mode: "number" }).primaryKey(),
+		actorEmail: varchar("actor_email", { length: 255 }),
+		action: varchar("action", { length: 100 }).notNull(),
+		target: varchar("target", { length: 500 }),
+		timestamp: timestamp("timestamp").defaultNow().notNull(),
+		metadata: jsonb("metadata"),
+	},
+	(table) => [
+		index("audit_events_timestamp_idx").on(table.timestamp),
+		index("audit_events_action_ts_idx").on(table.action, table.timestamp),
+		index("audit_events_actor_ts_idx").on(table.actorEmail, table.timestamp),
+	],
+);
 
 export const revokedTokens = pgTable("revoked_tokens", {
 	jti: varchar("jti", { length: 36 }).primaryKey(),

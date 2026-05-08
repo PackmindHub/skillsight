@@ -6,6 +6,7 @@ import type { IMarketplaceRepository } from "@/domain/ports/marketplace-reposito
 import type { IPluginRepository } from "@/domain/ports/plugin-repository";
 import type { IPluginSkillRepository } from "@/domain/ports/plugin-skill-repository";
 import type { IGitMarketplaceGateway, MarketplaceJsonData } from "@/domain/ports/git-marketplace-gateway";
+import type { IAuditRepository } from "@/domain/ports/audit-repository";
 
 // --- fixtures ---
 
@@ -93,6 +94,14 @@ function makePluginSkills(): IPluginSkillRepository {
 	};
 }
 
+function makeAudit(): IAuditRepository {
+	return {
+		log: async () => {},
+		list: async () => ({ items: [], total: 0 }),
+		listAll: async () => [],
+	};
+}
+
 function makeGateway(
 	result: MarketplaceJsonData | "throw" | { error: string } = BASE_MARKETPLACE_DATA,
 ): IGitMarketplaceGateway {
@@ -119,6 +128,7 @@ describe("syncMarketplaceSource", () => {
 					plugins,
 					pluginSkills: makePluginSkills(),
 					gitMarketplace: makeGateway(),
+					audit: makeAudit(),
 				},
 				BASE_SOURCE,
 			);
@@ -138,6 +148,7 @@ describe("syncMarketplaceSource", () => {
 					plugins,
 					pluginSkills: makePluginSkills(),
 					gitMarketplace: makeGateway({ name: "acme-marketplace", plugins: [] }),
+					audit: makeAudit(),
 				},
 				BASE_SOURCE,
 			);
@@ -156,6 +167,7 @@ describe("syncMarketplaceSource", () => {
 					plugins,
 					pluginSkills: makePluginSkills(),
 					gitMarketplace: makeGateway("throw"),
+					audit: makeAudit(),
 				},
 				BASE_SOURCE,
 			);
@@ -174,6 +186,7 @@ describe("syncMarketplaceSource", () => {
 					plugins,
 					pluginSkills: makePluginSkills(),
 					gitMarketplace: makeGateway(),
+					audit: makeAudit(),
 				},
 				{ ...BASE_SOURCE, importPluginsAndSkills: false },
 			);
@@ -193,6 +206,7 @@ describe("syncMarketplaceSource", () => {
 					plugins,
 					pluginSkills: makePluginSkills(),
 					gitMarketplace: makeGateway(),
+					audit: makeAudit(),
 				},
 				BASE_SOURCE,
 			);
@@ -213,6 +227,7 @@ describe("syncMarketplaceSource", () => {
 					plugins,
 					pluginSkills: makePluginSkills(),
 					gitMarketplace: makeGateway("throw"),
+					audit: makeAudit(),
 				},
 				BASE_SOURCE,
 			);
@@ -238,6 +253,7 @@ describe("syncMarketplaceSource", () => {
 					gitMarketplace: makeGateway({
 						error: 'marketplace.json not found (HTTP 404). Check the git URL and branch ("main").',
 					}),
+					audit: makeAudit(),
 				},
 				BASE_SOURCE,
 			);
@@ -264,6 +280,7 @@ describe("syncMarketplaceSource", () => {
 					gitMarketplace: makeGateway({
 						error: "Authentication failed (HTTP 401). Check the access token.",
 					}),
+					audit: makeAudit(),
 				},
 				BASE_SOURCE,
 			);
@@ -285,6 +302,7 @@ describe("syncMarketplaceSource", () => {
 					plugins,
 					pluginSkills: makePluginSkills(),
 					gitMarketplace: makeGateway(),
+					audit: makeAudit(),
 				},
 				{ ...BASE_SOURCE, lastSyncError: "previous failure" },
 			);

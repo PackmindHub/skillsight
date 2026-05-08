@@ -10,6 +10,7 @@ import { deleteIntegration } from "@/application/integrations/delete-integration
 import { clearIntegrationData } from "@/application/integrations/clear-integration-data";
 import { syncIntegration } from "@/application/integrations/sync-integration";
 import { previewIntegration } from "@/application/integrations/preview-integration";
+import { recordAudit } from "@/application/audit/record-audit";
 import {
 	scheduleIntegration,
 	rescheduleIntegration,
@@ -43,9 +44,14 @@ const previewSchema = z.object({
 export function createIntegrationsRoute(
 	deps: Pick<AppDeps, "integrations" | "events" | "loki" | "audit">,
 ) {
-	const syncDeps = { integrations: deps.integrations, events: deps.events, loki: deps.loki };
-	const makeSyncFn = (integration: Parameters<typeof scheduleIntegration>[0]) =>
-		syncIntegration(syncDeps, integration);
+	const syncDeps = {
+		integrations: deps.integrations,
+		events: deps.events,
+		loki: deps.loki,
+		audit: deps.audit,
+	};
+	const scheduledSyncFn = (integration: Parameters<typeof scheduleIntegration>[0]) =>
+		syncIntegration(syncDeps, integration, { mode: "scheduled" });
 
 	const route = new Hono<{ Variables: AppVariables }>();
 	route.use("*", sessionAuth);
@@ -70,7 +76,7 @@ export function createIntegrationsRoute(
 			{ ...body, actorEmail: c.get("user").email },
 		);
 		const integration = await deps.integrations.findById(result.id);
-		if (integration) scheduleIntegration(integration, makeSyncFn);
+		if (integration) scheduleIntegration(integration, scheduledSyncFn);
 		return c.json({ ...result, eventCount: 0 }, 201);
 	});
 
@@ -82,7 +88,7 @@ export function createIntegrationsRoute(
 			{ id, data: body, actorEmail: c.get("user").email },
 		);
 		if ("error" in result) return c.json({ error: "Not found" }, 404);
-		await rescheduleIntegration(id, deps.integrations, makeSyncFn);
+		await rescheduleIntegration(id, deps.integrations, scheduledSyncFn);
 		return c.json({ ...result, eventCount: 0 });
 	});
 
@@ -111,7 +117,20 @@ export function createIntegrationsRoute(
 		const id = c.req.param("id");
 		const integration = await deps.integrations.findById(id);
 		if (!integration) return c.json({ error: "Not found" }, 404);
+		const previousCursor = integration.lastSyncAt;
 		await deps.integrations.updateSyncStatus(id, { lastSyncAt: null, lastSyncError: null });
+		await recordAudit(
+			{ audit: deps.audit },
+			{
+				actorEmail: c.get("user").email,
+				action: "integration_cursor_reset",
+				target: integration.id,
+				metadata: {
+					name: integration.name,
+					previousCursor: previousCursor?.toISOString() ?? null,
+				},
+			},
+		);
 		return c.body(null, 204);
 	});
 
@@ -119,7 +138,10 @@ export function createIntegrationsRoute(
 		const id = c.req.param("id");
 		const integration = await deps.integrations.findById(id);
 		if (!integration) return c.json({ error: "Not found" }, 404);
-		const { syncedAt, error } = await syncIntegration(syncDeps, integration);
+		const { syncedAt, error } = await syncIntegration(syncDeps, integration, {
+			mode: "manual",
+			actorEmail: c.get("user").email,
+		});
 		return c.json({
 			syncedAt: syncedAt?.toISOString() ?? null,
 			error: error ?? null,
@@ -131,6 +153,7 @@ export function createIntegrationsRoute(
 		const result = await updateIntegration(
 			{ integrations: deps.integrations, audit: deps.audit },
 			{ id, data: { enabled: false }, actorEmail: c.get("user").email },
+			{ auditAction: "integration_paused" },
 		);
 		if ("error" in result) return c.json({ error: "Not found" }, 404);
 		cancelIntegration(id);
@@ -142,12 +165,16 @@ export function createIntegrationsRoute(
 		const result = await updateIntegration(
 			{ integrations: deps.integrations, audit: deps.audit },
 			{ id, data: { enabled: true }, actorEmail: c.get("user").email },
+			{ auditAction: "integration_resumed" },
 		);
 		if ("error" in result) return c.json({ error: "Not found" }, 404);
-		await rescheduleIntegration(id, deps.integrations, makeSyncFn);
+		await rescheduleIntegration(id, deps.integrations, scheduledSyncFn);
 		const integration = await deps.integrations.findById(id);
 		if (integration) {
-			await syncIntegration(syncDeps, integration).catch(() => {});
+			await syncIntegration(syncDeps, integration, {
+				mode: "manual",
+				actorEmail: c.get("user").email,
+			}).catch(() => {});
 		}
 		return c.json({ ...result, eventCount: 0 });
 	});

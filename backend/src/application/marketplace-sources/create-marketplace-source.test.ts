@@ -2,6 +2,13 @@ import { describe, expect, it } from "bun:test";
 import { createMarketplaceSource } from "./create-marketplace-source";
 import type { MarketplaceSource } from "@/domain/marketplace-source";
 import type { IMarketplaceSourceRepository } from "@/domain/ports/marketplace-source-repository";
+import type { IAuditRepository } from "@/domain/ports/audit-repository";
+
+const audit: IAuditRepository = {
+	log: async () => {},
+	list: async () => ({ items: [], total: 0 }),
+	listAll: async () => [],
+};
 
 // --- helpers ---
 
@@ -41,14 +48,14 @@ function makeRepo() {
 describe("createMarketplaceSource", () => {
 	it("defaults importPluginsAndSkills to false when not provided", async () => {
 		const { repo, calls } = makeRepo();
-		await createMarketplaceSource({ marketplaceSources: repo }, { gitUrl: "github.com/org/repo" });
+		await createMarketplaceSource({ marketplaceSources: repo, audit }, { gitUrl: "github.com/org/repo" });
 		expect(calls[0].importPluginsAndSkills).toBe(false);
 	});
 
 	it("passes importPluginsAndSkills: true when explicitly set", async () => {
 		const { repo, calls } = makeRepo();
 		await createMarketplaceSource(
-			{ marketplaceSources: repo },
+			{ marketplaceSources: repo, audit },
 			{ gitUrl: "github.com/org/repo", importPluginsAndSkills: true },
 		);
 		expect(calls[0].importPluginsAndSkills).toBe(true);
@@ -56,20 +63,20 @@ describe("createMarketplaceSource", () => {
 
 	it("defaults syncIntervalMs to 3600000 when not provided", async () => {
 		const { repo, calls } = makeRepo();
-		await createMarketplaceSource({ marketplaceSources: repo }, { gitUrl: "github.com/org/repo" });
+		await createMarketplaceSource({ marketplaceSources: repo, audit }, { gitUrl: "github.com/org/repo" });
 		expect(calls[0].syncIntervalMs).toBe(3600000);
 	});
 
 	it("defaults enabled to true when not provided", async () => {
 		const { repo, calls } = makeRepo();
-		await createMarketplaceSource({ marketplaceSources: repo }, { gitUrl: "github.com/org/repo" });
+		await createMarketplaceSource({ marketplaceSources: repo, audit }, { gitUrl: "github.com/org/repo" });
 		expect(calls[0].enabled).toBe(true);
 	});
 
 	it("encrypts accessToken when provided (non-null accessTokenEncrypted)", async () => {
 		const { repo, calls } = makeRepo();
 		await createMarketplaceSource(
-			{ marketplaceSources: repo },
+			{ marketplaceSources: repo, audit },
 			{ gitUrl: "github.com/org/repo", accessToken: "secret" },
 		);
 		expect(calls[0].accessTokenEncrypted).not.toBeNull();
@@ -78,7 +85,7 @@ describe("createMarketplaceSource", () => {
 
 	it("passes null accessTokenEncrypted when no accessToken given", async () => {
 		const { repo, calls } = makeRepo();
-		await createMarketplaceSource({ marketplaceSources: repo }, { gitUrl: "github.com/org/repo" });
+		await createMarketplaceSource({ marketplaceSources: repo, audit }, { gitUrl: "github.com/org/repo" });
 		expect(calls[0].accessTokenEncrypted).toBeNull();
 	});
 });

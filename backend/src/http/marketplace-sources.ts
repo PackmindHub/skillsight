@@ -41,7 +41,10 @@ const testConnectionSchema = z.object({
 });
 
 export function createMarketplaceSourcesRoute(
-	deps: Pick<AppDeps, "marketplaceSources" | "marketplaces" | "plugins" | "pluginSkills" | "gitMarketplace">,
+	deps: Pick<
+		AppDeps,
+		"marketplaceSources" | "marketplaces" | "plugins" | "pluginSkills" | "gitMarketplace" | "audit"
+	>,
 ) {
 	const makeSyncDeps = () => ({
 		marketplaceSources: deps.marketplaceSources,
@@ -49,6 +52,7 @@ export function createMarketplaceSourcesRoute(
 		plugins: deps.plugins,
 		pluginSkills: deps.pluginSkills,
 		gitMarketplace: deps.gitMarketplace,
+		audit: deps.audit,
 	});
 
 	const route = new Hono<{ Variables: AppVariables }>();
@@ -77,6 +81,7 @@ export function createMarketplaceSourcesRoute(
 			branch: body.branch ?? null,
 		});
 		if (!test.ok) return c.json({ error: test.error }, 400);
+		const actorEmail = c.get("user").email;
 		const source = await createMarketplaceSource(deps, {
 			gitUrl: body.gitUrl,
 			accessToken: body.accessToken ?? undefined,
@@ -84,12 +89,18 @@ export function createMarketplaceSourcesRoute(
 			syncIntervalMs: body.syncIntervalMs,
 			enabled: body.enabled,
 			importPluginsAndSkills: body.importPluginsAndSkills,
+			actorEmail,
 		});
 		const withSecret = await deps.marketplaceSources.findById(source.id);
 		if (withSecret) {
 			// trigger an immediate background sync so user sees results quickly
-			syncMarketplaceSource(makeSyncDeps(), withSecret).catch(() => {});
-			if (source.enabled) scheduleMarketplaceSource(withSecret, (s) => syncMarketplaceSource(makeSyncDeps(), s));
+			syncMarketplaceSource(makeSyncDeps(), withSecret, { actorEmail, mode: "manual" }).catch(
+				() => {},
+			);
+			if (source.enabled)
+				scheduleMarketplaceSource(withSecret, (s) =>
+					syncMarketplaceSource(makeSyncDeps(), s, { mode: "scheduled" }),
+				);
 		}
 		return c.json(source, 201);
 	});
@@ -113,10 +124,11 @@ export function createMarketplaceSourcesRoute(
 			syncIntervalMs: body.syncIntervalMs,
 			enabled: body.enabled,
 			importPluginsAndSkills: body.importPluginsAndSkills,
+			actorEmail: c.get("user").email,
 		});
 		if (!result) return c.json({ error: "Not found" }, 404);
 		await rescheduleMarketplaceSource(id, deps.marketplaceSources, (s) =>
-			syncMarketplaceSource(makeSyncDeps(), s),
+			syncMarketplaceSource(makeSyncDeps(), s, { mode: "scheduled" }),
 		);
 		return c.json(result);
 	});
@@ -124,7 +136,7 @@ export function createMarketplaceSourcesRoute(
 	route.delete("/:id", async (c) => {
 		const id = c.req.param("id");
 		cancelMarketplaceSource(id);
-		const deleted = await deleteMarketplaceSource(deps, id);
+		const deleted = await deleteMarketplaceSource(deps, id, { actorEmail: c.get("user").email });
 		if (!deleted) return c.json({ error: "Not found" }, 404);
 		return c.body(null, 204);
 	});
@@ -133,7 +145,11 @@ export function createMarketplaceSourcesRoute(
 		const id = c.req.param("id");
 		const source = await deps.marketplaceSources.findById(id);
 		if (!source) return c.json({ error: "Not found" }, 404);
-		const { syncedAt, pluginCount, skillCount, error } = await syncMarketplaceSource(makeSyncDeps(), source);
+		const { syncedAt, pluginCount, skillCount, error } = await syncMarketplaceSource(
+			makeSyncDeps(),
+			source,
+			{ mode: "manual", actorEmail: c.get("user").email },
+		);
 		return c.json({
 			syncedAt: syncedAt?.toISOString() ?? null,
 			pluginCount,
