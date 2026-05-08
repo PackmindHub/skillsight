@@ -1,6 +1,7 @@
 import { AppShell } from "@/components/layout/AppShell";
 import { SettingsLayout } from "@/components/layout/SettingsLayout";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { IntegrationsHealthProvider } from "@/context/IntegrationsHealthContext";
 import AuditLogPage from "@/pages/AuditLogPage";
 import DashboardPage from "@/pages/DashboardPage";
 import LoginPage from "@/pages/LoginPage";
@@ -18,9 +19,11 @@ function ProtectedRoute() {
 		return <div className="flex h-screen items-center justify-center text-gray-500">Loading…</div>;
 	if (!user) return <Navigate to="/login" replace />;
 	return (
-		<AppShell>
-			<Outlet />
-		</AppShell>
+		<IntegrationsHealthProvider>
+			<AppShell>
+				<Outlet />
+			</AppShell>
+		</IntegrationsHealthProvider>
 	);
 }
 

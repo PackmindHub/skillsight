@@ -1,10 +1,12 @@
 import { IntegrationCard } from "@/components/integrations/IntegrationCard";
 import { IntegrationFormDrawer } from "@/components/integrations/IntegrationFormDrawer";
+import { useIntegrationsHealth } from "@/context/IntegrationsHealthContext";
 import { api } from "@/lib/api";
 import type { Integration } from "@/types/api";
 import { useEffect, useState } from "react";
 
 export default function IntegrationsPage() {
+	const { refresh: refreshHealth } = useIntegrationsHealth();
 	const [integrations, setIntegrations] = useState<Integration[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [drawerOpen, setDrawerOpen] = useState(false);
@@ -53,6 +55,7 @@ export default function IntegrationsPage() {
 		try {
 			await api.integrations.remove(id);
 			setIntegrations((prev) => prev.filter((i) => i.id !== id));
+			refreshHealth();
 		} finally {
 			setDeletingId(null);
 		}
@@ -69,6 +72,7 @@ export default function IntegrationsPage() {
 						: i,
 				),
 			);
+			refreshHealth();
 		} finally {
 			setClearingDataId(null);
 		}
@@ -81,6 +85,7 @@ export default function IntegrationsPage() {
 			setIntegrations((prev) =>
 				prev.map((i) => (i.id === id ? { ...i, lastSyncAt: null, lastSyncError: null } : i)),
 			);
+			refreshHealth();
 		} finally {
 			setResettingId(null);
 		}
@@ -97,6 +102,7 @@ export default function IntegrationsPage() {
 						: i,
 				),
 			);
+			refreshHealth();
 			if (!result.error) {
 				setRecentlySyncedId(id);
 				setTimeout(() => {
@@ -113,6 +119,7 @@ export default function IntegrationsPage() {
 		try {
 			const updated = await api.integrations.pause(id);
 			setIntegrations((prev) => prev.map((i) => (i.id === id ? { ...i, ...updated } : i)));
+			refreshHealth();
 		} finally {
 			setPausingId(null);
 		}
@@ -124,6 +131,7 @@ export default function IntegrationsPage() {
 			await api.integrations.resume(id);
 			const refreshed = await api.integrations.list();
 			setIntegrations(refreshed);
+			refreshHealth();
 		} finally {
 			setResumingId(null);
 		}
