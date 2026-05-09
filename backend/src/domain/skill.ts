@@ -9,6 +9,7 @@ export const SKILL_STATUSES: readonly SkillStatus[] = [
 
 export interface SkillTableRow {
 	skillName: string;
+	pluginName: string | null;
 	skillSource: string | null;
 	total: number;
 	userSlash: number;
@@ -16,7 +17,6 @@ export interface SkillTableRow {
 	nestedSkill: number;
 	dailyCounts: number[];
 	marketplaceNames: string[];
-	pluginNames: string[];
 	status: SkillStatus;
 }
 

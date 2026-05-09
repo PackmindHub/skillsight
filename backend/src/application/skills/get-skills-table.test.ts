@@ -49,6 +49,7 @@ describe("getSkillsTable", () => {
 			skills: makeSkills([
 				{
 					skillName: "linting",
+					pluginName: "acme/lint",
 					skillSource: null,
 					total: 0,
 					userSlash: 0,
@@ -56,7 +57,6 @@ describe("getSkillsTable", () => {
 					nestedSkill: 0,
 					dailyCounts: [],
 					marketplaceNames: ["acme"],
-					pluginNames: [],
 					status: "unknown",
 				},
 			]),
@@ -67,6 +67,7 @@ describe("getSkillsTable", () => {
 
 		expect(result).toHaveLength(1);
 		expect(result[0].skillName).toBe("linting");
+		expect(result[0].pluginName).toBe("acme/lint");
 		expect(result[0].total).toBe(0);
 		expect(result[0].marketplaces).toEqual([{ name: "acme", status: "approved" }]);
 	});
@@ -76,6 +77,7 @@ describe("getSkillsTable", () => {
 			skills: makeSkills([
 				{
 					skillName: "ghost-skill",
+					pluginName: null,
 					skillSource: null,
 					total: 0,
 					userSlash: 0,
@@ -83,7 +85,6 @@ describe("getSkillsTable", () => {
 					nestedSkill: 0,
 					dailyCounts: [],
 					marketplaceNames: ["mystery-mp"],
-					pluginNames: [],
 					status: "unknown",
 				},
 			]),
@@ -100,6 +101,7 @@ describe("getSkillsTable", () => {
 			skills: makeSkills([
 				{
 					skillName: "old-skill",
+					pluginName: "legacy/foo",
 					skillSource: null,
 					total: 0,
 					userSlash: 0,
@@ -107,7 +109,6 @@ describe("getSkillsTable", () => {
 					nestedSkill: 0,
 					dailyCounts: [],
 					marketplaceNames: [],
-					pluginNames: [],
 					status: "removed",
 				},
 			]),
@@ -125,6 +126,7 @@ describe("getSkillsTable", () => {
 			skills: makeSkills([
 				{
 					skillName: "approved-skill",
+					pluginName: "p/a",
 					skillSource: null,
 					total: 0,
 					userSlash: 0,
@@ -132,11 +134,11 @@ describe("getSkillsTable", () => {
 					nestedSkill: 0,
 					dailyCounts: [],
 					marketplaceNames: [],
-					pluginNames: [],
 					status: "approved",
 				},
 				{
 					skillName: "review-skill",
+					pluginName: "p/b",
 					skillSource: null,
 					total: 0,
 					userSlash: 0,
@@ -144,7 +146,6 @@ describe("getSkillsTable", () => {
 					nestedSkill: 0,
 					dailyCounts: [],
 					marketplaceNames: [],
-					pluginNames: [],
 					status: "to_review",
 				},
 			]),
@@ -162,6 +163,7 @@ describe("getSkillsTable", () => {
 			skills: makeSkills([
 				{
 					skillName: "active-skill",
+					pluginName: "acme/lint",
 					skillSource: "bundled",
 					total: 12,
 					userSlash: 5,
@@ -169,7 +171,6 @@ describe("getSkillsTable", () => {
 					nestedSkill: 0,
 					dailyCounts: [1, 2, 3, 1, 0, 2, 3],
 					marketplaceNames: ["acme"],
-					pluginNames: ["acme/lint"],
 					status: "unknown",
 				},
 			]),
@@ -180,15 +181,83 @@ describe("getSkillsTable", () => {
 
 		expect(result[0]).toEqual({
 			skillName: "active-skill",
+			pluginName: "acme/lint",
 			skillSource: "bundled",
 			total: 12,
 			userSlash: 5,
 			claudeProactive: 7,
 			nestedSkill: 0,
 			dailyCounts: [1, 2, 3, 1, 0, 2, 3],
-			pluginNames: ["acme/lint"],
 			status: "unknown",
 			marketplaces: [{ name: "acme", status: "approved" }],
 		});
+	});
+
+	it("returns one row per (skill, plugin) when the same skill appears in multiple plugins", async () => {
+		const deps = {
+			skills: makeSkills([
+				{
+					skillName: "review",
+					pluginName: "alpha/tools",
+					skillSource: null,
+					total: 0,
+					userSlash: 0,
+					claudeProactive: 0,
+					nestedSkill: 0,
+					dailyCounts: [],
+					marketplaceNames: ["acme"],
+					status: "unknown",
+				},
+				{
+					skillName: "review",
+					pluginName: "beta/tools",
+					skillSource: null,
+					total: 0,
+					userSlash: 0,
+					claudeProactive: 0,
+					nestedSkill: 0,
+					dailyCounts: [],
+					marketplaceNames: ["acme"],
+					status: "unknown",
+				},
+			]),
+			marketplaces: makeMarketplaces([{ name: "acme", status: "approved" }]),
+		};
+
+		const result = await getSkillsTable(deps, { days: 30 });
+
+		expect(result).toHaveLength(2);
+		expect(result.map((r) => r.pluginName).sort()).toEqual(["alpha/tools", "beta/tools"]);
+		for (const row of result) {
+			expect(row.skillName).toBe("review");
+			expect(row.marketplaces).toEqual([{ name: "acme", status: "approved" }]);
+		}
+	});
+
+	it("handles orphan rows (event-only skills) with pluginName=null", async () => {
+		const deps = {
+			skills: makeSkills([
+				{
+					skillName: "phantom",
+					pluginName: null,
+					skillSource: null,
+					total: 3,
+					userSlash: 3,
+					claudeProactive: 0,
+					nestedSkill: 0,
+					dailyCounts: [1, 1, 1],
+					marketplaceNames: [],
+					status: "unknown",
+				},
+			]),
+			marketplaces: makeMarketplaces([]),
+		};
+
+		const result = await getSkillsTable(deps, { days: 30 });
+
+		expect(result).toHaveLength(1);
+		expect(result[0].pluginName).toBeNull();
+		expect(result[0].marketplaces).toEqual([]);
+		expect(result[0].total).toBe(3);
 	});
 });

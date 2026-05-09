@@ -234,7 +234,7 @@ export default function SkillsTablePage() {
 		const q = debouncedSearch.trim();
 		const scored: { row: SkillTableRow; score: number }[] = [];
 		for (const row of rows) {
-			if (pluginFilter && !row.pluginNames.includes(pluginFilter)) continue;
+			if (pluginFilter && row.pluginName !== pluginFilter) continue;
 			if (sourceFilter === "bundled" && row.skillSource !== "bundled") continue;
 			if (sourceFilter === "external" && row.skillSource === "bundled") continue;
 			if (statusFilter !== "all" && (row.status ?? "unknown") !== statusFilter) continue;
@@ -249,7 +249,12 @@ export default function SkillsTablePage() {
 			if (usageFilter === "activated" && row.total === 0) continue;
 			if (usageFilter === "never_used" && row.total !== 0) continue;
 			if (q) {
-				const candidates = [row.skillName, row.skillSource ?? "", ...row.marketplaces.map((m) => m.name)];
+				const candidates = [
+					row.skillName,
+					row.pluginName ?? "",
+					row.skillSource ?? "",
+					...row.marketplaces.map((m) => m.name),
+				];
 				let best: number | null = null;
 				for (const c of candidates) {
 					const s = fuzzyScore(q, c);
@@ -557,7 +562,7 @@ export default function SkillsTablePage() {
 					) : (
 						filteredRows.map((row) => (
 							<tr
-								key={row.skillName}
+								key={`${row.skillName}::${row.pluginName ?? "__none__"}`}
 								onClick={() => setOpenSkill(row.skillName)}
 								onKeyDown={(e) => {
 									if (e.key === "Enter" || e.key === " ") {
@@ -572,13 +577,18 @@ export default function SkillsTablePage() {
 								)}
 							>
 								<td className="px-4 py-3 font-mono text-text-1">
-									<span className="flex items-center gap-2">
-										{row.skillName}
-										{row.total === 0 && (
-											<span className="inline-flex items-center rounded border border-edge bg-surface-800 px-1.5 py-0.5 text-xs text-text-3">
-												Never used
-											</span>
-										)}
+									<span className="flex flex-col gap-0.5">
+										<span className="flex items-center gap-2">
+											{row.skillName}
+											{row.total === 0 && (
+												<span className="inline-flex items-center rounded border border-edge bg-surface-800 px-1.5 py-0.5 text-xs text-text-3">
+													Never used
+												</span>
+											)}
+										</span>
+										<span className="text-xs text-text-3">
+											{row.pluginName ?? <span className="text-text-4">no plugin</span>}
+										</span>
 									</span>
 								</td>
 								<td className="px-4 py-3 text-right text-text-2 tabular-nums">{row.total}</td>

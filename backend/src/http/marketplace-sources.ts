@@ -99,17 +99,30 @@ export function createMarketplaceSourcesRoute(
 			actorEmail,
 		});
 		const withSecret = await deps.marketplaceSources.findById(source.id);
+		let firstSync: { pluginCount: number; skillCount: number; error: string | null } | null = null;
 		if (withSecret) {
-			// trigger an immediate background sync so user sees results quickly
-			syncMarketplaceSource(makeSyncDeps(), withSecret, { actorEmail, mode: "manual" }).catch(
-				() => {},
-			);
+			const result = await syncMarketplaceSource(makeSyncDeps(), withSecret, {
+				actorEmail,
+				mode: "manual",
+			});
+			firstSync = {
+				pluginCount: result.pluginCount,
+				skillCount: result.skillCount,
+				error: result.error,
+			};
 			if (source.enabled)
 				scheduleMarketplaceSource(withSecret, (s) =>
 					syncMarketplaceSource(makeSyncDeps(), s, { mode: "scheduled" }),
 				);
 		}
-		return c.json(source, 201);
+		const refreshedWithSecret = await deps.marketplaceSources.findById(source.id);
+		const refreshed = refreshedWithSecret
+			? (() => {
+					const { accessTokenEncrypted: _t, ...rest } = refreshedWithSecret;
+					return rest;
+				})()
+			: source;
+		return c.json({ ...refreshed, firstSync }, 201);
 	});
 
 	route.put("/:id", async (c) => {

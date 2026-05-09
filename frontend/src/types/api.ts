@@ -153,6 +153,7 @@ export interface MarketplaceDetailResponse {
 
 export interface SkillTableRow {
 	skillName: string;
+	pluginName: string | null;
 	skillSource: string | null;
 	total: number;
 	userSlash: number;
@@ -160,7 +161,6 @@ export interface SkillTableRow {
 	nestedSkill: number;
 	dailyCounts: number[];
 	marketplaces: MarketplaceRef[];
-	pluginNames: string[];
 	status: SkillStatus;
 }
 
