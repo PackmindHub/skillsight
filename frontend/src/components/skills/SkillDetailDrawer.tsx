@@ -3,7 +3,12 @@ import { Drawer } from "@/components/ui/Drawer";
 import { Sparkline } from "@/components/ui/Sparkline";
 import { api } from "@/lib/api";
 import { formatRelativeTime } from "@/lib/utils";
-import type { DashboardPeriod, MarketplaceRef, SkillDetail } from "@/types/api";
+import type {
+	DashboardPeriod,
+	MarketplaceRef,
+	SkillDetail,
+	SkillDetailPluginRef,
+} from "@/types/api";
 
 interface SkillDetailDrawerProps {
 	skillName: string | null;
@@ -17,12 +22,47 @@ const MP_STATUS_STYLES: Record<string, string> = {
 	to_review: "bg-warning/15 text-warning border-warning/30",
 };
 
+const PLUGIN_STATUS_STYLES: Record<string, string> = {
+	approved: "bg-success/15 text-success border-success/30",
+	to_review: "bg-warning/15 text-warning border-warning/30",
+	removed: "bg-danger/15 text-danger border-danger/30",
+	unknown: "bg-surface-800 text-text-3 border-edge",
+};
+
 function MarketplaceBadge({ mp }: { mp: MarketplaceRef }) {
 	const style = MP_STATUS_STYLES[mp.status] ?? MP_STATUS_STYLES.to_review;
 	return (
-		<span className={`inline-flex items-center rounded border px-1.5 py-0.5 text-xs font-mono ${style}`}>
+		<a
+			href={`/marketplaces?name=${encodeURIComponent(mp.name)}`}
+			target="_blank"
+			rel="noopener noreferrer"
+			title={`Open marketplace ${mp.name} in a new tab`}
+			className={`inline-flex items-center rounded border px-1.5 py-0.5 text-xs font-mono hover:underline ${style}`}
+		>
 			{mp.name}
-		</span>
+		</a>
+	);
+}
+
+function PluginBadge({ plugin }: { plugin: SkillDetailPluginRef }) {
+	const style = PLUGIN_STATUS_STYLES[plugin.status] ?? PLUGIN_STATUS_STYLES.unknown;
+	return (
+		<a
+			href={`/plugins?name=${encodeURIComponent(plugin.pluginName)}`}
+			target="_blank"
+			rel="noopener noreferrer"
+			title={
+				plugin.marketplaceName
+					? `Open plugin ${plugin.pluginName} (${plugin.marketplaceName}) in a new tab`
+					: `Open plugin ${plugin.pluginName} (local) in a new tab`
+			}
+			className={`inline-flex items-center rounded border px-1.5 py-0.5 text-xs font-mono hover:underline ${style}`}
+		>
+			{plugin.pluginName}
+			{!plugin.marketplaceName && (
+				<span className="ml-1 text-[10px] text-text-4">(local)</span>
+			)}
+		</a>
 	);
 }
 
@@ -104,6 +144,19 @@ export function SkillDetailDrawer({ skillName, period, onClose }: SkillDetailDra
 							<div className="flex flex-wrap gap-1.5">
 								{detail.marketplaces.map((mp) => (
 									<MarketplaceBadge key={mp.name} mp={mp} />
+								))}
+							</div>
+						)}
+					</div>
+
+					<div className="space-y-2">
+						<p className="text-xs uppercase tracking-wide text-text-4">Plugins</p>
+						{detail.plugins.length === 0 ? (
+							<p className="text-sm text-text-4">—</p>
+						) : (
+							<div className="flex flex-wrap gap-1.5">
+								{detail.plugins.map((p) => (
+									<PluginBadge key={p.pluginName} plugin={p} />
 								))}
 							</div>
 						)}

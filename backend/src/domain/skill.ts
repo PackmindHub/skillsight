@@ -16,7 +16,14 @@ export interface SkillTableRow {
 	nestedSkill: number;
 	dailyCounts: number[];
 	marketplaceNames: string[];
+	pluginNames: string[];
 	status: SkillStatus;
+}
+
+export interface SkillDetailPluginRef {
+	pluginName: string;
+	marketplaceName: string | null;
+	status: string;
 }
 
 export interface SkillDetailRow {
@@ -31,5 +38,6 @@ export interface SkillDetailRow {
 	firstSeenAt: string | null;
 	lastSeenAt: string | null;
 	marketplaceNames: string[];
+	plugins: SkillDetailPluginRef[];
 	status: SkillStatus;
 }

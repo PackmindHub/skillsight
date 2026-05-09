@@ -100,6 +100,7 @@ export interface Plugin {
 	lastSeenAt: string;
 	installationCount: number;
 	uniqueUserCount: number;
+	skillCount: number;
 }
 
 export interface MarketplaceRef {
@@ -126,6 +127,7 @@ export interface SkillTableRow {
 	nestedSkill: number;
 	dailyCounts: number[];
 	marketplaces: MarketplaceRef[];
+	pluginNames: string[];
 	status: SkillStatus;
 }
 
@@ -136,6 +138,12 @@ export interface SkillsTableResponse {
 export interface SkillDetailTopUser {
 	userEmail: string;
 	count: number;
+}
+
+export interface SkillDetailPluginRef {
+	pluginName: string;
+	marketplaceName: string | null;
+	status: string;
 }
 
 export interface SkillDetail {
@@ -150,6 +158,7 @@ export interface SkillDetail {
 	firstSeenAt: string | null;
 	lastSeenAt: string | null;
 	marketplaces: MarketplaceRef[];
+	plugins: SkillDetailPluginRef[];
 	status: SkillStatus;
 }
 
