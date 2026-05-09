@@ -122,7 +122,9 @@ export default function MarketplacesPage() {
 	>({});
 	const [testingConnection, setTestingConnection] = useState(false);
 	const [connectionTestResult, setConnectionTestResult] = useState<
-		{ ok: true; name: string; pluginCount: number } | { ok: false; error: string } | null
+		| { ok: true; name: string; pluginCount: number; skillCount: number }
+		| { ok: false; error: string }
+		| null
 	>(null);
 	const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -257,8 +259,24 @@ export default function MarketplacesPage() {
 				const updated = await api.marketplaceSources.update(editingSourceId, payload);
 				setSources((prev) => prev.map((s) => (s.id === editingSourceId ? updated : s)));
 			} else {
-				const created = await api.marketplaceSources.create(payload);
+				const { firstSync, ...created } = await api.marketplaceSources.create(payload);
 				setSources((prev) => [created, ...prev]);
+				if (firstSync) {
+					setSourceSyncResult((prev) => ({
+						...prev,
+						[created.id]: {
+							syncedAt: created.lastSyncAt,
+							pluginCount: firstSync.pluginCount,
+							skillCount: firstSync.skillCount,
+							error: firstSync.error,
+						},
+					}));
+					if (firstSync.error) {
+						setSubmitError(firstSync.error);
+						setSavingSource(false);
+						return;
+					}
+				}
 			}
 			closeSourceForm();
 			refreshSourcesHealth();
@@ -411,7 +429,9 @@ export default function MarketplacesPage() {
 									(connectionTestResult.ok ? (
 										<p className="text-xs text-success">
 											Connected — found {connectionTestResult.pluginCount} plugin
-											{connectionTestResult.pluginCount === 1 ? "" : "s"} in “
+											{connectionTestResult.pluginCount === 1 ? "" : "s"} and{" "}
+											{connectionTestResult.skillCount} skill
+											{connectionTestResult.skillCount === 1 ? "" : "s"} in “
 											{connectionTestResult.name}”.
 										</p>
 									) : (

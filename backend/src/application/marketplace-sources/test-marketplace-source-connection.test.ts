@@ -71,6 +71,29 @@ describe("testMarketplaceSourceConnection", () => {
 			name: "acme-marketplace",
 			description: "an acme marketplace",
 			pluginCount: 2,
+			skillCount: 0,
+		});
+	});
+
+	it("counts skills declared inline in marketplace.json plugins", async () => {
+		const { gateway } = makeGateway({
+			name: "acme",
+			plugins: [
+				{ name: "plugin-a", skills: ["skill-1", "skill-2"] },
+				{ name: "plugin-b", skills: ["skill-3"] },
+				{ name: "plugin-c" },
+			],
+		});
+		const result = await testMarketplaceSourceConnection(
+			{ marketplaceSources: makeRepo(), gitMarketplace: gateway },
+			{ gitUrl: "github.com/org/repo" },
+		);
+		expect(result).toEqual({
+			ok: true,
+			name: "acme",
+			description: undefined,
+			pluginCount: 3,
+			skillCount: 3,
 		});
 	});
 

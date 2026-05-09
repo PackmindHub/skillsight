@@ -10,7 +10,13 @@ export type TestConnectionInput = {
 };
 
 export type TestConnectionResult =
-	| { ok: true; name: string; description?: string; pluginCount: number }
+	| {
+			ok: true;
+			name: string;
+			description?: string;
+			pluginCount: number;
+			skillCount: number;
+	  }
 	| { ok: false; error: string };
 
 export async function testMarketplaceSourceConnection(
@@ -41,6 +47,7 @@ export async function testMarketplaceSourceConnection(
 			name: data.name,
 			description: data.description,
 			pluginCount: data.plugins.length,
+			skillCount: data.plugins.reduce((sum, p) => sum + (p.skills?.length ?? 0), 0),
 		};
 	} catch (err) {
 		return { ok: false, error: err instanceof Error ? err.message : String(err) };

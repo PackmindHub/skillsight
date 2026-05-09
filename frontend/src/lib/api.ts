@@ -188,7 +188,15 @@ export const api = {
 			enabled?: boolean;
 			importPluginsAndSkills?: boolean;
 		}) =>
-			apiFetch<MarketplaceSource>("/api/marketplace-sources", {
+			apiFetch<
+				MarketplaceSource & {
+					firstSync: {
+						pluginCount: number;
+						skillCount: number;
+						error: string | null;
+					} | null;
+				}
+			>("/api/marketplace-sources", {
 				method: "POST",
 				body: JSON.stringify(data),
 			}),
@@ -220,7 +228,13 @@ export const api = {
 			sourceId?: string | null;
 		}) =>
 			apiFetch<
-				| { ok: true; name: string; description?: string; pluginCount: number }
+				| {
+						ok: true;
+						name: string;
+						description?: string;
+						pluginCount: number;
+						skillCount: number;
+				  }
 				| { ok: false; error: string }
 			>("/api/marketplace-sources/test-connection", {
 				method: "POST",
