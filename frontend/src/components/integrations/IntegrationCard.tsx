@@ -1,7 +1,9 @@
 import { SourceErrorBanner } from "@/components/marketplaces/SourceErrorBanner";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import { ConfirmMenuItem } from "@/components/ui/ConfirmMenuItem";
 import { Menu, MenuDivider, MenuItem } from "@/components/ui/Menu";
-import { formatDateTime, formatRelativeTime } from "@/lib/utils";
+import { cn, formatDateTime, formatRelativeTime } from "@/lib/utils";
 import type { Integration } from "@/types/api";
 
 type Status = "active" | "paused" | "error";
@@ -93,7 +95,10 @@ export function IntegrationCard({
 	const lastSyncTitle = integration.lastSyncAt ? formatDateTime(integration.lastSyncAt) : undefined;
 
 	return (
-		<article className={`rounded-lg border border-edge bg-surface-900 transition-opacity ${status === "paused" ? "opacity-60" : ""}`}>
+		<Card
+			padding="none"
+			className={cn("transition-opacity", status === "paused" && "opacity-60")}
+		>
 			<div className="flex items-start justify-between gap-3 px-5 pt-4">
 				<div className="min-w-0 flex-1">
 					<div className="flex items-center gap-3">
@@ -172,34 +177,36 @@ export function IntegrationCard({
 			</div>
 
 			<div className="flex items-center gap-2 border-t border-edge-dim px-5 py-3">
-				<button
-					type="button"
-					disabled={syncing || !integration.enabled}
+				<Button
+					size="sm"
+					disabled={!integration.enabled}
+					loading={syncing}
 					onClick={onSyncNow}
-					className="btn-primary rounded-md px-3 py-1.5 text-xs font-medium"
 				>
-					{syncing ? "Syncing…" : "Sync now"}
-				</button>
+					Sync now
+				</Button>
 				{integration.enabled ? (
-					<button
-						type="button"
-						disabled={pausing}
+					<Button
+						variant="secondary"
+						size="sm"
+						loading={pausing}
 						onClick={onPause}
-						className="rounded-md border border-edge px-3 py-1.5 text-xs text-warning transition-colors hover:bg-surface-800 disabled:opacity-40"
+						className="text-warning"
 					>
-						{pausing ? "Pausing…" : "Pause sync"}
-					</button>
+						Pause sync
+					</Button>
 				) : (
-					<button
-						type="button"
-						disabled={resuming}
+					<Button
+						variant="secondary"
+						size="sm"
+						loading={resuming}
 						onClick={onResume}
-						className="rounded-md border border-edge px-3 py-1.5 text-xs text-success transition-colors hover:bg-surface-800 disabled:opacity-40"
+						className="text-success"
 					>
-						{resuming ? "Resuming…" : "Resume sync"}
-					</button>
+						Resume sync
+					</Button>
 				)}
 			</div>
-		</article>
+		</Card>
 	);
 }

@@ -1,4 +1,6 @@
 import { type ReactNode, useState } from "react";
+import { cn } from "@/lib/utils";
+import { MENU_ITEM_BASE } from "./_styles";
 import { useMenuClose } from "./Menu";
 
 interface ConfirmMenuItemProps {
@@ -38,7 +40,7 @@ export function ConfirmMenuItem({
 				role="menuitem"
 				disabled={disabled}
 				onClick={() => setArmed(true)}
-				className={`flex w-full items-center px-3 py-1.5 text-left text-sm transition-colors hover:bg-surface-700 disabled:opacity-40 disabled:cursor-not-allowed ${labelColor[variant]}`}
+				className={cn(MENU_ITEM_BASE, labelColor[variant])}
 			>
 				{label}
 			</button>

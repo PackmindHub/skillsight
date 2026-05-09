@@ -1,5 +1,6 @@
 import { IntegrationCard } from "@/components/integrations/IntegrationCard";
 import { IntegrationFormDrawer } from "@/components/integrations/IntegrationFormDrawer";
+import { Button, PageHeader } from "@/components/ui";
 import { useIntegrationsHealth } from "@/context/IntegrationsHealthContext";
 import { api } from "@/lib/api";
 import type { Integration } from "@/types/api";
@@ -141,21 +142,11 @@ export default function IntegrationsPage() {
 
 	return (
 		<div className="space-y-5">
-			<div className="flex items-center justify-between">
-				<div>
-					<h1 className="text-lg font-semibold text-text-1">Integrations</h1>
-					<p className="mt-0.5 text-xs text-text-3">
-						Connect external sources to ingest events into the platform.
-					</p>
-				</div>
-				<button
-					type="button"
-					onClick={openCreate}
-					className="btn-primary rounded-md px-4 py-2 text-sm font-medium"
-				>
-					Add integration
-				</button>
-			</div>
+			<PageHeader
+				title="Integrations"
+				subtitle="Connect external sources to ingest events into the platform."
+				actions={<Button onClick={openCreate}>Add integration</Button>}
+			/>
 
 			{integrations.length === 0 ? (
 				<div className="rounded-lg border border-dashed border-edge bg-surface-900/50 px-6 py-12 text-center">
@@ -163,13 +154,9 @@ export default function IntegrationsPage() {
 					<p className="mt-1 text-xs text-text-4">
 						Add your first one to start ingesting events.
 					</p>
-					<button
-						type="button"
-						onClick={openCreate}
-						className="btn-primary mt-4 rounded-md px-4 py-2 text-sm font-medium"
-					>
-						Add integration
-					</button>
+					<div className="mt-4 inline-flex">
+						<Button onClick={openCreate}>Add integration</Button>
+					</div>
 				</div>
 			) : (
 				<div className="space-y-3">

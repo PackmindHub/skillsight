@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { DROPDOWN_PANEL } from "./_styles";
 
 interface MultiSelectOption {
 	value: string;
@@ -52,7 +53,7 @@ export function MultiSelect({ label, options, values, onChange, className }: Mul
 				type="button"
 				onClick={() => setOpen((o) => !o)}
 				className={cn(
-					"inline-flex items-center gap-1.5 rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 hover:bg-surface-700 focus:outline-none focus:ring-1 focus:ring-accent-bright",
+					"inline-flex h-8 items-center gap-1.5 rounded-md border border-edge bg-surface-800 px-3 text-sm text-text-1 hover:bg-surface-700 focus:outline-none focus:ring-1 focus:ring-accent-bright",
 					values.length > 0 && "border-accent-bright/40 bg-accent-bright/5",
 				)}
 			>
@@ -63,7 +64,7 @@ export function MultiSelect({ label, options, values, onChange, className }: Mul
 				</svg>
 			</button>
 			{open && (
-				<div className="absolute left-0 z-30 mt-1 min-w-[14rem] max-h-72 overflow-y-auto rounded-md border border-edge bg-surface-800 py-1 shadow-xl">
+				<div className={cn(DROPDOWN_PANEL, "left-0 min-w-[14rem] max-h-72 overflow-y-auto")}>
 					{options.length === 0 ? (
 						<p className="px-3 py-2 text-xs text-text-4">No options available</p>
 					) : (

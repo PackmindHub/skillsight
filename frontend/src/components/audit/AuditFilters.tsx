@@ -1,3 +1,4 @@
+import { Button, Card, Input } from "@/components/ui";
 import type { AuditFilters as Filters } from "@/types/api";
 import { useState } from "react";
 
@@ -24,70 +25,61 @@ export function AuditFiltersBar({ value, availableActions, onChange, onReset, on
 	return (
 		<div className="space-y-3">
 			<div className="flex items-center gap-2 flex-wrap">
-				<input
-					type="text"
+				<Input
+					size="sm"
 					value={value.search ?? ""}
 					onChange={(e) =>
 						onChange({ ...value, search: e.target.value.length > 0 ? e.target.value : undefined })
 					}
 					placeholder="Search target / metadata…"
-					className="rounded border border-edge bg-surface-900 px-3 py-1.5 text-sm text-text-1 placeholder:text-text-4 focus:outline-none focus:border-accent w-64"
+					className="w-64"
 				/>
-				<input
-					type="text"
+				<Input
+					size="sm"
 					value={value.actor ?? ""}
 					onChange={(e) =>
 						onChange({ ...value, actor: e.target.value.length > 0 ? e.target.value : undefined })
 					}
 					placeholder="Actor email"
-					className="rounded border border-edge bg-surface-900 px-3 py-1.5 text-sm text-text-1 placeholder:text-text-4 focus:outline-none focus:border-accent w-56"
+					className="w-56"
 				/>
-				<input
+				<Input
+					size="sm"
 					type="datetime-local"
 					value={value.from ? toLocal(value.from) : ""}
 					onChange={(e) => onChange({ ...value, from: fromLocal(e.target.value) })}
-					className="rounded border border-edge bg-surface-900 px-3 py-1.5 text-sm text-text-1 focus:outline-none focus:border-accent"
 				/>
 				<span className="text-text-4 text-xs">to</span>
-				<input
+				<Input
+					size="sm"
 					type="datetime-local"
 					value={value.to ? toLocal(value.to) : ""}
 					onChange={(e) => onChange({ ...value, to: fromLocal(e.target.value) })}
-					className="rounded border border-edge bg-surface-900 px-3 py-1.5 text-sm text-text-1 focus:outline-none focus:border-accent"
 				/>
-				<button
-					type="button"
-					onClick={() => setOpen((o) => !o)}
-					className="rounded border border-edge px-3 py-1.5 text-sm text-text-2 hover:bg-surface-800 transition-colors"
-				>
+				<Button variant="secondary" size="sm" onClick={() => setOpen((o) => !o)}>
 					Actions{selectedActions.size > 0 ? ` (${selectedActions.size})` : ""}
-				</button>
+				</Button>
 				<div className="flex-1" />
 				{activeCount > 0 && (
-					<button
-						type="button"
-						onClick={onReset}
-						className="rounded border border-edge px-3 py-1.5 text-sm text-text-3 hover:bg-surface-800 transition-colors"
-					>
+					<Button variant="ghost" size="sm" onClick={onReset}>
 						Reset
-					</button>
+					</Button>
 				)}
-				<button
-					type="button"
-					onClick={onExport}
-					className="rounded border border-edge px-3 py-1.5 text-sm text-text-2 hover:bg-surface-800 transition-colors"
-				>
+				<Button variant="secondary" size="sm" onClick={onExport}>
 					Export CSV
-				</button>
+				</Button>
 			</div>
 
 			{open && (
-				<div className="rounded border border-edge bg-surface-900 p-3">
+				<Card padding="sm">
 					<div className="grid grid-cols-2 md:grid-cols-3 gap-1.5">
 						{availableActions.map((action) => {
 							const checked = selectedActions.has(action);
 							return (
-								<label key={action} className="flex items-center gap-2 text-xs text-text-2 cursor-pointer">
+								<label
+									key={action}
+									className="flex items-center gap-2 text-xs text-text-2 cursor-pointer"
+								>
 									<input
 										type="checkbox"
 										checked={checked}
@@ -98,7 +90,7 @@ export function AuditFiltersBar({ value, availableActions, onChange, onReset, on
 							);
 						})}
 					</div>
-				</div>
+				</Card>
 			)}
 		</div>
 	);

@@ -98,3 +98,13 @@ Typical flow for a new backend feature:
 Frontend: add page to `pages/`, add API method to `lib/api.ts`, add route to `App.tsx`.
 
 For features that call external services: also add a gateway port interface to `domain/ports/` and an HTTP gateway implementation to `infrastructure/gateways/`. Inject the gateway into use cases alongside repositories.
+
+## Frontend Design System
+
+Minimal in-house primitives in `frontend/src/components/ui/`. Compose with `cn()` (clsx + tailwind-merge) — no Radix, shadcn, or cva.
+
+- **Tokens**: CSS custom properties + `@utility` classes (`btn-primary`, `badge-*`, `nav-active`, `dot-grid`) live in `src/index.css`. Add new tokens there, not inline.
+- **Primitives**: `Button`, `Input`, `Select`, `FormField`, `Card`, `PageHeader`, `Table` (+ `THead`/`TBody`/`TR`/`TH`/`TD`/`EmptyRow`). Import from the barrel `@/components/ui`.
+- **Domain primitives**: `StatusBadge`, `SearchBar`, `MultiSelect`, `StatusFilter`, `SegmentedControl`, `Drawer`, `Menu`/`MenuItem`/`ConfirmMenuItem`, `Sparkline` — kept as-is.
+- **Shared classes**: `_styles.ts` exports `INPUT_BASE`, `DROPDOWN_PANEL`, `MENU_ITEM_BASE` for primitives that own their own positioning logic (SearchBar, MultiSelect, Menu).
+- **Rule of thumb**: prefer the primitive over inline Tailwind for buttons/inputs/cards/tables/page headers. Reach for `cn()` when composing variants. Tests use `bun:test` + `renderToString` from `react-dom/server` (see `Button.test.tsx` as a template).
