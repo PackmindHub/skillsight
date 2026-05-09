@@ -4,5 +4,9 @@ export interface IPluginRepository {
 	listWithStats(): Promise<PluginWithStats[]>;
 	upsert(plugin: NewPlugin): Promise<void>;
 	updateStatusByMarketplace(marketplaceName: string, status: PluginStatus): Promise<void>;
-	markRemovedByMarketplace(marketplaceName: string, activePluginNames: string[]): Promise<void>;
+	markRemovedByMarketplace(
+		marketplaceName: string,
+		activePluginNames: string[],
+	): Promise<string[]>;
+	listNamesByMarketplace(marketplaceName: string): Promise<string[]>;
 }

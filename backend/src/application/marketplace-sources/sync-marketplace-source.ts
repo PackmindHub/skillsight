@@ -1,19 +1,21 @@
-import type { IMarketplaceSourceRepository } from "@/domain/ports/marketplace-source-repository";
-import type { IMarketplaceRepository } from "@/domain/ports/marketplace-repository";
-import type { IPluginRepository } from "@/domain/ports/plugin-repository";
-import type { IPluginSkillRepository } from "@/domain/ports/plugin-skill-repository";
-import type { IGitMarketplaceGateway } from "@/domain/ports/git-marketplace-gateway";
-import type { IAuditRepository } from "@/domain/ports/audit-repository";
+import { recordAudit } from "@/application/audit/record-audit";
 import type { MarketplaceSourceWithSecret } from "@/domain/marketplace-source";
 import { computePluginStatus } from "@/domain/plugin";
+import type { IAuditRepository } from "@/domain/ports/audit-repository";
+import type { IGitMarketplaceGateway } from "@/domain/ports/git-marketplace-gateway";
+import type { IMarketplaceRepository } from "@/domain/ports/marketplace-repository";
+import type { IMarketplaceSourceRepository } from "@/domain/ports/marketplace-source-repository";
+import type { IPluginRepository } from "@/domain/ports/plugin-repository";
+import type { IPluginSkillRepository } from "@/domain/ports/plugin-skill-repository";
+import type { ISkillRepository } from "@/domain/ports/skill-repository";
 import { decrypt } from "@/infrastructure/crypto/encrypt";
-import { recordAudit } from "@/application/audit/record-audit";
 
 interface SyncDeps {
 	marketplaceSources: IMarketplaceSourceRepository;
 	marketplaces: IMarketplaceRepository;
 	plugins: IPluginRepository;
 	pluginSkills: IPluginSkillRepository;
+	skills: ISkillRepository;
 	gitMarketplace: IGitMarketplaceGateway;
 	audit: IAuditRepository;
 }
@@ -63,20 +65,20 @@ export async function syncMarketplaceSource(
 		if (source.importPluginsAndSkills) {
 			const marketplace = await deps.marketplaces.findByName(data.name);
 			const marketplaceStatus = marketplace?.status ?? "approved";
+			const pluginStatus = computePluginStatus(data.name, marketplaceStatus);
 
 			for (const plugin of data.plugins) {
-				const status = computePluginStatus(data.name, marketplaceStatus);
 				await deps.plugins.upsert({
 					pluginName: plugin.name,
 					marketplaceName: data.name,
 					pluginVersion: plugin.version ?? null,
 					installTrigger: null,
 					marketplaceIsOfficial: false,
-					status,
+					status: pluginStatus,
 				});
 			}
 
-			await deps.plugins.markRemovedByMarketplace(
+			const removedPluginNames = await deps.plugins.markRemovedByMarketplace(
 				data.name,
 				data.plugins.map((p) => p.name),
 			);
@@ -86,6 +88,15 @@ export async function syncMarketplaceSource(
 			);
 			if (allSkills.length > 0) {
 				await deps.pluginSkills.upsertMany(allSkills);
+				await deps.skills.upsertMany(allSkills);
+			}
+
+			const activePluginNames = data.plugins.map((p) => p.name);
+			if (activePluginNames.length > 0) {
+				await deps.skills.propagateStatusFromPlugins(activePluginNames, pluginStatus);
+			}
+			if (removedPluginNames.length > 0) {
+				await deps.skills.propagateStatusFromPlugins(removedPluginNames, "removed");
 			}
 		}
 

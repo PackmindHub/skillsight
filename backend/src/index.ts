@@ -34,6 +34,7 @@ async function main() {
 				{
 					integrations: deps.integrations,
 					events: deps.events,
+					skills: deps.skills,
 					loki: deps.loki,
 					audit: deps.audit,
 				},
@@ -48,6 +49,7 @@ async function main() {
 					marketplaces: deps.marketplaces,
 					plugins: deps.plugins,
 					pluginSkills: deps.pluginSkills,
+					skills: deps.skills,
 					gitMarketplace: deps.gitMarketplace,
 					audit: deps.audit,
 				},

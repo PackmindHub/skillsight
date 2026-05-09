@@ -1,12 +1,20 @@
 import { describe, expect, it } from "bun:test";
-import { syncMarketplaceSource } from "./sync-marketplace-source";
 import type { MarketplaceSourceWithSecret } from "@/domain/marketplace-source";
-import type { IMarketplaceSourceRepository } from "@/domain/ports/marketplace-source-repository";
+import type {
+	IGitMarketplaceGateway,
+	MarketplaceJsonData,
+} from "@/domain/ports/git-marketplace-gateway";
 import type { IMarketplaceRepository } from "@/domain/ports/marketplace-repository";
+import type { IMarketplaceSourceRepository } from "@/domain/ports/marketplace-source-repository";
 import type { IPluginRepository } from "@/domain/ports/plugin-repository";
 import type { IPluginSkillRepository } from "@/domain/ports/plugin-skill-repository";
-import type { IGitMarketplaceGateway, MarketplaceJsonData } from "@/domain/ports/git-marketplace-gateway";
 import type { IAuditRepository } from "@/domain/ports/audit-repository";
+import type {
+	ISkillRepository,
+	SkillUpsertEntry,
+} from "@/domain/ports/skill-repository";
+import type { SkillStatus } from "@/domain/skill";
+import { syncMarketplaceSource } from "./sync-marketplace-source";
 
 // --- fixtures ---
 
@@ -75,23 +83,53 @@ function makeMarketplaces(status = "approved"): IMarketplaceRepository {
 	};
 }
 
-function makePlugins() {
+function makePlugins(removedNames: string[] = []) {
 	const markRemovedCalls: Array<{ marketplaceName: string; activePluginNames: string[] }> = [];
+	const listNamesCalls: string[] = [];
 	const repo: IPluginRepository = {
 		listWithStats: async () => [],
 		upsert: async () => {},
 		updateStatusByMarketplace: async () => {},
 		markRemovedByMarketplace: async (marketplaceName, activePluginNames) => {
 			markRemovedCalls.push({ marketplaceName, activePluginNames });
+			return removedNames;
+		},
+		listNamesByMarketplace: async (marketplaceName) => {
+			listNamesCalls.push(marketplaceName);
+			return [];
 		},
 	};
-	return { repo, markRemovedCalls };
+	return { repo, markRemovedCalls, listNamesCalls };
 }
 
 function makePluginSkills(): IPluginSkillRepository {
 	return {
 		upsertMany: async () => {},
 	};
+}
+
+function makeSkills() {
+	const upsertManyCalls: SkillUpsertEntry[][] = [];
+	const propagateCalls: Array<{ pluginNames: string[]; status: SkillStatus }> = [];
+	const repo: ISkillRepository = {
+		getTopSkills: async () => [],
+		getDailyTrend: async () => [],
+		getTopUsers: async () => [],
+		getByTrigger: async () => [],
+		getTotalActivations: async () => 0,
+		getUniqueSkillsCount: async () => 0,
+		getActiveUsersCount: async () => 0,
+		getSkillsTable: async () => [],
+		getSkillDetail: async () => null,
+		getMonthlyTrends: async () => ({ invocations: [], uniqueSkills: [], uniqueUsers: [] }),
+		upsertMany: async (entries) => {
+			upsertManyCalls.push(entries);
+		},
+		propagateStatusFromPlugins: async (pluginNames, status) => {
+			propagateCalls.push({ pluginNames, status });
+		},
+	};
+	return { repo, upsertManyCalls, propagateCalls };
 }
 
 function makeAudit(): IAuditRepository {
@@ -120,6 +158,7 @@ describe("syncMarketplaceSource", () => {
 	describe("markRemovedByMarketplace", () => {
 		it("is called with marketplace name and active plugin names after a successful sync", async () => {
 			const { repo: plugins, markRemovedCalls } = makePlugins();
+			const { repo: skills } = makeSkills();
 
 			await syncMarketplaceSource(
 				{
@@ -127,6 +166,7 @@ describe("syncMarketplaceSource", () => {
 					marketplaces: makeMarketplaces(),
 					plugins,
 					pluginSkills: makePluginSkills(),
+					skills,
 					gitMarketplace: makeGateway(),
 					audit: makeAudit(),
 				},
@@ -140,6 +180,7 @@ describe("syncMarketplaceSource", () => {
 
 		it("is called with an empty array when the marketplace returns no plugins", async () => {
 			const { repo: plugins, markRemovedCalls } = makePlugins();
+			const { repo: skills } = makeSkills();
 
 			await syncMarketplaceSource(
 				{
@@ -147,6 +188,7 @@ describe("syncMarketplaceSource", () => {
 					marketplaces: makeMarketplaces(),
 					plugins,
 					pluginSkills: makePluginSkills(),
+					skills,
 					gitMarketplace: makeGateway({ name: "acme-marketplace", plugins: [] }),
 					audit: makeAudit(),
 				},
@@ -159,6 +201,7 @@ describe("syncMarketplaceSource", () => {
 
 		it("is NOT called when the gateway fetch fails", async () => {
 			const { repo: plugins, markRemovedCalls } = makePlugins();
+			const { repo: skills } = makeSkills();
 
 			const result = await syncMarketplaceSource(
 				{
@@ -166,6 +209,7 @@ describe("syncMarketplaceSource", () => {
 					marketplaces: makeMarketplaces(),
 					plugins,
 					pluginSkills: makePluginSkills(),
+					skills,
 					gitMarketplace: makeGateway("throw"),
 					audit: makeAudit(),
 				},
@@ -178,6 +222,7 @@ describe("syncMarketplaceSource", () => {
 
 		it("is NOT called when importPluginsAndSkills is false", async () => {
 			const { repo: plugins, markRemovedCalls } = makePlugins();
+			const { repo: skills } = makeSkills();
 
 			await syncMarketplaceSource(
 				{
@@ -185,6 +230,7 @@ describe("syncMarketplaceSource", () => {
 					marketplaces: makeMarketplaces(),
 					plugins,
 					pluginSkills: makePluginSkills(),
+					skills,
 					gitMarketplace: makeGateway(),
 					audit: makeAudit(),
 				},
@@ -195,9 +241,107 @@ describe("syncMarketplaceSource", () => {
 		});
 	});
 
+	describe("skills propagation", () => {
+		it("upserts (skill, plugin) tuples into the skills repo", async () => {
+			const { repo: plugins } = makePlugins();
+			const { repo: skills, upsertManyCalls } = makeSkills();
+
+			await syncMarketplaceSource(
+				{
+					marketplaceSources: makeMarketplaceSources(),
+					marketplaces: makeMarketplaces(),
+					plugins,
+					pluginSkills: makePluginSkills(),
+					skills,
+					gitMarketplace: makeGateway({
+						name: "acme-marketplace",
+						plugins: [
+							{ name: "plugin-a", version: "1.0.0", skills: ["lint", "format"] },
+							{ name: "plugin-b", version: "2.0.0", skills: ["lint"] },
+						],
+					}),
+					audit: makeAudit(),
+				},
+				BASE_SOURCE,
+			);
+
+			expect(upsertManyCalls).toHaveLength(1);
+			expect(upsertManyCalls[0]).toEqual([
+				{ pluginName: "plugin-a", skillName: "lint" },
+				{ pluginName: "plugin-a", skillName: "format" },
+				{ pluginName: "plugin-b", skillName: "lint" },
+			]);
+		});
+
+		it("propagates the marketplace plugin status to active plugin skills", async () => {
+			const { repo: plugins } = makePlugins();
+			const { repo: skills, propagateCalls } = makeSkills();
+
+			await syncMarketplaceSource(
+				{
+					marketplaceSources: makeMarketplaceSources(),
+					marketplaces: makeMarketplaces("approved"),
+					plugins,
+					pluginSkills: makePluginSkills(),
+					skills,
+					gitMarketplace: makeGateway(),
+					audit: makeAudit(),
+				},
+				BASE_SOURCE,
+			);
+
+			const activeCall = propagateCalls.find((c) => c.status === "approved");
+			expect(activeCall).toBeDefined();
+			expect(activeCall?.pluginNames).toEqual(["plugin-a", "plugin-b"]);
+		});
+
+		it("propagates 'removed' to skills exclusively linked to plugins removed by the sync", async () => {
+			const { repo: plugins } = makePlugins(["plugin-c"]);
+			const { repo: skills, propagateCalls } = makeSkills();
+
+			await syncMarketplaceSource(
+				{
+					marketplaceSources: makeMarketplaceSources(),
+					marketplaces: makeMarketplaces("approved"),
+					plugins,
+					pluginSkills: makePluginSkills(),
+					skills,
+					gitMarketplace: makeGateway(),
+					audit: makeAudit(),
+				},
+				BASE_SOURCE,
+			);
+
+			const removedCall = propagateCalls.find((c) => c.status === "removed");
+			expect(removedCall).toBeDefined();
+			expect(removedCall?.pluginNames).toEqual(["plugin-c"]);
+		});
+
+		it("does NOT propagate when no plugins are removed", async () => {
+			const { repo: plugins } = makePlugins([]);
+			const { repo: skills, propagateCalls } = makeSkills();
+
+			await syncMarketplaceSource(
+				{
+					marketplaceSources: makeMarketplaceSources(),
+					marketplaces: makeMarketplaces(),
+					plugins,
+					pluginSkills: makePluginSkills(),
+					skills,
+					gitMarketplace: makeGateway(),
+					audit: makeAudit(),
+				},
+				BASE_SOURCE,
+			);
+
+			expect(propagateCalls.find((c) => c.status === "removed")).toBeUndefined();
+		});
+	});
+
 	describe("return value", () => {
 		it("returns pluginCount and skillCount on success", async () => {
 			const { repo: plugins } = makePlugins();
+			const { repo: skills } = makeSkills();
 
 			const result = await syncMarketplaceSource(
 				{
@@ -205,6 +349,7 @@ describe("syncMarketplaceSource", () => {
 					marketplaces: makeMarketplaces(),
 					plugins,
 					pluginSkills: makePluginSkills(),
+					skills,
 					gitMarketplace: makeGateway(),
 					audit: makeAudit(),
 				},
@@ -219,6 +364,7 @@ describe("syncMarketplaceSource", () => {
 
 		it("returns error and zero counts on failure", async () => {
 			const { repo: plugins } = makePlugins();
+			const { repo: skills } = makeSkills();
 
 			const result = await syncMarketplaceSource(
 				{
@@ -226,6 +372,7 @@ describe("syncMarketplaceSource", () => {
 					marketplaces: makeMarketplaces(),
 					plugins,
 					pluginSkills: makePluginSkills(),
+					skills,
 					gitMarketplace: makeGateway("throw"),
 					audit: makeAudit(),
 				},
@@ -242,6 +389,7 @@ describe("syncMarketplaceSource", () => {
 	describe("error persistence", () => {
 		it("persists the error message via updateSyncStatus when the gateway throws (broken URL)", async () => {
 			const { repo: plugins } = makePlugins();
+			const { repo: skills } = makeSkills();
 			const marketplaceSources = makeMarketplaceSources();
 
 			await syncMarketplaceSource(
@@ -250,6 +398,7 @@ describe("syncMarketplaceSource", () => {
 					marketplaces: makeMarketplaces(),
 					plugins,
 					pluginSkills: makePluginSkills(),
+					skills,
 					gitMarketplace: makeGateway({
 						error: 'marketplace.json not found (HTTP 404). Check the git URL and branch ("main").',
 					}),
@@ -269,6 +418,7 @@ describe("syncMarketplaceSource", () => {
 
 		it("persists an authentication failure message (broken credentials)", async () => {
 			const { repo: plugins } = makePlugins();
+			const { repo: skills } = makeSkills();
 			const marketplaceSources = makeMarketplaceSources();
 
 			await syncMarketplaceSource(
@@ -277,6 +427,7 @@ describe("syncMarketplaceSource", () => {
 					marketplaces: makeMarketplaces(),
 					plugins,
 					pluginSkills: makePluginSkills(),
+					skills,
 					gitMarketplace: makeGateway({
 						error: "Authentication failed (HTTP 401). Check the access token.",
 					}),
@@ -293,6 +444,7 @@ describe("syncMarketplaceSource", () => {
 
 		it("clears lastSyncError on a successful sync", async () => {
 			const { repo: plugins } = makePlugins();
+			const { repo: skills } = makeSkills();
 			const marketplaceSources = makeMarketplaceSources();
 
 			await syncMarketplaceSource(
@@ -301,6 +453,7 @@ describe("syncMarketplaceSource", () => {
 					marketplaces: makeMarketplaces(),
 					plugins,
 					pluginSkills: makePluginSkills(),
+					skills,
 					gitMarketplace: makeGateway(),
 					audit: makeAudit(),
 				},

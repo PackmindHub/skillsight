@@ -43,7 +43,13 @@ const testConnectionSchema = z.object({
 export function createMarketplaceSourcesRoute(
 	deps: Pick<
 		AppDeps,
-		"marketplaceSources" | "marketplaces" | "plugins" | "pluginSkills" | "gitMarketplace" | "audit"
+		| "marketplaceSources"
+		| "marketplaces"
+		| "plugins"
+		| "pluginSkills"
+		| "skills"
+		| "gitMarketplace"
+		| "audit"
 	>,
 ) {
 	const makeSyncDeps = () => ({
@@ -51,6 +57,7 @@ export function createMarketplaceSourcesRoute(
 		marketplaces: deps.marketplaces,
 		plugins: deps.plugins,
 		pluginSkills: deps.pluginSkills,
+		skills: deps.skills,
 		gitMarketplace: deps.gitMarketplace,
 		audit: deps.audit,
 	});

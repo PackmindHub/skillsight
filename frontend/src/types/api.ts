@@ -67,6 +67,28 @@ export type MarketplaceStatus = "to_review" | "approved" | "denied";
 
 export type PluginStatus = "unknown" | "to_review" | "approved" | "removed";
 
+export type SkillStatus = "unknown" | "to_review" | "approved" | "removed";
+
+export const SKILL_STATUSES: readonly SkillStatus[] = [
+	"unknown",
+	"to_review",
+	"approved",
+	"removed",
+] as const;
+
+export const PLUGIN_STATUSES: readonly PluginStatus[] = [
+	"unknown",
+	"to_review",
+	"approved",
+	"removed",
+] as const;
+
+export const MARKETPLACE_STATUSES: readonly MarketplaceStatus[] = [
+	"to_review",
+	"approved",
+	"denied",
+] as const;
+
 export interface Plugin {
 	pluginName: string;
 	marketplaceName: string | null;
@@ -104,7 +126,7 @@ export interface SkillTableRow {
 	nestedSkill: number;
 	dailyCounts: number[];
 	marketplaces: MarketplaceRef[];
-	status: "removed" | null;
+	status: SkillStatus;
 }
 
 export interface SkillsTableResponse {
@@ -128,7 +150,7 @@ export interface SkillDetail {
 	firstSeenAt: string | null;
 	lastSeenAt: string | null;
 	marketplaces: MarketplaceRef[];
-	status: "removed" | null;
+	status: SkillStatus;
 }
 
 export interface AuditEvent {

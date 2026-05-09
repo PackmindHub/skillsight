@@ -70,22 +70,30 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			.where(eq(plugins.marketplaceName, marketplaceName));
 	}
 
-	async markRemovedByMarketplace(marketplaceName: string, activePluginNames: string[]): Promise<void> {
-		if (activePluginNames.length === 0) {
-			await this.db
-				.update(plugins)
-				.set({ status: "removed" })
-				.where(eq(plugins.marketplaceName, marketplaceName));
-		} else {
-			await this.db
-				.update(plugins)
-				.set({ status: "removed" })
-				.where(
-					and(
+	async markRemovedByMarketplace(
+		marketplaceName: string,
+		activePluginNames: string[],
+	): Promise<string[]> {
+		const where =
+			activePluginNames.length === 0
+				? and(eq(plugins.marketplaceName, marketplaceName))
+				: and(
 						eq(plugins.marketplaceName, marketplaceName),
 						notInArray(plugins.pluginName, activePluginNames),
-					),
-				);
-		}
+					);
+		const updated = await this.db
+			.update(plugins)
+			.set({ status: "removed" })
+			.where(where)
+			.returning({ pluginName: plugins.pluginName });
+		return updated.map((row) => row.pluginName);
+	}
+
+	async listNamesByMarketplace(marketplaceName: string): Promise<string[]> {
+		const rows = await this.db
+			.select({ pluginName: plugins.pluginName })
+			.from(plugins)
+			.where(eq(plugins.marketplaceName, marketplaceName));
+		return rows.map((r) => r.pluginName);
 	}
 }

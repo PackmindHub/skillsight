@@ -1,11 +1,17 @@
+import { computePluginStatus } from "@/domain/plugin";
 import type { IEventRepository } from "@/domain/ports/event-repository";
 import type { IMarketplaceRepository } from "@/domain/ports/marketplace-repository";
 import type { IPluginRepository } from "@/domain/ports/plugin-repository";
+import type { ISkillRepository } from "@/domain/ports/skill-repository";
 import { parseOtlpBody } from "@/parsers/otlp-parser";
-import { computePluginStatus } from "@/domain/plugin";
 
 export async function ingestEvents(
-	deps: { events: IEventRepository; marketplaces: IMarketplaceRepository; plugins: IPluginRepository },
+	deps: {
+		events: IEventRepository;
+		marketplaces: IMarketplaceRepository;
+		plugins: IPluginRepository;
+		skills: ISkillRepository;
+	},
 	rawBody: unknown,
 ): Promise<{ rejected: boolean; error?: string }> {
 	let parsed: ReturnType<typeof parseOtlpBody>;
@@ -41,6 +47,23 @@ export async function ingestEvents(
 	];
 	if (mpNames.length > 0) {
 		await deps.marketplaces.upsertSeen(mpNames);
+	}
+
+	const skillEntries = events
+		.filter(
+			(e) =>
+				e.eventName === "claude_code.skill_activated" &&
+				typeof e.attributes["skill.name"] === "string",
+		)
+		.map((e) => ({
+			skillName: e.attributes["skill.name"] as string,
+			pluginName:
+				typeof e.attributes["plugin.name"] === "string"
+					? (e.attributes["plugin.name"] as string)
+					: null,
+		}));
+	if (skillEntries.length > 0) {
+		await deps.skills.upsertMany(skillEntries);
 	}
 
 	const pluginEvents = events.filter(

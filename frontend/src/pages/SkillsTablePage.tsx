@@ -1,15 +1,24 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { SkillDetailDrawer } from "@/components/skills/SkillDetailDrawer";
 import { MultiSelect } from "@/components/ui/MultiSelect";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Sparkline } from "@/components/ui/Sparkline";
-import { SkillDetailDrawer } from "@/components/skills/SkillDetailDrawer";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { StatusFilter } from "@/components/ui/StatusFilter";
 import { api } from "@/lib/api";
 import { fuzzyScore } from "@/lib/fuzzy";
 import { useDebouncedValue } from "@/lib/use-debounced-value";
+import { useStatusFilter } from "@/lib/use-status-filter";
 import { cn } from "@/lib/utils";
-import type { DashboardPeriod, MarketplaceRef, SkillTableRow } from "@/types/api";
+import {
+	SKILL_STATUSES,
+	type DashboardPeriod,
+	type MarketplaceRef,
+	type SkillStatus,
+	type SkillTableRow,
+} from "@/types/api";
 
 const MP_STATUS_STYLES: Record<string, string> = {
 	approved: "bg-success/15 text-success border-success/30",
@@ -48,12 +57,19 @@ function ProgressCell({ count, total, color }: { count: number; total: number; c
 
 type SourceFilter = "all" | "bundled" | "external";
 type UsageFilter = "all" | "activated" | "never_used";
-type SortKey = "skillName" | "total" | "userSlash" | "claudeProactive" | "nestedSkill";
+type SortKey = "skillName" | "total" | "status" | "userSlash" | "claudeProactive" | "nestedSkill";
 type SortDir = "asc" | "desc";
 
 const SOURCE_VALUES: SourceFilter[] = ["all", "bundled", "external"];
 const USAGE_VALUES: UsageFilter[] = ["all", "activated", "never_used"];
-const SORT_KEYS: SortKey[] = ["skillName", "total", "userSlash", "claudeProactive", "nestedSkill"];
+const SORT_KEYS: SortKey[] = [
+	"skillName",
+	"total",
+	"status",
+	"userSlash",
+	"claudeProactive",
+	"nestedSkill",
+];
 const TRIGGER_KEYS = TRIGGERS.map((t) => t.key);
 const SKELETON_KEYS = ["a", "b", "c", "d", "e", "f", "g", "h"];
 const NO_MARKETPLACE = "__none__";
@@ -102,6 +118,10 @@ export default function SkillsTablePage() {
 	const usageFilter = pick<UsageFilter>(searchParams.get("usage"), USAGE_VALUES, "all");
 	const sortKey = pick<SortKey>(searchParams.get("sort"), SORT_KEYS, "total");
 	const sortDir: SortDir = searchParams.get("dir") === "asc" ? "asc" : "desc";
+	const { status: statusFilter, setStatus } = useStatusFilter<SkillStatus>(
+		"status",
+		SKILL_STATUSES,
+	);
 
 	const allMarketplaceNames = useMemo(() => {
 		const names = new Set<string>();
@@ -200,6 +220,7 @@ export default function SkillsTablePage() {
 		for (const row of rows) {
 			if (sourceFilter === "bundled" && row.skillSource !== "bundled") continue;
 			if (sourceFilter === "external" && row.skillSource === "bundled") continue;
+			if (statusFilter !== "all" && (row.status ?? "unknown") !== statusFilter) continue;
 			if (marketplaces.length > 0) {
 				const wantsNone = marketplaces.includes(NO_MARKETPLACE);
 				const wantedNames = marketplaces.filter((m) => m !== NO_MARKETPLACE);
@@ -240,7 +261,17 @@ export default function SkillsTablePage() {
 			});
 		}
 		return sorted.map((s) => s.row);
-	}, [rows, debouncedSearch, sourceFilter, marketplaces, triggers, usageFilter, sortKey, sortDir]);
+	}, [
+		rows,
+		debouncedSearch,
+		sourceFilter,
+		statusFilter,
+		marketplaces,
+		triggers,
+		usageFilter,
+		sortKey,
+		sortDir,
+	]);
 
 	const suggestions = useMemo(() => {
 		const q = debouncedSearch.trim();
@@ -268,6 +299,7 @@ export default function SkillsTablePage() {
 		search !== "" ||
 		sourceFilter !== "all" ||
 		usageFilter !== "all" ||
+		statusFilter !== "all" ||
 		marketplaces.length > 0 ||
 		triggers.length > 0;
 
@@ -308,6 +340,11 @@ export default function SkillsTablePage() {
 					options={triggerOptions}
 					values={triggers}
 					onChange={(v) => setListParam("trigger", v)}
+				/>
+				<StatusFilter<SkillStatus>
+					value={statusFilter}
+					onChange={setStatus}
+					options={SKILL_STATUSES}
 				/>
 				<select
 					value={sourceFilter}
@@ -358,6 +395,12 @@ export default function SkillsTablePage() {
 							onRemove={() => updateParam("usage", "", "all")}
 						/>
 					)}
+					{statusFilter !== "all" && (
+						<FilterPill
+							label={`Status: ${statusFilter}`}
+							onRemove={() => setStatus("all")}
+						/>
+					)}
 					{marketplaces.map((m) => (
 						<FilterPill
 							key={`mp-${m}`}
@@ -398,6 +441,14 @@ export default function SkillsTablePage() {
 							<th className="text-left px-4 py-3 font-medium text-text-3">Trend</th>
 							<th className="text-left px-4 py-3 font-medium text-text-3">Marketplaces</th>
 							<th className="text-left px-4 py-3 font-medium text-text-3">Source</th>
+							<SortableHeader
+								label="Status"
+								sortKey="status"
+								currentKey={sortKey}
+								currentDir={sortDir}
+								onSort={toggleSort}
+								className="text-left"
+							/>
 							{TRIGGERS.map(({ key, label, color }) => (
 								<SortableHeader
 									key={key}
@@ -421,19 +472,19 @@ export default function SkillsTablePage() {
 							SKELETON_KEYS.map((k) => <SkeletonRow key={k} />)
 						) : error ? (
 							<tr>
-								<td colSpan={8} className="px-4 py-8 text-center text-danger text-sm">
+								<td colSpan={9} className="px-4 py-8 text-center text-danger text-sm">
 									{error}
 								</td>
 							</tr>
 						) : rows.length === 0 ? (
 							<tr>
-								<td colSpan={8} className="px-4 py-12 text-center text-text-3 text-sm">
+								<td colSpan={9} className="px-4 py-12 text-center text-text-3 text-sm">
 									No skills found.
 								</td>
 							</tr>
 						) : filteredRows.length === 0 ? (
 							<tr>
-								<td colSpan={8} className="px-4 py-8 text-center text-text-4 text-sm">
+								<td colSpan={9} className="px-4 py-8 text-center text-text-4 text-sm">
 									No skills match the current filters.
 									{filtersActive && (
 										<>
@@ -469,11 +520,6 @@ export default function SkillsTablePage() {
 									<td className="px-4 py-3 font-mono text-text-1">
 										<span className="flex items-center gap-2">
 											{row.skillName}
-											{row.status === "removed" && (
-												<span className="inline-flex items-center rounded border border-red-500/30 bg-red-500/10 px-1.5 py-0.5 text-xs font-medium text-red-400">
-													Removed
-												</span>
-											)}
 											{row.total === 0 && (
 												<span className="inline-flex items-center rounded border border-edge bg-surface-800 px-1.5 py-0.5 text-xs text-text-3">
 													Never used
@@ -504,6 +550,9 @@ export default function SkillsTablePage() {
 										) : (
 											<span className="text-text-4">—</span>
 										)}
+									</td>
+									<td className="px-4 py-3">
+										<StatusBadge status={(row.status ?? "unknown") as SkillStatus} />
 									</td>
 									{TRIGGERS.map(({ key, color }) => (
 										<ProgressCell key={key} count={row[key]} total={row.total} color={color} />
@@ -576,6 +625,9 @@ function SkeletonRow() {
 			</td>
 			<td className="px-4 py-3">
 				<div className="h-3 w-16 rounded bg-surface-800 animate-pulse" />
+			</td>
+			<td className="px-4 py-3">
+				<div className="h-3 w-20 rounded bg-surface-800 animate-pulse" />
 			</td>
 			{TRIGGERS.map(({ key }) => (
 				<td key={key} className="px-4 py-3">
