@@ -1,3 +1,5 @@
+import type { PluginStatus } from "@/domain/plugin";
+
 export type MarketplaceStatus = "to_review" | "approved" | "denied";
 
 export interface Marketplace {
@@ -13,4 +15,27 @@ export interface MarketplaceWithStats extends Marketplace {
 	activationCount: number;
 	pluginInstallCount: number;
 	skillActivatedLinkedCount: number;
+	pluginCount: number;
+	knownSkillCount: number;
+	activatedSkillCount: number;
+	totalActivationCount: number;
+}
+
+export interface MarketplacePluginRow {
+	pluginName: string;
+	status: PluginStatus;
+	pluginVersion: string | null;
+	installationCount: number;
+	skillActivationCount: number;
+}
+
+export interface MarketplaceSkillRow {
+	skillName: string;
+	pluginName: string;
+	activationCount: number;
+}
+
+export interface MarketplaceDetail {
+	plugins: MarketplacePluginRow[];
+	skills: MarketplaceSkillRow[];
 }

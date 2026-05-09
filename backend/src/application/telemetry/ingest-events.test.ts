@@ -25,6 +25,8 @@ function makeMarketplaces(): IMarketplaceRepository {
 		upsertSeen: async () => {},
 		upsertFromImport: async () => {},
 		listStatuses: async () => [],
+		listPluginsForMarketplace: async () => [],
+		listSkillsForMarketplace: async () => [],
 	};
 }
 
