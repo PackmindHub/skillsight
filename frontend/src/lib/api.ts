@@ -5,6 +5,7 @@ import type {
 	Integration,
 	IntegrationPreviewEvent,
 	Marketplace,
+	MarketplaceDetailResponse,
 	MarketplaceSource,
 	MonthlyTrendsResponse,
 	Plugin,
@@ -104,6 +105,10 @@ export const api = {
 	},
 	marketplaces: {
 		list: () => apiFetch<{ marketplaces: Marketplace[] }>("/api/marketplaces"),
+		detail: (name: string) =>
+			apiFetch<MarketplaceDetailResponse>(
+				`/api/marketplaces/${encodeURIComponent(name)}/detail`,
+			),
 		update: (
 			name: string,
 			body: { status?: string; url?: string | null; description?: string | null },

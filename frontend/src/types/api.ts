@@ -126,6 +126,29 @@ export interface Marketplace extends MarketplaceRef {
 	activationCount: number;
 	pluginInstallCount: number;
 	skillActivatedLinkedCount: number;
+	pluginCount: number;
+	knownSkillCount: number;
+	activatedSkillCount: number;
+	totalActivationCount: number;
+}
+
+export interface MarketplacePluginRow {
+	pluginName: string;
+	status: PluginStatus;
+	pluginVersion: string | null;
+	installationCount: number;
+	skillActivationCount: number;
+}
+
+export interface MarketplaceSkillRow {
+	skillName: string;
+	pluginName: string;
+	activationCount: number;
+}
+
+export interface MarketplaceDetailResponse {
+	plugins: MarketplacePluginRow[];
+	skills: MarketplaceSkillRow[];
 }
 
 export interface SkillTableRow {

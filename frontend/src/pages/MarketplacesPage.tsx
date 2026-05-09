@@ -1,3 +1,4 @@
+import { MarketplaceDetailsDrawer } from "@/components/marketplaces/MarketplaceDetailsDrawer";
 import { SourceErrorBanner } from "@/components/marketplaces/SourceErrorBanner";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { StatusFilter } from "@/components/ui/StatusFilter";
@@ -59,6 +60,7 @@ export default function MarketplacesPage() {
 	const [error, setError] = useState<string | null>(null);
 	const [editing, setEditing] = useState<Record<string, EditState>>({});
 	const [saving, setSaving] = useState<Record<string, boolean>>({});
+	const [selectedMarketplace, setSelectedMarketplace] = useState<string | null>(null);
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	const { refresh: refreshSourcesHealth } = useMarketplaceSourcesHealth();
@@ -632,6 +634,10 @@ export default function MarketplacesPage() {
 									<th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
 									<th className="text-left px-4 py-3 font-medium text-gray-600">URL</th>
 									<th className="text-left px-4 py-3 font-medium text-gray-600">Description</th>
+									<th className="text-right px-4 py-3 font-medium text-gray-600">Plugins</th>
+									<th className="text-right px-4 py-3 font-medium text-gray-600">Skills</th>
+									<th className="text-right px-4 py-3 font-medium text-gray-600">Activated</th>
+									<th className="text-right px-4 py-3 font-medium text-gray-600">Activations</th>
 									<th className="text-right px-4 py-3 font-medium text-gray-600">Activations (30d)</th>
 									<th className="text-right px-4 py-3 font-medium text-gray-600">Plugin installs</th>
 									<th className="text-right px-4 py-3 font-medium text-gray-600">Linked skill activations</th>
@@ -641,7 +647,7 @@ export default function MarketplacesPage() {
 							<tbody>
 								{filteredItems.length === 0 ? (
 									<tr>
-										<td colSpan={8} className="px-4 py-8 text-center text-gray-400 text-sm">
+										<td colSpan={12} className="px-4 py-8 text-center text-gray-400 text-sm">
 											No marketplaces match the current filters.
 										</td>
 									</tr>
@@ -662,7 +668,14 @@ export default function MarketplacesPage() {
 											}
 										>
 											<td className="px-4 py-3 font-mono text-gray-900 whitespace-nowrap">
-												{mp.name}
+												<button
+													type="button"
+													onClick={() => setSelectedMarketplace(mp.name)}
+													className="text-indigo-600 hover:underline"
+													title="View marketplace details"
+												>
+													{mp.name}
+												</button>
 											</td>
 											<td className="px-4 py-3">
 												<div className="flex items-center gap-2">
@@ -732,6 +745,59 @@ export default function MarketplacesPage() {
 													<span className="text-gray-400">—</span>
 												)}
 											</td>
+											<td className="px-4 py-3 text-right text-gray-700 tabular-nums">
+												{mp.pluginCount > 0 ? (
+													<button
+														type="button"
+														onClick={() => setSelectedMarketplace(mp.name)}
+														className="text-indigo-600 hover:underline"
+														title="View marketplace plugins"
+													>
+														{mp.pluginCount}
+													</button>
+												) : (
+													<span className="text-gray-400">0</span>
+												)}
+											</td>
+											<td className="px-4 py-3 text-right text-gray-700 tabular-nums">
+												{mp.knownSkillCount > 0 ? (
+													<button
+														type="button"
+														onClick={() => setSelectedMarketplace(mp.name)}
+														className="text-indigo-600 hover:underline"
+														title="View marketplace skills"
+													>
+														{mp.knownSkillCount}
+													</button>
+												) : (
+													<span className="text-gray-400">0</span>
+												)}
+											</td>
+											<td className="px-4 py-3 text-right text-gray-700 tabular-nums">
+												{mp.knownSkillCount > 0 ? (
+													<button
+														type="button"
+														onClick={() => setSelectedMarketplace(mp.name)}
+														className={
+															mp.activatedSkillCount > 0
+																? "text-indigo-600 hover:underline"
+																: "text-gray-400 hover:underline"
+														}
+														title={
+															mp.activatedSkillCount === 0
+																? "No skill activated yet — click to inspect"
+																: "View activated skills"
+														}
+													>
+														{mp.activatedSkillCount}
+													</button>
+												) : (
+													<span className="text-gray-400">—</span>
+												)}
+											</td>
+											<td className="px-4 py-3 text-right text-gray-700 tabular-nums">
+												{mp.totalActivationCount}
+											</td>
 											<td className="px-4 py-3 text-right text-gray-700">
 												{mp.activationCount}
 											</td>
@@ -789,6 +855,11 @@ export default function MarketplacesPage() {
 					</div>
 				)}
 			</div>
+
+			<MarketplaceDetailsDrawer
+				marketplaceName={selectedMarketplace}
+				onClose={() => setSelectedMarketplace(null)}
+			/>
 		</div>
 	);
 }

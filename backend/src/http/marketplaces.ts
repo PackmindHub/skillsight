@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { AppVariables } from "@/types";
 import type { AppDeps } from "@/bootstrap/compose";
 import { sessionAuth } from "@/middleware/session-auth";
+import { listMarketplaceDetail } from "@/application/marketplaces/list-marketplace-detail";
 import { listMarketplaces } from "@/application/marketplaces/list-marketplaces";
 import { updateMarketplace } from "@/application/marketplaces/update-marketplace";
 
@@ -18,6 +19,12 @@ export function createMarketplacesRoute(deps: Pick<AppDeps, "marketplaces" | "au
 
 	route.get("/", async (c) => {
 		return c.json({ marketplaces: await listMarketplaces(deps) });
+	});
+
+	route.get("/:name/detail", async (c) => {
+		const name = decodeURIComponent(c.req.param("name"));
+		const detail = await listMarketplaceDetail({ marketplaces: deps.marketplaces }, name);
+		return c.json(detail);
 	});
 
 	route.patch("/:name", async (c) => {

@@ -2,7 +2,13 @@ import { eq, sql } from "drizzle-orm";
 import type { AppDb } from "@/db/client";
 import { marketplaces } from "@/db/schema";
 import type { IMarketplaceRepository } from "@/domain/ports/marketplace-repository";
-import type { Marketplace, MarketplaceStatus, MarketplaceWithStats } from "@/domain/marketplace";
+import type {
+	Marketplace,
+	MarketplacePluginRow,
+	MarketplaceSkillRow,
+	MarketplaceStatus,
+	MarketplaceWithStats,
+} from "@/domain/marketplace";
 
 export class DrizzleMarketplaceRepository implements IMarketplaceRepository {
 	constructor(private readonly db: AppDb) {}
@@ -18,7 +24,11 @@ export class DrizzleMarketplaceRepository implements IMarketplaceRepository {
 			  m.last_seen_at AS "lastSeenAt",
 			  COALESCE(stats.count, 0)::int AS "activationCount",
 			  COALESCE(installs.count, 0)::int AS "pluginInstallCount",
-			  COALESCE(linked.count, 0)::int AS "skillActivatedLinkedCount"
+			  COALESCE(linked.count, 0)::int AS "skillActivatedLinkedCount",
+			  COALESCE(p.plugin_count, 0)::int AS "pluginCount",
+			  COALESCE(skills_agg.known_skill_count, 0)::int AS "knownSkillCount",
+			  COALESCE(skills_agg.activated_skill_count, 0)::int AS "activatedSkillCount",
+			  COALESCE(skills_agg.total_activation_count, 0)::int AS "totalActivationCount"
 			FROM marketplaces m
 			LEFT JOIN (
 			  SELECT attributes->>'marketplace.name' AS mp_name, COUNT(*)::int AS count
@@ -44,9 +54,79 @@ export class DrizzleMarketplaceRepository implements IMarketplaceRepository {
 			    AND e.attributes->>'skill.name' IS NOT NULL
 			  GROUP BY pl.marketplace_name
 			) linked ON linked.marketplace_name = m.name
+			LEFT JOIN (
+			  SELECT marketplace_name, COUNT(*)::int AS plugin_count
+			  FROM plugins
+			  WHERE marketplace_name IS NOT NULL
+			  GROUP BY marketplace_name
+			) p ON p.marketplace_name = m.name
+			LEFT JOIN (
+			  SELECT
+			    pl.marketplace_name,
+			    COUNT(DISTINCT ps.skill_name)::int AS known_skill_count,
+			    COUNT(DISTINCT CASE WHEN e.id IS NOT NULL THEN ps.skill_name END)::int AS activated_skill_count,
+			    COUNT(e.id)::int AS total_activation_count
+			  FROM plugins pl
+			  JOIN plugin_skills ps ON ps.plugin_name = pl.plugin_name
+			  LEFT JOIN events e
+			    ON e.event_name = 'claude_code.skill_activated'
+			   AND e.attributes->>'skill.name' = ps.skill_name
+			  WHERE pl.marketplace_name IS NOT NULL
+			  GROUP BY pl.marketplace_name
+			) skills_agg ON skills_agg.marketplace_name = m.name
 			ORDER BY "activationCount" DESC, m.name
 		`);
 		return rows as unknown as MarketplaceWithStats[];
+	}
+
+	async listPluginsForMarketplace(name: string): Promise<MarketplacePluginRow[]> {
+		const rows = await this.db.execute(sql`
+			SELECT
+			  p.plugin_name             AS "pluginName",
+			  p.status                  AS "status",
+			  p.plugin_version          AS "pluginVersion",
+			  COALESCE(s.install_count, 0)::int     AS "installationCount",
+			  COALESCE(sa.activation_count, 0)::int AS "skillActivationCount"
+			FROM plugins p
+			LEFT JOIN (
+			  SELECT
+			    attributes->>'plugin.name' AS plugin_name,
+			    COUNT(*)::int              AS install_count
+			  FROM events
+			  WHERE event_name = 'claude_code.plugin_installed'
+			    AND attributes->>'plugin.name' IS NOT NULL
+			  GROUP BY attributes->>'plugin.name'
+			) s ON s.plugin_name = p.plugin_name
+			LEFT JOIN (
+			  SELECT ps.plugin_name AS plugin_name, COUNT(e.id)::int AS activation_count
+			  FROM plugin_skills ps
+			  LEFT JOIN events e
+			    ON e.event_name = 'claude_code.skill_activated'
+			   AND e.attributes->>'skill.name' = ps.skill_name
+			  GROUP BY ps.plugin_name
+			) sa ON sa.plugin_name = p.plugin_name
+			WHERE p.marketplace_name = ${name}
+			ORDER BY "skillActivationCount" DESC, p.plugin_name
+		`);
+		return rows as unknown as MarketplacePluginRow[];
+	}
+
+	async listSkillsForMarketplace(name: string): Promise<MarketplaceSkillRow[]> {
+		const rows = await this.db.execute(sql`
+			SELECT
+			  ps.skill_name    AS "skillName",
+			  ps.plugin_name   AS "pluginName",
+			  COUNT(e.id)::int AS "activationCount"
+			FROM plugin_skills ps
+			JOIN plugins pl ON pl.plugin_name = ps.plugin_name
+			LEFT JOIN events e
+			  ON e.event_name = 'claude_code.skill_activated'
+			 AND e.attributes->>'skill.name' = ps.skill_name
+			WHERE pl.marketplace_name = ${name}
+			GROUP BY ps.skill_name, ps.plugin_name
+			ORDER BY "activationCount" DESC, ps.skill_name
+		`);
+		return rows as unknown as MarketplaceSkillRow[];
 	}
 
 	async findByName(name: string): Promise<Marketplace | null> {

@@ -1,4 +1,10 @@
-import type { Marketplace, MarketplaceStatus, MarketplaceWithStats } from "@/domain/marketplace";
+import type {
+	Marketplace,
+	MarketplacePluginRow,
+	MarketplaceSkillRow,
+	MarketplaceStatus,
+	MarketplaceWithStats,
+} from "@/domain/marketplace";
 
 export interface IMarketplaceRepository {
 	listWithStats(): Promise<MarketplaceWithStats[]>;
@@ -14,4 +20,6 @@ export interface IMarketplaceRepository {
 		description?: string | null;
 	}): Promise<void>;
 	listStatuses(): Promise<Array<{ name: string; status: MarketplaceStatus }>>;
+	listPluginsForMarketplace(name: string): Promise<MarketplacePluginRow[]>;
+	listSkillsForMarketplace(name: string): Promise<MarketplaceSkillRow[]>;
 }

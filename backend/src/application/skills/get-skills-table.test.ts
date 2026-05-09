@@ -38,6 +38,8 @@ function makeMarketplaces(
 		upsertSeen: async () => {},
 		upsertFromImport: async () => {},
 		listStatuses: async () => statuses,
+		listPluginsForMarketplace: async () => [],
+		listSkillsForMarketplace: async () => [],
 	};
 }
 

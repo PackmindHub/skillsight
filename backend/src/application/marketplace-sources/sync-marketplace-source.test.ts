@@ -80,6 +80,8 @@ function makeMarketplaces(status = "approved"): IMarketplaceRepository {
 		upsertSeen: async () => {},
 		upsertFromImport: async () => {},
 		listStatuses: async () => [],
+		listPluginsForMarketplace: async () => [],
+		listSkillsForMarketplace: async () => [],
 	};
 }
 
