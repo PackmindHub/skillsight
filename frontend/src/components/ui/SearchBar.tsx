@@ -1,5 +1,6 @@
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { DROPDOWN_PANEL, MENU_ITEM_BASE } from "./_styles";
 
 interface Suggestion {
 	id: string;
@@ -110,7 +111,7 @@ export function SearchBar({
 					onFocus={() => setOpen(true)}
 					onKeyDown={handleKeyDown}
 					placeholder={placeholder}
-					className="w-full rounded-md border border-edge bg-surface-800 pl-9 pr-20 py-2 text-sm text-text-1 placeholder:text-text-4 focus:outline-none focus:ring-1 focus:ring-accent-bright focus:border-accent-bright"
+					className="h-9 w-full rounded-md border border-edge bg-surface-800 pl-9 pr-20 text-sm text-text-1 placeholder:text-text-4 focus:outline-none focus:ring-1 focus:ring-accent-bright focus:border-accent-bright"
 				/>
 				<div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
 					{value && (
@@ -136,7 +137,7 @@ export function SearchBar({
 				</div>
 			</div>
 			{showSuggestions && (
-				<div className="absolute left-0 right-0 z-30 mt-1 max-h-72 overflow-y-auto rounded-md border border-edge bg-surface-800 py-1 shadow-xl">
+				<div className={cn(DROPDOWN_PANEL, "left-0 right-0 max-h-72 overflow-y-auto")}>
 					{suggestions.map((s, i) => (
 						<button
 							key={s.id}
@@ -149,8 +150,9 @@ export function SearchBar({
 								setOpen(false);
 							}}
 							className={cn(
-								"flex w-full items-center justify-between gap-3 px-3 py-1.5 text-left text-sm transition-colors",
-								i === highlight ? "bg-surface-700 text-text-1" : "text-text-2 hover:bg-surface-700",
+								MENU_ITEM_BASE,
+								"justify-between gap-3",
+								i === highlight ? "bg-surface-700 text-text-1" : "text-text-2",
 							)}
 						>
 							<span className="font-mono truncate">{s.label}</span>

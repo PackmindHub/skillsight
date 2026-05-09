@@ -1,3 +1,4 @@
+import { Card, PageHeader, SegmentedControl } from "@/components/ui";
 import { api } from "@/lib/api";
 import { cn, formatDate } from "@/lib/utils";
 import type {
@@ -25,16 +26,15 @@ import {
 	YAxis,
 } from "recharts";
 
-// Chart colors — mirror the accent/status tokens defined in index.css
 const CHART_COLORS = ["#8b5cf6", "#06b6d4", "#f472b6", "#fbbf24", "#34d399"];
-const GRID_COLOR    = "#212b42"; // --color-edge-dim
-const AXIS_COLOR    = "#2a3454"; // --color-edge
-const TICK_COLOR    = "#7e97b2"; // --color-text-3
+const GRID_COLOR = "#212b42";
+const AXIS_COLOR = "#2a3454";
+const TICK_COLOR = "#7e97b2";
 const TOOLTIP_STYLE = {
-	backgroundColor: "#1d2845", // --color-surface-700
-	border: "1px solid #2a3454", // --color-edge
+	backgroundColor: "#1d2845",
+	border: "1px solid #2a3454",
 	borderRadius: "6px",
-	color: "#e2e8f0",            // --color-text-1
+	color: "#e2e8f0",
 	fontSize: "12px",
 };
 
@@ -88,34 +88,6 @@ function StatCard({
 		);
 	}
 	return <div className={className}>{content}</div>;
-}
-
-function PeriodSelector({
-	value,
-	onChange,
-}: {
-	value: DashboardPeriod;
-	onChange: (v: DashboardPeriod) => void;
-}) {
-	return (
-		<div className="inline-flex rounded-md border border-edge bg-surface-900 p-0.5">
-			{PERIOD_OPTIONS.map((opt) => (
-				<button
-					key={String(opt.value)}
-					type="button"
-					onClick={() => onChange(opt.value)}
-					className={cn(
-						"px-3 py-1 text-xs rounded transition-colors",
-						value === opt.value
-							? "bg-accent-2/20 text-text-1"
-							: "text-text-3 hover:text-text-1",
-					)}
-				>
-					{opt.label}
-				</button>
-			))}
-		</div>
-	);
 }
 
 function MonthlyLineChart({
@@ -204,10 +176,17 @@ export default function DashboardPage() {
 
 	return (
 		<div className="space-y-6">
-			<div className="flex items-center justify-between gap-4 flex-wrap">
-				<h1 className="text-lg font-semibold text-text-1">{PERIOD_HEADING[period]}</h1>
-				<PeriodSelector value={period} onChange={setPeriod} />
-			</div>
+			<PageHeader
+				title={PERIOD_HEADING[period]}
+				actions={
+					<SegmentedControl<DashboardPeriod>
+						value={period}
+						onChange={setPeriod}
+						options={PERIOD_OPTIONS}
+						ariaLabel="Period"
+					/>
+				}
+			/>
 
 			<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
 				<StatCard label="Total activations" value={data.stats.totalActivations} />
@@ -232,7 +211,7 @@ export default function DashboardPage() {
 			</div>
 
 			<div className="grid grid-cols-2 gap-6">
-				<div className="bg-surface-900 rounded-lg border border-edge p-4">
+				<Card>
 					<h2 className="text-sm font-medium text-text-3 mb-3">Top 10 Skills</h2>
 					<ResponsiveContainer width="100%" height={240}>
 						<BarChart data={data.topSkills} layout="vertical">
@@ -259,9 +238,9 @@ export default function DashboardPage() {
 							<Bar dataKey="count" fill={CHART_COLORS[0]} radius={[0, 2, 2, 0]} />
 						</BarChart>
 					</ResponsiveContainer>
-				</div>
+				</Card>
 
-				<div className="bg-surface-900 rounded-lg border border-edge p-4">
+				<Card>
 					<h2 className="text-sm font-medium text-text-3 mb-3">Daily Activations</h2>
 					<ResponsiveContainer width="100%" height={240}>
 						<LineChart data={data.dailyTrend}>
@@ -293,7 +272,7 @@ export default function DashboardPage() {
 							/>
 						</LineChart>
 					</ResponsiveContainer>
-				</div>
+				</Card>
 			</div>
 
 			<div className="space-y-3">
@@ -301,23 +280,23 @@ export default function DashboardPage() {
 					Évolution mensuelle (depuis le début)
 				</h2>
 				<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-					<div className="bg-surface-900 rounded-lg border border-edge p-4">
+					<Card>
 						<h3 className="text-sm font-medium text-text-3 mb-3">Skills uniques activés / mois</h3>
 						<MonthlyLineChart data={monthly?.uniqueSkills ?? []} color={CHART_COLORS[1]} />
-					</div>
-					<div className="bg-surface-900 rounded-lg border border-edge p-4">
+					</Card>
+					<Card>
 						<h3 className="text-sm font-medium text-text-3 mb-3">Total invocations / mois</h3>
 						<MonthlyLineChart data={monthly?.invocations ?? []} color={CHART_COLORS[0]} />
-					</div>
-					<div className="bg-surface-900 rounded-lg border border-edge p-4">
+					</Card>
+					<Card>
 						<h3 className="text-sm font-medium text-text-3 mb-3">Utilisateurs uniques / mois</h3>
 						<MonthlyLineChart data={monthly?.uniqueUsers ?? []} color={CHART_COLORS[2]} />
-					</div>
+					</Card>
 				</div>
 			</div>
 
 			<div className="grid grid-cols-2 gap-6">
-				<div className="bg-surface-900 rounded-lg border border-edge p-4">
+				<Card>
 					<h2 className="text-sm font-medium text-text-3 mb-3">Top Users</h2>
 					<table className="w-full text-sm">
 						<thead>
@@ -342,9 +321,9 @@ export default function DashboardPage() {
 							)}
 						</tbody>
 					</table>
-				</div>
+				</Card>
 
-				<div className="bg-surface-900 rounded-lg border border-edge p-4">
+				<Card>
 					<h2 className="text-sm font-medium text-text-3 mb-3">By Trigger</h2>
 					{data.byTrigger.length > 0 ? (
 						<ResponsiveContainer width="100%" height={200}>
@@ -358,19 +337,24 @@ export default function DashboardPage() {
 									outerRadius={70}
 								>
 									{data.byTrigger.map((entry: { trigger: string | null }, i: number) => (
-										<Cell key={entry.trigger ?? `unknown-${i}`} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+										<Cell
+											key={entry.trigger ?? `unknown-${i}`}
+											fill={CHART_COLORS[i % CHART_COLORS.length]}
+										/>
 									))}
 								</Pie>
 								<Tooltip contentStyle={TOOLTIP_STYLE} labelStyle={{ color: "#94a3b8" }} />
-								<Legend formatter={(v) => (
-									<span style={{ color: "#94a3b8", fontSize: 12 }}>{v ?? "unknown"}</span>
-								)} />
+								<Legend
+									formatter={(v) => (
+										<span style={{ color: "#94a3b8", fontSize: 12 }}>{v ?? "unknown"}</span>
+									)}
+								/>
 							</PieChart>
 						</ResponsiveContainer>
 					) : (
 						<p className="text-sm text-text-4 text-center py-8">No data yet</p>
 					)}
-				</div>
+				</Card>
 			</div>
 		</div>
 	);

@@ -1,12 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { SkillDetailDrawer } from "@/components/skills/SkillDetailDrawer";
-import { MultiSelect } from "@/components/ui/MultiSelect";
-import { SearchBar } from "@/components/ui/SearchBar";
-import { SegmentedControl } from "@/components/ui/SegmentedControl";
-import { Sparkline } from "@/components/ui/Sparkline";
-import { StatusBadge } from "@/components/ui/StatusBadge";
-import { StatusFilter } from "@/components/ui/StatusFilter";
+import {
+	Button,
+	MultiSelect,
+	PageHeader,
+	SearchBar,
+	SegmentedControl,
+	Select,
+	Sparkline,
+	StatusBadge,
+	StatusFilter,
+	TBody,
+	THead,
+	Table,
+} from "@/components/ui";
 import { api } from "@/lib/api";
 import { fuzzyScore } from "@/lib/fuzzy";
 import { useDebouncedValue } from "@/lib/use-debounced-value";
@@ -338,20 +346,18 @@ export default function SkillsTablePage() {
 
 	return (
 		<div className="space-y-4">
-			<div className="flex items-start justify-between gap-4">
-				<div>
-					<h1 className="text-lg font-semibold text-text-1">Skills</h1>
-					<p className="text-sm text-text-3">
-						All known skills, with activations in {PERIOD_LABEL[period]}.
-					</p>
-				</div>
-				<SegmentedControl
-					ariaLabel="Time range"
-					value={period}
-					onChange={setPeriod}
-					options={PERIOD_OPTIONS}
-				/>
-			</div>
+			<PageHeader
+				title="Skills"
+				subtitle={`All known skills, with activations in ${PERIOD_LABEL[period]}.`}
+				actions={
+					<SegmentedControl
+						ariaLabel="Time range"
+						value={period}
+						onChange={setPeriod}
+						options={PERIOD_OPTIONS}
+					/>
+				}
+			/>
 
 			<SearchBar
 				value={search}
@@ -379,38 +385,37 @@ export default function SkillsTablePage() {
 					onChange={setStatus}
 					options={SKILL_STATUSES}
 				/>
-				<select
+				<Select
+					size="sm"
 					value={sourceFilter}
 					onChange={(e) => updateParam("source", e.target.value, "all")}
-					className="rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 focus:outline-none focus:ring-1 focus:ring-accent-bright"
 				>
 					<option value="all">Source: All</option>
 					<option value="bundled">Bundled</option>
 					<option value="external">External</option>
-				</select>
-				<select
+				</Select>
+				<Select
+					size="sm"
 					value={usageFilter}
 					onChange={(e) => updateParam("usage", e.target.value, "all")}
-					className="rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 focus:outline-none focus:ring-1 focus:ring-accent-bright"
 				>
 					<option value="all">Usage: All</option>
 					<option value="activated">Activated</option>
 					<option value="never_used">Never used</option>
-				</select>
-				<button
-					type="button"
+				</Select>
+				<Button
+					variant="secondary"
+					size="sm"
 					onClick={applyLeastUsedPreset}
 					aria-pressed={isLeastUsedPreset}
 					title="Show activated skills sorted ascending by total"
 					className={cn(
-						"rounded border px-3 py-1.5 text-sm transition-colors",
-						isLeastUsedPreset
-							? "border-accent-bright bg-accent-bright/15 text-accent-bright"
-							: "border-edge bg-surface-800 text-text-2 hover:text-text-1",
+						isLeastUsedPreset &&
+							"border-accent-bright bg-accent-bright/15 text-accent-bright hover:bg-accent-bright/20",
 					)}
 				>
 					Least used
-				</button>
+				</Button>
 				<span className="text-xs text-text-4 ml-auto">
 					{loading ? "—" : `${filteredRows.length} / ${rows.length}`}
 				</span>
@@ -449,10 +454,7 @@ export default function SkillsTablePage() {
 						/>
 					)}
 					{statusFilter !== "all" && (
-						<FilterPill
-							label={`Status: ${statusFilter}`}
-							onRemove={() => setStatus("all")}
-						/>
+						<FilterPill label={`Status: ${statusFilter}`} onRemove={() => setStatus("all")} />
 					)}
 					{marketplaces.map((m) => (
 						<FilterPill
@@ -471,151 +473,149 @@ export default function SkillsTablePage() {
 				</div>
 			)}
 
-			<div className="bg-surface-900 rounded-lg border border-edge overflow-hidden">
-				<table className="w-full text-sm">
-					<thead className="bg-surface-800 border-b border-edge">
+			<Table>
+				<THead>
+					<tr>
+						<SortableHeader
+							label="Skill"
+							sortKey="skillName"
+							currentKey={sortKey}
+							currentDir={sortDir}
+							onSort={toggleSort}
+							className="text-left"
+						/>
+						<SortableHeader
+							label="Total"
+							sortKey="total"
+							currentKey={sortKey}
+							currentDir={sortDir}
+							onSort={toggleSort}
+							className="text-right"
+						/>
+						<th className="text-left px-4 py-3 font-medium text-text-3">Trend</th>
+						<th className="text-left px-4 py-3 font-medium text-text-3">Marketplaces</th>
+						<th className="text-left px-4 py-3 font-medium text-text-3">Source</th>
+						<SortableHeader
+							label="Status"
+							sortKey="status"
+							currentKey={sortKey}
+							currentDir={sortDir}
+							onSort={toggleSort}
+							className="text-left"
+						/>
+						{TRIGGERS.map(({ key, label, color }) => (
+							<SortableHeader
+								key={key}
+								label={
+									<span className="flex items-center gap-1.5">
+										<span className={`inline-block w-2.5 h-2.5 rounded-sm ${color}`} />
+										{label}
+									</span>
+								}
+								sortKey={key}
+								currentKey={sortKey}
+								currentDir={sortDir}
+								onSort={toggleSort}
+								className="min-w-32 text-left"
+							/>
+						))}
+					</tr>
+				</THead>
+				<TBody>
+					{loading ? (
+						SKELETON_KEYS.map((k) => <SkeletonRow key={k} />)
+					) : error ? (
 						<tr>
-							<SortableHeader
-								label="Skill"
-								sortKey="skillName"
-								currentKey={sortKey}
-								currentDir={sortDir}
-								onSort={toggleSort}
-								className="text-left"
-							/>
-							<SortableHeader
-								label="Total"
-								sortKey="total"
-								currentKey={sortKey}
-								currentDir={sortDir}
-								onSort={toggleSort}
-								className="text-right"
-							/>
-							<th className="text-left px-4 py-3 font-medium text-text-3">Trend</th>
-							<th className="text-left px-4 py-3 font-medium text-text-3">Marketplaces</th>
-							<th className="text-left px-4 py-3 font-medium text-text-3">Source</th>
-							<SortableHeader
-								label="Status"
-								sortKey="status"
-								currentKey={sortKey}
-								currentDir={sortDir}
-								onSort={toggleSort}
-								className="text-left"
-							/>
-							{TRIGGERS.map(({ key, label, color }) => (
-								<SortableHeader
-									key={key}
-									label={
-										<span className="flex items-center gap-1.5">
-											<span className={`inline-block w-2.5 h-2.5 rounded-sm ${color}`} />
-											{label}
-										</span>
-									}
-									sortKey={key}
-									currentKey={sortKey}
-									currentDir={sortDir}
-									onSort={toggleSort}
-									className="min-w-32 text-left"
-								/>
-							))}
+							<td colSpan={9} className="px-4 py-8 text-center text-danger text-sm">
+								{error}
+							</td>
 						</tr>
-					</thead>
-					<tbody>
-						{loading ? (
-							SKELETON_KEYS.map((k) => <SkeletonRow key={k} />)
-						) : error ? (
-							<tr>
-								<td colSpan={9} className="px-4 py-8 text-center text-danger text-sm">
-									{error}
-								</td>
-							</tr>
-						) : rows.length === 0 ? (
-							<tr>
-								<td colSpan={9} className="px-4 py-12 text-center text-text-3 text-sm">
-									No skills found.
-								</td>
-							</tr>
-						) : filteredRows.length === 0 ? (
-							<tr>
-								<td colSpan={9} className="px-4 py-8 text-center text-text-4 text-sm">
-									No skills match the current filters.
-									{filtersActive && (
-										<>
-											{" "}
-											<button
-												type="button"
-												onClick={clearAllFilters}
-												className="text-accent-bright hover:underline"
-											>
-												Clear all
-											</button>
-										</>
-									)}
-								</td>
-							</tr>
-						) : (
-							filteredRows.map((row) => (
-								<tr
-									key={row.skillName}
-									onClick={() => setOpenSkill(row.skillName)}
-									onKeyDown={(e) => {
-										if (e.key === "Enter" || e.key === " ") {
-											e.preventDefault();
-											setOpenSkill(row.skillName);
-										}
-									}}
-									tabIndex={0}
-									className={cn(
-										"border-b border-edge-dim hover:bg-surface-800 transition-colors cursor-pointer focus:outline-none focus:bg-surface-800",
-										row.total === 0 && "opacity-60",
-									)}
-								>
-									<td className="px-4 py-3 font-mono text-text-1">
-										<span className="flex items-center gap-2">
-											{row.skillName}
-											{row.total === 0 && (
-												<span className="inline-flex items-center rounded border border-edge bg-surface-800 px-1.5 py-0.5 text-xs text-text-3">
-													Never used
-												</span>
-											)}
-										</span>
-									</td>
-									<td className="px-4 py-3 text-right text-text-2 tabular-nums">{row.total}</td>
-									<td className="px-4 py-3">
-										<Sparkline values={row.dailyCounts} width={80} height={20} />
-									</td>
-									<td className="px-4 py-3">
-										{row.marketplaces.length > 0 ? (
-											<div className="flex flex-wrap gap-1">
-												{row.marketplaces.map((mp) => (
-													<MarketplaceBadge key={mp.name} mp={mp} />
-												))}
-											</div>
-										) : (
-											<span className="text-text-4">—</span>
-										)}
-									</td>
-									<td className="px-4 py-3">
-										{row.skillSource === "bundled" ? (
-											<span className="inline-flex items-center rounded border border-accent-soft/30 bg-accent-soft/15 px-1.5 py-0.5 text-xs font-medium text-accent-soft">
-												Bundled
+					) : rows.length === 0 ? (
+						<tr>
+							<td colSpan={9} className="px-4 py-12 text-center text-text-3 text-sm">
+								No skills found.
+							</td>
+						</tr>
+					) : filteredRows.length === 0 ? (
+						<tr>
+							<td colSpan={9} className="px-4 py-8 text-center text-text-4 text-sm">
+								No skills match the current filters.
+								{filtersActive && (
+									<>
+										{" "}
+										<button
+											type="button"
+											onClick={clearAllFilters}
+											className="text-accent-bright hover:underline"
+										>
+											Clear all
+										</button>
+									</>
+								)}
+							</td>
+						</tr>
+					) : (
+						filteredRows.map((row) => (
+							<tr
+								key={row.skillName}
+								onClick={() => setOpenSkill(row.skillName)}
+								onKeyDown={(e) => {
+									if (e.key === "Enter" || e.key === " ") {
+										e.preventDefault();
+										setOpenSkill(row.skillName);
+									}
+								}}
+								tabIndex={0}
+								className={cn(
+									"hover:bg-surface-800 transition-colors cursor-pointer focus:outline-none focus:bg-surface-800",
+									row.total === 0 && "opacity-60",
+								)}
+							>
+								<td className="px-4 py-3 font-mono text-text-1">
+									<span className="flex items-center gap-2">
+										{row.skillName}
+										{row.total === 0 && (
+											<span className="inline-flex items-center rounded border border-edge bg-surface-800 px-1.5 py-0.5 text-xs text-text-3">
+												Never used
 											</span>
-										) : (
-											<span className="text-text-4">—</span>
 										)}
-									</td>
-									<td className="px-4 py-3">
-										<StatusBadge status={(row.status ?? "unknown") as SkillStatus} />
-									</td>
-									{TRIGGERS.map(({ key, color }) => (
-										<ProgressCell key={key} count={row[key]} total={row.total} color={color} />
-									))}
-								</tr>
-							))
-						)}
-					</tbody>
-				</table>
-			</div>
+									</span>
+								</td>
+								<td className="px-4 py-3 text-right text-text-2 tabular-nums">{row.total}</td>
+								<td className="px-4 py-3">
+									<Sparkline values={row.dailyCounts} width={80} height={20} />
+								</td>
+								<td className="px-4 py-3">
+									{row.marketplaces.length > 0 ? (
+										<div className="flex flex-wrap gap-1">
+											{row.marketplaces.map((mp) => (
+												<MarketplaceBadge key={mp.name} mp={mp} />
+											))}
+										</div>
+									) : (
+										<span className="text-text-4">—</span>
+									)}
+								</td>
+								<td className="px-4 py-3">
+									{row.skillSource === "bundled" ? (
+										<span className="inline-flex items-center rounded border border-accent-soft/30 bg-accent-soft/15 px-1.5 py-0.5 text-xs font-medium text-accent-soft">
+											Bundled
+										</span>
+									) : (
+										<span className="text-text-4">—</span>
+									)}
+								</td>
+								<td className="px-4 py-3">
+									<StatusBadge status={(row.status ?? "unknown") as SkillStatus} />
+								</td>
+								{TRIGGERS.map(({ key, color }) => (
+									<ProgressCell key={key} count={row[key]} total={row.total} color={color} />
+								))}
+							</tr>
+						))
+					)}
+				</TBody>
+			</Table>
 
 			<SkillDetailDrawer
 				skillName={openSkill}
@@ -663,7 +663,7 @@ function SortableHeader({
 
 function SkeletonRow() {
 	return (
-		<tr className="border-b border-edge-dim">
+		<tr>
 			<td className="px-4 py-3">
 				<div className="h-3 w-44 rounded bg-surface-800 animate-pulse" />
 			</td>

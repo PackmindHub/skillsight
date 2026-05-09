@@ -1,3 +1,4 @@
+import { Button, Card } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 import { useEffect, useRef, useState } from "react";
@@ -56,14 +57,16 @@ export default function OnboardingPage() {
 
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-surface-950 dot-grid">
-			<div className="w-full max-w-2xl bg-surface-700 rounded-xl shadow-2xl shadow-black/60 border border-edge p-8 space-y-6">
+			<Card surface="raised" padding="lg" className="w-full max-w-2xl space-y-6">
 				<div>
 					<span className="text-accent-soft text-2xl leading-none">◈</span>
 					<h1 className="mt-3 text-xl font-semibold text-text-1">Welcome — Setup Claude Code</h1>
 				</div>
 				<p className="text-sm text-text-2">
 					Add this block to your team's{" "}
-					<code className="bg-surface-800 text-accent-soft border border-edge-dim px-1 rounded text-[11px]">settings.json</code>{" "}
+					<code className="bg-surface-800 text-accent-soft border border-edge-dim px-1 rounded text-[11px]">
+						settings.json
+					</code>{" "}
 					to start sending telemetry to this instance. The token has been generated and saved.
 				</p>
 
@@ -73,28 +76,24 @@ export default function OnboardingPage() {
 					<pre className="rounded-lg bg-surface-950 text-text-2 text-xs p-4 overflow-x-auto font-mono border border-edge">
 						{envBlock}
 					</pre>
-					<button
-						type="button"
+					<Button
+						variant="secondary"
+						size="sm"
 						onClick={copy}
-						className="absolute top-3 right-3 text-xs bg-surface-600 hover:bg-surface-700 text-text-2 px-2 py-1 rounded border border-edge transition-colors"
+						className="absolute top-3 right-3"
 					>
 						{copied ? "Copied!" : "Copy"}
-					</button>
+					</Button>
 				</div>
 
 				<p className="text-xs text-warning bg-warning/10 border border-warning/25 rounded-md px-3 py-2">
 					The token is shown here only once. If you lose it, generate a new one from the Tokens page.
 				</p>
 
-				<button
-					type="button"
-					onClick={finish}
-					disabled={!jwt}
-					className="btn-primary w-full rounded-md px-4 py-2 text-sm font-medium"
-				>
+				<Button onClick={finish} disabled={!jwt} fullWidth>
 					Go to Dashboard
-				</button>
-			</div>
+				</Button>
+			</Card>
 		</div>
 	);
 }

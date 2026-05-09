@@ -1,4 +1,4 @@
-import { Drawer } from "@/components/ui/Drawer";
+import { Button, Drawer, FormField, Input } from "@/components/ui";
 import { api } from "@/lib/api";
 import { formatDateTime } from "@/lib/utils";
 import type { Integration, IntegrationPreviewEvent } from "@/types/api";
@@ -27,9 +27,6 @@ const defaultForm: FormState = {
 	syncIntervalSecs: "30",
 	enabled: true,
 };
-
-const inputClass =
-	"w-full rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 placeholder:text-text-4 focus:outline-none focus:ring-2 focus:ring-accent-bright";
 
 interface IntegrationFormDrawerProps {
 	open: boolean;
@@ -128,21 +125,12 @@ export function IntegrationFormDrawer({ open, editing, onClose, onSaved }: Integ
 			title={editing ? "Edit integration" : "New integration"}
 			footer={
 				<div className="flex items-center justify-end gap-2">
-					<button
-						type="button"
-						onClick={onClose}
-						className="rounded border border-edge px-3 py-1.5 text-sm text-text-3 transition-colors hover:bg-surface-800 hover:text-text-1"
-					>
+					<Button variant="secondary" size="sm" onClick={onClose}>
 						Cancel
-					</button>
-					<button
-						type="submit"
-						form={formId}
-						disabled={saving}
-						className="btn-primary rounded-md px-4 py-1.5 text-sm font-medium"
-					>
-						{saving ? "Saving…" : editing ? "Update" : "Create"}
-					</button>
+					</Button>
+					<Button type="submit" form={formId} size="sm" loading={saving}>
+						{editing ? "Update" : "Create"}
+					</Button>
 				</div>
 			}
 		>
@@ -152,33 +140,27 @@ export function IntegrationFormDrawer({ open, editing, onClose, onSaved }: Integ
 						Connection
 					</h3>
 					<div className="grid grid-cols-2 gap-3">
-						<div>
-							<label htmlFor="int-name" className="mb-1 block text-xs text-text-3">
-								Name *
-							</label>
-							<input
+						<FormField label="Name" htmlFor="int-name" required>
+							<Input
 								id="int-name"
 								required
+								size="sm"
 								value={form.name}
 								onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-								className={inputClass}
 								placeholder="My Loki"
 							/>
-						</div>
-						<div>
-							<label htmlFor="int-url" className="mb-1 block text-xs text-text-3">
-								Loki URL *
-							</label>
-							<input
+						</FormField>
+						<FormField label="Loki URL" htmlFor="int-url" required>
+							<Input
 								id="int-url"
 								required
 								type="url"
+								size="sm"
 								value={form.url}
 								onChange={(e) => setForm((f) => ({ ...f, url: e.target.value }))}
-								className={inputClass}
 								placeholder="https://loki.example.com"
 							/>
-						</div>
+						</FormField>
 					</div>
 				</section>
 
@@ -205,64 +187,58 @@ export function IntegrationFormDrawer({ open, editing, onClose, onSaved }: Integ
 					</div>
 					{form.authType === "basic" && (
 						<div className="grid grid-cols-2 gap-3">
-							<div>
-								<label htmlFor="int-user" className="mb-1 block text-xs text-text-3">
-									Username
-								</label>
-								<input
+							<FormField label="Username" htmlFor="int-user">
+								<Input
 									id="int-user"
+									size="sm"
 									value={form.authUsername}
 									onChange={(e) => setForm((f) => ({ ...f, authUsername: e.target.value }))}
-									className={inputClass}
 									autoComplete="off"
 								/>
-							</div>
-							<div>
-								<label htmlFor="int-pass" className="mb-1 block text-xs text-text-3">
-									Password{editing ? " (leave blank to keep existing)" : ""}
-								</label>
-								<input
+							</FormField>
+							<FormField
+								label={`Password${editing ? " (leave blank to keep existing)" : ""}`}
+								htmlFor="int-pass"
+							>
+								<Input
 									id="int-pass"
 									type="password"
+									size="sm"
 									value={form.authPassword}
 									onChange={(e) => setForm((f) => ({ ...f, authPassword: e.target.value }))}
-									className={inputClass}
 									placeholder={editing ? "••••••" : ""}
 									autoComplete="new-password"
 								/>
-							</div>
+							</FormField>
 						</div>
 					)}
 				</section>
 
 				<section className="space-y-3">
-					<h3 className="text-xs font-semibold uppercase tracking-wider text-text-4">
-						Query
-					</h3>
-					<div>
-						<label htmlFor="int-query" className="mb-1 block text-xs text-text-3">
-							LogQL query
-						</label>
+					<h3 className="text-xs font-semibold uppercase tracking-wider text-text-4">Query</h3>
+					<FormField label="LogQL query" htmlFor="int-query">
 						<div className="flex gap-2">
-							<input
+							<Input
 								id="int-query"
+								size="sm"
 								value={form.lokiQuery}
 								onChange={(e) => {
 									setForm((f) => ({ ...f, lokiQuery: e.target.value }));
 									resetPreview();
 								}}
-								className={`${inputClass} flex-1 font-mono`}
+								className="flex-1 font-mono"
 							/>
-							<button
-								type="button"
-								disabled={previewing || !form.url}
+							<Button
+								variant="secondary"
+								size="sm"
+								disabled={!form.url}
+								loading={previewing}
 								onClick={handlePreview}
-								className="whitespace-nowrap rounded border border-edge px-3 py-1.5 text-xs text-text-2 transition-colors hover:bg-surface-800 hover:text-text-1 disabled:opacity-40"
 							>
-								{previewing ? "Loading…" : "Preview ▶"}
-							</button>
+								Preview ▶
+							</Button>
 						</div>
-					</div>
+					</FormField>
 					{(previewEvents !== null || previewError) && (
 						<div className="space-y-2 rounded border border-edge bg-surface-800 p-3 text-xs">
 							<p className="font-medium text-text-3">Preview — last 7 days</p>
@@ -299,25 +275,18 @@ export function IntegrationFormDrawer({ open, editing, onClose, onSaved }: Integ
 				</section>
 
 				<section className="space-y-3">
-					<h3 className="text-xs font-semibold uppercase tracking-wider text-text-4">
-						Schedule
-					</h3>
+					<h3 className="text-xs font-semibold uppercase tracking-wider text-text-4">Schedule</h3>
 					<div className="grid grid-cols-2 gap-3">
-						<div>
-							<label htmlFor="int-interval" className="mb-1 block text-xs text-text-3">
-								Sync interval (seconds)
-							</label>
-							<input
+						<FormField label="Sync interval (seconds)" htmlFor="int-interval">
+							<Input
 								id="int-interval"
 								type="number"
 								min="5"
+								size="sm"
 								value={form.syncIntervalSecs}
-								onChange={(e) =>
-									setForm((f) => ({ ...f, syncIntervalSecs: e.target.value }))
-								}
-								className={inputClass}
+								onChange={(e) => setForm((f) => ({ ...f, syncIntervalSecs: e.target.value }))}
 							/>
-						</div>
+						</FormField>
 						<label className="mt-5 flex cursor-pointer items-center gap-2 text-sm text-text-2">
 							<input
 								type="checkbox"

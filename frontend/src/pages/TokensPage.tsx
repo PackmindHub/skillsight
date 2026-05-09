@@ -1,14 +1,27 @@
+import {
+	Button,
+	Card,
+	EmptyRow,
+	FormField,
+	Input,
+	PageHeader,
+	TBody,
+	TD,
+	TH,
+	THead,
+	TR,
+	Table,
+} from "@/components/ui";
 import { api } from "@/lib/api";
 import { formatDate, formatDateTime } from "@/lib/utils";
 import type { Token } from "@/types/api";
 import { type FormEvent, useEffect, useState } from "react";
 
-// Badge classes use semantic utilities from index.css
 const STATUS_BADGE: Record<string, string> = {
-	active:   "badge badge-success",
+	active: "badge badge-success",
 	expiring: "badge badge-warning",
-	expired:  "badge badge-neutral",
-	revoked:  "badge badge-danger",
+	expired: "badge badge-neutral",
+	revoked: "badge badge-danger",
 };
 
 export default function TokensPage() {
@@ -66,16 +79,10 @@ export default function TokensPage() {
 
 	return (
 		<div className="space-y-4">
-			<div className="flex items-center justify-between">
-				<h1 className="text-lg font-semibold text-text-1">Ingestion Tokens</h1>
-				<button
-					type="button"
-					onClick={() => setShowCreate(true)}
-					className="btn-primary rounded-md px-4 py-2 text-sm font-medium"
-				>
-					Create token
-				</button>
-			</div>
+			<PageHeader
+				title="Ingestion Tokens"
+				actions={<Button onClick={() => setShowCreate(true)}>Create token</Button>}
+			/>
 
 			{expiringSoon.length > 0 && (
 				<div className="bg-warning/10 border border-warning/25 rounded-lg px-4 py-3 text-sm text-warning">
@@ -90,154 +97,127 @@ export default function TokensPage() {
 						Token created — copy it now, it won't be shown again.
 					</p>
 					<div className="flex gap-2">
-						<input
+						<Input
 							readOnly
 							value={newJwt}
-							className="flex-1 rounded border border-edge bg-surface-800 px-3 py-1.5 text-xs font-mono text-text-2"
+							size="sm"
+							className="flex-1 font-mono text-xs text-text-2"
 						/>
-						<button
-							type="button"
-							onClick={copyJwt}
-							className="text-xs bg-success/20 text-success border border-success/30 px-3 py-1 rounded hover:bg-success/30 transition-colors"
-						>
+						<Button variant="secondary" size="sm" onClick={copyJwt}>
 							{jwtCopied ? "Copied!" : "Copy"}
-						</button>
-						<button
-							type="button"
-							onClick={() => setNewJwt(null)}
-							className="text-xs text-text-3 hover:text-text-1 transition-colors"
-						>
+						</Button>
+						<Button variant="ghost" size="sm" onClick={() => setNewJwt(null)}>
 							Dismiss
-						</button>
+						</Button>
 					</div>
 				</div>
 			)}
 
 			{showCreate && (
-				<div className="bg-surface-700 rounded-lg border border-edge p-4">
+				<Card surface="raised">
 					<h2 className="text-sm font-medium text-text-1 mb-3">New token</h2>
 					<form onSubmit={handleCreate} className="space-y-3">
 						<div className="grid grid-cols-2 gap-3">
-							<div>
-								<label htmlFor="token-name" className="block text-xs text-text-3 mb-1">
-									Name *
-								</label>
-								<input
+							<FormField label="Name" htmlFor="token-name" required>
+								<Input
 									id="token-name"
 									required
+									size="sm"
 									value={form.name}
 									onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-									className="w-full rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 focus:outline-none focus:ring-2 focus:ring-accent-bright"
 								/>
-							</div>
-							<div>
-								<label htmlFor="token-user-label" className="block text-xs text-text-3 mb-1">
-									User / Team label
-								</label>
-								<input
+							</FormField>
+							<FormField label="User / Team label" htmlFor="token-user-label">
+								<Input
 									id="token-user-label"
+									size="sm"
 									value={form.userLabel}
 									onChange={(e) => setForm((f) => ({ ...f, userLabel: e.target.value }))}
-									className="w-full rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 focus:outline-none focus:ring-2 focus:ring-accent-bright"
 								/>
-							</div>
+							</FormField>
 						</div>
-						<div>
-							<label htmlFor="token-expires-at" className="block text-xs text-text-3 mb-1">
-								Expires at (leave blank = no expiry)
-							</label>
-							<input
+						<FormField
+							label="Expires at"
+							htmlFor="token-expires-at"
+							helper="Leave blank = no expiry"
+						>
+							<Input
 								id="token-expires-at"
 								type="datetime-local"
+								size="sm"
 								value={form.expiresAt}
 								onChange={(e) => setForm((f) => ({ ...f, expiresAt: e.target.value }))}
-								className="rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 focus:outline-none focus:ring-2 focus:ring-accent-bright"
 							/>
-						</div>
+						</FormField>
 						<div className="flex gap-2">
-							<button
-								type="submit"
-								disabled={creating}
-								className="btn-primary rounded px-3 py-1.5 text-sm"
-							>
-								{creating ? "Creating…" : "Create"}
-							</button>
-							<button
+							<Button type="submit" size="sm" loading={creating}>
+								Create
+							</Button>
+							<Button
 								type="button"
+								variant="secondary"
+								size="sm"
 								onClick={() => setShowCreate(false)}
-								className="rounded border border-edge px-3 py-1.5 text-sm text-text-3 hover:bg-surface-800 hover:text-text-1 transition-colors"
 							>
 								Cancel
-							</button>
+							</Button>
 						</div>
 					</form>
-				</div>
+				</Card>
 			)}
 
-			<div className="bg-surface-900 rounded-lg border border-edge overflow-hidden">
-				<table className="w-full text-sm">
-					<thead className="bg-surface-800 border-b border-edge">
-						<tr>
-							<th className="text-left px-4 py-3 font-medium text-text-3">Name</th>
-							<th className="text-left px-4 py-3 font-medium text-text-3">Label</th>
-							<th className="text-left px-4 py-3 font-medium text-text-3">Created</th>
-							<th className="text-left px-4 py-3 font-medium text-text-3">Expires</th>
-							<th className="text-left px-4 py-3 font-medium text-text-3">Status</th>
-							<th className="px-4 py-3" />
-						</tr>
-					</thead>
-					<tbody>
-						{tokens.map((token) => {
-							const isRevoked = Boolean(token.revokedAt);
-							const isExpired = token.expiresAt ? new Date(token.expiresAt) < new Date() : false;
-							const status = isRevoked
-								? "revoked"
-								: isExpired
-									? "expired"
-									: token.expiresSoon
-										? "expiring"
-										: "active";
+			<Table>
+				<THead>
+					<TR>
+						<TH>Name</TH>
+						<TH>Label</TH>
+						<TH>Created</TH>
+						<TH>Expires</TH>
+						<TH>Status</TH>
+						<TH align="right">{""}</TH>
+					</TR>
+				</THead>
+				<TBody>
+					{tokens.map((token) => {
+						const isRevoked = Boolean(token.revokedAt);
+						const isExpired = token.expiresAt ? new Date(token.expiresAt) < new Date() : false;
+						const status = isRevoked
+							? "revoked"
+							: isExpired
+								? "expired"
+								: token.expiresSoon
+									? "expiring"
+									: "active";
 
-							return (
-								<tr
-									key={token.id}
-									className={`border-b border-edge-dim transition-colors ${isRevoked ? "opacity-40" : "hover:bg-surface-800"}`}
-								>
-									<td className="px-4 py-3 font-medium text-text-1">{token.name}</td>
-									<td className="px-4 py-3 text-text-3">{token.userLabel ?? "—"}</td>
-									<td className="px-4 py-3 text-text-3">{formatDateTime(token.createdAt)}</td>
-									<td className="px-4 py-3 text-text-3">
-										{token.expiresAt ? formatDate(token.expiresAt) : "Never"}
-									</td>
-									<td className="px-4 py-3">
-										<span className={STATUS_BADGE[status]}>
-											{status}
-										</span>
-									</td>
-									<td className="px-4 py-3 text-right">
-										{!isRevoked && !isExpired && (
-											<button
-												type="button"
-												onClick={() => handleRevoke(token.id)}
-												className="text-xs text-danger hover:opacity-80 transition-opacity"
-											>
-												Revoke
-											</button>
-										)}
-									</td>
-								</tr>
-							);
-						})}
-						{tokens.length === 0 && (
-							<tr>
-								<td colSpan={6} className="px-4 py-6 text-center text-text-4">
-									No tokens yet.
-								</td>
-							</tr>
-						)}
-					</tbody>
-				</table>
-			</div>
+						return (
+							<TR key={token.id} className={isRevoked ? "opacity-40" : undefined}>
+								<TD className="font-medium">{token.name}</TD>
+								<TD className="text-text-3">{token.userLabel ?? "—"}</TD>
+								<TD className="text-text-3">{formatDateTime(token.createdAt)}</TD>
+								<TD className="text-text-3">
+									{token.expiresAt ? formatDate(token.expiresAt) : "Never"}
+								</TD>
+								<TD>
+									<span className={STATUS_BADGE[status]}>{status}</span>
+								</TD>
+								<TD align="right">
+									{!isRevoked && !isExpired && (
+										<Button
+											variant="ghost"
+											size="sm"
+											onClick={() => handleRevoke(token.id)}
+											className="text-danger hover:text-danger"
+										>
+											Revoke
+										</Button>
+									)}
+								</TD>
+							</TR>
+						);
+					})}
+					{tokens.length === 0 && <EmptyRow colSpan={6}>No tokens yet.</EmptyRow>}
+				</TBody>
+			</Table>
 		</div>
 	);
 }

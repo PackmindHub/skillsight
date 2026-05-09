@@ -1,4 +1,6 @@
 import { type ReactNode, createContext, useContext, useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
+import { DROPDOWN_PANEL, MENU_ITEM_BASE } from "./_styles";
 
 type MenuVariant = "default" | "warning" | "danger";
 
@@ -53,7 +55,7 @@ export function Menu({ trigger, children, align = "right" }: MenuProps) {
 				{open && (
 					<div
 						role="menu"
-						className={`absolute z-30 mt-1 min-w-[200px] rounded-md border border-edge bg-surface-800 py-1 shadow-xl ${align === "right" ? "right-0" : "left-0"}`}
+						className={cn(DROPDOWN_PANEL, "min-w-[200px]", align === "right" ? "right-0" : "left-0")}
 					>
 						{children}
 					</div>
@@ -88,7 +90,7 @@ export function MenuItem({ onClick, disabled, variant = "default", children, clo
 				onClick?.();
 				if (closeOnClick) close();
 			}}
-			className={`flex w-full items-center px-3 py-1.5 text-left text-sm transition-colors hover:bg-surface-700 disabled:opacity-40 disabled:cursor-not-allowed ${variantClass[variant]}`}
+			className={cn(MENU_ITEM_BASE, variantClass[variant])}
 		>
 			{children}
 		</button>

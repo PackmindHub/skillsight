@@ -1,3 +1,4 @@
+import { Select } from "./Select";
 import { type AnyStatus, statusLabel } from "./StatusBadge";
 
 interface StatusFilterProps<S extends AnyStatus> {
@@ -15,14 +16,15 @@ export function StatusFilter<S extends AnyStatus>({
 	options,
 	allLabel = "Status: All",
 	ariaLabel = "Filter by status",
-	className = "",
+	className,
 }: StatusFilterProps<S>) {
 	return (
-		<select
+		<Select
 			aria-label={ariaLabel}
 			value={value}
 			onChange={(e) => onChange(e.target.value as S | "all")}
-			className={`rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 focus:outline-none focus:ring-1 focus:ring-accent-bright ${className}`}
+			size="sm"
+			className={className}
 		>
 			<option value="all">{allLabel}</option>
 			{options.map((s) => (
@@ -30,6 +32,6 @@ export function StatusFilter<S extends AnyStatus>({
 					{statusLabel(s)}
 				</option>
 			))}
-		</select>
+		</Select>
 	);
 }
