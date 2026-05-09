@@ -8,6 +8,7 @@ import type {
 	MarketplaceSource,
 	MonthlyTrendsResponse,
 	Plugin,
+	PluginSkillsResponse,
 	SkillDetail,
 	SkillsTableResponse,
 	Token,
@@ -96,6 +97,10 @@ export const api = {
 	},
 	plugins: {
 		list: () => apiFetch<{ plugins: Plugin[] }>("/api/plugins"),
+		skills: (pluginName: string) =>
+			apiFetch<PluginSkillsResponse>(
+				`/api/plugins/${encodeURIComponent(pluginName)}/skills`,
+			),
 	},
 	marketplaces: {
 		list: () => apiFetch<{ marketplaces: Marketplace[] }>("/api/marketplaces"),

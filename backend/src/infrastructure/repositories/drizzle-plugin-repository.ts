@@ -2,7 +2,12 @@ import { and, eq, notInArray, sql } from "drizzle-orm";
 import type { AppDb } from "@/db/client";
 import { plugins } from "@/db/schema";
 import type { IPluginRepository } from "@/domain/ports/plugin-repository";
-import type { NewPlugin, PluginStatus, PluginWithStats } from "@/domain/plugin";
+import type {
+	NewPlugin,
+	PluginSkillActivation,
+	PluginStatus,
+	PluginWithStats,
+} from "@/domain/plugin";
 
 export class DrizzlePluginRepository implements IPluginRepository {
 	constructor(private readonly db: AppDb) {}
@@ -20,7 +25,8 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			  p.last_seen_at            AS "lastSeenAt",
 			  COALESCE(s.install_count, 0)::int AS "installationCount",
 			  COALESCE(s.unique_users, 0)::int  AS "uniqueUserCount",
-			  COALESCE(ps.skill_count, 0)::int  AS "skillCount"
+			  COALESCE(ps.skill_count, 0)::int  AS "skillCount",
+			  COALESCE(sa.activation_count, 0)::int AS "skillActivationCount"
 			FROM plugins p
 			LEFT JOIN (
 			  SELECT
@@ -37,9 +43,33 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			  FROM plugin_skills
 			  GROUP BY plugin_name
 			) ps ON ps.plugin_name = p.plugin_name
+			LEFT JOIN (
+			  SELECT ps.plugin_name AS plugin_name, COUNT(e.id)::int AS activation_count
+			  FROM plugin_skills ps
+			  LEFT JOIN events e
+			    ON e.event_name = 'claude_code.skill_activated'
+			   AND e.attributes->>'skill.name' = ps.skill_name
+			  GROUP BY ps.plugin_name
+			) sa ON sa.plugin_name = p.plugin_name
 			ORDER BY s.install_count DESC NULLS LAST, p.plugin_name
 		`);
 		return rows as unknown as PluginWithStats[];
+	}
+
+	async listSkillsWithActivations(pluginName: string): Promise<PluginSkillActivation[]> {
+		const rows = await this.db.execute(sql`
+			SELECT
+			  ps.skill_name               AS "skillName",
+			  COUNT(e.id)::int            AS "activationCount"
+			FROM plugin_skills ps
+			LEFT JOIN events e
+			  ON e.event_name = 'claude_code.skill_activated'
+			 AND e.attributes->>'skill.name' = ps.skill_name
+			WHERE ps.plugin_name = ${pluginName}
+			GROUP BY ps.skill_name
+			ORDER BY "activationCount" DESC, ps.skill_name ASC
+		`);
+		return rows as unknown as PluginSkillActivation[];
 	}
 
 	async upsert(plugin: NewPlugin): Promise<void> {

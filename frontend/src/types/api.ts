@@ -101,6 +101,16 @@ export interface Plugin {
 	installationCount: number;
 	uniqueUserCount: number;
 	skillCount: number;
+	skillActivationCount: number;
+}
+
+export interface PluginSkillRow {
+	skillName: string;
+	activationCount: number;
+}
+
+export interface PluginSkillsResponse {
+	skills: PluginSkillRow[];
 }
 
 export interface MarketplaceRef {

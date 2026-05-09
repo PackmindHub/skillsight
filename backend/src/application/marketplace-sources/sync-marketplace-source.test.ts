@@ -88,6 +88,7 @@ function makePlugins(removedNames: string[] = []) {
 	const listNamesCalls: string[] = [];
 	const repo: IPluginRepository = {
 		listWithStats: async () => [],
+		listSkillsWithActivations: async () => [],
 		upsert: async () => {},
 		updateStatusByMarketplace: async () => {},
 		markRemovedByMarketplace: async (marketplaceName, activePluginNames) => {
