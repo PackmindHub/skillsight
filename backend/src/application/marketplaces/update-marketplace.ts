@@ -2,6 +2,10 @@ import type { IMarketplaceRepository } from "@/domain/ports/marketplace-reposito
 import type { IAuditRepository } from "@/domain/ports/audit-repository";
 import type { Marketplace, MarketplaceStatus } from "@/domain/marketplace";
 import { eventBus } from "@/lib/event-bus";
+import { recordAudit } from "@/application/audit/record-audit";
+import { buildDiff } from "@/application/audit/diff";
+
+const DIFF_FIELDS = ["url", "description"] as const;
 
 export async function updateMarketplace(
 	deps: { marketplaces: IMarketplaceRepository; audit: IAuditRepository },
@@ -24,19 +28,30 @@ export async function updateMarketplace(
 	const updated = await deps.marketplaces.update(input.name, updates);
 
 	if (input.status !== undefined && input.status !== existing.status) {
-		await deps.audit.log({
+		await recordAudit(deps, {
 			actorEmail: input.actorEmail,
 			action: "marketplace_status_changed",
 			target: input.name,
 			metadata: { from: existing.status, to: input.status },
 		});
-		eventBus.emitMarketplaceStatusChanged({ name: input.name, newStatus: input.status });
-	} else if (Object.keys(updates).length > 0) {
-		await deps.audit.log({
+		eventBus.emitMarketplaceStatusChanged({
+			name: input.name,
+			newStatus: input.status,
+			actorEmail: input.actorEmail,
+		});
+	}
+
+	const diff = buildDiff(
+		{ url: existing.url, description: existing.description },
+		{ url: updated.url, description: updated.description },
+		DIFF_FIELDS,
+	);
+	if (diff) {
+		await recordAudit(deps, {
 			actorEmail: input.actorEmail,
 			action: "marketplace_updated",
 			target: input.name,
-			metadata: updates as Record<string, unknown>,
+			metadata: diff,
 		});
 	}
 

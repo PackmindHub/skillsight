@@ -1,4 +1,5 @@
 import type {
+	AuditFilters,
 	AuditResponse,
 	DashboardPeriod,
 	Integration,
@@ -13,6 +14,20 @@ import type {
 	UsageResponse,
 	User,
 } from "@/types/api";
+
+function buildAuditQuery(filters: AuditFilters, extras: Record<string, string> = {}): string {
+	const params = new URLSearchParams();
+	if (filters.actor) params.set("actor", filters.actor);
+	if (filters.actions && filters.actions.length > 0) {
+		for (const a of filters.actions) params.append("action", a);
+	}
+	if (filters.target) params.set("target", filters.target);
+	if (filters.from) params.set("from", filters.from);
+	if (filters.to) params.set("to", filters.to);
+	if (filters.search) params.set("search", filters.search);
+	for (const [k, v] of Object.entries(extras)) params.set(k, v);
+	return params.toString();
+}
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
 	const res = await fetch(path, {
@@ -66,8 +81,15 @@ export const api = {
 		revoke: (id: string) => apiFetch<void>(`/api/tokens/${id}`, { method: "DELETE" }),
 	},
 	audit: {
-		list: (page = 1, limit = 50) =>
-			apiFetch<AuditResponse>(`/api/audit?page=${page}&limit=${limit}`),
+		list: (filters: AuditFilters = {}, page = 1, limit = 50) => {
+			const qs = buildAuditQuery(filters, { page: String(page), limit: String(limit) });
+			return apiFetch<AuditResponse>(`/api/audit?${qs}`);
+		},
+		actions: () => apiFetch<{ actions: string[] }>("/api/audit/actions"),
+		exportUrl: (filters: AuditFilters = {}) => {
+			const qs = buildAuditQuery(filters);
+			return qs ? `/api/audit/export?${qs}` : "/api/audit/export";
+		},
 	},
 	config: {
 		get: () => apiFetch<{ baseUrl: string }>("/api/config"),

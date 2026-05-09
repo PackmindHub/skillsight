@@ -1,5 +1,7 @@
+import { recordAudit } from "@/application/audit/record-audit";
 import type { NewEvent } from "@/domain/event";
 import type { IntegrationWithSecret } from "@/domain/integration";
+import type { IAuditRepository } from "@/domain/ports/audit-repository";
 import type { IEventRepository } from "@/domain/ports/event-repository";
 import type { IIntegrationRepository } from "@/domain/ports/integration-repository";
 import type { ILokiGateway, LokiStreamResult } from "@/domain/ports/loki-gateway";
@@ -15,14 +17,33 @@ interface SyncDeps {
 	events: IEventRepository;
 	skills: ISkillRepository;
 	loki: ILokiGateway;
+	audit: IAuditRepository;
+}
+
+export interface SyncIntegrationOptions {
+	mode?: "manual" | "scheduled";
+	actorEmail?: string | null;
 }
 
 export async function syncIntegration(
 	deps: SyncDeps,
 	integration: IntegrationWithSecret,
+	options: SyncIntegrationOptions = {},
 ): Promise<{ syncedAt: Date | null; error: string | null }> {
 	const now = new Date();
 	const from = integration.lastSyncAt ?? null;
+	const mode = options.mode ?? "scheduled";
+	const actorEmail = options.actorEmail ?? null;
+	const startedAt = Date.now();
+
+	if (mode === "manual") {
+		await recordAudit(deps, {
+			actorEmail,
+			action: "integration_sync_triggered",
+			target: integration.id,
+			metadata: { mode, name: integration.name, from: from?.toISOString() ?? null },
+		});
+	}
 
 	const password =
 		integration.authType === "basic" && integration.authPasswordEncrypted
@@ -76,11 +97,37 @@ export async function syncIntegration(
 			`[loki-sync] ${integration.name}: synced ${parsedEvents.length} events from ${from?.toISOString() ?? "beginning"} to ${syncedAt.toISOString()}${hitLimit ? " (more pages pending)" : ""}`,
 		);
 
+		await recordAudit(deps, {
+			actorEmail,
+			action: "integration_sync_completed",
+			target: integration.id,
+			metadata: {
+				mode,
+				durationMs: Date.now() - startedAt,
+				eventCount: parsedEvents.length,
+				morePending: hitLimit,
+				error: null,
+			},
+		});
+
 		return { syncedAt, error: null };
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
 		await deps.integrations.updateSyncStatus(integration.id, { lastSyncError: message });
 		console.error(`[loki-sync] ${integration.name}: sync failed — ${message}`);
+
+		await recordAudit(deps, {
+			actorEmail,
+			action: "integration_sync_completed",
+			target: integration.id,
+			metadata: {
+				mode,
+				durationMs: Date.now() - startedAt,
+				eventCount: 0,
+				error: message,
+			},
+		});
+
 		return { syncedAt: null, error: message };
 	}
 }

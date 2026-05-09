@@ -1,9 +1,18 @@
 import { describe, expect, it } from "bun:test";
 import type { MarketplaceStatus } from "@/domain/marketplace";
+import type { IAuditRepository } from "@/domain/ports/audit-repository";
 import type { IPluginRepository } from "@/domain/ports/plugin-repository";
 import type { ISkillRepository } from "@/domain/ports/skill-repository";
 import type { SkillStatus } from "@/domain/skill";
 import { syncPluginStatuses } from "./sync-plugin-statuses";
+
+function makeAudit(): IAuditRepository {
+	return {
+		log: async () => {},
+		list: async () => ({ items: [], total: 0 }),
+		listAll: async () => [],
+	};
+}
 
 function makePlugins(namesByMarketplace: Record<string, string[]> = {}) {
 	const updateCalls: Array<{ marketplaceName: string; status: string }> = [];
@@ -47,7 +56,7 @@ describe("syncPluginStatuses", () => {
 		});
 		const { repo: skills, propagateCalls } = makeSkills();
 
-		await syncPluginStatuses({ plugins, skills }, "acme-mp", "approved" as MarketplaceStatus);
+		await syncPluginStatuses({ plugins, skills, audit: makeAudit() }, "acme-mp", "approved" as MarketplaceStatus);
 
 		expect(updateCalls).toHaveLength(1);
 		expect(updateCalls[0].marketplaceName).toBe("acme-mp");
@@ -62,7 +71,7 @@ describe("syncPluginStatuses", () => {
 		const { repo: plugins } = makePlugins({ "acme-mp": ["plugin-a"] });
 		const { repo: skills, propagateCalls } = makeSkills();
 
-		await syncPluginStatuses({ plugins, skills }, "acme-mp", "denied" as MarketplaceStatus);
+		await syncPluginStatuses({ plugins, skills, audit: makeAudit() }, "acme-mp", "denied" as MarketplaceStatus);
 
 		expect(propagateCalls[0].status).toBe("to_review");
 		expect(propagateCalls[0].pluginNames).toEqual(["plugin-a"]);
@@ -72,7 +81,7 @@ describe("syncPluginStatuses", () => {
 		const { repo: plugins } = makePlugins({ "empty-mp": [] });
 		const { repo: skills, propagateCalls } = makeSkills();
 
-		await syncPluginStatuses({ plugins, skills }, "empty-mp", "approved" as MarketplaceStatus);
+		await syncPluginStatuses({ plugins, skills, audit: makeAudit() }, "empty-mp", "approved" as MarketplaceStatus);
 
 		expect(propagateCalls).toHaveLength(1);
 		expect(propagateCalls[0].pluginNames).toEqual([]);

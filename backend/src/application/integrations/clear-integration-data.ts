@@ -1,6 +1,7 @@
 import type { IIntegrationRepository } from "@/domain/ports/integration-repository";
 import type { IEventRepository } from "@/domain/ports/event-repository";
 import type { IAuditRepository } from "@/domain/ports/audit-repository";
+import { recordAudit } from "@/application/audit/record-audit";
 
 export async function clearIntegrationData(
 	deps: { integrations: IIntegrationRepository; events: IEventRepository; audit: IAuditRepository },
@@ -12,9 +13,10 @@ export async function clearIntegrationData(
 	await deps.events.deleteByIntegrationId(input.id);
 	await deps.integrations.updateSyncStatus(input.id, { lastSyncAt: null, lastSyncError: null });
 
-	await deps.audit.log({
+	await recordAudit(deps, {
 		actorEmail: input.actorEmail,
 		action: "integration_data_cleared",
-		target: existing.name,
+		target: existing.id,
+		metadata: { name: existing.name },
 	});
 }

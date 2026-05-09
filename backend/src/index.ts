@@ -36,8 +36,10 @@ async function main() {
 					events: deps.events,
 					skills: deps.skills,
 					loki: deps.loki,
+					audit: deps.audit,
 				},
 				integration,
+				{ mode: "scheduled" },
 			),
 		);
 		await startMarketplaceSourceScheduler(deps.marketplaceSources, (source) =>
@@ -49,8 +51,10 @@ async function main() {
 					pluginSkills: deps.pluginSkills,
 					skills: deps.skills,
 					gitMarketplace: deps.gitMarketplace,
+					audit: deps.audit,
 				},
 				source,
+				{ mode: "scheduled" },
 			),
 		);
 	});

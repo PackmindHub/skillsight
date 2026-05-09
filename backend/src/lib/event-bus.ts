@@ -4,6 +4,7 @@ import type { MarketplaceStatus } from "@/domain/marketplace";
 export interface MarketplaceStatusChangedEvent {
 	name: string;
 	newStatus: MarketplaceStatus;
+	actorEmail: string | null;
 }
 
 class AppEventBus extends EventEmitter {

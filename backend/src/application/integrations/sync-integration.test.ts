@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import type { NewEvent } from "@/domain/event";
 import type { IntegrationWithSecret } from "@/domain/integration";
+import type { IAuditRepository } from "@/domain/ports/audit-repository";
 import type { IEventRepository } from "@/domain/ports/event-repository";
 import type { IIntegrationRepository } from "@/domain/ports/integration-repository";
 import type { ILokiGateway, LokiStreamResult } from "@/domain/ports/loki-gateway";
@@ -9,6 +10,14 @@ import type {
 	SkillUpsertEntry,
 } from "@/domain/ports/skill-repository";
 import { syncIntegration } from "./sync-integration";
+
+function makeAudit(): IAuditRepository {
+	return {
+		log: async () => {},
+		list: async () => ({ items: [], total: 0 }),
+		listAll: async () => [],
+	};
+}
 
 const BASE_INTEGRATION: IntegrationWithSecret = {
 	id: "i-1",
@@ -123,7 +132,10 @@ describe("syncIntegration", () => {
 			}),
 		]);
 
-		await syncIntegration({ integrations, events, skills, loki }, BASE_INTEGRATION);
+		await syncIntegration(
+			{ integrations, events, skills, loki, audit: makeAudit() },
+			BASE_INTEGRATION,
+		);
 
 		expect(upsertManyCalls).toHaveLength(1);
 		expect(upsertManyCalls[0]).toEqual([{ skillName: "lint", pluginName: "plugin-a" }]);
@@ -138,7 +150,10 @@ describe("syncIntegration", () => {
 			streamWithEvent("claude_code.skill_activated", { "skill.name": "format" }),
 		]);
 
-		await syncIntegration({ integrations, events, skills, loki }, BASE_INTEGRATION);
+		await syncIntegration(
+			{ integrations, events, skills, loki, audit: makeAudit() },
+			BASE_INTEGRATION,
+		);
 
 		expect(upsertManyCalls).toHaveLength(1);
 		expect(upsertManyCalls[0]).toEqual([{ skillName: "format", pluginName: null }]);
@@ -153,7 +168,10 @@ describe("syncIntegration", () => {
 			streamWithEvent("claude_code.plugin_installed", { "plugin.name": "plugin-a" }),
 		]);
 
-		await syncIntegration({ integrations, events, skills, loki }, BASE_INTEGRATION);
+		await syncIntegration(
+			{ integrations, events, skills, loki, audit: makeAudit() },
+			BASE_INTEGRATION,
+		);
 
 		expect(upsertManyCalls).toHaveLength(0);
 	});
