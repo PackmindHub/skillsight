@@ -42,12 +42,25 @@ const previewSchema = z.object({
 });
 
 export function createIntegrationsRoute(
-	deps: Pick<AppDeps, "integrations" | "events" | "skills" | "loki" | "audit">,
+	deps: Pick<
+		AppDeps,
+		| "integrations"
+		| "events"
+		| "skills"
+		| "plugins"
+		| "pluginSkills"
+		| "marketplaces"
+		| "loki"
+		| "audit"
+	>,
 ) {
 	const syncDeps = {
 		integrations: deps.integrations,
 		events: deps.events,
 		skills: deps.skills,
+		plugins: deps.plugins,
+		pluginSkills: deps.pluginSkills,
+		marketplaces: deps.marketplaces,
 		loki: deps.loki,
 		audit: deps.audit,
 	};

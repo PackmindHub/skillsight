@@ -99,6 +99,23 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			});
 	}
 
+	async upsertIfAbsent(plugin: NewPlugin): Promise<void> {
+		const now = new Date();
+		await this.db
+			.insert(plugins)
+			.values({
+				pluginName: plugin.pluginName,
+				marketplaceName: plugin.marketplaceName,
+				pluginVersion: plugin.pluginVersion,
+				installTrigger: plugin.installTrigger,
+				marketplaceIsOfficial: plugin.marketplaceIsOfficial,
+				status: plugin.status,
+				firstSeenAt: now,
+				lastSeenAt: now,
+			})
+			.onConflictDoNothing({ target: plugins.pluginName });
+	}
+
 	async updateStatusByMarketplace(marketplaceName: string, status: PluginStatus): Promise<void> {
 		await this.db
 			.update(plugins)

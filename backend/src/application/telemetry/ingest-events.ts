@@ -2,6 +2,7 @@ import { computePluginStatus } from "@/domain/plugin";
 import type { IEventRepository } from "@/domain/ports/event-repository";
 import type { IMarketplaceRepository } from "@/domain/ports/marketplace-repository";
 import type { IPluginRepository } from "@/domain/ports/plugin-repository";
+import type { IPluginSkillRepository } from "@/domain/ports/plugin-skill-repository";
 import type { ISkillRepository } from "@/domain/ports/skill-repository";
 import { parseOtlpBody } from "@/parsers/otlp-parser";
 
@@ -10,6 +11,7 @@ export async function ingestEvents(
 		events: IEventRepository;
 		marketplaces: IMarketplaceRepository;
 		plugins: IPluginRepository;
+		pluginSkills: IPluginSkillRepository;
 		skills: ISkillRepository;
 	},
 	rawBody: unknown,
@@ -66,16 +68,60 @@ export async function ingestEvents(
 		await deps.skills.upsertMany(skillEntries);
 	}
 
+	const skillActivationsWithPlugin = events.filter(
+		(e) =>
+			e.eventName === "claude_code.skill_activated" &&
+			typeof e.attributes["skill.name"] === "string" &&
+			typeof e.attributes["plugin.name"] === "string",
+	);
+
 	const pluginEvents = events.filter(
 		(e) =>
 			e.eventName === "claude_code.plugin_installed" &&
 			typeof e.attributes["plugin.name"] === "string",
 	);
 
-	if (pluginEvents.length > 0) {
-		const marketplaceStatuses = await deps.marketplaces.listStatuses();
-		const statusMap = Object.fromEntries(marketplaceStatuses.map((m) => [m.name, m.status]));
+	const needsStatusMap = skillActivationsWithPlugin.length > 0 || pluginEvents.length > 0;
+	const statusMap = needsStatusMap
+		? Object.fromEntries(
+				(await deps.marketplaces.listStatuses()).map((m) => [m.name, m.status]),
+			)
+		: {};
 
+	if (skillActivationsWithPlugin.length > 0) {
+		const seenPlugins = new Set<string>();
+		const pluginSkillPairs: Array<{ pluginName: string; skillName: string }> = [];
+
+		for (const event of skillActivationsWithPlugin) {
+			const pluginName = event.attributes["plugin.name"] as string;
+			const skillName = event.attributes["skill.name"] as string;
+			pluginSkillPairs.push({ pluginName, skillName });
+
+			if (seenPlugins.has(pluginName)) continue;
+			seenPlugins.add(pluginName);
+
+			const marketplaceName =
+				typeof event.attributes["marketplace.name"] === "string"
+					? (event.attributes["marketplace.name"] as string)
+					: null;
+			const status = computePluginStatus(
+				marketplaceName,
+				marketplaceName ? statusMap[marketplaceName] : null,
+			);
+
+			await deps.plugins.upsertIfAbsent({
+				pluginName,
+				marketplaceName,
+				pluginVersion: null,
+				installTrigger: null,
+				marketplaceIsOfficial: null,
+				status,
+			});
+		}
+		await deps.pluginSkills.upsertMany(pluginSkillPairs);
+	}
+
+	if (pluginEvents.length > 0) {
 		const seen = new Set<string>();
 		for (const event of pluginEvents) {
 			const pluginName = event.attributes["plugin.name"] as string;
