@@ -29,9 +29,16 @@ const MP_STATUS_STYLES: Record<string, string> = {
 function MarketplaceBadge({ mp }: { mp: MarketplaceRef }) {
 	const style = MP_STATUS_STYLES[mp.status] ?? MP_STATUS_STYLES.to_review;
 	return (
-		<span className={`inline-flex items-center rounded border px-1.5 py-0.5 text-xs font-mono ${style}`}>
+		<a
+			href={`/marketplaces?name=${encodeURIComponent(mp.name)}`}
+			target="_blank"
+			rel="noopener noreferrer"
+			onClick={(e) => e.stopPropagation()}
+			title={`Open marketplace ${mp.name} in a new tab`}
+			className={`inline-flex items-center rounded border px-1.5 py-0.5 text-xs font-mono hover:underline ${style}`}
+		>
 			{mp.name}
-		</span>
+		</a>
 	);
 }
 
@@ -118,6 +125,7 @@ export default function SkillsTablePage() {
 	const usageFilter = pick<UsageFilter>(searchParams.get("usage"), USAGE_VALUES, "all");
 	const sortKey = pick<SortKey>(searchParams.get("sort"), SORT_KEYS, "total");
 	const sortDir: SortDir = searchParams.get("dir") === "asc" ? "asc" : "desc";
+	const pluginFilter = searchParams.get("plugin") ?? "";
 	const { status: statusFilter, setStatus } = useStatusFilter<SkillStatus>(
 		"status",
 		SKILL_STATUSES,
@@ -218,6 +226,7 @@ export default function SkillsTablePage() {
 		const q = debouncedSearch.trim();
 		const scored: { row: SkillTableRow; score: number }[] = [];
 		for (const row of rows) {
+			if (pluginFilter && !row.pluginNames.includes(pluginFilter)) continue;
 			if (sourceFilter === "bundled" && row.skillSource !== "bundled") continue;
 			if (sourceFilter === "external" && row.skillSource === "bundled") continue;
 			if (statusFilter !== "all" && (row.status ?? "unknown") !== statusFilter) continue;
@@ -271,6 +280,7 @@ export default function SkillsTablePage() {
 		usageFilter,
 		sortKey,
 		sortDir,
+		pluginFilter,
 	]);
 
 	const suggestions = useMemo(() => {
@@ -301,7 +311,30 @@ export default function SkillsTablePage() {
 		usageFilter !== "all" ||
 		statusFilter !== "all" ||
 		marketplaces.length > 0 ||
-		triggers.length > 0;
+		triggers.length > 0 ||
+		pluginFilter !== "";
+
+	const isLeastUsedPreset =
+		usageFilter === "activated" && sortKey === "total" && sortDir === "asc";
+
+	function applyLeastUsedPreset() {
+		setSearchParams(
+			(prev) => {
+				const next = new URLSearchParams(prev);
+				if (isLeastUsedPreset) {
+					next.delete("usage");
+					next.delete("sort");
+					next.delete("dir");
+				} else {
+					next.set("usage", "activated");
+					next.set("sort", "total");
+					next.set("dir", "asc");
+				}
+				return next;
+			},
+			{ replace: true },
+		);
+	}
 
 	return (
 		<div className="space-y-4">
@@ -364,6 +397,20 @@ export default function SkillsTablePage() {
 					<option value="activated">Activated</option>
 					<option value="never_used">Never used</option>
 				</select>
+				<button
+					type="button"
+					onClick={applyLeastUsedPreset}
+					aria-pressed={isLeastUsedPreset}
+					title="Show activated skills sorted ascending by total"
+					className={cn(
+						"rounded border px-3 py-1.5 text-sm transition-colors",
+						isLeastUsedPreset
+							? "border-accent-bright bg-accent-bright/15 text-accent-bright"
+							: "border-edge bg-surface-800 text-text-2 hover:text-text-1",
+					)}
+				>
+					Least used
+				</button>
 				<span className="text-xs text-text-4 ml-auto">
 					{loading ? "—" : `${filteredRows.length} / ${rows.length}`}
 				</span>
@@ -382,6 +429,12 @@ export default function SkillsTablePage() {
 				<div className="flex flex-wrap items-center gap-1.5">
 					{search && (
 						<FilterPill label={`"${search}"`} onRemove={() => updateParam("search", "", "")} />
+					)}
+					{pluginFilter && (
+						<FilterPill
+							label={`Plugin: ${pluginFilter}`}
+							onRemove={() => updateParam("plugin", "", "")}
+						/>
 					)}
 					{sourceFilter !== "all" && (
 						<FilterPill

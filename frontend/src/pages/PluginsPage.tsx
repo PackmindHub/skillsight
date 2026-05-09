@@ -3,7 +3,7 @@ import { StatusFilter } from "@/components/ui/StatusFilter";
 import { api } from "@/lib/api";
 import { useStatusFilter } from "@/lib/use-status-filter";
 import { PLUGIN_STATUSES, type Plugin, type PluginStatus } from "@/types/api";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 export default function PluginsPage() {
@@ -17,6 +17,9 @@ export default function PluginsPage() {
 	);
 
 	const search = searchParams.get("search") ?? "";
+	const highlightName = searchParams.get("name") ?? "";
+	const marketplaceFilter = searchParams.get("marketplace") ?? "";
+	const highlightedRowRef = useRef<HTMLTableRowElement | null>(null);
 
 	function updateSearch(value: string) {
 		setSearchParams(
@@ -24,6 +27,17 @@ export default function PluginsPage() {
 				const next = new URLSearchParams(prev);
 				if (!value) next.delete("search");
 				else next.set("search", value);
+				return next;
+			},
+			{ replace: true },
+		);
+	}
+
+	function clearParam(key: string) {
+		setSearchParams(
+			(prev) => {
+				const next = new URLSearchParams(prev);
+				next.delete(key);
 				return next;
 			},
 			{ replace: true },
@@ -41,10 +55,17 @@ export default function PluginsPage() {
 	const filteredItems = useMemo(() => {
 		return items.filter((p) => {
 			if (statusFilter !== "all" && (p.status ?? "unknown") !== statusFilter) return false;
+			if (marketplaceFilter && p.marketplaceName !== marketplaceFilter) return false;
 			if (search && !p.pluginName.toLowerCase().includes(search.toLowerCase())) return false;
 			return true;
 		});
-	}, [items, statusFilter, search]);
+	}, [items, statusFilter, search, marketplaceFilter]);
+
+	useLayoutEffect(() => {
+		if (!highlightName || loading) return;
+		const node = highlightedRowRef.current;
+		if (node) node.scrollIntoView({ block: "center", behavior: "smooth" });
+	}, [highlightName, loading]);
 
 	if (loading) return <p className="text-text-3 text-sm">Loading…</p>;
 
@@ -91,6 +112,32 @@ export default function PluginsPage() {
 							onChange={setStatus}
 							options={PLUGIN_STATUSES}
 						/>
+						{marketplaceFilter && (
+							<span className="inline-flex items-center gap-1 rounded-full border border-edge bg-surface-800 px-2 py-0.5 text-xs text-text-2">
+								Marketplace: {marketplaceFilter}
+								<button
+									type="button"
+									aria-label="Clear marketplace filter"
+									onClick={() => clearParam("marketplace")}
+									className="text-text-4 hover:text-text-1"
+								>
+									×
+								</button>
+							</span>
+						)}
+						{highlightName && (
+							<span className="inline-flex items-center gap-1 rounded-full border border-edge bg-surface-800 px-2 py-0.5 text-xs text-text-2">
+								Highlighted: {highlightName}
+								<button
+									type="button"
+									aria-label="Clear highlight"
+									onClick={() => clearParam("name")}
+									className="text-text-4 hover:text-text-1"
+								>
+									×
+								</button>
+							</span>
+						)}
 						{filteredItems.length !== items.length && (
 							<span className="text-xs text-text-4">{filteredItems.length} / {items.length}</span>
 						)}
@@ -105,6 +152,7 @@ export default function PluginsPage() {
 									<th className="text-left px-4 py-3 font-medium text-gray-600">Version</th>
 									<th className="text-left px-4 py-3 font-medium text-gray-600">Trigger</th>
 									<th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
+									<th className="text-right px-4 py-3 font-medium text-gray-600">Skills</th>
 									<th className="text-right px-4 py-3 font-medium text-gray-600">Installations</th>
 									<th className="text-right px-4 py-3 font-medium text-gray-600">Unique Users</th>
 								</tr>
@@ -112,24 +160,39 @@ export default function PluginsPage() {
 							<tbody>
 								{filteredItems.length === 0 ? (
 									<tr>
-										<td colSpan={7} className="px-4 py-8 text-center text-gray-400 text-sm">
+										<td colSpan={8} className="px-4 py-8 text-center text-gray-400 text-sm">
 											No plugins match the current filters.
 										</td>
 									</tr>
 								) : (
 									filteredItems.map((plugin) => {
 										const status = (plugin.status ?? "unknown") as PluginStatus;
+										const isHighlighted = highlightName === plugin.pluginName;
 										return (
 											<tr
 												key={plugin.pluginName}
-												className="border-b border-gray-100 hover:bg-gray-50"
+												ref={isHighlighted ? highlightedRowRef : undefined}
+												className={
+													isHighlighted
+														? "border-b border-gray-100 bg-indigo-50 ring-2 ring-indigo-300"
+														: "border-b border-gray-100 hover:bg-gray-50"
+												}
 											>
 												<td className="px-4 py-3 font-mono text-gray-900 whitespace-nowrap">
 													{plugin.pluginName}
 												</td>
 												<td className="px-4 py-3 text-gray-500">
-													{plugin.marketplaceName ?? (
-														<span className="text-gray-400">—</span>
+													{plugin.marketplaceName ? (
+														<a
+															href={`/marketplaces?name=${encodeURIComponent(plugin.marketplaceName)}`}
+															target="_blank"
+															rel="noopener noreferrer"
+															className="text-indigo-600 hover:underline"
+														>
+															{plugin.marketplaceName}
+														</a>
+													) : (
+														<span className="text-gray-400" title="Locally installed (no marketplace)">—</span>
 													)}
 												</td>
 												<td className="px-4 py-3 text-gray-500">
@@ -148,6 +211,20 @@ export default function PluginsPage() {
 												</td>
 												<td className="px-4 py-3">
 													<StatusBadge status={status} />
+												</td>
+												<td className="px-4 py-3 text-right text-gray-700">
+													{plugin.skillCount > 0 ? (
+														<a
+															href={`/skills?plugin=${encodeURIComponent(plugin.pluginName)}`}
+															target="_blank"
+															rel="noopener noreferrer"
+															className="text-indigo-600 hover:underline"
+														>
+															{plugin.skillCount}
+														</a>
+													) : (
+														<span className="text-gray-400">0</span>
+													)}
 												</td>
 												<td className="px-4 py-3 text-right text-gray-700">
 													{plugin.installationCount}

@@ -14,6 +14,7 @@ export interface Plugin {
 export interface PluginWithStats extends Plugin {
 	installationCount: number;
 	uniqueUserCount: number;
+	skillCount: number;
 }
 
 export interface NewPlugin {

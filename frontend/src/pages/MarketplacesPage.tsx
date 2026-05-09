@@ -12,7 +12,15 @@ import {
 	type MarketplaceStatus,
 } from "@/types/api";
 import { ExternalLink } from "lucide-react";
-import { Fragment, type FormEvent, useEffect, useMemo, useState } from "react";
+import {
+	Fragment,
+	type FormEvent,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 import { useSearchParams } from "react-router-dom";
 
 const STATUS_OPTIONS: { value: MarketplaceStatus; label: string }[] = [
@@ -60,6 +68,19 @@ export default function MarketplacesPage() {
 		MARKETPLACE_STATUSES,
 	);
 	const search = searchParams.get("search") ?? "";
+	const highlightName = searchParams.get("name") ?? "";
+	const highlightedRowRef = useRef<HTMLTableRowElement | null>(null);
+
+	function clearParam(key: string) {
+		setSearchParams(
+			(prev) => {
+				const next = new URLSearchParams(prev);
+				next.delete(key);
+				return next;
+			},
+			{ replace: true },
+		);
+	}
 
 	function updateSearch(value: string) {
 		setSearchParams(
@@ -273,6 +294,12 @@ export default function MarketplacesPage() {
 			return true;
 		});
 	}, [items, statusFilter, search]);
+
+	useLayoutEffect(() => {
+		if (!highlightName || loading) return;
+		const node = highlightedRowRef.current;
+		if (node) node.scrollIntoView({ block: "center", behavior: "smooth" });
+	}, [highlightName, loading]);
 
 	if (loading) return <p className="text-text-3 text-sm">Loading…</p>;
 
@@ -561,6 +588,19 @@ export default function MarketplacesPage() {
 							onChange={setStatus}
 							options={MARKETPLACE_STATUSES}
 						/>
+						{highlightName && (
+							<span className="inline-flex items-center gap-1 rounded-full border border-edge bg-surface-800 px-2 py-0.5 text-xs text-text-2">
+								Highlighted: {highlightName}
+								<button
+									type="button"
+									aria-label="Clear highlight"
+									onClick={() => clearParam("name")}
+									className="text-text-4 hover:text-text-1"
+								>
+									×
+								</button>
+							</span>
+						)}
 						{filteredItems.length !== items.length && (
 							<span className="text-xs text-text-4">
 								{filteredItems.length} / {items.length}
@@ -610,8 +650,17 @@ export default function MarketplacesPage() {
 									const isEditing = !!editing[mp.name];
 									const isSaving = saving[mp.name] ?? false;
 									const editState = editing[mp.name];
+									const isHighlighted = highlightName === mp.name;
 									return (
-										<tr key={mp.name} className="border-b border-gray-100 hover:bg-gray-50">
+										<tr
+											key={mp.name}
+											ref={isHighlighted ? highlightedRowRef : undefined}
+											className={
+												isHighlighted
+													? "border-b border-gray-100 bg-indigo-50 ring-2 ring-indigo-300"
+													: "border-b border-gray-100 hover:bg-gray-50"
+											}
+										>
 											<td className="px-4 py-3 font-mono text-gray-900 whitespace-nowrap">
 												{mp.name}
 											</td>
@@ -687,7 +736,18 @@ export default function MarketplacesPage() {
 												{mp.activationCount}
 											</td>
 											<td className="px-4 py-3 text-right text-gray-700">
-												{mp.pluginInstallCount}
+												{mp.pluginInstallCount > 0 ? (
+													<a
+														href={`/plugins?marketplace=${encodeURIComponent(mp.name)}`}
+														target="_blank"
+														rel="noopener noreferrer"
+														className="text-indigo-600 hover:underline"
+													>
+														{mp.pluginInstallCount}
+													</a>
+												) : (
+													mp.pluginInstallCount
+												)}
 											</td>
 											<td className="px-4 py-3 text-right text-gray-700">
 												{mp.skillActivatedLinkedCount}

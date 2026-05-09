@@ -19,7 +19,8 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			  p.first_seen_at           AS "firstSeenAt",
 			  p.last_seen_at            AS "lastSeenAt",
 			  COALESCE(s.install_count, 0)::int AS "installationCount",
-			  COALESCE(s.unique_users, 0)::int  AS "uniqueUserCount"
+			  COALESCE(s.unique_users, 0)::int  AS "uniqueUserCount",
+			  COALESCE(ps.skill_count, 0)::int  AS "skillCount"
 			FROM plugins p
 			LEFT JOIN (
 			  SELECT
@@ -31,6 +32,11 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			    AND attributes->>'plugin.name' IS NOT NULL
 			  GROUP BY attributes->>'plugin.name'
 			) s ON s.plugin_name = p.plugin_name
+			LEFT JOIN (
+			  SELECT plugin_name, COUNT(*)::int AS skill_count
+			  FROM plugin_skills
+			  GROUP BY plugin_name
+			) ps ON ps.plugin_name = p.plugin_name
 			ORDER BY s.install_count DESC NULLS LAST, p.plugin_name
 		`);
 		return rows as unknown as PluginWithStats[];
