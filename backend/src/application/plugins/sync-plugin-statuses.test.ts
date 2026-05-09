@@ -18,6 +18,7 @@ function makePlugins(namesByMarketplace: Record<string, string[]> = {}) {
 	const updateCalls: Array<{ marketplaceName: string; status: string }> = [];
 	const repo: IPluginRepository = {
 		listWithStats: async () => [],
+		listSkillsWithActivations: async () => [],
 		upsert: async () => {},
 		updateStatusByMarketplace: async (marketplaceName, status) => {
 			updateCalls.push({ marketplaceName, status });

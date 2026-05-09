@@ -1,3 +1,4 @@
+import { PluginSkillsDrawer } from "@/components/plugins/PluginSkillsDrawer";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { StatusFilter } from "@/components/ui/StatusFilter";
 import { api } from "@/lib/api";
@@ -5,6 +6,19 @@ import { useStatusFilter } from "@/lib/use-status-filter";
 import { PLUGIN_STATUSES, type Plugin, type PluginStatus } from "@/types/api";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+
+type MarketplaceAssociation = "all" | "with" | "without";
+const MARKETPLACE_ASSOCIATIONS: readonly MarketplaceAssociation[] = ["all", "with", "without"] as const;
+
+function isMarketplaceAssociation(v: string | null): v is MarketplaceAssociation {
+	return v === "all" || v === "with" || v === "without";
+}
+
+const ASSOC_LABELS: Record<MarketplaceAssociation, string> = {
+	all: "All",
+	with: "With marketplace",
+	without: "Without marketplace",
+};
 
 export default function PluginsPage() {
 	const [items, setItems] = useState<Plugin[]>([]);
@@ -15,10 +29,13 @@ export default function PluginsPage() {
 		"status",
 		PLUGIN_STATUSES,
 	);
+	const [selectedPlugin, setSelectedPlugin] = useState<string | null>(null);
 
 	const search = searchParams.get("search") ?? "";
 	const highlightName = searchParams.get("name") ?? "";
 	const marketplaceFilter = searchParams.get("marketplace") ?? "";
+	const mpAssocParam = searchParams.get("mpAssoc");
+	const mpAssoc: MarketplaceAssociation = isMarketplaceAssociation(mpAssocParam) ? mpAssocParam : "all";
 	const highlightedRowRef = useRef<HTMLTableRowElement | null>(null);
 
 	function updateSearch(value: string) {
@@ -27,6 +44,18 @@ export default function PluginsPage() {
 				const next = new URLSearchParams(prev);
 				if (!value) next.delete("search");
 				else next.set("search", value);
+				return next;
+			},
+			{ replace: true },
+		);
+	}
+
+	function updateMpAssoc(value: MarketplaceAssociation) {
+		setSearchParams(
+			(prev) => {
+				const next = new URLSearchParams(prev);
+				if (value === "all") next.delete("mpAssoc");
+				else next.set("mpAssoc", value);
 				return next;
 			},
 			{ replace: true },
@@ -56,10 +85,12 @@ export default function PluginsPage() {
 		return items.filter((p) => {
 			if (statusFilter !== "all" && (p.status ?? "unknown") !== statusFilter) return false;
 			if (marketplaceFilter && p.marketplaceName !== marketplaceFilter) return false;
+			if (mpAssoc === "with" && !p.marketplaceName) return false;
+			if (mpAssoc === "without" && p.marketplaceName) return false;
 			if (search && !p.pluginName.toLowerCase().includes(search.toLowerCase())) return false;
 			return true;
 		});
-	}, [items, statusFilter, search, marketplaceFilter]);
+	}, [items, statusFilter, search, marketplaceFilter, mpAssoc]);
 
 	useLayoutEffect(() => {
 		if (!highlightName || loading) return;
@@ -112,6 +143,18 @@ export default function PluginsPage() {
 							onChange={setStatus}
 							options={PLUGIN_STATUSES}
 						/>
+						<select
+							aria-label="Filter by marketplace association"
+							value={mpAssoc}
+							onChange={(e) => updateMpAssoc(e.target.value as MarketplaceAssociation)}
+							className="rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 focus:outline-none focus:ring-1 focus:ring-accent-bright"
+						>
+							{MARKETPLACE_ASSOCIATIONS.map((value) => (
+								<option key={value} value={value}>
+									Marketplace: {ASSOC_LABELS[value]}
+								</option>
+							))}
+						</select>
 						{marketplaceFilter && (
 							<span className="inline-flex items-center gap-1 rounded-full border border-edge bg-surface-800 px-2 py-0.5 text-xs text-text-2">
 								Marketplace: {marketplaceFilter}
@@ -153,6 +196,7 @@ export default function PluginsPage() {
 									<th className="text-left px-4 py-3 font-medium text-gray-600">Trigger</th>
 									<th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
 									<th className="text-right px-4 py-3 font-medium text-gray-600">Skills</th>
+									<th className="text-right px-4 py-3 font-medium text-gray-600">Activations</th>
 									<th className="text-right px-4 py-3 font-medium text-gray-600">Installations</th>
 									<th className="text-right px-4 py-3 font-medium text-gray-600">Unique Users</th>
 								</tr>
@@ -160,7 +204,7 @@ export default function PluginsPage() {
 							<tbody>
 								{filteredItems.length === 0 ? (
 									<tr>
-										<td colSpan={8} className="px-4 py-8 text-center text-gray-400 text-sm">
+										<td colSpan={9} className="px-4 py-8 text-center text-gray-400 text-sm">
 											No plugins match the current filters.
 										</td>
 									</tr>
@@ -168,6 +212,8 @@ export default function PluginsPage() {
 									filteredItems.map((plugin) => {
 										const status = (plugin.status ?? "unknown") as PluginStatus;
 										const isHighlighted = highlightName === plugin.pluginName;
+										const openDrawer = () => setSelectedPlugin(plugin.pluginName);
+										const activations = plugin.skillActivationCount;
 										return (
 											<tr
 												key={plugin.pluginName}
@@ -179,7 +225,14 @@ export default function PluginsPage() {
 												}
 											>
 												<td className="px-4 py-3 font-mono text-gray-900 whitespace-nowrap">
-													{plugin.pluginName}
+													<button
+														type="button"
+														onClick={openDrawer}
+														className="text-indigo-600 hover:underline"
+														title="View plugin skills"
+													>
+														{plugin.pluginName}
+													</button>
 												</td>
 												<td className="px-4 py-3 text-gray-500">
 													{plugin.marketplaceName ? (
@@ -212,24 +265,46 @@ export default function PluginsPage() {
 												<td className="px-4 py-3">
 													<StatusBadge status={status} />
 												</td>
-												<td className="px-4 py-3 text-right text-gray-700">
+												<td className="px-4 py-3 text-right text-gray-700 tabular-nums">
 													{plugin.skillCount > 0 ? (
-														<a
-															href={`/skills?plugin=${encodeURIComponent(plugin.pluginName)}`}
-															target="_blank"
-															rel="noopener noreferrer"
+														<button
+															type="button"
+															onClick={openDrawer}
 															className="text-indigo-600 hover:underline"
+															title="View plugin skills"
 														>
 															{plugin.skillCount}
-														</a>
+														</button>
 													) : (
 														<span className="text-gray-400">0</span>
 													)}
 												</td>
-												<td className="px-4 py-3 text-right text-gray-700">
+												<td className="px-4 py-3 text-right text-gray-700 tabular-nums">
+													{plugin.skillCount > 0 ? (
+														<button
+															type="button"
+															onClick={openDrawer}
+															className={
+																activations > 0
+																	? "text-indigo-600 hover:underline"
+																	: "text-gray-400 hover:underline"
+															}
+															title={
+																activations === 0
+																	? "Skills declared but never activated — click to inspect"
+																	: "View plugin skills"
+															}
+														>
+															{activations}
+														</button>
+													) : (
+														<span className="text-gray-400">—</span>
+													)}
+												</td>
+												<td className="px-4 py-3 text-right text-gray-700 tabular-nums">
 													{plugin.installationCount}
 												</td>
-												<td className="px-4 py-3 text-right text-gray-700">
+												<td className="px-4 py-3 text-right text-gray-700 tabular-nums">
 													{plugin.uniqueUserCount}
 												</td>
 											</tr>
@@ -241,6 +316,11 @@ export default function PluginsPage() {
 					</div>
 				</>
 			)}
+
+			<PluginSkillsDrawer
+				pluginName={selectedPlugin}
+				onClose={() => setSelectedPlugin(null)}
+			/>
 		</div>
 	);
 }

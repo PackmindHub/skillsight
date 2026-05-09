@@ -32,6 +32,7 @@ function makePlugins() {
 	const upsertCalls: Array<{ pluginName: string; marketplaceName: string | null }> = [];
 	const repo: IPluginRepository = {
 		listWithStats: async () => [],
+		listSkillsWithActivations: async () => [],
 		upsert: async (p) => {
 			upsertCalls.push({ pluginName: p.pluginName, marketplaceName: p.marketplaceName });
 		},

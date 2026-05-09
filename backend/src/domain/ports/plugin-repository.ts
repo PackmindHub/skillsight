@@ -1,7 +1,13 @@
-import type { NewPlugin, PluginStatus, PluginWithStats } from "@/domain/plugin";
+import type {
+	NewPlugin,
+	PluginSkillActivation,
+	PluginStatus,
+	PluginWithStats,
+} from "@/domain/plugin";
 
 export interface IPluginRepository {
 	listWithStats(): Promise<PluginWithStats[]>;
+	listSkillsWithActivations(pluginName: string): Promise<PluginSkillActivation[]>;
 	upsert(plugin: NewPlugin): Promise<void>;
 	updateStatusByMarketplace(marketplaceName: string, status: PluginStatus): Promise<void>;
 	markRemovedByMarketplace(
