@@ -4,7 +4,7 @@ import { ingestionAuth } from "@/middleware/ingestion-auth";
 import { ingestEvents } from "@/application/telemetry/ingest-events";
 
 export function createTelemetryRoute(
-	deps: Pick<AppDeps, "events" | "marketplaces" | "plugins" | "skills" | "tokens">,
+	deps: Pick<AppDeps, "events" | "marketplaces" | "plugins" | "pluginSkills" | "skills" | "tokens">,
 ) {
 	const route = new Hono();
 

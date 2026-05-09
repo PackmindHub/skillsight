@@ -1,10 +1,14 @@
 import { recordAudit } from "@/application/audit/record-audit";
 import type { NewEvent } from "@/domain/event";
 import type { IntegrationWithSecret } from "@/domain/integration";
+import { computePluginStatus } from "@/domain/plugin";
 import type { IAuditRepository } from "@/domain/ports/audit-repository";
 import type { IEventRepository } from "@/domain/ports/event-repository";
 import type { IIntegrationRepository } from "@/domain/ports/integration-repository";
 import type { ILokiGateway, LokiStreamResult } from "@/domain/ports/loki-gateway";
+import type { IMarketplaceRepository } from "@/domain/ports/marketplace-repository";
+import type { IPluginRepository } from "@/domain/ports/plugin-repository";
+import type { IPluginSkillRepository } from "@/domain/ports/plugin-skill-repository";
 import type { ISkillRepository } from "@/domain/ports/skill-repository";
 import { decrypt } from "@/infrastructure/crypto/encrypt";
 import { parseOtlpBody } from "@/parsers/otlp-parser";
@@ -16,6 +20,9 @@ interface SyncDeps {
 	integrations: IIntegrationRepository;
 	events: IEventRepository;
 	skills: ISkillRepository;
+	plugins: IPluginRepository;
+	pluginSkills: IPluginSkillRepository;
+	marketplaces: IMarketplaceRepository;
 	loki: ILokiGateway;
 	audit: IAuditRepository;
 }
@@ -80,6 +87,50 @@ export async function syncIntegration(
 			}));
 		if (skillEntries.length > 0) {
 			await deps.skills.upsertMany(skillEntries);
+		}
+
+		const skillActivationsWithPlugin = parsedEvents.filter(
+			(e) =>
+				e.eventName === "claude_code.skill_activated" &&
+				typeof e.attributes["skill.name"] === "string" &&
+				typeof e.attributes["plugin.name"] === "string",
+		);
+
+		if (skillActivationsWithPlugin.length > 0) {
+			const statusMap = Object.fromEntries(
+				(await deps.marketplaces.listStatuses()).map((m) => [m.name, m.status]),
+			);
+
+			const seenPlugins = new Set<string>();
+			const pluginSkillPairs: Array<{ pluginName: string; skillName: string }> = [];
+
+			for (const event of skillActivationsWithPlugin) {
+				const pluginName = event.attributes["plugin.name"] as string;
+				const skillName = event.attributes["skill.name"] as string;
+				pluginSkillPairs.push({ pluginName, skillName });
+
+				if (seenPlugins.has(pluginName)) continue;
+				seenPlugins.add(pluginName);
+
+				const marketplaceName =
+					typeof event.attributes["marketplace.name"] === "string"
+						? (event.attributes["marketplace.name"] as string)
+						: null;
+				const status = computePluginStatus(
+					marketplaceName,
+					marketplaceName ? statusMap[marketplaceName] : null,
+				);
+
+				await deps.plugins.upsertIfAbsent({
+					pluginName,
+					marketplaceName,
+					pluginVersion: null,
+					installTrigger: null,
+					marketplaceIsOfficial: null,
+					status,
+				});
+			}
+			await deps.pluginSkills.upsertMany(pluginSkillPairs);
 		}
 
 		// If we hit the page limit there may be more data behind us; advance to the

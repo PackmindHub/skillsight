@@ -9,6 +9,7 @@ export interface IPluginRepository {
 	listWithStats(): Promise<PluginWithStats[]>;
 	listSkillsWithActivations(pluginName: string): Promise<PluginSkillActivation[]>;
 	upsert(plugin: NewPlugin): Promise<void>;
+	upsertIfAbsent(plugin: NewPlugin): Promise<void>;
 	updateStatusByMarketplace(marketplaceName: string, status: PluginStatus): Promise<void>;
 	markRemovedByMarketplace(
 		marketplaceName: string,
