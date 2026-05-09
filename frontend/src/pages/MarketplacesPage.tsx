@@ -1,8 +1,16 @@
 import { SourceErrorBanner } from "@/components/marketplaces/SourceErrorBanner";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { StatusFilter } from "@/components/ui/StatusFilter";
 import { useMarketplaceSourcesHealth } from "@/context/MarketplaceSourcesHealthContext";
 import { api } from "@/lib/api";
+import { useStatusFilter } from "@/lib/use-status-filter";
 import { formatDateTime } from "@/lib/utils";
-import type { Marketplace, MarketplaceSource, MarketplaceStatus } from "@/types/api";
+import {
+	MARKETPLACE_STATUSES,
+	type Marketplace,
+	type MarketplaceSource,
+	type MarketplaceStatus,
+} from "@/types/api";
 import { ExternalLink } from "lucide-react";
 import { Fragment, type FormEvent, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -12,18 +20,6 @@ const STATUS_OPTIONS: { value: MarketplaceStatus; label: string }[] = [
 	{ value: "approved", label: "Approved" },
 	{ value: "denied", label: "Denied" },
 ];
-
-const STATUS_BADGE: Record<MarketplaceStatus, string> = {
-	to_review: "bg-amber-100 text-amber-700 border-amber-200",
-	approved: "bg-emerald-100 text-emerald-700 border-emerald-200",
-	denied: "bg-red-100 text-red-700 border-red-200",
-};
-
-const STATUS_LABEL: Record<MarketplaceStatus, string> = {
-	to_review: "To Review",
-	approved: "Approved",
-	denied: "Denied",
-};
 
 interface EditState {
 	url: string;
@@ -48,13 +44,6 @@ const defaultSourceForm: SourceForm = {
 	importPluginsAndSkills: false,
 };
 
-type StatusFilter = "all" | MarketplaceStatus;
-const STATUS_FILTERS: StatusFilter[] = ["all", "to_review", "approved", "denied"];
-
-function pickStatus(raw: string | null): StatusFilter {
-	return STATUS_FILTERS.includes((raw ?? "") as StatusFilter) ? (raw as StatusFilter) : "all";
-}
-
 export default function MarketplacesPage() {
 	const [items, setItems] = useState<Marketplace[]>([]);
 	const [sources, setSources] = useState<MarketplaceSource[]>([]);
@@ -66,15 +55,18 @@ export default function MarketplacesPage() {
 
 	const { refresh: refreshSourcesHealth } = useMarketplaceSourcesHealth();
 
-	const statusFilter = pickStatus(searchParams.get("status"));
+	const { status: statusFilter, setStatus } = useStatusFilter<MarketplaceStatus>(
+		"status",
+		MARKETPLACE_STATUSES,
+	);
 	const search = searchParams.get("search") ?? "";
 
-	function updateParam(key: string, value: string, defaultValue: string) {
+	function updateSearch(value: string) {
 		setSearchParams(
 			(prev) => {
 				const next = new URLSearchParams(prev);
-				if (!value || value === defaultValue) next.delete(key);
-				else next.set(key, value);
+				if (!value) next.delete("search");
+				else next.set("search", value);
 				return next;
 			},
 			{ replace: true },
@@ -561,21 +553,14 @@ export default function MarketplacesPage() {
 							type="text"
 							placeholder="Search marketplace name…"
 							value={search}
-							onChange={(e) => updateParam("search", e.target.value, "")}
+							onChange={(e) => updateSearch(e.target.value)}
 							className="rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 placeholder:text-text-4 focus:outline-none focus:ring-1 focus:ring-accent-bright min-w-48"
 						/>
-						<select
+						<StatusFilter<MarketplaceStatus>
 							value={statusFilter}
-							onChange={(e) => updateParam("status", e.target.value, "all")}
-							className="rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 focus:outline-none focus:ring-1 focus:ring-accent-bright"
-						>
-							<option value="all">Status: All</option>
-							{STATUS_OPTIONS.map((opt) => (
-								<option key={opt.value} value={opt.value}>
-									{opt.label}
-								</option>
-							))}
-						</select>
+							onChange={setStatus}
+							options={MARKETPLACE_STATUSES}
+						/>
 						{filteredItems.length !== items.length && (
 							<span className="text-xs text-text-4">
 								{filteredItems.length} / {items.length}
@@ -632,11 +617,7 @@ export default function MarketplacesPage() {
 											</td>
 											<td className="px-4 py-3">
 												<div className="flex items-center gap-2">
-													<span
-														className={`inline-block rounded border px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[mp.status as MarketplaceStatus] ?? STATUS_BADGE.to_review}`}
-													>
-														{STATUS_LABEL[mp.status as MarketplaceStatus] ?? mp.status}
-													</span>
+													<StatusBadge status={mp.status} />
 													<select
 														value={mp.status}
 														onChange={(e) =>

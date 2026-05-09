@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import { getSkillsTable } from "./get-skills-table";
-import type { ISkillRepository } from "@/domain/ports/skill-repository";
 import type { IMarketplaceRepository } from "@/domain/ports/marketplace-repository";
+import type { ISkillRepository } from "@/domain/ports/skill-repository";
 import type { SkillTableRow } from "@/domain/skill";
+import { getSkillsTable } from "./get-skills-table";
 
 function makeSkills(rows: SkillTableRow[]): ISkillRepository {
 	return {
@@ -16,6 +16,8 @@ function makeSkills(rows: SkillTableRow[]): ISkillRepository {
 		getSkillsTable: async () => rows,
 		getSkillDetail: async () => null,
 		getMonthlyTrends: async () => ({ invocations: [], uniqueSkills: [], uniqueUsers: [] }),
+		upsertMany: async () => {},
+		propagateStatusFromPlugins: async () => {},
 	};
 }
 
@@ -52,7 +54,7 @@ describe("getSkillsTable", () => {
 					nestedSkill: 0,
 					dailyCounts: [],
 					marketplaceNames: ["acme"],
-					status: null,
+					status: "unknown",
 				},
 			]),
 			marketplaces: makeMarketplaces([{ name: "acme", status: "approved" }]),
@@ -78,7 +80,7 @@ describe("getSkillsTable", () => {
 					nestedSkill: 0,
 					dailyCounts: [],
 					marketplaceNames: ["mystery-mp"],
-					status: null,
+					status: "unknown",
 				},
 			]),
 			marketplaces: makeMarketplaces([]),
@@ -113,6 +115,41 @@ describe("getSkillsTable", () => {
 		expect(result[0].marketplaces).toEqual([]);
 	});
 
+	it("preserves approved and to_review statuses", async () => {
+		const deps = {
+			skills: makeSkills([
+				{
+					skillName: "approved-skill",
+					skillSource: null,
+					total: 0,
+					userSlash: 0,
+					claudeProactive: 0,
+					nestedSkill: 0,
+					dailyCounts: [],
+					marketplaceNames: [],
+					status: "approved",
+				},
+				{
+					skillName: "review-skill",
+					skillSource: null,
+					total: 0,
+					userSlash: 0,
+					claudeProactive: 0,
+					nestedSkill: 0,
+					dailyCounts: [],
+					marketplaceNames: [],
+					status: "to_review",
+				},
+			]),
+			marketplaces: makeMarketplaces([]),
+		};
+
+		const result = await getSkillsTable(deps, { days: 30 });
+
+		expect(result.find((r) => r.skillName === "approved-skill")?.status).toBe("approved");
+		expect(result.find((r) => r.skillName === "review-skill")?.status).toBe("to_review");
+	});
+
 	it("passes through activated rows with their event-derived data", async () => {
 		const deps = {
 			skills: makeSkills([
@@ -125,7 +162,7 @@ describe("getSkillsTable", () => {
 					nestedSkill: 0,
 					dailyCounts: [1, 2, 3, 1, 0, 2, 3],
 					marketplaceNames: ["acme"],
-					status: null,
+					status: "unknown",
 				},
 			]),
 			marketplaces: makeMarketplaces([{ name: "acme", status: "approved" }]),
@@ -141,7 +178,7 @@ describe("getSkillsTable", () => {
 			claudeProactive: 7,
 			nestedSkill: 0,
 			dailyCounts: [1, 2, 3, 1, 0, 2, 3],
-			status: null,
+			status: "unknown",
 			marketplaces: [{ name: "acme", status: "approved" }],
 		});
 	});

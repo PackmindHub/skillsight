@@ -1,44 +1,29 @@
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { StatusFilter } from "@/components/ui/StatusFilter";
 import { api } from "@/lib/api";
-import type { Plugin, PluginStatus } from "@/types/api";
+import { useStatusFilter } from "@/lib/use-status-filter";
+import { PLUGIN_STATUSES, type Plugin, type PluginStatus } from "@/types/api";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-
-const STATUS_BADGE: Record<PluginStatus, string> = {
-	unknown: "bg-gray-100 text-gray-600 border-gray-200",
-	to_review: "bg-amber-100 text-amber-700 border-amber-200",
-	approved: "bg-emerald-100 text-emerald-700 border-emerald-200",
-	removed: "bg-red-100 text-red-600 border-red-200",
-};
-
-const STATUS_LABEL: Record<PluginStatus, string> = {
-	unknown: "Unknown",
-	to_review: "To Review",
-	approved: "Approved",
-	removed: "Removed",
-};
-
-type StatusFilter = "all" | PluginStatus;
-const STATUS_FILTERS: StatusFilter[] = ["all", "unknown", "to_review", "approved", "removed"];
-
-function pickStatus(raw: string | null): StatusFilter {
-	return STATUS_FILTERS.includes((raw ?? "") as StatusFilter) ? (raw as StatusFilter) : "all";
-}
 
 export default function PluginsPage() {
 	const [items, setItems] = useState<Plugin[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [searchParams, setSearchParams] = useSearchParams();
+	const { status: statusFilter, setStatus } = useStatusFilter<PluginStatus>(
+		"status",
+		PLUGIN_STATUSES,
+	);
 
 	const search = searchParams.get("search") ?? "";
-	const statusFilter = pickStatus(searchParams.get("status"));
 
-	function updateParam(key: string, value: string, defaultValue: string) {
+	function updateSearch(value: string) {
 		setSearchParams(
 			(prev) => {
 				const next = new URLSearchParams(prev);
-				if (!value || value === defaultValue) next.delete(key);
-				else next.set(key, value);
+				if (!value) next.delete("search");
+				else next.set("search", value);
 				return next;
 			},
 			{ replace: true },
@@ -98,21 +83,14 @@ export default function PluginsPage() {
 							type="text"
 							placeholder="Search plugin name…"
 							value={search}
-							onChange={(e) => updateParam("search", e.target.value, "")}
+							onChange={(e) => updateSearch(e.target.value)}
 							className="rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 placeholder:text-text-4 focus:outline-none focus:ring-1 focus:ring-accent-bright min-w-48"
 						/>
-						<select
+						<StatusFilter<PluginStatus>
 							value={statusFilter}
-							onChange={(e) => updateParam("status", e.target.value, "all")}
-							className="rounded border border-edge bg-surface-800 px-3 py-1.5 text-sm text-text-1 focus:outline-none focus:ring-1 focus:ring-accent-bright"
-						>
-							<option value="all">Status: All</option>
-							{(["unknown", "to_review", "approved", "removed"] as PluginStatus[]).map((s) => (
-								<option key={s} value={s}>
-									{STATUS_LABEL[s]}
-								</option>
-							))}
-						</select>
+							onChange={setStatus}
+							options={PLUGIN_STATUSES}
+						/>
 						{filteredItems.length !== items.length && (
 							<span className="text-xs text-text-4">{filteredItems.length} / {items.length}</span>
 						)}
@@ -169,11 +147,7 @@ export default function PluginsPage() {
 													)}
 												</td>
 												<td className="px-4 py-3">
-													<span
-														className={`inline-block rounded border px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[status]}`}
-													>
-														{STATUS_LABEL[status]}
-													</span>
+													<StatusBadge status={status} />
 												</td>
 												<td className="px-4 py-3 text-right text-gray-700">
 													{plugin.installationCount}

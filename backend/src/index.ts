@@ -31,7 +31,12 @@ async function main() {
 		const deps = buildDeps();
 		await startScheduler(deps.integrations, (integration) =>
 			syncIntegration(
-				{ integrations: deps.integrations, events: deps.events, loki: deps.loki },
+				{
+					integrations: deps.integrations,
+					events: deps.events,
+					skills: deps.skills,
+					loki: deps.loki,
+				},
 				integration,
 			),
 		);
@@ -42,6 +47,7 @@ async function main() {
 					marketplaces: deps.marketplaces,
 					plugins: deps.plugins,
 					pluginSkills: deps.pluginSkills,
+					skills: deps.skills,
 					gitMarketplace: deps.gitMarketplace,
 				},
 				source,

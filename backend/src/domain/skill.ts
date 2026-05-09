@@ -1,3 +1,12 @@
+export type SkillStatus = "unknown" | "to_review" | "approved" | "removed";
+
+export const SKILL_STATUSES: readonly SkillStatus[] = [
+	"unknown",
+	"to_review",
+	"approved",
+	"removed",
+] as const;
+
 export interface SkillTableRow {
 	skillName: string;
 	skillSource: string | null;
@@ -7,7 +16,7 @@ export interface SkillTableRow {
 	nestedSkill: number;
 	dailyCounts: number[];
 	marketplaceNames: string[];
-	status: "removed" | null;
+	status: SkillStatus;
 }
 
 export interface SkillDetailRow {
@@ -22,5 +31,5 @@ export interface SkillDetailRow {
 	firstSeenAt: string | null;
 	lastSeenAt: string | null;
 	marketplaceNames: string[];
-	status: "removed" | null;
+	status: SkillStatus;
 }

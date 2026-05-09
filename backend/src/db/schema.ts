@@ -140,3 +140,19 @@ export const pluginSkills = pgTable(
 		index("plugin_skills_skill_name_idx").on(t.skillName),
 	],
 );
+
+export const skills = pgTable(
+	"skills",
+	{
+		skillName: varchar("skill_name", { length: 255 }).notNull(),
+		pluginName: varchar("plugin_name", { length: 255 }).notNull().default(""),
+		status: varchar("status", { length: 20 }).notNull().default("unknown"),
+		firstSeenAt: timestamp("first_seen_at").defaultNow().notNull(),
+		lastSeenAt: timestamp("last_seen_at").defaultNow().notNull(),
+	},
+	(t) => [
+		primaryKey({ columns: [t.skillName, t.pluginName] }),
+		index("skills_status_idx").on(t.status),
+		index("skills_plugin_name_idx").on(t.pluginName),
+	],
+);

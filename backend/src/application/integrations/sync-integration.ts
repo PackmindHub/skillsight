@@ -1,8 +1,9 @@
-import type { IIntegrationRepository } from "@/domain/ports/integration-repository";
-import type { IEventRepository } from "@/domain/ports/event-repository";
-import type { ILokiGateway, LokiStreamResult } from "@/domain/ports/loki-gateway";
-import type { IntegrationWithSecret } from "@/domain/integration";
 import type { NewEvent } from "@/domain/event";
+import type { IntegrationWithSecret } from "@/domain/integration";
+import type { IEventRepository } from "@/domain/ports/event-repository";
+import type { IIntegrationRepository } from "@/domain/ports/integration-repository";
+import type { ILokiGateway, LokiStreamResult } from "@/domain/ports/loki-gateway";
+import type { ISkillRepository } from "@/domain/ports/skill-repository";
 import { decrypt } from "@/infrastructure/crypto/encrypt";
 import { parseOtlpBody } from "@/parsers/otlp-parser";
 
@@ -12,6 +13,7 @@ const LOKI_PAGE_LIMIT = 5000;
 interface SyncDeps {
 	integrations: IIntegrationRepository;
 	events: IEventRepository;
+	skills: ISkillRepository;
 	loki: ILokiGateway;
 }
 
@@ -41,6 +43,23 @@ export async function syncIntegration(
 		const parsedEvents = parseStreams(streams, integration.id);
 
 		await deps.events.insertMany(parsedEvents);
+
+		const skillEntries = parsedEvents
+			.filter(
+				(e) =>
+					e.eventName === "claude_code.skill_activated" &&
+					typeof e.attributes["skill.name"] === "string",
+			)
+			.map((e) => ({
+				skillName: e.attributes["skill.name"] as string,
+				pluginName:
+					typeof e.attributes["plugin.name"] === "string"
+						? (e.attributes["plugin.name"] as string)
+						: null,
+			}));
+		if (skillEntries.length > 0) {
+			await deps.skills.upsertMany(skillEntries);
+		}
 
 		// If we hit the page limit there may be more data behind us; advance to the
 		// last received event's timestamp (+1 ms) so the next scheduled run picks up
