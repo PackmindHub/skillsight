@@ -127,6 +127,11 @@ export default function MarketplacesPage() {
 		| null
 	>(null);
 	const [submitError, setSubmitError] = useState<string | null>(null);
+	const [deleteConfirm, setDeleteConfirm] = useState<{ name: string; cascade: boolean } | null>(
+		null,
+	);
+	const [deletingMarketplace, setDeletingMarketplace] = useState(false);
+	const [deleteError, setDeleteError] = useState<string | null>(null);
 
 	useEffect(() => {
 		Promise.all([
@@ -237,9 +242,46 @@ export default function MarketplacesPage() {
 		const raw = e instanceof Error ? e.message : String(e);
 		try {
 			const parsed = JSON.parse(raw);
-			if (parsed && typeof parsed.error === "string") return parsed.error;
+			if (parsed && typeof parsed.error === "string") {
+				if (Array.isArray(parsed.sourceIds) && parsed.sourceIds.length > 0) {
+					return `${parsed.error} (source IDs: ${parsed.sourceIds.join(", ")})`;
+				}
+				return parsed.error;
+			}
 		} catch {}
 		return raw;
+	}
+
+	function openDeleteMarketplace(name: string) {
+		setDeleteError(null);
+		setDeleteConfirm({ name, cascade: false });
+	}
+
+	function closeDeleteMarketplace() {
+		if (deletingMarketplace) return;
+		setDeleteConfirm(null);
+		setDeleteError(null);
+	}
+
+	async function confirmDeleteMarketplace() {
+		if (!deleteConfirm) return;
+		const { name, cascade } = deleteConfirm;
+		setDeletingMarketplace(true);
+		setDeleteError(null);
+		try {
+			await api.marketplaces.remove(name, { mode: cascade ? "cascade" : "orphan" });
+			const [mpRes, srcRes] = await Promise.all([
+				api.marketplaces.list(),
+				api.marketplaceSources.list(),
+			]);
+			setItems(mpRes.marketplaces);
+			setSources(srcRes);
+			setDeleteConfirm(null);
+		} catch (e) {
+			setDeleteError(extractErrorMessage(e));
+		} finally {
+			setDeletingMarketplace(false);
+		}
 	}
 
 	async function handleSourceSubmit(e: FormEvent) {
@@ -831,9 +873,19 @@ export default function MarketplacesPage() {
 													</Button>
 												</div>
 											) : (
-												<Button variant="ghost" size="sm" onClick={() => startEdit(mp)}>
-													Edit
-												</Button>
+												<div className="flex items-center justify-end gap-2">
+													<Button variant="ghost" size="sm" onClick={() => startEdit(mp)}>
+														Edit
+													</Button>
+													<Button
+														variant="ghost"
+														size="sm"
+														onClick={() => openDeleteMarketplace(mp.name)}
+														className="text-danger hover:text-danger"
+													>
+														Delete
+													</Button>
+												</div>
 											)}
 										</TD>
 									</TR>
@@ -848,6 +900,73 @@ export default function MarketplacesPage() {
 				marketplaceName={selectedMarketplace}
 				onClose={() => setSelectedMarketplace(null)}
 			/>
+
+			{deleteConfirm && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center">
+					<button
+						type="button"
+						aria-label="Close"
+						onClick={closeDeleteMarketplace}
+						className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+					/>
+					<dialog
+						open
+						aria-modal="true"
+						aria-label={`Delete marketplace ${deleteConfirm.name}`}
+						className="relative m-0 w-[440px] max-w-[92vw] rounded-md border border-edge bg-surface-900 p-5 text-text-1 shadow-2xl"
+					>
+						<h2 className="text-sm font-semibold text-text-1">
+							Delete <span className="font-mono">{deleteConfirm.name}</span>?
+						</h2>
+						<p className="mt-2 text-xs text-text-3">
+							This marketplace will be removed.
+						</p>
+						<label className="mt-4 flex items-start gap-2 text-sm text-text-2 cursor-pointer">
+							<input
+								type="checkbox"
+								className="mt-0.5 h-4 w-4 rounded border-edge bg-surface-800 accent-accent-bright"
+								checked={deleteConfirm.cascade}
+								onChange={(e) =>
+									setDeleteConfirm((prev) =>
+										prev ? { ...prev, cascade: e.target.checked } : prev,
+									)
+								}
+								disabled={deletingMarketplace}
+							/>
+							<span>
+								Also delete linked plugins and skills
+								<span className="block mt-1 text-xs text-text-4">
+									Off: plugins from this marketplace are kept as orphaned “removed” entries; their
+									history stays intact. On: plugins, plugin-skill links, and skill records tied to
+									those plugins are permanently deleted.
+								</span>
+							</span>
+						</label>
+						{deleteError && (
+							<p className="mt-3 text-xs text-danger">{deleteError}</p>
+						)}
+						<div className="mt-5 flex items-center justify-end gap-2">
+							<Button
+								variant="ghost"
+								size="sm"
+								onClick={closeDeleteMarketplace}
+								disabled={deletingMarketplace}
+							>
+								Cancel
+							</Button>
+							<Button
+								variant="ghost"
+								size="sm"
+								onClick={confirmDeleteMarketplace}
+								loading={deletingMarketplace}
+								className="text-danger hover:text-danger"
+							>
+								Delete
+							</Button>
+						</div>
+					</dialog>
+				</div>
+			)}
 		</div>
 	);
 }

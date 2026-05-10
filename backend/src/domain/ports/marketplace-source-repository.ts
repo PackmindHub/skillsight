@@ -6,6 +6,7 @@ import type {
 export interface IMarketplaceSourceRepository {
 	findAll(): Promise<MarketplaceSourceWithSecret[]>;
 	findById(id: string): Promise<MarketplaceSourceWithSecret | null>;
+	findByMarketplaceName(name: string): Promise<MarketplaceSource[]>;
 	create(data: {
 		gitUrl: string;
 		accessTokenEncrypted?: string | null;

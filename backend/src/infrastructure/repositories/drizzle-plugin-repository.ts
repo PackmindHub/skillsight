@@ -149,4 +149,21 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			.where(eq(plugins.marketplaceName, marketplaceName));
 		return rows.map((r) => r.pluginName);
 	}
+
+	async orphanByMarketplace(marketplaceName: string): Promise<string[]> {
+		const updated = await this.db
+			.update(plugins)
+			.set({ marketplaceName: null, status: "removed" })
+			.where(eq(plugins.marketplaceName, marketplaceName))
+			.returning({ pluginName: plugins.pluginName });
+		return updated.map((r) => r.pluginName);
+	}
+
+	async deleteByMarketplace(marketplaceName: string): Promise<string[]> {
+		const deleted = await this.db
+			.delete(plugins)
+			.where(eq(plugins.marketplaceName, marketplaceName))
+			.returning({ pluginName: plugins.pluginName });
+		return deleted.map((r) => r.pluginName);
+	}
 }

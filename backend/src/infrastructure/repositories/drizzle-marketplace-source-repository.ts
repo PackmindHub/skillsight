@@ -41,6 +41,14 @@ export class DrizzleMarketplaceSourceRepository implements IMarketplaceSourceRep
 		return row ? toWithSecret(row) : null;
 	}
 
+	async findByMarketplaceName(name: string): Promise<MarketplaceSource[]> {
+		const rows = await this.db
+			.select()
+			.from(marketplaceSources)
+			.where(eq(marketplaceSources.marketplaceName, name));
+		return rows.map(toPublic);
+	}
+
 	async create(data: {
 		gitUrl: string;
 		accessTokenEncrypted?: string | null;

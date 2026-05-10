@@ -16,4 +16,6 @@ export interface IPluginRepository {
 		activePluginNames: string[],
 	): Promise<string[]>;
 	listNamesByMarketplace(marketplaceName: string): Promise<string[]>;
+	orphanByMarketplace(marketplaceName: string): Promise<string[]>;
+	deleteByMarketplace(marketplaceName: string): Promise<string[]>;
 }

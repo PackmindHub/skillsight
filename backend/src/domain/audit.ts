@@ -16,6 +16,7 @@ export type AuditAction =
 	| "integration_cursor_reset"
 	| "marketplace_status_changed"
 	| "marketplace_updated"
+	| "marketplace_deleted"
 	| "marketplace_source_created"
 	| "marketplace_source_updated"
 	| "marketplace_source_deleted"
@@ -41,6 +42,7 @@ export const ALL_AUDIT_ACTIONS: readonly AuditAction[] = [
 	"integration_cursor_reset",
 	"marketplace_status_changed",
 	"marketplace_updated",
+	"marketplace_deleted",
 	"marketplace_source_created",
 	"marketplace_source_updated",
 	"marketplace_source_deleted",

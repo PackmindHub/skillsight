@@ -1,3 +1,4 @@
+import { inArray } from "drizzle-orm";
 import type { AppDb } from "@/db/client";
 import { pluginSkills } from "@/db/schema";
 import type { IPluginSkillRepository } from "@/domain/ports/plugin-skill-repository";
@@ -22,5 +23,10 @@ export class DrizzlePluginSkillRepository implements IPluginSkillRepository {
 				target: [pluginSkills.pluginName, pluginSkills.skillName],
 				set: { lastSeenAt: now },
 			});
+	}
+
+	async deleteByPlugins(pluginNames: string[]): Promise<void> {
+		if (pluginNames.length === 0) return;
+		await this.db.delete(pluginSkills).where(inArray(pluginSkills.pluginName, pluginNames));
 	}
 }

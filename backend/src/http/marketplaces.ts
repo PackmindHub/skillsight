@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { AppVariables } from "@/types";
 import type { AppDeps } from "@/bootstrap/compose";
 import { sessionAuth } from "@/middleware/session-auth";
+import { deleteMarketplace } from "@/application/marketplaces/delete-marketplace";
 import { listMarketplaceDetail } from "@/application/marketplaces/list-marketplace-detail";
 import { listMarketplaces } from "@/application/marketplaces/list-marketplaces";
 import { updateMarketplace } from "@/application/marketplaces/update-marketplace";
@@ -13,7 +14,14 @@ const updateSchema = z.object({
 	description: z.string().max(2000).nullable().optional(),
 });
 
-export function createMarketplacesRoute(deps: Pick<AppDeps, "marketplaces" | "audit">) {
+const deleteModeSchema = z.enum(["orphan", "cascade"]).default("orphan");
+
+export function createMarketplacesRoute(
+	deps: Pick<
+		AppDeps,
+		"marketplaces" | "marketplaceSources" | "plugins" | "pluginSkills" | "skills" | "audit"
+	>,
+) {
 	const route = new Hono<{ Variables: AppVariables }>();
 	route.use("*", sessionAuth);
 
@@ -36,6 +44,18 @@ export function createMarketplacesRoute(deps: Pick<AppDeps, "marketplaces" | "au
 		);
 		if ("error" in result) return c.json({ error: "Marketplace not found" }, 404);
 		return c.json(result);
+	});
+
+	route.delete("/:name", async (c) => {
+		const name = decodeURIComponent(c.req.param("name"));
+		const mode = deleteModeSchema.parse(c.req.query("mode"));
+		const result = await deleteMarketplace(deps, { name, mode }, { actorEmail: c.get("user").email });
+		if (result.ok) return c.body(null, 204);
+		if (result.reason === "not_found") return c.json({ error: "Marketplace not found" }, 404);
+		return c.json(
+			{ error: "Marketplace is still linked to one or more sources", sourceIds: result.sourceIds },
+			409,
+		);
 	});
 
 	return route;

@@ -213,4 +213,12 @@ export class DrizzleMarketplaceRepository implements IMarketplaceRepository {
 			.from(marketplaces);
 		return rows.map((r) => ({ name: r.name, status: r.status as MarketplaceStatus }));
 	}
+
+	async delete(name: string): Promise<boolean> {
+		const rows = await this.db
+			.delete(marketplaces)
+			.where(eq(marketplaces.name, name))
+			.returning({ name: marketplaces.name });
+		return rows.length > 0;
+	}
 }

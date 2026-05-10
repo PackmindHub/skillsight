@@ -26,6 +26,7 @@ export interface ISkillRepository {
 	getMonthlyTrends(): Promise<MonthlyTrends>;
 	upsertMany(entries: SkillUpsertEntry[]): Promise<void>;
 	propagateStatusFromPlugins(affectedPluginNames: string[], newStatus: SkillStatus): Promise<void>;
+	deleteByPlugins(pluginNames: string[]): Promise<void>;
 }
 
 export interface SkillUpsertEntry {

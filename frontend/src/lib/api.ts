@@ -117,6 +117,11 @@ export const api = {
 				method: "PATCH",
 				body: JSON.stringify(body),
 			}),
+		remove: (name: string, opts?: { mode?: "orphan" | "cascade" }) =>
+			apiFetch<void>(
+				`/api/marketplaces/${encodeURIComponent(name)}?mode=${opts?.mode ?? "orphan"}`,
+				{ method: "DELETE" },
+			),
 	},
 	integrations: {
 		list: () => apiFetch<Integration[]>("/api/integrations"),

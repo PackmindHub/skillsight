@@ -9,6 +9,7 @@ import type {
 export interface IMarketplaceRepository {
 	listWithStats(): Promise<MarketplaceWithStats[]>;
 	findByName(name: string): Promise<Marketplace | null>;
+	delete(name: string): Promise<boolean>;
 	update(
 		name: string,
 		data: Partial<Pick<Marketplace, "status" | "url" | "description">>,
