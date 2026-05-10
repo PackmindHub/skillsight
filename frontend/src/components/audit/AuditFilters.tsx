@@ -48,6 +48,7 @@ export function AuditFiltersBar({ value, availableActions, onChange, onReset, on
 					type="datetime-local"
 					value={value.from ? toLocal(value.from) : ""}
 					onChange={(e) => onChange({ ...value, from: fromLocal(e.target.value) })}
+					className="w-44"
 				/>
 				<span className="text-text-4 text-xs">to</span>
 				<Input
@@ -55,6 +56,7 @@ export function AuditFiltersBar({ value, availableActions, onChange, onReset, on
 					type="datetime-local"
 					value={value.to ? toLocal(value.to) : ""}
 					onChange={(e) => onChange({ ...value, to: fromLocal(e.target.value) })}
+					className="w-44"
 				/>
 				<Button variant="secondary" size="sm" onClick={() => setOpen((o) => !o)}>
 					Actions{selectedActions.size > 0 ? ` (${selectedActions.size})` : ""}

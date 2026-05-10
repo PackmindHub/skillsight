@@ -15,6 +15,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
 ) {
 	const inputClasses = cn(
 		INPUT_BASE,
+		"w-full",
 		INPUT_SIZE[size],
 		leftSlot && "pl-9",
 		rightSlot && "pr-9",

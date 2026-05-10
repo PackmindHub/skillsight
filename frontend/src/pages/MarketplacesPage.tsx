@@ -348,7 +348,7 @@ export default function MarketplacesPage() {
 							<h3 className="text-sm font-medium text-text-1 mb-3">
 								{editingSourceId ? "Edit git source" : "Import marketplace from git"}
 							</h3>
-							<form onSubmit={handleSourceSubmit} className="space-y-4">
+							<form onSubmit={handleSourceSubmit} className="space-y-5">
 								<FormField
 									label="Repository URL"
 									htmlFor="ms-url"
@@ -366,20 +366,6 @@ export default function MarketplacesPage() {
 								</FormField>
 
 								<div className="grid grid-cols-2 gap-3">
-									<FormField
-										label={`Access token${editingSourceId ? " (blank = keep existing)" : ""}`}
-										htmlFor="ms-token"
-									>
-										<Input
-											id="ms-token"
-											type="password"
-											size="sm"
-											value={sourceForm.accessToken}
-											onChange={(e) => updateSourceField("accessToken", e.target.value)}
-											placeholder={editingSourceId ? "••••••" : "Leave blank for public repos"}
-											autoComplete="new-password"
-										/>
-									</FormField>
 									<FormField label="Branch" htmlFor="ms-branch">
 										<Input
 											id="ms-branch"
@@ -389,9 +375,6 @@ export default function MarketplacesPage() {
 											placeholder="main"
 										/>
 									</FormField>
-								</div>
-
-								<div className="grid grid-cols-2 gap-3">
 									<FormField
 										label="Sync interval (seconds, min 60)"
 										htmlFor="ms-interval"
@@ -407,23 +390,42 @@ export default function MarketplacesPage() {
 									</FormField>
 								</div>
 
-								<label className="flex items-center gap-2 text-sm text-text-2 cursor-pointer">
-									<input
-										type="checkbox"
-										checked={sourceForm.enabled}
-										onChange={(e) => setSourceForm((f) => ({ ...f, enabled: e.target.checked }))}
+								<FormField
+									label={`Access token${editingSourceId ? " (blank = keep existing)" : ""}`}
+									htmlFor="ms-token"
+									helper="Leave blank for public repositories."
+								>
+									<Input
+										id="ms-token"
+										type="password"
+										size="sm"
+										value={sourceForm.accessToken}
+										onChange={(e) => updateSourceField("accessToken", e.target.value)}
+										placeholder={editingSourceId ? "••••••" : ""}
+										autoComplete="new-password"
 									/>
-									Enable periodic sync
-								</label>
+								</FormField>
 
-								<label className="flex items-center gap-2 text-sm text-text-2 cursor-pointer">
-									<input
-										type="checkbox"
-										checked={sourceForm.importPluginsAndSkills}
-										onChange={(e) => setSourceForm((f) => ({ ...f, importPluginsAndSkills: e.target.checked }))}
-									/>
-									Import plugins and skills into registry
-								</label>
+								<div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-1">
+									<label className="flex items-center gap-2 text-sm text-text-2 cursor-pointer">
+										<input
+											type="checkbox"
+											className="h-4 w-4 rounded border-edge bg-surface-800 accent-accent-bright"
+											checked={sourceForm.enabled}
+											onChange={(e) => setSourceForm((f) => ({ ...f, enabled: e.target.checked }))}
+										/>
+										Enable periodic sync
+									</label>
+									<label className="flex items-center gap-2 text-sm text-text-2 cursor-pointer">
+										<input
+											type="checkbox"
+											className="h-4 w-4 rounded border-edge bg-surface-800 accent-accent-bright"
+											checked={sourceForm.importPluginsAndSkills}
+											onChange={(e) => setSourceForm((f) => ({ ...f, importPluginsAndSkills: e.target.checked }))}
+										/>
+										Import plugins and skills into registry
+									</label>
+								</div>
 
 								{connectionTestResult &&
 									(connectionTestResult.ok ? (
@@ -440,10 +442,7 @@ export default function MarketplacesPage() {
 
 								{submitError && <p className="text-xs text-danger">{submitError}</p>}
 
-								<div className="flex gap-2">
-									<Button type="submit" size="sm" loading={savingSource}>
-										{editingSourceId ? "Update" : "Import"}
-									</Button>
+								<div className="flex items-center justify-between gap-2 border-t border-edge-dim pt-4">
 									<Button
 										variant="secondary"
 										size="sm"
@@ -453,9 +452,14 @@ export default function MarketplacesPage() {
 									>
 										Test connection
 									</Button>
-									<Button variant="secondary" size="sm" onClick={closeSourceForm}>
-										Cancel
-									</Button>
+									<div className="flex items-center gap-2">
+										<Button variant="secondary" size="sm" onClick={closeSourceForm}>
+											Cancel
+										</Button>
+										<Button type="submit" size="sm" loading={savingSource}>
+											{editingSourceId ? "Update" : "Import"}
+										</Button>
+									</div>
 								</div>
 							</form>
 						</Card>
