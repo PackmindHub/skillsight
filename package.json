@@ -1,5 +1,5 @@
 {
-  "name": "skills-observability",
+  "name": "skillsight",
   "private": true,
   "workspaces": ["backend", "frontend"],
   "scripts": {

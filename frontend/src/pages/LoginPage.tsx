@@ -31,7 +31,7 @@ export default function LoginPage() {
 				<div className="mb-6">
 					<span className="text-accent-soft text-2xl leading-none">◈</span>
 					<h1 className="mt-3 text-xl font-semibold text-text-1">Sign in</h1>
-					<p className="mt-1 text-sm text-text-3">Skills Observability</p>
+					<p className="mt-1 text-sm text-text-3">Skillsight</p>
 				</div>
 				<form onSubmit={handleSubmit} className="space-y-4">
 					<FormField label="Email" htmlFor="email">

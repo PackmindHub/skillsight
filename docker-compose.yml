@@ -17,7 +17,7 @@ services:
       retries: 5
 
   app:
-    image: skills-observability:latest
+    image: skillsight:latest
     environment:
       DATABASE_URL: "postgres://${POSTGRES_USER:-skills_obs}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-skills_obs}"
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required (min 32 chars)}
