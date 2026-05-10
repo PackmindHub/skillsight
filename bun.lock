@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "skills-observability",
+      "name": "skillsight",
     },
     "backend": {
       "name": "backend",

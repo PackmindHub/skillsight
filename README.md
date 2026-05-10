@@ -1,4 +1,4 @@
-# skills-observability
+# Skillsight
 
 Self-hosted observability dashboard for Claude Code skill usage in air-gapped / enterprise environments.
 
@@ -11,7 +11,7 @@ Self-hosted observability dashboard for Claude Code skill usage in air-gapped / 
 
 ```bash
 # Build the image
-docker build -t skills-observability:latest .
+docker build -t skillsight:latest .
 
 # Start (supply required env vars inline or via a .env file)
 POSTGRES_PASSWORD=changeme \
