@@ -1,4 +1,4 @@
-CREATE TABLE "marketplace_sources" (
+CREATE TABLE IF NOT EXISTS "marketplace_sources" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"git_url" varchar(1000) NOT NULL,
 	"access_token_encrypted" text,
