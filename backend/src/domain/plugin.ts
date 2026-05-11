@@ -17,6 +17,7 @@ export interface PluginWithStats extends Plugin {
 	uniqueUserCount: number;
 	skillCount: number;
 	skillActivationCount: number;
+	lastSkillActivationAt: Date | null;
 }
 
 export interface PluginSkillActivation {

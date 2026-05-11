@@ -30,7 +30,8 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			  COALESCE(s.install_count, 0)::int AS "installationCount",
 			  COALESCE(s.unique_users, 0)::int  AS "uniqueUserCount",
 			  COALESCE(ps.skill_count, 0)::int  AS "skillCount",
-			  COALESCE(sa.activation_count, 0)::int AS "skillActivationCount"
+			  COALESCE(sa.activation_count, 0)::int AS "skillActivationCount",
+			  sa.last_activation_at             AS "lastSkillActivationAt"
 			FROM plugins p
 			LEFT JOIN marketplaces m ON m.name = p.marketplace_name
 			LEFT JOIN (
@@ -49,7 +50,10 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			  GROUP BY plugin_name
 			) ps ON ps.plugin_name = p.plugin_name
 			LEFT JOIN (
-			  SELECT ps.plugin_name AS plugin_name, COUNT(e.id)::int AS activation_count
+			  SELECT
+			    ps.plugin_name           AS plugin_name,
+			    COUNT(e.id)::int         AS activation_count,
+			    MAX(e.timestamp)         AS last_activation_at
 			  FROM plugin_skills ps
 			  LEFT JOIN events e
 			    ON e.event_name = ${EVENT_NAMES.SKILL_ACTIVATED}

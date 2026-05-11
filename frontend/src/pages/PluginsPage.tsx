@@ -46,7 +46,7 @@ const STATUS_FILTER_OPTIONS: {
 ];
 
 const PL_GRID_COLS =
-	"grid-cols-[minmax(220px,1.6fr)_minmax(150px,1.1fr)_72px_120px_72px_104px_80px_72px_136px]";
+	"grid-cols-[minmax(220px,1.6fr)_minmax(150px,1.1fr)_72px_104px_80px_72px_136px]";
 
 const LOGO_GRADIENTS = [
 	"linear-gradient(135deg, var(--color-accent-bright), color-mix(in srgb, var(--color-accent-bright) 50%, var(--color-surface-700)))",
@@ -115,31 +115,6 @@ function PluginNumCell({
 				{text}
 			</span>
 		</div>
-	);
-}
-
-const TRIGGER_PILL_STYLES: Record<string, string> = {
-	"user-slash":
-		"text-accent-bright border-accent-bright/30 bg-accent-bright/[0.06]",
-	"claude-proactive":
-		"text-accent-2 border-accent-2/30 bg-accent-2/[0.06]",
-	"nested-skill":
-		"text-warning border-warning/30 bg-warning/[0.06]",
-};
-
-function TriggerPill({ trigger }: { trigger: string }) {
-	const style =
-		TRIGGER_PILL_STYLES[trigger] ??
-		"text-text-2 border-edge-dim bg-surface-800";
-	return (
-		<span
-			className={cn(
-				"inline-flex items-center whitespace-nowrap rounded border px-[7px] py-[2px] font-mono text-[10px]",
-				style,
-			)}
-		>
-			{trigger}
-		</span>
 	);
 }
 
@@ -386,8 +361,6 @@ export default function PluginsPage() {
 							>
 								<div>Plugin</div>
 								<div>Marketplace</div>
-								<div>Version</div>
-								<div>Trigger</div>
 								<div className="text-right">Skills</div>
 								<div className="text-right">Activations</div>
 								<div className="text-right">Installs</div>
@@ -430,10 +403,12 @@ export default function PluginsPage() {
 												</button>
 												<div className="mt-0.5 truncate text-xs text-text-3">
 													{plugin.skillCount} skill{plugin.skillCount === 1 ? "" : "s"}
-													{plugin.lastSeenAt && (
+													{plugin.skillCount > 0 && (
 														<>
-															{" · last seen "}
-															{formatRelativeTime(plugin.lastSeenAt)}
+															{" · last activation "}
+															{plugin.lastSkillActivationAt
+																? formatRelativeTime(plugin.lastSkillActivationAt)
+																: "never"}
 														</>
 													)}
 												</div>
@@ -453,18 +428,6 @@ export default function PluginsPage() {
 												>
 													—
 												</span>
-											)}
-										</div>
-
-										<div className="font-mono text-[11px] text-text-3">
-											{plugin.pluginVersion ?? <span className="text-text-4">—</span>}
-										</div>
-
-										<div>
-											{plugin.installTrigger ? (
-												<TriggerPill trigger={plugin.installTrigger} />
-											) : (
-												<span className="text-text-4">—</span>
 											)}
 										</div>
 

@@ -101,6 +101,7 @@ export interface Plugin {
 	uniqueUserCount: number;
 	skillCount: number;
 	skillActivationCount: number;
+	lastSkillActivationAt: string | null;
 }
 
 export interface PluginSkillRow {
