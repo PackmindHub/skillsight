@@ -1,5 +1,6 @@
 import type { IMarketplaceSourceRepository } from "@/domain/ports/marketplace-source-repository";
 import type { IAuditRepository } from "@/domain/ports/audit-repository";
+import type { AuditAction } from "@/domain/audit";
 import type { MarketplaceSource, UpdateMarketplaceSourceData } from "@/domain/marketplace-source";
 import { encrypt } from "@/infrastructure/crypto/encrypt";
 import { recordAudit } from "@/application/audit/record-audit";
@@ -14,10 +15,15 @@ const DIFF_FIELDS = [
 	"hasToken",
 ] as const;
 
+export interface UpdateMarketplaceSourceOptions {
+	auditAction?: AuditAction;
+}
+
 export async function updateMarketplaceSource(
 	deps: { marketplaceSources: IMarketplaceSourceRepository; audit: IAuditRepository },
 	id: string,
 	data: UpdateMarketplaceSourceData & { actorEmail?: string | null },
+	options: UpdateMarketplaceSourceOptions = {},
 ): Promise<MarketplaceSource | null> {
 	const existing = await deps.marketplaceSources.findById(id);
 	if (!existing) return null;
@@ -57,12 +63,13 @@ export async function updateMarketplaceSource(
 		hasToken: updated.hasToken,
 	};
 	const diff = buildDiff(beforeView, afterView, DIFF_FIELDS);
-	if (diff) {
+	const action = options.auditAction ?? "marketplace_source_updated";
+	if (diff || action !== "marketplace_source_updated") {
 		await recordAudit(deps, {
 			actorEmail: data.actorEmail ?? null,
-			action: "marketplace_source_updated",
+			action,
 			target: id,
-			metadata: diff,
+			metadata: diff ?? {},
 		});
 	}
 

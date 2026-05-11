@@ -22,6 +22,8 @@ export type AuditAction =
 	| "marketplace_source_deleted"
 	| "marketplace_source_sync_triggered"
 	| "marketplace_source_sync_completed"
+	| "marketplace_source_paused"
+	| "marketplace_source_resumed"
 	| "plugin_status_changed";
 
 export const ALL_AUDIT_ACTIONS: readonly AuditAction[] = [
@@ -48,6 +50,8 @@ export const ALL_AUDIT_ACTIONS: readonly AuditAction[] = [
 	"marketplace_source_deleted",
 	"marketplace_source_sync_triggered",
 	"marketplace_source_sync_completed",
+	"marketplace_source_paused",
+	"marketplace_source_resumed",
 	"plugin_status_changed",
 ] as const;
 

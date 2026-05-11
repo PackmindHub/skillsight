@@ -178,5 +178,40 @@ export function createMarketplaceSourcesRoute(
 		});
 	});
 
+	route.post("/:id/pause", async (c) => {
+		const id = c.req.param("id");
+		const result = await updateMarketplaceSource(
+			deps,
+			id,
+			{ enabled: false, actorEmail: c.get("user").email },
+			{ auditAction: "marketplace_source_paused" },
+		);
+		if (!result) return c.json({ error: "Not found" }, 404);
+		cancelMarketplaceSource(id);
+		return c.json(result);
+	});
+
+	route.post("/:id/resume", async (c) => {
+		const id = c.req.param("id");
+		const result = await updateMarketplaceSource(
+			deps,
+			id,
+			{ enabled: true, actorEmail: c.get("user").email },
+			{ auditAction: "marketplace_source_resumed" },
+		);
+		if (!result) return c.json({ error: "Not found" }, 404);
+		await rescheduleMarketplaceSource(id, deps.marketplaceSources, (s) =>
+			syncMarketplaceSource(makeSyncDeps(), s, { mode: "scheduled" }),
+		);
+		const refreshed = await deps.marketplaceSources.findById(id);
+		if (refreshed) {
+			syncMarketplaceSource(makeSyncDeps(), refreshed, {
+				mode: "manual",
+				actorEmail: c.get("user").email,
+			}).catch(() => {});
+		}
+		return c.json(result);
+	});
+
 	return route;
 }

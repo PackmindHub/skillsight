@@ -39,6 +39,8 @@ const ACTION_BADGES: Record<string, string> = {
 	marketplace_source_deleted: "badge badge-danger",
 	marketplace_source_sync_triggered: "badge badge-info",
 	marketplace_source_sync_completed: "badge badge-info",
+	marketplace_source_paused: "badge badge-caution",
+	marketplace_source_resumed: "badge badge-info",
 	plugin_status_changed: "badge badge-accent",
 };
 const DEFAULT_BADGE = "badge badge-neutral";

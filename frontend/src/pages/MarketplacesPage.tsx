@@ -117,6 +117,8 @@ export default function MarketplacesPage() {
 	const [savingSource, setSavingSource] = useState(false);
 	const [deletingSourceId, setDeletingSourceId] = useState<string | null>(null);
 	const [syncingSourceId, setSyncingSourceId] = useState<string | null>(null);
+	const [pausingSourceId, setPausingSourceId] = useState<string | null>(null);
+	const [resumingSourceId, setResumingSourceId] = useState<string | null>(null);
 	const [sourceSyncResult, setSourceSyncResult] = useState<
 		Record<string, { syncedAt: string | null; pluginCount: number; skillCount: number; error: string | null }>
 	>({});
@@ -355,6 +357,28 @@ export default function MarketplacesPage() {
 		}
 	}
 
+	async function handlePauseSource(id: string) {
+		setPausingSourceId(id);
+		try {
+			const updated = await api.marketplaceSources.pause(id);
+			setSources((prev) => prev.map((s) => (s.id === id ? updated : s)));
+			refreshSourcesHealth();
+		} finally {
+			setPausingSourceId(null);
+		}
+	}
+
+	async function handleResumeSource(id: string) {
+		setResumingSourceId(id);
+		try {
+			const updated = await api.marketplaceSources.resume(id);
+			setSources((prev) => prev.map((s) => (s.id === id ? updated : s)));
+			refreshSourcesHealth();
+		} finally {
+			setResumingSourceId(null);
+		}
+	}
+
 	const filteredItems = useMemo(() => {
 		return items.filter((m) => {
 			if (statusFilter !== "all" && m.status !== statusFilter) return false;
@@ -585,6 +609,26 @@ export default function MarketplacesPage() {
 														>
 															Sync now
 														</Button>
+														{source.enabled ? (
+															<Button
+																variant="ghost"
+																size="sm"
+																loading={pausingSourceId === source.id}
+																onClick={() => handlePauseSource(source.id)}
+															>
+																Pause
+															</Button>
+														) : (
+															<Button
+																variant="ghost"
+																size="sm"
+																loading={resumingSourceId === source.id}
+																onClick={() => handleResumeSource(source.id)}
+																className="text-accent-soft hover:text-accent-bright"
+															>
+																Resume
+															</Button>
+														)}
 														<Button
 															variant="ghost"
 															size="sm"

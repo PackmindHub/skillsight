@@ -226,6 +226,10 @@ export const api = {
 				`/api/marketplace-sources/${id}/sync`,
 				{ method: "POST" },
 			),
+		pause: (id: string) =>
+			apiFetch<MarketplaceSource>(`/api/marketplace-sources/${id}/pause`, { method: "POST" }),
+		resume: (id: string) =>
+			apiFetch<MarketplaceSource>(`/api/marketplace-sources/${id}/resume`, { method: "POST" }),
 		testConnection: (data: {
 			gitUrl: string;
 			accessToken?: string | null;
