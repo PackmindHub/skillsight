@@ -67,10 +67,33 @@ const TRIGGERS: {
 	},
 ];
 
+const UNKNOWN_TRIGGER = {
+	key: "unknown" as const,
+	label: "unknown",
+	hint: "Claude Code didn't record what triggered it",
+	swatch: "bg-text-4",
+	gradient: "linear-gradient(90deg, var(--color-text-4), var(--color-edge-bright))",
+};
+
 const TRIG_TIP_WIDTH = 460;
 const TRIG_TIP_MARGIN = 12;
 
 function TriggerMixCell({ row }: { row: SkillTableRow }) {
+	const unknown = Math.max(
+		0,
+		row.total - row.userSlash - row.claudeProactive - row.nestedSkill,
+	);
+	const segments: {
+		key: string;
+		label: string;
+		hint: string;
+		swatch: string;
+		gradient: string;
+		value: number;
+	}[] = [
+		...TRIGGERS.map((t) => ({ ...t, value: row[t.key] })),
+		...(unknown > 0 ? [{ ...UNKNOWN_TRIGGER, value: unknown }] : []),
+	];
 	const sum = Math.max(1, row.total);
 	const wrapRef = useRef<HTMLDivElement>(null);
 	const [tipPos, setTipPos] = useState<{ left: number; top: number } | null>(null);
@@ -115,22 +138,19 @@ function TriggerMixCell({ row }: { row: SkillTableRow }) {
 				onMouseLeave={() => setTipPos(null)}
 			>
 				<div className="flex h-2 w-full max-w-[160px] overflow-hidden rounded-full bg-surface-700">
-					{TRIGGERS.map((t) => {
-						const v = row[t.key];
-						return (
-							<div
-								key={t.key}
-								className="h-full"
-								style={{ width: `${(v / sum) * 100}%`, background: t.gradient }}
-							/>
-						);
-					})}
+					{segments.map((s) => (
+						<div
+							key={s.key}
+							className="h-full"
+							style={{ width: `${(s.value / sum) * 100}%`, background: s.gradient }}
+						/>
+					))}
 				</div>
 				<div className="mt-1 flex items-center gap-3 font-mono text-[10px] text-text-4">
-					{TRIGGERS.map((t) => (
-						<span key={t.key} className="inline-flex items-center gap-1">
-							<span className={cn("inline-block h-1.5 w-1.5 rounded-sm", t.swatch)} />
-							{row[t.key]}
+					{segments.map((s) => (
+						<span key={s.key} className="inline-flex items-center gap-1">
+							<span className={cn("inline-block h-1.5 w-1.5 rounded-sm", s.swatch)} />
+							{s.value}
 						</span>
 					))}
 				</div>
@@ -151,12 +171,11 @@ function TriggerMixCell({ row }: { row: SkillTableRow }) {
 						<div className="mb-2 border-b border-edge-dim pb-2 font-mono text-[10px] uppercase tracking-[0.08em] text-text-4">
 							Trigger mix · {row.total.toLocaleString("en-US")} total
 						</div>
-						{TRIGGERS.map((t, i) => {
-							const v = row[t.key];
-							const pct = ((v / sum) * 100).toFixed(0);
+						{segments.map((s, i) => {
+							const pct = ((s.value / sum) * 100).toFixed(0);
 							return (
 								<div
-									key={t.key}
+									key={s.key}
 									className={cn(
 										"grid items-center gap-3 py-2.5 font-mono text-[13px]",
 										i > 0 && "border-t border-dashed border-edge-dim",
@@ -165,14 +184,14 @@ function TriggerMixCell({ row }: { row: SkillTableRow }) {
 								>
 									<span
 										className="h-3 w-3 rounded-[3px]"
-										style={{ background: t.gradient }}
+										style={{ background: s.gradient }}
 									/>
-									<span className="text-text-1">{t.label}</span>
+									<span className="text-text-1">{s.label}</span>
 									<span className="font-sans text-[13px] leading-snug text-text-3">
-										{t.hint}
+										{s.hint}
 									</span>
 									<span className="text-right text-[14px] tabular-nums text-text-1">
-										{v.toLocaleString("en-US")}
+										{s.value.toLocaleString("en-US")}
 									</span>
 									<span className="text-right tabular-nums text-text-3">{pct}%</span>
 								</div>

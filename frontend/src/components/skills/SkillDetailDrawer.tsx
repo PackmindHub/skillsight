@@ -3,7 +3,7 @@ import { MarketplaceBadge } from "@/components/marketplaces/MarketplaceBadge";
 import { Drawer } from "@/components/ui/Drawer";
 import { Sparkline } from "@/components/ui/Sparkline";
 import { api } from "@/lib/api";
-import { formatRelativeTime } from "@/lib/utils";
+import { cn, formatRelativeTime } from "@/lib/utils";
 import type {
 	DashboardPeriod,
 	SkillDetail,
@@ -96,11 +96,33 @@ export function SkillDetailDrawer({ skillName, period, onClose }: SkillDetailDra
 						</div>
 					</div>
 
-					<div className="grid grid-cols-3 gap-3">
-						<TriggerStat label="user-slash" count={detail.userSlash} total={detail.total} colorClass="bg-accent-bright" />
-						<TriggerStat label="claude-proactive" count={detail.claudeProactive} total={detail.total} colorClass="bg-success" />
-						<TriggerStat label="nested-skill" count={detail.nestedSkill} total={detail.total} colorClass="bg-warning" />
-					</div>
+					{(() => {
+						const unknown = Math.max(
+							0,
+							detail.total - detail.userSlash - detail.claudeProactive - detail.nestedSkill,
+						);
+						return (
+							<div
+								className={cn(
+									"grid gap-3",
+									unknown > 0 ? "grid-cols-4" : "grid-cols-3",
+								)}
+							>
+								<TriggerStat label="user-slash" count={detail.userSlash} total={detail.total} colorClass="bg-accent-bright" />
+								<TriggerStat label="claude-proactive" count={detail.claudeProactive} total={detail.total} colorClass="bg-success" />
+								<TriggerStat label="nested-skill" count={detail.nestedSkill} total={detail.total} colorClass="bg-warning" />
+								{unknown > 0 && (
+									<TriggerStat
+										label="unknown"
+										count={unknown}
+										total={detail.total}
+										colorClass="bg-text-4"
+										title="Claude Code didn't record what triggered it"
+									/>
+								)}
+							</div>
+						);
+					})()}
 
 					<div className="space-y-2">
 						<p className="text-xs uppercase tracking-wide text-text-4">Source</p>
@@ -180,15 +202,20 @@ function TriggerStat({
 	count,
 	total,
 	colorClass,
+	title,
 }: {
 	label: string;
 	count: number;
 	total: number;
 	colorClass: string;
+	title?: string;
 }) {
 	const pct = total > 0 ? (count / total) * 100 : 0;
 	return (
-		<div className="rounded border border-edge-dim bg-surface-800 px-3 py-2">
+		<div
+			className="rounded border border-edge-dim bg-surface-800 px-3 py-2"
+			title={title}
+		>
 			<p className="text-[10px] uppercase tracking-wide text-text-4">{label}</p>
 			<p className="mt-1 text-lg font-semibold text-text-1">{count}</p>
 			<div className="mt-1.5 h-1 w-full overflow-hidden rounded bg-surface-700">
