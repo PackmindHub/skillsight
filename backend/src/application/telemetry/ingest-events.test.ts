@@ -32,6 +32,25 @@ function makeMarketplaces(): IMarketplaceRepository {
 	};
 }
 
+function makeMarketplacesWithCapture() {
+	const upsertSeenCalls: string[][] = [];
+	const repo: IMarketplaceRepository = {
+		listWithStats: async () => [],
+		findByName: async () => null,
+		update: async () => {
+			throw new Error("not used");
+		},
+		upsertSeen: async (names) => {
+			upsertSeenCalls.push(names);
+		},
+		upsertFromImport: async () => {},
+		listStatuses: async () => [],
+		listPluginsForMarketplace: async () => [],
+		listSkillsForMarketplace: async () => [],
+	};
+	return { repo, upsertSeenCalls };
+}
+
 function makePlugins() {
 	const upsertCalls: Array<{ pluginName: string; marketplaceName: string | null }> = [];
 	const upsertIfAbsentCalls: Array<{ pluginName: string; marketplaceName: string | null }> = [];
@@ -329,5 +348,109 @@ describe("ingestEvents — plugin auto-creation from skill_activated", () => {
 
 		expect(upsertIfAbsentCalls).toEqual([{ pluginName: "John", marketplaceName: null }]);
 		expect(upsertCalls).toEqual([{ pluginName: "John", marketplaceName: null }]);
+	});
+});
+
+describe("ingestEvents — 'inline' marketplace normalization", () => {
+	it("normalizes 'inline' to null on skill_activated and skips marketplace upsert", async () => {
+		const { repo: skills } = makeSkills();
+		const { repo: plugins, upsertIfAbsentCalls } = makePlugins();
+		const { repo: pluginSkills } = makePluginSkills();
+		const { repo: marketplaces, upsertSeenCalls } = makeMarketplacesWithCapture();
+
+		await ingestEvents(
+			{
+				events: makeEvents(),
+				marketplaces,
+				plugins,
+				pluginSkills,
+				skills,
+			},
+			otlpBody([
+				{
+					eventName: EVENT_NAMES.SKILL_ACTIVATED,
+					attrs: {
+						"skill.name": "format",
+						"plugin.name": "local-plugin",
+						"marketplace.name": "inline",
+					},
+				},
+			]),
+		);
+
+		expect(upsertIfAbsentCalls).toEqual([
+			{ pluginName: "local-plugin", marketplaceName: null },
+		]);
+		expect(upsertSeenCalls).toEqual([]);
+	});
+
+	it("normalizes 'inline' to null on plugin_installed", async () => {
+		const { repo: skills } = makeSkills();
+		const { repo: plugins, upsertCalls } = makePlugins();
+		const { repo: pluginSkills } = makePluginSkills();
+		const { repo: marketplaces, upsertSeenCalls } = makeMarketplacesWithCapture();
+
+		await ingestEvents(
+			{
+				events: makeEvents(),
+				marketplaces,
+				plugins,
+				pluginSkills,
+				skills,
+			},
+			otlpBody([
+				{
+					eventName: EVENT_NAMES.PLUGIN_INSTALLED,
+					attrs: {
+						"plugin.name": "local-plugin",
+						"marketplace.name": "inline",
+						"plugin.version": "0.1.0",
+					},
+				},
+			]),
+		);
+
+		expect(upsertCalls).toEqual([
+			{ pluginName: "local-plugin", marketplaceName: null },
+		]);
+		expect(upsertSeenCalls).toEqual([]);
+	});
+
+	it("upserts real marketplaces but drops 'inline' from the same batch", async () => {
+		const { repo: skills } = makeSkills();
+		const { repo: plugins } = makePlugins();
+		const { repo: pluginSkills } = makePluginSkills();
+		const { repo: marketplaces, upsertSeenCalls } = makeMarketplacesWithCapture();
+
+		await ingestEvents(
+			{
+				events: makeEvents(),
+				marketplaces,
+				plugins,
+				pluginSkills,
+				skills,
+			},
+			otlpBody([
+				{
+					eventName: EVENT_NAMES.SKILL_ACTIVATED,
+					attrs: {
+						"skill.name": "a",
+						"plugin.name": "p1",
+						"marketplace.name": "official",
+					},
+				},
+				{
+					eventName: EVENT_NAMES.SKILL_ACTIVATED,
+					attrs: {
+						"skill.name": "b",
+						"plugin.name": "p2",
+						"marketplace.name": "inline",
+					},
+				},
+			]),
+		);
+
+		expect(upsertSeenCalls).toHaveLength(1);
+		expect(upsertSeenCalls[0]).toEqual(["official"]);
 	});
 });

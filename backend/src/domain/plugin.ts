@@ -40,3 +40,14 @@ export function computePluginStatus(
 	if (marketplaceStatus === "approved") return "approved";
 	return "to_review";
 }
+
+// Claude Code emits marketplace.name="inline" for plugins installed locally on
+// the user's workspace (no real marketplace). Normalize to null so these rows
+// don't pollute the marketplaces table or appear as a clickable marketplace.
+export function normalizeMarketplaceName(
+	raw: string | null | undefined,
+): string | null {
+	if (!raw) return null;
+	if (raw === "inline") return null;
+	return raw;
+}

@@ -1,5 +1,5 @@
 import { EVENT_NAMES } from "@/domain/event";
-import { computePluginStatus } from "@/domain/plugin";
+import { computePluginStatus, normalizeMarketplaceName } from "@/domain/plugin";
 import type { IEventRepository } from "@/domain/ports/event-repository";
 import type { IMarketplaceRepository } from "@/domain/ports/marketplace-repository";
 import type { IPluginRepository } from "@/domain/ports/plugin-repository";
@@ -40,12 +40,15 @@ export async function ingestEvents(
 	const mpNames = [
 		...new Set(
 			events
-				.filter(
-					(e) =>
-						e.eventName === EVENT_NAMES.SKILL_ACTIVATED &&
-						typeof e.attributes["marketplace.name"] === "string",
+				.filter((e) => e.eventName === EVENT_NAMES.SKILL_ACTIVATED)
+				.map((e) =>
+					normalizeMarketplaceName(
+						typeof e.attributes["marketplace.name"] === "string"
+							? (e.attributes["marketplace.name"] as string)
+							: null,
+					),
 				)
-				.map((e) => e.attributes["marketplace.name"] as string),
+				.filter((name): name is string => name !== null),
 		),
 	];
 	if (mpNames.length > 0) {
@@ -101,10 +104,11 @@ export async function ingestEvents(
 			if (seenPlugins.has(pluginName)) continue;
 			seenPlugins.add(pluginName);
 
-			const marketplaceName =
+			const marketplaceName = normalizeMarketplaceName(
 				typeof event.attributes["marketplace.name"] === "string"
 					? (event.attributes["marketplace.name"] as string)
-					: null;
+					: null,
+			);
 			const status = computePluginStatus(
 				marketplaceName,
 				marketplaceName ? statusMap[marketplaceName] : null,
@@ -129,10 +133,11 @@ export async function ingestEvents(
 			if (seen.has(pluginName)) continue;
 			seen.add(pluginName);
 
-			const marketplaceName =
+			const marketplaceName = normalizeMarketplaceName(
 				typeof event.attributes["marketplace.name"] === "string"
 					? (event.attributes["marketplace.name"] as string)
-					: null;
+					: null,
+			);
 			const pluginVersion =
 				typeof event.attributes["plugin.version"] === "string"
 					? (event.attributes["plugin.version"] as string)
