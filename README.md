@@ -18,6 +18,7 @@ Skillsight is small, open-source, and runs entirely on your own infrastructure w
 - [Ingesting from Loki instead](#ingesting-from-loki-instead)
 - [Marketplace sources](#marketplace-sources)
 - [Development mode](#development-mode)
+- [Roadmap](#roadmap)
 - [Architecture](#architecture)
 
 ## What it does
@@ -160,6 +161,16 @@ bun install
 cp .env.example .env
 bun run dev                                       # backend on :4200, frontend on :5173
 ```
+
+## Roadmap
+
+Planned, no dates — direction, not commitment.
+
+- **Allow-list export to Claude Code** — let `approved` / `removed` statuses optionally drive what Claude Code allows on developer machines.
+- **Cohort segmentation** — tag users into teams and slice every metric by cohort.
+- **New-skill / new-marketplace alerts** — get notified the first time an unknown skill, plugin, or marketplace appears.
+- **Marketplace recommendations** — surface third-party skills gaining traction or duplicating official ones.
+- **Tags and saved views** — custom tags and saved filters to make the tables actionable.
 
 ## Architecture
 
