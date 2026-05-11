@@ -58,6 +58,13 @@ const STATUS_OPTIONS: { value: SkillStatus; label: string }[] = [
 	{ value: "removed", label: "Removed" },
 ];
 
+const STATUS_SELECT_CLASS: Record<SkillStatus, string> = {
+	unknown: "bg-gray-100 text-gray-600 border-gray-200",
+	to_review: "bg-amber-100 text-amber-700 border-amber-200",
+	approved: "bg-emerald-100 text-emerald-700 border-emerald-200",
+	removed: "bg-red-100 text-red-600 border-red-200",
+};
+
 const TRIGGERS: {
 	key: "userSlash" | "claudeProactive" | "nestedSkill";
 	label: string;
@@ -888,33 +895,35 @@ export default function SkillsTablePage() {
 										<span className="font-mono text-[11px] text-text-4">external</span>
 									)}
 								</td>
-								<td className="px-4 py-3">
+								<td
+									className="px-4 py-3"
+									onClick={(e) => e.stopPropagation()}
+									onKeyDown={(e) => e.stopPropagation()}
+								>
 									{(() => {
 										const status = (row.status ?? "unknown") as SkillStatus;
 										const pluginName = row.pluginName ?? "";
 										if (pluginName === "") {
 											return (
-												<div className="flex items-center gap-2">
-													<StatusBadge status={status} />
-													<Select
-														size="sm"
-														aria-label={`Status for ${row.skillName}`}
-														value={status}
-														onChange={(e) =>
-															handleStatusChange(
-																row.skillName,
-																"",
-																e.target.value as SkillStatus,
-															)
-														}
-													>
-														{STATUS_OPTIONS.map((opt) => (
-															<option key={opt.value} value={opt.value}>
-																{opt.label}
-															</option>
-														))}
-													</Select>
-												</div>
+												<Select
+													size="sm"
+													aria-label={`Status for ${row.skillName}`}
+													value={status}
+													onChange={(e) =>
+														handleStatusChange(
+															row.skillName,
+															"",
+															e.target.value as SkillStatus,
+														)
+													}
+													className={cn("font-medium", STATUS_SELECT_CLASS[status])}
+												>
+													{STATUS_OPTIONS.map((opt) => (
+														<option key={opt.value} value={opt.value}>
+															{opt.label}
+														</option>
+													))}
+												</Select>
 											);
 										}
 										return (
