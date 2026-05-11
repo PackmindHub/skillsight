@@ -40,6 +40,8 @@ function makeDeps(overrides?: {
 			if (overrides?.throwOnSkills) throw new Error("boom");
 			return overrides?.skillsDeletedReturn ?? entries.length;
 		},
+		findByKey: async () => null,
+		updateStatus: async () => null,
 	};
 
 	const events: IEventRepository = {
@@ -114,6 +116,8 @@ describe("deleteSkills", () => {
 				callOrder.push("skills");
 				return 1;
 			},
+			findByKey: async () => null,
+			updateStatus: async () => null,
 		};
 		const events: IEventRepository = {
 			insertMany: async () => {},
@@ -213,6 +217,8 @@ describe("deleteSkills", () => {
 			propagateStatusFromPlugins: async () => {},
 			deleteByPlugins: async () => {},
 			deleteByKeys: async () => 1,
+			findByKey: async () => null,
+			updateStatus: async () => null,
 		};
 		const events: IEventRepository = {
 			insertMany: async () => {},

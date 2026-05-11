@@ -7,6 +7,14 @@ export const SKILL_STATUSES: readonly SkillStatus[] = [
 	"removed",
 ] as const;
 
+export interface Skill {
+	skillName: string;
+	pluginName: string;
+	status: SkillStatus;
+	firstSeenAt: Date;
+	lastSeenAt: Date;
+}
+
 export interface SkillTableRow {
 	skillName: string;
 	pluginName: string | null;

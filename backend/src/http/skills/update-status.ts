@@ -1,0 +1,32 @@
+import { Hono } from "hono";
+import { z } from "zod";
+import { updateSkillStatus } from "@/application/skills/update-skill-status";
+import type { AppDeps } from "@/bootstrap/compose";
+import { sessionAuth } from "@/middleware/session-auth";
+import type { AppVariables } from "@/types";
+
+const updateSchema = z.object({
+	skillName: z.string().min(1).max(255),
+	pluginName: z.string().max(255),
+	status: z.enum(["unknown", "to_review", "approved", "removed"]),
+});
+
+export function createUpdateStatusRoute(deps: Pick<AppDeps, "skills" | "audit">) {
+	const route = new Hono<{ Variables: AppVariables }>();
+	route.use("*", sessionAuth);
+
+	route.patch("/status", async (c) => {
+		const body = updateSchema.parse(await c.req.json());
+		const result = await updateSkillStatus(deps, {
+			...body,
+			actorEmail: c.get("user").email,
+		});
+		if ("error" in result) {
+			if (result.error === "not_found") return c.json({ error: "Skill not found" }, 404);
+			return c.json({ error: "Status is inherited from plugin" }, 409);
+		}
+		return c.json(result);
+	});
+
+	return route;
+}

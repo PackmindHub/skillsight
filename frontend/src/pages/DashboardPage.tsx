@@ -188,27 +188,32 @@ export default function DashboardPage() {
 				}
 			/>
 
-			<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+			<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
 				<StatCard label="Total activations" value={data.stats.totalActivations} />
 				<StatCard label="Unique skills" value={data.stats.uniqueSkills} />
 				<StatCard label="Active users" value={data.stats.activeUsers} />
 				<StatCard label="Top trigger" value={topTrigger} />
-				<StatCard
-					label="Marketplaces à approuver"
-					value={pendingMarketplaces ?? "—"}
-					to="/marketplaces?status=to_review"
-					highlight={(pendingMarketplaces ?? 0) > 0}
-				/>
 			</div>
 
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<StatCard
-					label="Plugins à approuver"
-					value={pendingPlugins ?? "—"}
-					to="/plugins?status=to_review"
-					highlight={(pendingPlugins ?? 0) > 0}
-				/>
-			</div>
+			<section className="space-y-3">
+				<h2 className="text-xs font-medium text-text-3 uppercase tracking-wide">
+					En attente de validation
+				</h2>
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<StatCard
+						label="Marketplaces à approuver"
+						value={pendingMarketplaces ?? "—"}
+						to="/marketplaces?status=to_review"
+						highlight={(pendingMarketplaces ?? 0) > 0}
+					/>
+					<StatCard
+						label="Plugins à approuver"
+						value={pendingPlugins ?? "—"}
+						to="/plugins?status=to_review"
+						highlight={(pendingPlugins ?? 0) > 0}
+					/>
+				</div>
+			</section>
 
 			<div className="grid grid-cols-2 gap-6">
 				<Card>

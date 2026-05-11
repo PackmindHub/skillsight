@@ -11,6 +11,7 @@ import type {
 	Plugin,
 	PluginSkillsResponse,
 	SkillDetail,
+	SkillStatus,
 	SkillsTableResponse,
 	Token,
 	UsageResponse,
@@ -76,6 +77,15 @@ export const api = {
 			apiFetch<{ skillsDeleted: number; eventsDeleted: number }>("/api/skills/delete", {
 				method: "POST",
 				body: JSON.stringify({ skills: entries }),
+			}),
+		updateStatus: (body: { skillName: string; pluginName: string; status: SkillStatus }) =>
+			apiFetch<{
+				skillName: string;
+				pluginName: string;
+				status: SkillStatus;
+			}>("/api/skills/status", {
+				method: "PATCH",
+				body: JSON.stringify(body),
 			}),
 	},
 	tokens: {

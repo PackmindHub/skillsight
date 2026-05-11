@@ -11,7 +11,7 @@ const updateSchema = z.object({
 	status: z.enum(["unknown", "to_review", "approved", "removed"]).optional(),
 });
 
-export function createPluginsRoute(deps: Pick<AppDeps, "plugins" | "audit">) {
+export function createPluginsRoute(deps: Pick<AppDeps, "plugins" | "skills" | "audit">) {
 	const route = new Hono<{ Variables: AppVariables }>();
 	route.use("*", sessionAuth);
 
@@ -29,7 +29,7 @@ export function createPluginsRoute(deps: Pick<AppDeps, "plugins" | "audit">) {
 		const pluginName = decodeURIComponent(c.req.param("pluginName"));
 		const body = updateSchema.parse(await c.req.json());
 		const result = await updatePlugin(
-			{ plugins: deps.plugins, audit: deps.audit },
+			{ plugins: deps.plugins, skills: deps.skills, audit: deps.audit },
 			{ pluginName, ...body, actorEmail: c.get("user").email },
 		);
 		if ("error" in result) return c.json({ error: "Plugin not found" }, 404);

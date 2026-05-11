@@ -93,12 +93,27 @@ export default function PluginsPage() {
 		);
 	}
 
+	const [reloadToken, setReloadToken] = useState(0);
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: reloadToken is a manual refetch trigger
 	useEffect(() => {
 		api.plugins
 			.list()
 			.then((res) => setItems(res.plugins))
 			.catch((e) => setError(String(e)))
 			.finally(() => setLoading(false));
+	}, [reloadToken]);
+
+	useEffect(() => {
+		function onFocus() {
+			if (document.visibilityState === "visible") setReloadToken((n) => n + 1);
+		}
+		window.addEventListener("focus", onFocus);
+		document.addEventListener("visibilitychange", onFocus);
+		return () => {
+			window.removeEventListener("focus", onFocus);
+			document.removeEventListener("visibilitychange", onFocus);
+		};
 	}, []);
 
 	async function handleStatusChange(pluginName: string, status: PluginStatus) {

@@ -1,4 +1,4 @@
-import type { SkillDetailRow, SkillStatus, SkillTableRow } from "@/domain/skill";
+import type { Skill, SkillDetailRow, SkillStatus, SkillTableRow } from "@/domain/skill";
 
 export type DaysWindow = number | "all";
 
@@ -28,6 +28,11 @@ export interface ISkillRepository {
 	propagateStatusFromPlugins(affectedPluginNames: string[], newStatus: SkillStatus): Promise<void>;
 	deleteByPlugins(pluginNames: string[]): Promise<void>;
 	deleteByKeys(entries: Array<{ skillName: string; pluginName: string }>): Promise<number>;
+	findByKey(key: { skillName: string; pluginName: string }): Promise<Skill | null>;
+	updateStatus(
+		key: { skillName: string; pluginName: string },
+		status: SkillStatus,
+	): Promise<Skill | null>;
 }
 
 export interface SkillUpsertEntry {

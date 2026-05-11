@@ -51,6 +51,13 @@ function MarketplaceBadge({ mp }: { mp: MarketplaceRef }) {
 	);
 }
 
+const STATUS_OPTIONS: { value: SkillStatus; label: string }[] = [
+	{ value: "unknown", label: "Unknown" },
+	{ value: "to_review", label: "To Review" },
+	{ value: "approved", label: "Approved" },
+	{ value: "removed", label: "Removed" },
+];
+
 const TRIGGERS: { key: "userSlash" | "claudeProactive" | "nestedSkill"; label: string; color: string }[] = [
 	{ key: "userSlash", label: "user-slash", color: "bg-accent-bright" },
 	{ key: "claudeProactive", label: "claude-proactive", color: "bg-success" },
@@ -217,6 +224,25 @@ export default function SkillsTablePage() {
 		);
 	}
 
+	async function handleStatusChange(
+		skillName: string,
+		pluginName: string,
+		status: SkillStatus,
+	) {
+		setRows((prev) =>
+			prev.map((r) =>
+				r.skillName === skillName && (r.pluginName ?? "") === pluginName
+					? { ...r, status }
+					: r,
+			),
+		);
+		try {
+			await api.skills.updateStatus({ skillName, pluginName, status });
+		} catch {
+			setReloadToken((n) => n + 1);
+		}
+	}
+
 	function clearAllFilters() {
 		setSearchParams(
 			(prev) => {
@@ -249,6 +275,18 @@ export default function SkillsTablePage() {
 			cancelled = true;
 		};
 	}, [period, reloadToken]);
+
+	useEffect(() => {
+		function onFocus() {
+			if (document.visibilityState === "visible") setReloadToken((n) => n + 1);
+		}
+		window.addEventListener("focus", onFocus);
+		document.addEventListener("visibilitychange", onFocus);
+		return () => {
+			window.removeEventListener("focus", onFocus);
+			document.removeEventListener("visibilitychange", onFocus);
+		};
+	}, []);
 
 	const filteredRows = useMemo(() => {
 		const q = debouncedSearch.trim();
@@ -764,7 +802,40 @@ export default function SkillsTablePage() {
 									)}
 								</td>
 								<td className="px-4 py-3">
-									<StatusBadge status={(row.status ?? "unknown") as SkillStatus} />
+									{(() => {
+										const status = (row.status ?? "unknown") as SkillStatus;
+										const pluginName = row.pluginName ?? "";
+										if (pluginName === "") {
+											return (
+												<div className="flex items-center gap-2">
+													<StatusBadge status={status} />
+													<Select
+														size="sm"
+														aria-label={`Status for ${row.skillName}`}
+														value={status}
+														onChange={(e) =>
+															handleStatusChange(
+																row.skillName,
+																"",
+																e.target.value as SkillStatus,
+															)
+														}
+													>
+														{STATUS_OPTIONS.map((opt) => (
+															<option key={opt.value} value={opt.value}>
+																{opt.label}
+															</option>
+														))}
+													</Select>
+												</div>
+											);
+										}
+										return (
+											<span title={`Status inherited from plugin ${pluginName}`}>
+												<StatusBadge status={status} />
+											</span>
+										);
+									})()}
 								</td>
 								{TRIGGERS.map(({ key: triggerKey, color }) => (
 									<ProgressCell

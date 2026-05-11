@@ -110,20 +110,22 @@ export async function syncMarketplaceSource(
 			`[marketplace-sync] source ${source.id}: ${source.importPluginsAndSkills ? "imported" : "discovered"} ${pluginCount} plugin(s) from "${data.name}"`,
 		);
 
-		await recordAudit(deps, {
-			actorEmail,
-			action: "marketplace_source_sync_completed",
-			target: source.id,
-			metadata: {
-				mode,
-				durationMs: Date.now() - startedAt,
-				marketplaceName: data.name,
-				pluginCount,
-				skillCount,
-				imported: source.importPluginsAndSkills,
-				error: null,
-			},
-		});
+		if (mode === "manual") {
+			await recordAudit(deps, {
+				actorEmail,
+				action: "marketplace_source_sync_completed",
+				target: source.id,
+				metadata: {
+					mode,
+					durationMs: Date.now() - startedAt,
+					marketplaceName: data.name,
+					pluginCount,
+					skillCount,
+					imported: source.importPluginsAndSkills,
+					error: null,
+				},
+			});
+		}
 
 		return { syncedAt: now, pluginCount, skillCount, error: null };
 	} catch (err) {
@@ -131,18 +133,20 @@ export async function syncMarketplaceSource(
 		await deps.marketplaceSources.updateSyncStatus(source.id, { lastSyncError: message });
 		console.error(`[marketplace-sync] source ${source.id}: sync failed — ${message}`);
 
-		await recordAudit(deps, {
-			actorEmail,
-			action: "marketplace_source_sync_completed",
-			target: source.id,
-			metadata: {
-				mode,
-				durationMs: Date.now() - startedAt,
-				pluginCount: 0,
-				skillCount: 0,
-				error: message,
-			},
-		});
+		if (mode === "manual") {
+			await recordAudit(deps, {
+				actorEmail,
+				action: "marketplace_source_sync_completed",
+				target: source.id,
+				metadata: {
+					mode,
+					durationMs: Date.now() - startedAt,
+					pluginCount: 0,
+					skillCount: 0,
+					error: message,
+				},
+			});
+		}
 
 		return { syncedAt: null, pluginCount: 0, skillCount: 0, error: message };
 	}

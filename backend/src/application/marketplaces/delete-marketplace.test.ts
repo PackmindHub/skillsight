@@ -127,6 +127,9 @@ function makeSkillRepo() {
 		deleteByPlugins: async (names) => {
 			calls.push(names);
 		},
+		deleteByKeys: async () => 0,
+		findByKey: async () => null,
+		updateStatus: async () => null,
 	};
 	return { repo, calls };
 }

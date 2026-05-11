@@ -2,9 +2,14 @@ import { recordAudit } from "@/application/audit/record-audit";
 import type { Plugin, PluginStatus } from "@/domain/plugin";
 import type { IAuditRepository } from "@/domain/ports/audit-repository";
 import type { IPluginRepository } from "@/domain/ports/plugin-repository";
+import type { ISkillRepository } from "@/domain/ports/skill-repository";
 
 export async function updatePlugin(
-	deps: { plugins: IPluginRepository; audit: IAuditRepository },
+	deps: {
+		plugins: IPluginRepository;
+		skills: ISkillRepository;
+		audit: IAuditRepository;
+	},
 	input: {
 		pluginName: string;
 		status?: PluginStatus;
@@ -21,6 +26,8 @@ export async function updatePlugin(
 	if (!updated) return { error: "not_found" };
 
 	if (input.status !== undefined && input.status !== existing.status) {
+		await deps.skills.propagateStatusFromPlugins([input.pluginName], input.status);
+
 		await recordAudit(deps, {
 			actorEmail: input.actorEmail,
 			action: "plugin_status_changed",

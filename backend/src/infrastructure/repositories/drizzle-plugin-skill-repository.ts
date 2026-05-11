@@ -8,11 +8,22 @@ export class DrizzlePluginSkillRepository implements IPluginSkillRepository {
 
 	async upsertMany(skills: Array<{ pluginName: string; skillName: string }>): Promise<void> {
 		if (skills.length === 0) return;
+		// Postgres rejects ON CONFLICT DO UPDATE when the same conflict target
+		// appears twice in one VALUES list. Sync batches routinely contain many
+		// events for the same (plugin, skill) pair, so dedupe before insert.
+		const seen = new Set<string>();
+		const unique: Array<{ pluginName: string; skillName: string }> = [];
+		for (const s of skills) {
+			const key = `${s.pluginName}\x00${s.skillName}`;
+			if (seen.has(key)) continue;
+			seen.add(key);
+			unique.push(s);
+		}
 		const now = new Date();
 		await this.db
 			.insert(pluginSkills)
 			.values(
-				skills.map((s) => ({
+				unique.map((s) => ({
 					pluginName: s.pluginName,
 					skillName: s.skillName,
 					firstSeenAt: now,

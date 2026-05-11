@@ -18,6 +18,10 @@ function makeSkills(rows: SkillTableRow[]): ISkillRepository {
 		getMonthlyTrends: async () => ({ invocations: [], uniqueSkills: [], uniqueUsers: [] }),
 		upsertMany: async () => {},
 		propagateStatusFromPlugins: async () => {},
+		deleteByPlugins: async () => {},
+		deleteByKeys: async () => 0,
+		findByKey: async () => null,
+		updateStatus: async () => null,
 	};
 }
 

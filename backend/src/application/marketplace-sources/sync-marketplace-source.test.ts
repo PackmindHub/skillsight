@@ -131,6 +131,10 @@ function makeSkills() {
 		propagateStatusFromPlugins: async (pluginNames, status) => {
 			propagateCalls.push({ pluginNames, status });
 		},
+		deleteByPlugins: async () => {},
+		deleteByKeys: async () => 0,
+		findByKey: async () => null,
+		updateStatus: async () => null,
 	};
 	return { repo, upsertManyCalls, propagateCalls };
 }
