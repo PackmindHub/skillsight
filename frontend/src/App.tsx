@@ -4,6 +4,7 @@ import { IntegrationsHealthProvider } from "@/context/IntegrationsHealthContext"
 import { MarketplaceSourcesHealthProvider } from "@/context/MarketplaceSourcesHealthContext";
 import AuditLogPage from "@/pages/AuditLogPage";
 import DashboardPage from "@/pages/DashboardPage";
+import LiveEventsPage from "@/pages/LiveEventsPage";
 import LoginPage from "@/pages/LoginPage";
 import OnboardingPage from "@/pages/OnboardingPage";
 import SkillsTablePage from "@/pages/SkillsTablePage";
@@ -43,6 +44,7 @@ export default function App() {
 						<Route path="/marketplaces" element={<MarketplacesPage />} />
 						<Route path="/plugins" element={<PluginsPage />} />
 						<Route path="/tokens" element={<TokensPage />} />
+						<Route path="/events" element={<LiveEventsPage />} />
 						<Route path="/audit" element={<AuditLogPage />} />
 						<Route path="/settings" element={<Navigate to="/settings/integrations" replace />} />
 						<Route path="/settings/integrations" element={<IntegrationsPage />} />

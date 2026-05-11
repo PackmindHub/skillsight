@@ -14,6 +14,17 @@ export interface IntegrationDeletedEvent {
 	id: string;
 }
 
+export interface SkillActivatedLiveEvent {
+	id: string;
+	timestamp: string;
+	userEmail: string | null;
+	sessionId: string | null;
+	skillName: string;
+	pluginName: string | null;
+	marketplaceName: string | null;
+	trigger: string | null;
+}
+
 class AppEventBus extends EventEmitter {
 	emitMarketplaceStatusChanged(payload: MarketplaceStatusChangedEvent): void {
 		this.emit("marketplace:statusChanged", payload);
@@ -47,6 +58,18 @@ class AppEventBus extends EventEmitter {
 
 	offIntegrationDeleted(listener: (payload: IntegrationDeletedEvent) => void): this {
 		return this.off("integration:deleted", listener);
+	}
+
+	emitSkillActivated(payload: SkillActivatedLiveEvent): void {
+		this.emit("skill:activated", payload);
+	}
+
+	onSkillActivated(listener: (payload: SkillActivatedLiveEvent) => void): this {
+		return this.on("skill:activated", listener);
+	}
+
+	offSkillActivated(listener: (payload: SkillActivatedLiveEvent) => void): this {
+		return this.off("skill:activated", listener);
 	}
 }
 

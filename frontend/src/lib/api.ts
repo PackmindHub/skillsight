@@ -4,6 +4,8 @@ import type {
 	DashboardPeriod,
 	Integration,
 	IntegrationPreviewEvent,
+	LiveEventsResponse,
+	LiveSkillActivatedEvent,
 	Marketplace,
 	MarketplaceDetailResponse,
 	MarketplaceSource,
@@ -118,6 +120,33 @@ export const api = {
 	},
 	config: {
 		get: () => apiFetch<{ baseUrl: string }>("/api/config"),
+	},
+	events: {
+		recent: (limit = 100) =>
+			apiFetch<LiveEventsResponse>(`/api/events/recent?limit=${limit}`),
+		openStream: (handlers: {
+			onEvent?: (event: LiveSkillActivatedEvent) => void;
+			onError?: () => void;
+		}): (() => void) => {
+			const source = new EventSource("/api/events/stream", {
+				withCredentials: true,
+			});
+			source.addEventListener("skill.activated", (event) => {
+				try {
+					handlers.onEvent?.(
+						JSON.parse((event as MessageEvent).data) as LiveSkillActivatedEvent,
+					);
+				} catch {
+					// ignore malformed payload
+				}
+			});
+			source.addEventListener("error", () => {
+				if (source.readyState === EventSource.CLOSED) {
+					handlers.onError?.();
+				}
+			});
+			return () => source.close();
+		},
 	},
 	plugins: {
 		list: () => apiFetch<{ plugins: Plugin[] }>("/api/plugins"),

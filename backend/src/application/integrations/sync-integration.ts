@@ -12,6 +12,7 @@ import type { IPluginRepository } from "@/domain/ports/plugin-repository";
 import type { IPluginSkillRepository } from "@/domain/ports/plugin-skill-repository";
 import type { ISkillRepository } from "@/domain/ports/skill-repository";
 import { decrypt } from "@/infrastructure/crypto/encrypt";
+import { eventBus } from "@/lib/event-bus";
 import { parseLokiStreams } from "@/parsers/loki-stream-parser";
 
 // Must match the limit used in LokiHttpGateway
@@ -72,6 +73,32 @@ export async function syncIntegration(
 		const parsedEvents = parseStreams(streams, integration.id);
 
 		await deps.events.insertMany(parsedEvents);
+
+		for (const e of parsedEvents) {
+			if (e.eventName !== EVENT_NAMES.SKILL_ACTIVATED) continue;
+			const skillName = e.attributes["skill.name"];
+			if (typeof skillName !== "string") continue;
+			eventBus.emitSkillActivated({
+				id: `${e.timestamp.getTime()}_${skillName}_${e.sessionId ?? ""}_${e.userEmail ?? ""}`,
+				timestamp: e.timestamp.toISOString(),
+				userEmail: e.userEmail,
+				sessionId: e.sessionId,
+				skillName,
+				pluginName:
+					typeof e.attributes["plugin.name"] === "string"
+						? (e.attributes["plugin.name"] as string)
+						: null,
+				marketplaceName: normalizeMarketplaceName(
+					typeof e.attributes["marketplace.name"] === "string"
+						? (e.attributes["marketplace.name"] as string)
+						: null,
+				),
+				trigger:
+					typeof e.attributes.invocation_trigger === "string"
+						? (e.attributes.invocation_trigger as string)
+						: null,
+			});
+		}
 
 		const skillEntries = parsedEvents
 			.filter(

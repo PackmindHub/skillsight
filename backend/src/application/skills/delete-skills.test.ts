@@ -51,6 +51,7 @@ function makeDeps(overrides?: {
 			eventsCalls.push(entries);
 			return overrides?.eventsDeletedReturn ?? entries.length * 3;
 		},
+		listRecentSkillActivations: async () => [],
 	};
 
 	const audit: IAuditRepository = {
@@ -126,6 +127,7 @@ describe("deleteSkills", () => {
 				callOrder.push("events");
 				return 5;
 			},
+			listRecentSkillActivations: async () => [],
 		};
 		const audit: IAuditRepository = {
 			log: async () => {},
@@ -224,6 +226,7 @@ describe("deleteSkills", () => {
 			insertMany: async () => {},
 			deleteByIntegrationId: async () => {},
 			deleteBySkillKeys: async () => 1,
+			listRecentSkillActivations: async () => [],
 		};
 		const audit: IAuditRepository = {
 			log: async () => {

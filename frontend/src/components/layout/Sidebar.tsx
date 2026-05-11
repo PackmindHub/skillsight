@@ -4,6 +4,7 @@ import { useMarketplaceSourcesHealth } from "@/context/MarketplaceSourcesHealthC
 import { cn } from "@/lib/utils";
 import { version } from "../../../package.json";
 import {
+	Activity,
 	Boxes,
 	KeyRound,
 	LayoutDashboard,
@@ -33,6 +34,7 @@ const mainLinks: MainLink[] = [
 	{ to: "/marketplaces", label: "Marketplaces", icon: Boxes },
 	{ to: "/plugins", label: "Plugins", icon: Plug },
 	{ to: "/tokens", label: "Tokens", icon: KeyRound },
+	{ to: "/events", label: "Events", icon: Activity },
 	{ to: "/audit", label: "Audit Log", icon: ScrollText },
 ];
 

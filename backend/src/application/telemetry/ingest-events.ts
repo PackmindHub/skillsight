@@ -5,6 +5,7 @@ import type { IMarketplaceRepository } from "@/domain/ports/marketplace-reposito
 import type { IPluginRepository } from "@/domain/ports/plugin-repository";
 import type { IPluginSkillRepository } from "@/domain/ports/plugin-skill-repository";
 import type { ISkillRepository } from "@/domain/ports/skill-repository";
+import { eventBus } from "@/lib/event-bus";
 import { parseOtlpBody } from "@/parsers/otlp-parser";
 
 export async function ingestEvents(
@@ -36,6 +37,32 @@ export async function ingestEvents(
 	await deps.events.insertMany(
 		events.map((e) => ({ ...e, source: "direct" as const })),
 	);
+
+	for (const e of events) {
+		if (e.eventName !== EVENT_NAMES.SKILL_ACTIVATED) continue;
+		const skillName = e.attributes["skill.name"];
+		if (typeof skillName !== "string") continue;
+		eventBus.emitSkillActivated({
+			id: `${e.timestamp.getTime()}_${skillName}_${e.sessionId ?? ""}_${e.userEmail ?? ""}`,
+			timestamp: e.timestamp.toISOString(),
+			userEmail: e.userEmail,
+			sessionId: e.sessionId,
+			skillName,
+			pluginName:
+				typeof e.attributes["plugin.name"] === "string"
+					? (e.attributes["plugin.name"] as string)
+					: null,
+			marketplaceName: normalizeMarketplaceName(
+				typeof e.attributes["marketplace.name"] === "string"
+					? (e.attributes["marketplace.name"] as string)
+					: null,
+			),
+			trigger:
+				typeof e.attributes.invocation_trigger === "string"
+					? (e.attributes.invocation_trigger as string)
+					: null,
+		});
+	}
 
 	const mpNames = [
 		...new Set(

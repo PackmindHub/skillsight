@@ -14,6 +14,8 @@ function makeEvents(): IEventRepository {
 	return {
 		insertMany: async () => {},
 		deleteByIntegrationId: async () => {},
+		deleteBySkillKeys: async () => 0,
+		listRecentSkillActivations: async () => [],
 	};
 }
 

@@ -274,3 +274,18 @@ export interface IntegrationPreviewEvent {
 	timestamp: string;
 	attributes: Record<string, unknown>;
 }
+
+export interface LiveSkillActivatedEvent {
+	id: string;
+	timestamp: string;
+	userEmail: string | null;
+	sessionId: string | null;
+	skillName: string;
+	pluginName: string | null;
+	marketplaceName: string | null;
+	trigger: string | null;
+}
+
+export interface LiveEventsResponse {
+	events: LiveSkillActivatedEvent[];
+}
