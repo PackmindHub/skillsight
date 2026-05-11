@@ -56,7 +56,7 @@ interface MonthlyPoint {
 	count: number;
 }
 
-const monthFormatter = new Intl.DateTimeFormat("en-US", { month: "short" });
+const monthFormatter = new Intl.DateTimeFormat("en-US", { month: "short", timeZone: "UTC" });
 function formatMonth(iso: string): string {
 	return monthFormatter.format(new Date(iso));
 }
