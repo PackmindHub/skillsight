@@ -49,6 +49,8 @@ Dependency injection is assembled in `backend/src/bootstrap/compose.ts`. All rep
 
 **Frontend** is a React 18 SPA with React Router v7. Auth state lives in `AuthContext` which calls `/api/auth/me` on mount. The `apiFetch` client in `lib/api.ts` handles credentials and 401 → logout redirect. All API calls go through the namespaced `api.*` object exported from `lib/api.ts`.
 
+Sync-status fan-out uses dedicated context providers (`IntegrationsHealthContext`, `MarketplaceSourcesHealthContext`) that wrap `AppShell` in `ProtectedRoute`. They poll their respective endpoints and feed status badges in the sidebar. When you add a new background-syncing entity, follow this pattern instead of fetching status inside each component.
+
 ## Key Technical Choices
 
 - **Runtime & package manager**: Bun (not Node/npm). Use `bun` for all commands.
@@ -81,6 +83,9 @@ After changing the schema, always run `bun run migrate:generate` from `backend/`
 
 ## Features
 
+- **Skills** (`/skills`, `SkillsTablePage`): The core domain — every `claude_code.skill_activated` event ingested via OTLP is bucketed by skill name and plugin. Skills are derived from events (no manual create); the `skills` table is upserted on ingest. Status (`enabled`/`disabled`/`unknown`) is inherited from the owning plugin's marketplace status.
+- **Integrations** (`settings/integrations`, `IntegrationsPage`): Loki-backed pull ingestion. Each integration has a `url`, `lokiQuery`, and `syncIntervalMs`. The scheduler in `infrastructure/scheduler/sync-scheduler.ts` polls Loki and feeds events into the same pipeline as OTLP push. Encrypted basic-auth credentials via `auth_password_encrypted`.
+- **Tokens** (`/tokens`, `TokensPage`): Bearer tokens minted for OTLP ingestion. Stored hashed; revocation via `revoked_tokens` JTI list. Separate from session JWTs.
 - **Marketplace Sources** (`marketplace-sources`): Git-backed plugin registries. Each source has a `gitUrl`, optional encrypted `accessToken`, `branch`, and configurable `syncIntervalMs`. On sync, the gateway fetches `marketplace.json` from the git host and upserts marketplace + plugin records. Schedulers run per-source at their configured interval.
 - **Plugins**: Synced from marketplace sources. Read-only from the UI (`PluginsPage`).
 - **Audit Log**: All write operations emit audit events (`AuditLogPage`).
@@ -106,6 +111,8 @@ For features that call external services: also add a gateway port interface to `
 ## Frontend Design System
 
 Minimal in-house primitives in `frontend/src/components/ui/`. Compose with `cn()` (clsx + tailwind-merge) — no Radix, shadcn, or cva.
+
+**Folder layout under `frontend/src/components/`:** `ui/` holds generic primitives (Button, Table, …); the sibling folders `audit/`, `charts/`, `integrations/`, `layout/`, `marketplaces/`, `plugins/`, `skills/` hold domain-specific composites. Put new domain UI in the matching folder; reach for `ui/` only when the component is genuinely generic.
 
 - **Tokens**: CSS custom properties + `@utility` classes (`btn-primary`, `badge-*`, `nav-active`, `dot-grid`) live in `src/index.css`. Add new tokens there, not inline.
 - **Primitives**: `Button`, `Input`, `Select`, `FormField`, `Card`, `PageHeader`, `Table` (+ `THead`/`TBody`/`TR`/`TH`/`TD`/`EmptyRow`). Import from the barrel `@/components/ui`.
