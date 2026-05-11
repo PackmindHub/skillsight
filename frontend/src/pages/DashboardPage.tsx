@@ -161,20 +161,33 @@ function Heatmap({ data }: { data: HeatCell[][] }) {
 }
 
 function buildHeatmap(dailyTrend: { date: string; count: number }[], weeks = 12): HeatCell[][] {
-	// Build a 12-week × 7-day grid from dailyTrend. Older weeks first.
-	const needed = weeks * 7;
-	const padded: HeatCell[] = dailyTrend.length >= needed
-		? dailyTrend.slice(-needed).map((d) => ({ date: d.date, count: d.count }))
-		: [
-				...Array.from({ length: needed - dailyTrend.length }, () => ({ date: null, count: 0 }) as HeatCell),
-				...dailyTrend.map((d) => ({ date: d.date, count: d.count })),
-			];
+	// 12-week × 7-day grid. Rows are Mon..Sun, rightmost column = current ISO week.
+	// Dates are UTC to match the backend's DATE_TRUNC('day', timestamp)::date output.
+	const byDate = new Map<string, number>();
+	for (const d of dailyTrend) byDate.set(d.date, d.count);
+	const firstDataDate = dailyTrend[0]?.date ?? null;
+
+	const now = new Date();
+	const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+	const dow = today.getUTCDay(); // 0=Sun..6=Sat
+	const daysUntilSunday = dow === 0 ? 0 : 7 - dow;
+	const endDate = new Date(today);
+	endDate.setUTCDate(endDate.getUTCDate() + daysUntilSunday);
+	const startDate = new Date(endDate);
+	startDate.setUTCDate(startDate.getUTCDate() - (weeks * 7 - 1)); // a Monday
 
 	const grid: HeatCell[][] = [];
 	for (let w = 0; w < weeks; w++) {
 		const week: HeatCell[] = [];
 		for (let d = 0; d < 7; d++) {
-			week.push(padded[w * 7 + d] ?? { date: null, count: 0 });
+			const cellDate = new Date(startDate);
+			cellDate.setUTCDate(cellDate.getUTCDate() + w * 7 + d);
+			const iso = cellDate.toISOString().slice(0, 10);
+			if (cellDate > today || firstDataDate === null || iso < firstDataDate) {
+				week.push({ date: null, count: 0 });
+			} else {
+				week.push({ date: iso, count: byDate.get(iso) ?? 0 });
+			}
 		}
 		grid.push(week);
 	}
