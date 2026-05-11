@@ -13,6 +13,7 @@ export { MultiSelect } from "./MultiSelect";
 export { StatusFilter } from "./StatusFilter";
 export { SegmentedControl } from "./SegmentedControl";
 export { Drawer } from "./Drawer";
+export { ConfirmDialog } from "./ConfirmDialog";
 export { Menu, MenuDivider, MenuItem, useMenuClose } from "./Menu";
 export { ConfirmMenuItem } from "./ConfirmMenuItem";
 export { Sparkline } from "./Sparkline";

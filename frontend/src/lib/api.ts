@@ -72,6 +72,11 @@ export const api = {
 				`/api/skills/usage/detail?days=${period}&skill=${encodeURIComponent(skillName)}`,
 			),
 		monthlyTrends: () => apiFetch<MonthlyTrendsResponse>("/api/skills/usage/monthly"),
+		deleteMany: (entries: Array<{ skillName: string; pluginName: string }>) =>
+			apiFetch<{ skillsDeleted: number; eventsDeleted: number }>("/api/skills/delete", {
+				method: "POST",
+				body: JSON.stringify({ skills: entries }),
+			}),
 	},
 	tokens: {
 		list: () => apiFetch<Token[]>("/api/tokens"),

@@ -27,6 +27,7 @@ export interface ISkillRepository {
 	upsertMany(entries: SkillUpsertEntry[]): Promise<void>;
 	propagateStatusFromPlugins(affectedPluginNames: string[], newStatus: SkillStatus): Promise<void>;
 	deleteByPlugins(pluginNames: string[]): Promise<void>;
+	deleteByKeys(entries: Array<{ skillName: string; pluginName: string }>): Promise<number>;
 }
 
 export interface SkillUpsertEntry {

@@ -24,7 +24,8 @@ export type AuditAction =
 	| "marketplace_source_sync_completed"
 	| "marketplace_source_paused"
 	| "marketplace_source_resumed"
-	| "plugin_status_changed";
+	| "plugin_status_changed"
+	| "skills_deleted";
 
 export const ALL_AUDIT_ACTIONS: readonly AuditAction[] = [
 	"login",
@@ -53,6 +54,7 @@ export const ALL_AUDIT_ACTIONS: readonly AuditAction[] = [
 	"marketplace_source_paused",
 	"marketplace_source_resumed",
 	"plugin_status_changed",
+	"skills_deleted",
 ] as const;
 
 export interface AuditEntry {

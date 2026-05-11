@@ -11,6 +11,7 @@ import { createTelemetryRoute } from "@/http/telemetry";
 import { createAuthRoute } from "@/http/auth";
 import { createTokensRoute } from "@/http/tokens";
 import { createUsageRoute } from "@/http/skills/usage";
+import { createDeleteRoute as createSkillsDeleteRoute } from "@/http/skills/delete";
 import { createAuditRoute } from "@/http/audit";
 import { createIntegrationsRoute } from "@/http/integrations";
 import { createMarketplacesRoute } from "@/http/marketplaces";
@@ -65,6 +66,7 @@ export function createApp() {
 	app.route("/api/auth", createAuthRoute(deps));
 	app.route("/api/tokens", createTokensRoute(deps));
 	app.route("/api/skills/usage", createUsageRoute(deps));
+	app.route("/api/skills", createSkillsDeleteRoute(deps));
 	app.route("/api/audit", createAuditRoute(deps));
 	app.route("/api/integrations", createIntegrationsRoute(deps));
 	app.route("/api/marketplaces", createMarketplacesRoute(deps));

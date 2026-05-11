@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { SkillDetailDrawer } from "@/components/skills/SkillDetailDrawer";
 import {
 	Button,
+	ConfirmDialog,
 	MultiSelect,
 	PageHeader,
 	SearchBar,
@@ -89,6 +90,18 @@ const TRIGGER_KEYS = TRIGGERS.map((t) => t.key);
 const SKELETON_KEYS = ["a", "b", "c", "d", "e", "f", "g", "h"];
 const NO_MARKETPLACE = "__none__";
 const NO_MARKETPLACE_LABEL = "(none)";
+const NO_PLUGIN_KEY = "__none__";
+
+function rowKey(row: { skillName: string; pluginName: string | null }): string {
+	return `${row.skillName}::${row.pluginName ?? NO_PLUGIN_KEY}`;
+}
+
+function keyToEntry(key: string): { skillName: string; pluginName: string } {
+	const idx = key.indexOf("::");
+	const skillName = key.slice(0, idx);
+	const pluginPart = key.slice(idx + 2);
+	return { skillName, pluginName: pluginPart === NO_PLUGIN_KEY ? "" : pluginPart };
+}
 
 const PERIOD_OPTIONS: { value: DashboardPeriod; label: string }[] = [
 	{ value: 7, label: "7d" },
@@ -126,6 +139,12 @@ export default function SkillsTablePage() {
 	const [error, setError] = useState<string | null>(null);
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [openSkill, setOpenSkill] = useState<string | null>(null);
+	const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
+	const [confirmOpen, setConfirmOpen] = useState(false);
+	const [deleting, setDeleting] = useState(false);
+	const [deleteError, setDeleteError] = useState<string | null>(null);
+	const [reloadToken, setReloadToken] = useState(0);
+	const selectAllRef = useRef<HTMLInputElement>(null);
 
 	const period = pickPeriod(searchParams.get("period"));
 	const search = searchParams.get("search") ?? "";
@@ -210,6 +229,7 @@ export default function SkillsTablePage() {
 		);
 	}
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: reloadToken is a manual refetch trigger
 	useEffect(() => {
 		setLoading(true);
 		setError(null);
@@ -228,7 +248,7 @@ export default function SkillsTablePage() {
 		return () => {
 			cancelled = true;
 		};
-	}, [period]);
+	}, [period, reloadToken]);
 
 	const filteredRows = useMemo(() => {
 		const q = debouncedSearch.trim();
@@ -311,6 +331,77 @@ export default function SkillsTablePage() {
 			hint: `${r.row.total} · ${r.row.marketplaces[0]?.name ?? "—"}`,
 		}));
 	}, [rows, debouncedSearch]);
+
+	const filteredKeys = useMemo(() => filteredRows.map(rowKey), [filteredRows]);
+	const visibleSelectedCount = useMemo(
+		() => filteredKeys.reduce((n, k) => n + (selectedKeys.has(k) ? 1 : 0), 0),
+		[filteredKeys, selectedKeys],
+	);
+	const allVisibleSelected =
+		filteredKeys.length > 0 && visibleSelectedCount === filteredKeys.length;
+	const someVisibleSelected = visibleSelectedCount > 0 && !allVisibleSelected;
+
+	useEffect(() => {
+		if (selectAllRef.current) selectAllRef.current.indeterminate = someVisibleSelected;
+	}, [someVisibleSelected]);
+
+	// Drop selections that are no longer in the filtered set so the bulk action bar
+	// always reflects rows the user can actually see.
+	useEffect(() => {
+		setSelectedKeys((prev) => {
+			if (prev.size === 0) return prev;
+			const visible = new Set(filteredKeys);
+			let changed = false;
+			const next = new Set<string>();
+			for (const k of prev) {
+				if (visible.has(k)) next.add(k);
+				else changed = true;
+			}
+			return changed ? next : prev;
+		});
+	}, [filteredKeys]);
+
+	function toggleRow(key: string) {
+		setSelectedKeys((prev) => {
+			const next = new Set(prev);
+			if (next.has(key)) next.delete(key);
+			else next.add(key);
+			return next;
+		});
+	}
+
+	function toggleSelectAll() {
+		setSelectedKeys((prev) => {
+			if (allVisibleSelected) {
+				const next = new Set(prev);
+				for (const k of filteredKeys) next.delete(k);
+				return next;
+			}
+			const next = new Set(prev);
+			for (const k of filteredKeys) next.add(k);
+			return next;
+		});
+	}
+
+	function clearSelection() {
+		setSelectedKeys(new Set());
+	}
+
+	async function handleBulkDelete() {
+		setDeleting(true);
+		setDeleteError(null);
+		try {
+			const entries = Array.from(selectedKeys).map(keyToEntry);
+			await api.skills.deleteMany(entries);
+			setSelectedKeys(new Set());
+			setConfirmOpen(false);
+			setReloadToken((t) => t + 1);
+		} catch (e) {
+			setDeleteError(e instanceof Error ? e.message : String(e));
+		} finally {
+			setDeleting(false);
+		}
+	}
 
 	const triggerOptions = TRIGGERS.map((t) => ({ value: t.key, label: t.label }));
 	const marketplaceOptions = [
@@ -478,9 +569,49 @@ export default function SkillsTablePage() {
 				</div>
 			)}
 
+			{selectedKeys.size > 0 && (
+				<div className="flex items-center gap-3 rounded-md border border-accent-bright/30 bg-accent-bright/10 px-3 py-2 text-sm text-text-1">
+					<span>
+						<span className="font-medium">{selectedKeys.size}</span> selected
+					</span>
+					<button
+						type="button"
+						onClick={clearSelection}
+						className="text-xs text-text-3 hover:text-text-1 hover:underline"
+					>
+						Clear
+					</button>
+					<div className="ml-auto">
+						<Button
+							variant="danger"
+							size="sm"
+							onClick={() => {
+								setDeleteError(null);
+								setConfirmOpen(true);
+							}}
+						>
+							Delete…
+						</Button>
+					</div>
+				</div>
+			)}
+
 			<Table>
 				<THead>
 					<tr>
+						<th className="w-10 px-3 py-3">
+							<input
+								ref={selectAllRef}
+								type="checkbox"
+								aria-label={
+									allVisibleSelected ? "Deselect all filtered skills" : "Select all filtered skills"
+								}
+								checked={allVisibleSelected}
+								onChange={toggleSelectAll}
+								disabled={filteredRows.length === 0}
+								className="h-4 w-4 cursor-pointer accent-accent-bright disabled:cursor-not-allowed disabled:opacity-40"
+							/>
+						</th>
 						<SortableHeader
 							label="Skill"
 							sortKey="skillName"
@@ -531,19 +662,19 @@ export default function SkillsTablePage() {
 						SKELETON_KEYS.map((k) => <SkeletonRow key={k} />)
 					) : error ? (
 						<tr>
-							<td colSpan={9} className="px-4 py-8 text-center text-danger text-sm">
+							<td colSpan={10} className="px-4 py-8 text-center text-danger text-sm">
 								{error}
 							</td>
 						</tr>
 					) : rows.length === 0 ? (
 						<tr>
-							<td colSpan={9} className="px-4 py-12 text-center text-text-3 text-sm">
+							<td colSpan={10} className="px-4 py-12 text-center text-text-3 text-sm">
 								No skills found.
 							</td>
 						</tr>
 					) : filteredRows.length === 0 ? (
 						<tr>
-							<td colSpan={9} className="px-4 py-8 text-center text-text-4 text-sm">
+							<td colSpan={10} className="px-4 py-8 text-center text-text-4 text-sm">
 								No skills match the current filters.
 								{filtersActive && (
 									<>
@@ -560,9 +691,12 @@ export default function SkillsTablePage() {
 							</td>
 						</tr>
 					) : (
-						filteredRows.map((row) => (
+						filteredRows.map((row) => {
+							const key = rowKey(row);
+							const checked = selectedKeys.has(key);
+							return (
 							<tr
-								key={`${row.skillName}::${row.pluginName ?? "__none__"}`}
+								key={key}
 								onClick={() => setOpenSkill(row.skillName)}
 								onKeyDown={(e) => {
 									if (e.key === "Enter" || e.key === " ") {
@@ -574,8 +708,22 @@ export default function SkillsTablePage() {
 								className={cn(
 									"hover:bg-surface-800 transition-colors cursor-pointer focus:outline-none focus:bg-surface-800",
 									row.total === 0 && "opacity-60",
+									checked && "bg-accent-bright/5",
 								)}
 							>
+								<td
+									className="w-10 px-3 py-3"
+									onClick={(e) => e.stopPropagation()}
+									onKeyDown={(e) => e.stopPropagation()}
+								>
+									<input
+										type="checkbox"
+										aria-label={`Select skill ${row.skillName}`}
+										checked={checked}
+										onChange={() => toggleRow(key)}
+										className="h-4 w-4 cursor-pointer accent-accent-bright"
+									/>
+								</td>
 								<td className="px-4 py-3 font-mono text-text-1">
 									<span className="flex flex-col gap-0.5">
 										<span className="flex items-center gap-2">
@@ -618,11 +766,17 @@ export default function SkillsTablePage() {
 								<td className="px-4 py-3">
 									<StatusBadge status={(row.status ?? "unknown") as SkillStatus} />
 								</td>
-								{TRIGGERS.map(({ key, color }) => (
-									<ProgressCell key={key} count={row[key]} total={row.total} color={color} />
+								{TRIGGERS.map(({ key: triggerKey, color }) => (
+									<ProgressCell
+										key={triggerKey}
+										count={row[triggerKey]}
+										total={row.total}
+										color={color}
+									/>
 								))}
 							</tr>
-						))
+							);
+						})
 					)}
 				</TBody>
 			</Table>
@@ -631,6 +785,41 @@ export default function SkillsTablePage() {
 				skillName={openSkill}
 				period={period}
 				onClose={() => setOpenSkill(null)}
+			/>
+
+			<ConfirmDialog
+				open={confirmOpen}
+				title={`Delete ${selectedKeys.size} skill${selectedKeys.size === 1 ? "" : "s"}?`}
+				description={
+					<div className="space-y-2">
+						<p>
+							This will permanently delete{" "}
+							<span className="font-medium text-text-1">
+								{selectedKeys.size} skill{selectedKeys.size === 1 ? "" : "s"}
+							</span>{" "}
+							and{" "}
+							<span className="font-medium text-text-1">
+								every <span className="font-mono">skill_activated</span> event
+							</span>{" "}
+							recorded for them. This cannot be undone.
+						</p>
+						<p className="text-xs text-text-3">
+							If new events arrive for a deleted skill later, the skill will reappear.
+						</p>
+					</div>
+				}
+				confirmLabel="Delete"
+				confirmVariant="danger"
+				requireTyped="delete"
+				loading={deleting}
+				error={deleteError}
+				onConfirm={handleBulkDelete}
+				onClose={() => {
+					if (!deleting) {
+						setConfirmOpen(false);
+						setDeleteError(null);
+					}
+				}}
 			/>
 		</div>
 	);
@@ -674,6 +863,9 @@ function SortableHeader({
 function SkeletonRow() {
 	return (
 		<tr>
+			<td className="w-10 px-3 py-3">
+				<div className="h-4 w-4 rounded bg-surface-800 animate-pulse" />
+			</td>
 			<td className="px-4 py-3">
 				<div className="h-3 w-44 rounded bg-surface-800 animate-pulse" />
 			</td>
