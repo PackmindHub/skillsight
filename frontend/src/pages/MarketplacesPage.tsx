@@ -45,11 +45,6 @@ const STATUS_OPTIONS: { value: MarketplaceStatus; label: string }[] = [
 	{ value: "denied", label: "Denied" },
 ];
 
-interface EditState {
-	url: string;
-	description: string;
-}
-
 interface SourceForm {
 	gitUrl: string;
 	accessToken: string;
@@ -73,9 +68,9 @@ export default function MarketplacesPage() {
 	const [sources, setSources] = useState<MarketplaceSource[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const [editing, setEditing] = useState<Record<string, EditState>>({});
-	const [saving, setSaving] = useState<Record<string, boolean>>({});
 	const [selectedMarketplace, setSelectedMarketplace] = useState<string | null>(null);
+	const [drawerInitialMode, setDrawerInitialMode] = useState<"view" | "edit">("view");
+	const [importForMarketplace, setImportForMarketplace] = useState<string | null>(null);
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	const { refresh: refreshSourcesHealth } = useMarketplaceSourcesHealth();
@@ -153,45 +148,38 @@ export default function MarketplacesPage() {
 		}
 	}
 
-	function startEdit(mp: Marketplace) {
-		setEditing((prev) => ({
-			...prev,
-			[mp.name]: { url: mp.url ?? "", description: mp.description ?? "" },
-		}));
+	function openMarketplaceDrawer(name: string, mode: "view" | "edit" = "view") {
+		setDrawerInitialMode(mode);
+		setSelectedMarketplace(name);
 	}
 
-	function cancelEdit(name: string) {
-		setEditing((prev) => {
-			const next = { ...prev };
-			delete next[name];
-			return next;
-		});
+	function closeMarketplaceDrawer() {
+		setSelectedMarketplace(null);
+		setImportForMarketplace(null);
 	}
 
-	async function saveEdit(name: string) {
-		const state = editing[name];
-		if (!state) return;
-		setSaving((prev) => ({ ...prev, [name]: true }));
-		try {
-			const updated = await api.marketplaces.update(name, {
-				url: state.url.trim() || null,
-				description: state.description.trim() || null,
-			});
-			setItems((prev) => prev.map((m) => (m.name === name ? { ...m, ...updated } : m)));
-			cancelEdit(name);
-		} catch (e) {
-			setError(String(e));
-		} finally {
-			setSaving((prev) => ({ ...prev, [name]: false }));
-		}
+	async function refreshMarketplaceData() {
+		const [mpRes, srcRes] = await Promise.all([
+			api.marketplaces.list(),
+			api.marketplaceSources.list(),
+		]);
+		setItems(mpRes.marketplaces);
+		setSources(srcRes);
+		refreshSourcesHealth();
 	}
 
-	function openCreateSource() {
+	function openCreateSource(forMarketplace: string | null = null) {
 		setEditingSourceId(null);
 		setSourceForm(defaultSourceForm);
 		setConnectionTestResult(null);
 		setSubmitError(null);
+		setImportForMarketplace(forMarketplace);
 		setShowSourceForm(true);
+	}
+
+	function handleRequestImport(marketplaceName: string) {
+		setSelectedMarketplace(null);
+		openCreateSource(marketplaceName);
 	}
 
 	function openEditSource(source: MarketplaceSource) {
@@ -212,6 +200,7 @@ export default function MarketplacesPage() {
 	function closeSourceForm() {
 		setShowSourceForm(false);
 		setEditingSourceId(null);
+		setImportForMarketplace(null);
 	}
 
 	function updateSourceField<K extends keyof SourceForm>(key: K, value: SourceForm[K]) {
@@ -400,7 +389,7 @@ export default function MarketplacesPage() {
 			<PageHeader
 				title="Marketplaces"
 				subtitle="Discovered marketplaces and imported git sources. Review and approve each source."
-				actions={<Button onClick={openCreateSource}>Import from git</Button>}
+				actions={<Button onClick={() => openCreateSource()}>Import from git</Button>}
 			/>
 
 			{error && <p className="text-sm text-danger">{error}</p>}
@@ -414,6 +403,14 @@ export default function MarketplacesPage() {
 							<h3 className="text-sm font-medium text-text-1 mb-3">
 								{editingSourceId ? "Edit git source" : "Import marketplace from git"}
 							</h3>
+							{!editingSourceId && importForMarketplace && (
+								<p className="mb-3 text-xs text-text-3">
+									This source will link to{" "}
+									<span className="font-mono text-text-2">{importForMarketplace}</span>{" "}
+									if its <span className="font-mono">marketplace.json</span> declares
+									this name.
+								</p>
+							)}
 							<form onSubmit={handleSourceSubmit} className="space-y-5">
 								<FormField
 									label="Repository URL"
@@ -741,9 +738,6 @@ export default function MarketplacesPage() {
 								<EmptyRow colSpan={12}>No marketplaces match the current filters.</EmptyRow>
 							)}
 							{filteredItems.map((mp) => {
-								const isEditing = !!editing[mp.name];
-								const isSaving = saving[mp.name] ?? false;
-								const editState = editing[mp.name];
 								const isHighlighted = highlightName === mp.name;
 								return (
 									<TR
@@ -754,7 +748,7 @@ export default function MarketplacesPage() {
 										<TD className="font-mono whitespace-nowrap">
 											<button
 												type="button"
-												onClick={() => setSelectedMarketplace(mp.name)}
+												onClick={() => openMarketplaceDrawer(mp.name)}
 												className="text-accent-soft hover:underline"
 												title="View marketplace details"
 											>
@@ -780,20 +774,7 @@ export default function MarketplacesPage() {
 											</div>
 										</TD>
 										<TD className="text-text-3 max-w-xs">
-											{isEditing ? (
-												<Input
-													type="url"
-													size="sm"
-													value={editState.url}
-													onChange={(e) =>
-														setEditing((prev) => ({
-															...prev,
-															[mp.name]: { ...prev[mp.name], url: e.target.value },
-														}))
-													}
-													placeholder="https://..."
-												/>
-											) : mp.url ? (
+											{mp.url ? (
 												<a
 													href={mp.url}
 													target="_blank"
@@ -807,23 +788,7 @@ export default function MarketplacesPage() {
 											)}
 										</TD>
 										<TD className="text-text-3 max-w-xs">
-											{isEditing ? (
-												<Input
-													type="text"
-													size="sm"
-													value={editState.description}
-													onChange={(e) =>
-														setEditing((prev) => ({
-															...prev,
-															[mp.name]: {
-																...prev[mp.name],
-																description: e.target.value,
-															},
-														}))
-													}
-													placeholder="Free description…"
-												/>
-											) : mp.description ? (
+											{mp.description ? (
 												<span className="truncate block max-w-56">{mp.description}</span>
 											) : (
 												<span className="text-text-4">—</span>
@@ -833,7 +798,7 @@ export default function MarketplacesPage() {
 											{mp.pluginCount > 0 ? (
 												<button
 													type="button"
-													onClick={() => setSelectedMarketplace(mp.name)}
+													onClick={() => openMarketplaceDrawer(mp.name)}
 													className="text-accent-soft hover:underline"
 													title="View marketplace plugins"
 												>
@@ -847,7 +812,7 @@ export default function MarketplacesPage() {
 											{mp.knownSkillCount > 0 ? (
 												<button
 													type="button"
-													onClick={() => setSelectedMarketplace(mp.name)}
+													onClick={() => openMarketplaceDrawer(mp.name)}
 													className="text-accent-soft hover:underline"
 													title="View marketplace skills"
 												>
@@ -861,7 +826,7 @@ export default function MarketplacesPage() {
 											{mp.knownSkillCount > 0 ? (
 												<button
 													type="button"
-													onClick={() => setSelectedMarketplace(mp.name)}
+													onClick={() => openMarketplaceDrawer(mp.name)}
 													className={cn(
 														"hover:underline",
 														mp.activatedSkillCount > 0
@@ -898,39 +863,23 @@ export default function MarketplacesPage() {
 										</TD>
 										<TD numeric>{mp.skillActivatedLinkedCount}</TD>
 										<TD align="right" className="whitespace-nowrap">
-											{isEditing ? (
-												<div className="flex items-center justify-end gap-2">
-													<Button
-														variant="ghost"
-														size="sm"
-														onClick={() => saveEdit(mp.name)}
-														loading={isSaving}
-													>
-														Save
-													</Button>
-													<Button
-														variant="ghost"
-														size="sm"
-														onClick={() => cancelEdit(mp.name)}
-													>
-														Cancel
-													</Button>
-												</div>
-											) : (
-												<div className="flex items-center justify-end gap-2">
-													<Button variant="ghost" size="sm" onClick={() => startEdit(mp)}>
-														Edit
-													</Button>
-													<Button
-														variant="ghost"
-														size="sm"
-														onClick={() => openDeleteMarketplace(mp.name)}
-														className="text-danger hover:text-danger"
-													>
-														Delete
-													</Button>
-												</div>
-											)}
+											<div className="flex items-center justify-end gap-2">
+												<Button
+													variant="ghost"
+													size="sm"
+													onClick={() => openMarketplaceDrawer(mp.name, "edit")}
+												>
+													Edit
+												</Button>
+												<Button
+													variant="ghost"
+													size="sm"
+													onClick={() => openDeleteMarketplace(mp.name)}
+													className="text-danger hover:text-danger"
+												>
+													Delete
+												</Button>
+											</div>
 										</TD>
 									</TR>
 								);
@@ -941,8 +890,20 @@ export default function MarketplacesPage() {
 			</div>
 
 			<MarketplaceDetailsDrawer
-				marketplaceName={selectedMarketplace}
-				onClose={() => setSelectedMarketplace(null)}
+				marketplace={
+					selectedMarketplace
+						? (items.find((m) => m.name === selectedMarketplace) ?? null)
+						: null
+				}
+				linkedSources={
+					selectedMarketplace
+						? sources.filter((s) => s.marketplaceName === selectedMarketplace)
+						: []
+				}
+				initialMode={drawerInitialMode}
+				onClose={closeMarketplaceDrawer}
+				onChanged={refreshMarketplaceData}
+				onRequestImport={handleRequestImport}
 			/>
 
 			{deleteConfirm && (
