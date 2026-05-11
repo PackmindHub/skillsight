@@ -1,11 +1,17 @@
 import { Hono } from "hono";
-import type { AppVariables } from "@/types";
+import { z } from "zod";
+import { listPluginSkills } from "@/application/plugins/list-plugin-skills";
+import { listPlugins } from "@/application/plugins/list-plugins";
+import { updatePlugin } from "@/application/plugins/update-plugin";
 import type { AppDeps } from "@/bootstrap/compose";
 import { sessionAuth } from "@/middleware/session-auth";
-import { listPlugins } from "@/application/plugins/list-plugins";
-import { listPluginSkills } from "@/application/plugins/list-plugin-skills";
+import type { AppVariables } from "@/types";
 
-export function createPluginsRoute(deps: Pick<AppDeps, "plugins">) {
+const updateSchema = z.object({
+	status: z.enum(["unknown", "to_review", "approved", "removed"]).optional(),
+});
+
+export function createPluginsRoute(deps: Pick<AppDeps, "plugins" | "audit">) {
 	const route = new Hono<{ Variables: AppVariables }>();
 	route.use("*", sessionAuth);
 
@@ -17,6 +23,17 @@ export function createPluginsRoute(deps: Pick<AppDeps, "plugins">) {
 		const pluginName = decodeURIComponent(c.req.param("pluginName"));
 		const skills = await listPluginSkills(deps, pluginName);
 		return c.json({ skills });
+	});
+
+	route.patch("/:pluginName", async (c) => {
+		const pluginName = decodeURIComponent(c.req.param("pluginName"));
+		const body = updateSchema.parse(await c.req.json());
+		const result = await updatePlugin(
+			{ plugins: deps.plugins, audit: deps.audit },
+			{ pluginName, ...body, actorEmail: c.get("user").email },
+		);
+		if ("error" in result) return c.json({ error: "Plugin not found" }, 404);
+		return c.json(result);
 	});
 
 	return route;

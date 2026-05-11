@@ -1,5 +1,6 @@
 import type {
 	NewPlugin,
+	Plugin,
 	PluginSkillActivation,
 	PluginStatus,
 	PluginWithStats,
@@ -8,8 +9,10 @@ import type {
 export interface IPluginRepository {
 	listWithStats(): Promise<PluginWithStats[]>;
 	listSkillsWithActivations(pluginName: string): Promise<PluginSkillActivation[]>;
+	findByName(pluginName: string): Promise<Plugin | null>;
 	upsert(plugin: NewPlugin): Promise<void>;
 	upsertIfAbsent(plugin: NewPlugin): Promise<void>;
+	update(pluginName: string, updates: { status?: PluginStatus }): Promise<Plugin | null>;
 	updateStatusByMarketplace(marketplaceName: string, status: PluginStatus): Promise<void>;
 	markRemovedByMarketplace(
 		marketplaceName: string,

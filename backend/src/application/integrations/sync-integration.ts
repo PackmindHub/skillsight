@@ -89,6 +89,21 @@ export async function syncIntegration(
 			await deps.skills.upsertMany(skillEntries);
 		}
 
+		const mpNames = [
+			...new Set(
+				parsedEvents
+					.filter(
+						(e) =>
+							e.eventName === "claude_code.skill_activated" &&
+							typeof e.attributes["marketplace.name"] === "string",
+					)
+					.map((e) => e.attributes["marketplace.name"] as string),
+			),
+		];
+		if (mpNames.length > 0) {
+			await deps.marketplaces.upsertSeen(mpNames);
+		}
+
 		const skillActivationsWithPlugin = parsedEvents.filter(
 			(e) =>
 				e.eventName === "claude_code.skill_activated" &&

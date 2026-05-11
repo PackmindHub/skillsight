@@ -115,19 +115,23 @@ function makePluginSkills() {
 	return { repo, upsertManyCalls };
 }
 
-function makeMarketplaces(): IMarketplaceRepository {
-	return {
+function makeMarketplaces() {
+	const upsertSeenCalls: string[][] = [];
+	const repo: IMarketplaceRepository = {
 		listWithStats: async () => [],
 		findByName: async () => null,
 		update: async () => {
 			throw new Error("not used");
 		},
-		upsertSeen: async () => {},
+		upsertSeen: async (names) => {
+			upsertSeenCalls.push(names);
+		},
 		upsertFromImport: async () => {},
 		listStatuses: async () => [],
 		listPluginsForMarketplace: async () => [],
 		listSkillsForMarketplace: async () => [],
 	};
+	return { repo, upsertSeenCalls };
 }
 
 function makeLoki(streams: LokiStreamResult[]): ILokiGateway {
@@ -199,7 +203,7 @@ describe("syncIntegration", () => {
 				skills,
 				plugins: makePlugins().repo,
 				pluginSkills: makePluginSkills().repo,
-				marketplaces: makeMarketplaces(),
+				marketplaces: makeMarketplaces().repo,
 				loki,
 				audit: makeAudit(),
 			},
@@ -226,7 +230,7 @@ describe("syncIntegration", () => {
 				skills,
 				plugins: makePlugins().repo,
 				pluginSkills: makePluginSkills().repo,
-				marketplaces: makeMarketplaces(),
+				marketplaces: makeMarketplaces().repo,
 				loki,
 				audit: makeAudit(),
 			},
@@ -235,6 +239,42 @@ describe("syncIntegration", () => {
 
 		expect(upsertManyCalls).toHaveLength(1);
 		expect(upsertManyCalls[0]).toEqual([{ skillName: "format", pluginName: null }]);
+	});
+
+	it("upserts marketplace stubs for marketplace.name attributes on skill_activated events", async () => {
+		const { repo: integrations } = { repo: makeIntegrations() };
+		const { repo: events } = makeEvents();
+		const { repo: skills } = makeSkills();
+		const { repo: marketplaces, upsertSeenCalls } = makeMarketplaces();
+
+		const loki = makeLoki([
+			streamWithEvent("claude_code.skill_activated", {
+				"skill.name": "lint",
+				"plugin.name": "plugin-a",
+				"marketplace.name": "claude-plugins-official",
+			}),
+			streamWithEvent("claude_code.skill_activated", {
+				"skill.name": "format",
+				"marketplace.name": "claude-plugins-official",
+			}),
+		]);
+
+		await syncIntegration(
+			{
+				integrations,
+				events,
+				skills,
+				plugins: makePlugins().repo,
+				pluginSkills: makePluginSkills().repo,
+				marketplaces,
+				loki,
+				audit: makeAudit(),
+			},
+			BASE_INTEGRATION,
+		);
+
+		expect(upsertSeenCalls).toHaveLength(1);
+		expect(upsertSeenCalls[0]).toEqual(["claude-plugins-official"]);
 	});
 
 	it("does not call upsertMany when there are no skill_activated events", async () => {
@@ -253,7 +293,7 @@ describe("syncIntegration", () => {
 				skills,
 				plugins: makePlugins().repo,
 				pluginSkills: makePluginSkills().repo,
-				marketplaces: makeMarketplaces(),
+				marketplaces: makeMarketplaces().repo,
 				loki,
 				audit: makeAudit(),
 			},
@@ -284,7 +324,7 @@ describe("syncIntegration", () => {
 				skills,
 				plugins,
 				pluginSkills,
-				marketplaces: makeMarketplaces(),
+				marketplaces: makeMarketplaces().repo,
 				loki,
 				audit: makeAudit(),
 			},
@@ -319,7 +359,7 @@ describe("syncIntegration", () => {
 				skills,
 				plugins,
 				pluginSkills,
-				marketplaces: makeMarketplaces(),
+				marketplaces: makeMarketplaces().repo,
 				loki,
 				audit: makeAudit(),
 			},
@@ -349,7 +389,7 @@ describe("syncIntegration", () => {
 				skills,
 				plugins: makePlugins().repo,
 				pluginSkills: makePluginSkills().repo,
-				marketplaces: makeMarketplaces(),
+				marketplaces: makeMarketplaces().repo,
 				loki,
 				audit: makeAudit(),
 			},
@@ -377,7 +417,7 @@ describe("syncIntegration", () => {
 				skills,
 				plugins,
 				pluginSkills,
-				marketplaces: makeMarketplaces(),
+				marketplaces: makeMarketplaces().repo,
 				loki,
 				audit: makeAudit(),
 			},

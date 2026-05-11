@@ -33,6 +33,13 @@ const ASSOC_LABELS: Record<MarketplaceAssociation, string> = {
 	without: "Without marketplace",
 };
 
+const STATUS_OPTIONS: { value: PluginStatus; label: string }[] = [
+	{ value: "unknown", label: "Unknown" },
+	{ value: "to_review", label: "To Review" },
+	{ value: "approved", label: "Approved" },
+	{ value: "removed", label: "Removed" },
+];
+
 export default function PluginsPage() {
 	const [items, setItems] = useState<Plugin[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -93,6 +100,20 @@ export default function PluginsPage() {
 			.catch((e) => setError(String(e)))
 			.finally(() => setLoading(false));
 	}, []);
+
+	async function handleStatusChange(pluginName: string, status: PluginStatus) {
+		setItems((prev) =>
+			prev.map((p) => (p.pluginName === pluginName ? { ...p, status } : p)),
+		);
+		try {
+			await api.plugins.update(pluginName, { status });
+		} catch {
+			api.plugins
+				.list()
+				.then((res) => setItems(res.plugins))
+				.catch(() => {});
+		}
+	}
 
 	const filteredItems = useMemo(() => {
 		return items.filter((p) => {
@@ -271,7 +292,25 @@ export default function PluginsPage() {
 												)}
 											</TD>
 											<TD>
-												<StatusBadge status={status} />
+												<div className="flex items-center gap-2">
+													<StatusBadge status={status} />
+													<Select
+														size="sm"
+														value={status}
+														onChange={(e) =>
+															handleStatusChange(
+																plugin.pluginName,
+																e.target.value as PluginStatus,
+															)
+														}
+													>
+														{STATUS_OPTIONS.map((opt) => (
+															<option key={opt.value} value={opt.value}>
+																{opt.label}
+															</option>
+														))}
+													</Select>
+												</div>
 											</TD>
 											<TD numeric>
 												{plugin.skillCount > 0 ? (

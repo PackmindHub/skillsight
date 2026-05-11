@@ -4,6 +4,7 @@ import { plugins } from "@/db/schema";
 import type { IPluginRepository } from "@/domain/ports/plugin-repository";
 import type {
 	NewPlugin,
+	Plugin,
 	PluginSkillActivation,
 	PluginStatus,
 	PluginWithStats,
@@ -70,6 +71,52 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			ORDER BY "activationCount" DESC, ps.skill_name ASC
 		`);
 		return rows as unknown as PluginSkillActivation[];
+	}
+
+	async findByName(pluginName: string): Promise<Plugin | null> {
+		const rows = await this.db
+			.select()
+			.from(plugins)
+			.where(eq(plugins.pluginName, pluginName))
+			.limit(1);
+		const row = rows[0];
+		if (!row) return null;
+		return {
+			pluginName: row.pluginName,
+			marketplaceName: row.marketplaceName,
+			pluginVersion: row.pluginVersion,
+			installTrigger: row.installTrigger,
+			marketplaceIsOfficial: row.marketplaceIsOfficial,
+			status: row.status as PluginStatus,
+			firstSeenAt: row.firstSeenAt,
+			lastSeenAt: row.lastSeenAt,
+		};
+	}
+
+	async update(
+		pluginName: string,
+		updates: { status?: PluginStatus },
+	): Promise<Plugin | null> {
+		const set: { status?: PluginStatus } = {};
+		if (updates.status !== undefined) set.status = updates.status;
+		if (Object.keys(set).length === 0) return this.findByName(pluginName);
+		const rows = await this.db
+			.update(plugins)
+			.set(set)
+			.where(eq(plugins.pluginName, pluginName))
+			.returning();
+		const row = rows[0];
+		if (!row) return null;
+		return {
+			pluginName: row.pluginName,
+			marketplaceName: row.marketplaceName,
+			pluginVersion: row.pluginVersion,
+			installTrigger: row.installTrigger,
+			marketplaceIsOfficial: row.marketplaceIsOfficial,
+			status: row.status as PluginStatus,
+			firstSeenAt: row.firstSeenAt,
+			lastSeenAt: row.lastSeenAt,
+		};
 	}
 
 	async upsert(plugin: NewPlugin): Promise<void> {

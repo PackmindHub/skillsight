@@ -102,6 +102,11 @@ export const api = {
 			apiFetch<PluginSkillsResponse>(
 				`/api/plugins/${encodeURIComponent(pluginName)}/skills`,
 			),
+		update: (pluginName: string, body: { status?: string }) =>
+			apiFetch<Plugin>(`/api/plugins/${encodeURIComponent(pluginName)}`, {
+				method: "PATCH",
+				body: JSON.stringify(body),
+			}),
 	},
 	marketplaces: {
 		list: () => apiFetch<{ marketplaces: Marketplace[] }>("/api/marketplaces"),
