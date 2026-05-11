@@ -8,6 +8,12 @@ interface LokiQueryResponse {
 	};
 }
 
+// Most Loki deployments enforce a `max_query_length` (Grafana Cloud's default
+// is 30d1h; OSS Loki's default is 721h). Querying from epoch trips that limit
+// with a 400. Cap first-sync lookback below the common default; subsequent
+// runs advance via the cursor + page-forward logic in sync-integration.ts.
+const FIRST_SYNC_LOOKBACK_MS = 30 * 24 * 60 * 60 * 1000;
+
 export class LokiHttpGateway implements ILokiGateway {
 	async fetchLogs(opts: {
 		url: string;
@@ -20,13 +26,10 @@ export class LokiHttpGateway implements ILokiGateway {
 	}): Promise<LokiStreamResult[]> {
 		const { url, authType, username, password, query, from, to } = opts;
 
-		// When `from` is null (first sync / no cursor) we want all historical data.
-		// Loki's query_range defaults `start` to one hour before `end` when omitted,
-		// which would silently cap the first import to the last hour. Pin start to
-		// the epoch instead so we fetch everything Loki retains.
+		const startMs = from !== null ? from.getTime() : to.getTime() - FIRST_SYNC_LOOKBACK_MS;
 		const params = new URLSearchParams({
 			query,
-			start: (from !== null ? from.getTime() * 1_000_000 : 0).toString(),
+			start: (startMs * 1_000_000).toString(),
 			end: (to.getTime() * 1_000_000).toString(),
 			limit: "5000",
 			direction: "forward",
@@ -52,10 +55,37 @@ export class LokiHttpGateway implements ILokiGateway {
 			throw new Error("Loki endpoint not found (HTTP 404). Check the URL.");
 		}
 		if (!res.ok) {
-			throw new Error(`Loki responded with HTTP ${res.status}.`);
+			const detail = await readErrorDetail(res);
+			throw new Error(
+				`Loki responded with HTTP ${res.status}${detail ? `: ${detail}` : ""}.`,
+			);
 		}
 
 		const body = (await res.json()) as LokiQueryResponse;
 		return body.data?.result ?? [];
 	}
+}
+
+// Loki error bodies are sometimes plain text, sometimes JSON like
+// `{"status":"error","error":"…","errorType":"…"}`. Surface whichever we get,
+// trimmed so a runaway body can't blow up a log line.
+async function readErrorDetail(res: Response): Promise<string> {
+	try {
+		const text = (await res.text()).trim();
+		if (!text) return "";
+		try {
+			const parsed = JSON.parse(text);
+			const msg = parsed?.error ?? parsed?.message;
+			if (typeof msg === "string" && msg.length > 0) return truncate(msg, 500);
+		} catch {
+			// not JSON — fall through to raw text
+		}
+		return truncate(text, 500);
+	} catch {
+		return "";
+	}
+}
+
+function truncate(s: string, max: number): string {
+	return s.length > max ? `${s.slice(0, max)}…` : s;
 }
