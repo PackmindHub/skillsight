@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import { EVENT_NAMES } from "@/domain/event";
 import type { IEventRepository } from "@/domain/ports/event-repository";
 import type { IMarketplaceRepository } from "@/domain/ports/marketplace-repository";
 import type { IPluginRepository } from "@/domain/ports/plugin-repository";
@@ -122,11 +123,11 @@ describe("ingestEvents — skills upsert", () => {
 			},
 			otlpBody([
 				{
-					eventName: "claude_code.skill_activated",
+					eventName: EVENT_NAMES.SKILL_ACTIVATED,
 					attrs: { "skill.name": "lint", "plugin.name": "plugin-a" },
 				},
 				{
-					eventName: "claude_code.skill_activated",
+					eventName: EVENT_NAMES.SKILL_ACTIVATED,
 					attrs: { "skill.name": "lint", "plugin.name": "plugin-b" },
 				},
 			]),
@@ -154,7 +155,7 @@ describe("ingestEvents — skills upsert", () => {
 			},
 			otlpBody([
 				{
-					eventName: "claude_code.skill_activated",
+					eventName: EVENT_NAMES.SKILL_ACTIVATED,
 					attrs: { "skill.name": "format" },
 				},
 			]),
@@ -178,8 +179,8 @@ describe("ingestEvents — skills upsert", () => {
 				skills,
 			},
 			otlpBody([
-				{ eventName: "claude_code.skill_activated", attrs: { "plugin.name": "x" } },
-				{ eventName: "claude_code.skill_activated", attrs: { "skill.name": "y" } },
+				{ eventName: EVENT_NAMES.SKILL_ACTIVATED, attrs: { "plugin.name": "x" } },
+				{ eventName: EVENT_NAMES.SKILL_ACTIVATED, attrs: { "skill.name": "y" } },
 			]),
 		);
 
@@ -201,7 +202,7 @@ describe("ingestEvents — skills upsert", () => {
 				skills,
 			},
 			otlpBody([
-				{ eventName: "claude_code.plugin_installed", attrs: { "plugin.name": "x" } },
+				{ eventName: EVENT_NAMES.PLUGIN_INSTALLED, attrs: { "plugin.name": "x" } },
 			]),
 		);
 
@@ -225,7 +226,7 @@ describe("ingestEvents — plugin auto-creation from skill_activated", () => {
 			},
 			otlpBody([
 				{
-					eventName: "claude_code.skill_activated",
+					eventName: EVENT_NAMES.SKILL_ACTIVATED,
 					attrs: { "skill.name": "commit", "plugin.name": "John" },
 				},
 			]),
@@ -252,7 +253,7 @@ describe("ingestEvents — plugin auto-creation from skill_activated", () => {
 			},
 			otlpBody([
 				{
-					eventName: "claude_code.skill_activated",
+					eventName: EVENT_NAMES.SKILL_ACTIVATED,
 					attrs: { "skill.name": "commit" },
 				},
 			]),
@@ -278,11 +279,11 @@ describe("ingestEvents — plugin auto-creation from skill_activated", () => {
 			},
 			otlpBody([
 				{
-					eventName: "claude_code.skill_activated",
+					eventName: EVENT_NAMES.SKILL_ACTIVATED,
 					attrs: { "skill.name": "commit", "plugin.name": "John" },
 				},
 				{
-					eventName: "claude_code.skill_activated",
+					eventName: EVENT_NAMES.SKILL_ACTIVATED,
 					attrs: { "skill.name": "review", "plugin.name": "John" },
 				},
 			]),
@@ -312,11 +313,11 @@ describe("ingestEvents — plugin auto-creation from skill_activated", () => {
 			},
 			otlpBody([
 				{
-					eventName: "claude_code.skill_activated",
+					eventName: EVENT_NAMES.SKILL_ACTIVATED,
 					attrs: { "skill.name": "commit", "plugin.name": "John" },
 				},
 				{
-					eventName: "claude_code.plugin_installed",
+					eventName: EVENT_NAMES.PLUGIN_INSTALLED,
 					attrs: { "plugin.name": "John", "plugin.version": "1.2.3" },
 				},
 			]),

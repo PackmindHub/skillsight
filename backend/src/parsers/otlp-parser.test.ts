@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import { EVENT_NAMES, SHORT_EVENT_NAMES } from "@/domain/event";
 import { parseOtlpBody } from "./otlp-parser";
 
 describe("parseOtlpBody", () => {
@@ -19,7 +20,12 @@ describe("parseOtlpBody", () => {
 							logRecords: [
 								{
 									timeUnixNano: "1700000000000000000",
-									attributes: [{ key: "event.name", value: { stringValue: "skill_activated" } }],
+									attributes: [
+										{
+											key: "event.name",
+											value: { stringValue: SHORT_EVENT_NAMES.SKILL_ACTIVATED },
+										},
+									],
 								},
 							],
 						},
@@ -30,7 +36,7 @@ describe("parseOtlpBody", () => {
 
 		const [event] = parseOtlpBody(body);
 		expect(event.userEmail).toBe("alice@example.com");
-		expect(event.eventName).toBe("claude_code.skill_activated");
+		expect(event.eventName).toBe(EVENT_NAMES.SKILL_ACTIVATED);
 		expect(event.timestamp).toBeInstanceOf(Date);
 	});
 

@@ -1,3 +1,4 @@
+import { EVENT_NAMES } from "@/domain/event";
 import { computePluginStatus } from "@/domain/plugin";
 import type { IEventRepository } from "@/domain/ports/event-repository";
 import type { IMarketplaceRepository } from "@/domain/ports/marketplace-repository";
@@ -27,8 +28,8 @@ export async function ingestEvents(
 
 	const events = parsed.filter(
 		(e) =>
-			e.eventName === "claude_code.skill_activated" ||
-			e.eventName === "claude_code.plugin_installed",
+			e.eventName === EVENT_NAMES.SKILL_ACTIVATED ||
+			e.eventName === EVENT_NAMES.PLUGIN_INSTALLED,
 	);
 	if (events.length === 0) return { rejected: false };
 
@@ -41,7 +42,7 @@ export async function ingestEvents(
 			events
 				.filter(
 					(e) =>
-						e.eventName === "claude_code.skill_activated" &&
+						e.eventName === EVENT_NAMES.SKILL_ACTIVATED &&
 						typeof e.attributes["marketplace.name"] === "string",
 				)
 				.map((e) => e.attributes["marketplace.name"] as string),
@@ -54,7 +55,7 @@ export async function ingestEvents(
 	const skillEntries = events
 		.filter(
 			(e) =>
-				e.eventName === "claude_code.skill_activated" &&
+				e.eventName === EVENT_NAMES.SKILL_ACTIVATED &&
 				typeof e.attributes["skill.name"] === "string",
 		)
 		.map((e) => ({
@@ -70,14 +71,14 @@ export async function ingestEvents(
 
 	const skillActivationsWithPlugin = events.filter(
 		(e) =>
-			e.eventName === "claude_code.skill_activated" &&
+			e.eventName === EVENT_NAMES.SKILL_ACTIVATED &&
 			typeof e.attributes["skill.name"] === "string" &&
 			typeof e.attributes["plugin.name"] === "string",
 	);
 
 	const pluginEvents = events.filter(
 		(e) =>
-			e.eventName === "claude_code.plugin_installed" &&
+			e.eventName === EVENT_NAMES.PLUGIN_INSTALLED &&
 			typeof e.attributes["plugin.name"] === "string",
 	);
 

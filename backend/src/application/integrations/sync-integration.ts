@@ -1,5 +1,5 @@
 import { recordAudit } from "@/application/audit/record-audit";
-import type { NewEvent } from "@/domain/event";
+import { EVENT_NAMES, type NewEvent } from "@/domain/event";
 import type { IntegrationWithSecret } from "@/domain/integration";
 import { computePluginStatus } from "@/domain/plugin";
 import type { IAuditRepository } from "@/domain/ports/audit-repository";
@@ -75,7 +75,7 @@ export async function syncIntegration(
 		const skillEntries = parsedEvents
 			.filter(
 				(e) =>
-					e.eventName === "claude_code.skill_activated" &&
+					e.eventName === EVENT_NAMES.SKILL_ACTIVATED &&
 					typeof e.attributes["skill.name"] === "string",
 			)
 			.map((e) => ({
@@ -94,7 +94,7 @@ export async function syncIntegration(
 				parsedEvents
 					.filter(
 						(e) =>
-							e.eventName === "claude_code.skill_activated" &&
+							e.eventName === EVENT_NAMES.SKILL_ACTIVATED &&
 							typeof e.attributes["marketplace.name"] === "string",
 					)
 					.map((e) => e.attributes["marketplace.name"] as string),
@@ -106,7 +106,7 @@ export async function syncIntegration(
 
 		const skillActivationsWithPlugin = parsedEvents.filter(
 			(e) =>
-				e.eventName === "claude_code.skill_activated" &&
+				e.eventName === EVENT_NAMES.SKILL_ACTIVATED &&
 				typeof e.attributes["skill.name"] === "string" &&
 				typeof e.attributes["plugin.name"] === "string",
 		);
@@ -219,8 +219,8 @@ function parseStreams(streams: LokiStreamResult[], integrationId: string): NewEv
 	return parseLokiStreams(streams)
 		.filter(
 			(e) =>
-				e.eventName === "claude_code.skill_activated" ||
-				e.eventName === "claude_code.plugin_installed",
+				e.eventName === EVENT_NAMES.SKILL_ACTIVATED ||
+				e.eventName === EVENT_NAMES.PLUGIN_INSTALLED,
 		)
 		.map((e) => ({
 			...e,

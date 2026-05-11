@@ -1,6 +1,7 @@
 import { and, eq, notInArray, sql } from "drizzle-orm";
 import type { AppDb } from "@/db/client";
 import { plugins } from "@/db/schema";
+import { EVENT_NAMES } from "@/domain/event";
 import type { IPluginRepository } from "@/domain/ports/plugin-repository";
 import type {
 	NewPlugin,
@@ -35,7 +36,7 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			    COUNT(*)::int                   AS install_count,
 			    COUNT(DISTINCT user_email)::int AS unique_users
 			  FROM events
-			  WHERE event_name = 'claude_code.plugin_installed'
+			  WHERE event_name = ${EVENT_NAMES.PLUGIN_INSTALLED}
 			    AND attributes->>'plugin.name' IS NOT NULL
 			  GROUP BY attributes->>'plugin.name'
 			) s ON s.plugin_name = p.plugin_name
@@ -48,7 +49,7 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			  SELECT ps.plugin_name AS plugin_name, COUNT(e.id)::int AS activation_count
 			  FROM plugin_skills ps
 			  LEFT JOIN events e
-			    ON e.event_name = 'claude_code.skill_activated'
+			    ON e.event_name = ${EVENT_NAMES.SKILL_ACTIVATED}
 			   AND e.attributes->>'skill.name' = ps.skill_name
 			  GROUP BY ps.plugin_name
 			) sa ON sa.plugin_name = p.plugin_name
@@ -64,7 +65,7 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			  COUNT(e.id)::int            AS "activationCount"
 			FROM plugin_skills ps
 			LEFT JOIN events e
-			  ON e.event_name = 'claude_code.skill_activated'
+			  ON e.event_name = ${EVENT_NAMES.SKILL_ACTIVATED}
 			 AND e.attributes->>'skill.name' = ps.skill_name
 			WHERE ps.plugin_name = ${pluginName}
 			GROUP BY ps.skill_name

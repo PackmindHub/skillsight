@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import type { NewEvent } from "@/domain/event";
+import { EVENT_NAMES, SHORT_EVENT_NAMES, type NewEvent } from "@/domain/event";
 import type { IntegrationWithSecret } from "@/domain/integration";
 import type { IAuditRepository } from "@/domain/ports/audit-repository";
 import type { IEventRepository } from "@/domain/ports/event-repository";
@@ -190,7 +190,7 @@ describe("syncIntegration", () => {
 		const { repo: skills, upsertManyCalls } = makeSkills();
 
 		const loki = makeLoki([
-			streamWithEvent("claude_code.skill_activated", {
+			streamWithEvent(EVENT_NAMES.SKILL_ACTIVATED, {
 				"skill.name": "lint",
 				"plugin.name": "plugin-a",
 			}),
@@ -220,7 +220,7 @@ describe("syncIntegration", () => {
 		const { repo: skills, upsertManyCalls } = makeSkills();
 
 		const loki = makeLoki([
-			streamWithEvent("claude_code.skill_activated", { "skill.name": "format" }),
+			streamWithEvent(EVENT_NAMES.SKILL_ACTIVATED, { "skill.name": "format" }),
 		]);
 
 		await syncIntegration(
@@ -248,12 +248,12 @@ describe("syncIntegration", () => {
 		const { repo: marketplaces, upsertSeenCalls } = makeMarketplaces();
 
 		const loki = makeLoki([
-			streamWithEvent("claude_code.skill_activated", {
+			streamWithEvent(EVENT_NAMES.SKILL_ACTIVATED, {
 				"skill.name": "lint",
 				"plugin.name": "plugin-a",
 				"marketplace.name": "claude-plugins-official",
 			}),
-			streamWithEvent("claude_code.skill_activated", {
+			streamWithEvent(EVENT_NAMES.SKILL_ACTIVATED, {
 				"skill.name": "format",
 				"marketplace.name": "claude-plugins-official",
 			}),
@@ -283,7 +283,7 @@ describe("syncIntegration", () => {
 		const { repo: skills, upsertManyCalls } = makeSkills();
 
 		const loki = makeLoki([
-			streamWithEvent("claude_code.plugin_installed", { "plugin.name": "plugin-a" }),
+			streamWithEvent(EVENT_NAMES.PLUGIN_INSTALLED, { "plugin.name": "plugin-a" }),
 		]);
 
 		await syncIntegration(
@@ -311,7 +311,7 @@ describe("syncIntegration", () => {
 		const { repo: pluginSkills, upsertManyCalls: pluginSkillsCalls } = makePluginSkills();
 
 		const loki = makeLoki([
-			streamWithEvent("claude_code.skill_activated", {
+			streamWithEvent(EVENT_NAMES.SKILL_ACTIVATED, {
 				"skill.name": "commit",
 				"plugin.name": "John",
 			}),
@@ -345,7 +345,7 @@ describe("syncIntegration", () => {
 		const { repo: pluginSkills, upsertManyCalls: pluginSkillsCalls } = makePluginSkills();
 
 		const loki = makeLoki([
-			streamWithMetadataEvent("claude_code.skill_activated", {
+			streamWithMetadataEvent(EVENT_NAMES.SKILL_ACTIVATED, {
 				skill_name: "lint",
 				plugin_name: "plugin-a",
 				user_email: "alice@example.com",
@@ -370,7 +370,7 @@ describe("syncIntegration", () => {
 		expect(upsertIfAbsentCalls).toEqual([{ pluginName: "plugin-a", marketplaceName: null }]);
 		expect(pluginSkillsCalls).toEqual([[{ pluginName: "plugin-a", skillName: "lint" }]]);
 		expect(inserted[0]?.[0]?.userEmail).toBe("alice@example.com");
-		expect(inserted[0]?.[0]?.eventName).toBe("claude_code.skill_activated");
+		expect(inserted[0]?.[0]?.eventName).toBe(EVENT_NAMES.SKILL_ACTIVATED);
 	});
 
 	it("derives event name from body when missing claude_code prefix", async () => {
@@ -379,7 +379,7 @@ describe("syncIntegration", () => {
 		const { repo: skills } = makeSkills();
 
 		const loki = makeLoki([
-			streamWithMetadataEvent("skill_activated", { skill_name: "format" }),
+			streamWithMetadataEvent(SHORT_EVENT_NAMES.SKILL_ACTIVATED, { skill_name: "format" }),
 		]);
 
 		await syncIntegration(
@@ -396,7 +396,7 @@ describe("syncIntegration", () => {
 			BASE_INTEGRATION,
 		);
 
-		expect(inserted[0]?.[0]?.eventName).toBe("claude_code.skill_activated");
+		expect(inserted[0]?.[0]?.eventName).toBe(EVENT_NAMES.SKILL_ACTIVATED);
 	});
 
 	it("does not touch plugins/plugin_skills when skill_activated has no plugin.name", async () => {
@@ -407,7 +407,7 @@ describe("syncIntegration", () => {
 		const { repo: pluginSkills, upsertManyCalls: pluginSkillsCalls } = makePluginSkills();
 
 		const loki = makeLoki([
-			streamWithEvent("claude_code.skill_activated", { "skill.name": "commit" }),
+			streamWithEvent(EVENT_NAMES.SKILL_ACTIVATED, { "skill.name": "commit" }),
 		]);
 
 		await syncIntegration(

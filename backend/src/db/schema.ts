@@ -12,6 +12,7 @@ import {
 	uuid,
 	varchar,
 } from "drizzle-orm/pg-core";
+import { DEFAULT_LOKI_QUERY, EVENT_NAMES } from "@/domain/event";
 
 export const users = pgTable("users", {
 	id: uuid("id").defaultRandom().primaryKey(),
@@ -82,7 +83,7 @@ export const integrations = pgTable("integrations", {
 	authType: varchar("auth_type", { length: 20 }).notNull().default("none"),
 	authUsername: varchar("auth_username", { length: 255 }),
 	authPasswordEncrypted: text("auth_password_encrypted"),
-	lokiQuery: varchar("loki_query", { length: 500 }).notNull().default('{service_name="claude-code"} |~ "skill_activated|plugin_installed"'),
+	lokiQuery: varchar("loki_query", { length: 500 }).notNull().default(DEFAULT_LOKI_QUERY),
 	syncIntervalMs: integer("sync_interval_ms").notNull().default(30000),
 	enabled: boolean("enabled").notNull().default(true),
 	lastSyncAt: timestamp("last_sync_at"),
@@ -130,7 +131,7 @@ export const marketplaces = pgTable("marketplaces", {
 export const skillNamePartialIndexSql = sql`
   CREATE INDEX IF NOT EXISTS events_skill_name_partial_idx
   ON events ((attributes->>'skill.name'), timestamp)
-  WHERE event_name = 'claude_code.skill_activated'
+  WHERE event_name = ${EVENT_NAMES.SKILL_ACTIVATED}
 `;
 
 export const pluginSkills = pgTable(

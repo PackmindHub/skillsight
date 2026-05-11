@@ -1,3 +1,4 @@
+import { EVENT_NAMES } from "@/domain/event";
 import type { IIntegrationRepository } from "@/domain/ports/integration-repository";
 import type { ILokiGateway, LokiStreamResult } from "@/domain/ports/loki-gateway";
 import { decrypt } from "@/infrastructure/crypto/encrypt";
@@ -47,8 +48,8 @@ function parsePreviewStreams(streams: LokiStreamResult[]): PreviewEvent[] {
 	return parseLokiStreams(streams)
 		.filter(
 			(e) =>
-				e.eventName === "claude_code.skill_activated" ||
-				e.eventName === "claude_code.plugin_installed",
+				e.eventName === EVENT_NAMES.SKILL_ACTIVATED ||
+				e.eventName === EVENT_NAMES.PLUGIN_INSTALLED,
 		)
 		.map((e) => ({
 			eventName: e.eventName,

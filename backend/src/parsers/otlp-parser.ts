@@ -1,4 +1,4 @@
-import type { ParsedEvent } from "@/domain/event";
+import { CLAUDE_CODE_EVENT_PREFIX, type ParsedEvent } from "@/domain/event";
 
 export type { ParsedEvent };
 
@@ -91,9 +91,9 @@ export function parseOtlpBody(body: unknown): ParsedEvent[] {
 				const attrs = flattenAttributes(record.attributes);
 
 				const shortName = (attrs["event.name"] as string | undefined) ?? "unknown";
-				const eventName = shortName.startsWith("claude_code.")
+				const eventName = shortName.startsWith(CLAUDE_CODE_EVENT_PREFIX)
 					? shortName
-					: `claude_code.${shortName}`;
+					: `${CLAUDE_CODE_EVENT_PREFIX}${shortName}`;
 
 				const sessionId =
 					(attrs["session.id"] as string | undefined) ??

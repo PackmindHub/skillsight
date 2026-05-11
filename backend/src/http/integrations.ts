@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { z } from "zod";
 import type { AppVariables } from "@/types";
 import type { AppDeps } from "@/bootstrap/compose";
+import { DEFAULT_LOKI_QUERY } from "@/domain/event";
 import { sessionAuth } from "@/middleware/session-auth";
 import { listIntegrations } from "@/application/integrations/list-integrations";
 import { createIntegration } from "@/application/integrations/create-integration";
@@ -23,7 +24,7 @@ const createSchema = z.object({
 	authType: z.enum(["none", "basic"]),
 	authUsername: z.string().max(255).optional().nullable(),
 	authPassword: z.string().optional().nullable(),
-	lokiQuery: z.string().max(500).default('{service_name="claude-code"} |~ "skill_activated|plugin_installed"'),
+	lokiQuery: z.string().max(500).default(DEFAULT_LOKI_QUERY),
 	syncIntervalMs: z.number().int().min(5000).default(30000),
 	enabled: z.boolean().default(true),
 });
