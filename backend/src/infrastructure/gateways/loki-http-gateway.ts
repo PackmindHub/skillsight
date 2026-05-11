@@ -20,15 +20,17 @@ export class LokiHttpGateway implements ILokiGateway {
 	}): Promise<LokiStreamResult[]> {
 		const { url, authType, username, password, query, from, to } = opts;
 
+		// When `from` is null (first sync / no cursor) we want all historical data.
+		// Loki's query_range defaults `start` to one hour before `end` when omitted,
+		// which would silently cap the first import to the last hour. Pin start to
+		// the epoch instead so we fetch everything Loki retains.
 		const params = new URLSearchParams({
 			query,
+			start: (from !== null ? from.getTime() * 1_000_000 : 0).toString(),
 			end: (to.getTime() * 1_000_000).toString(),
 			limit: "5000",
 			direction: "forward",
 		});
-		if (from !== null) {
-			params.set("start", (from.getTime() * 1_000_000).toString());
-		}
 
 		const headers: Record<string, string> = { "Content-Type": "application/json" };
 		if (authType === "basic" && username && password) {
