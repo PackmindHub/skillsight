@@ -1,7 +1,7 @@
 import type { IIntegrationRepository } from "@/domain/ports/integration-repository";
 import type { ILokiGateway, LokiStreamResult } from "@/domain/ports/loki-gateway";
 import { decrypt } from "@/infrastructure/crypto/encrypt";
-import { parseOtlpBody } from "@/parsers/otlp-parser";
+import { parseLokiStreams } from "@/parsers/loki-stream-parser";
 
 export interface PreviewEvent {
 	eventName: string;
@@ -44,37 +44,16 @@ export async function previewIntegration(
 }
 
 function parsePreviewStreams(streams: LokiStreamResult[]): PreviewEvent[] {
-	const results: PreviewEvent[] = [];
-
-	for (const { values } of streams) {
-		for (const [tsNs, logLine] of values) {
-			const timestamp = new Date(Number(BigInt(tsNs) / 1_000_000n)).toISOString();
-
-			let parsed: ReturnType<typeof parseOtlpBody> = [];
-			try {
-				const json = JSON.parse(logLine) as Record<string, unknown>;
-				if (json?.resourceLogs) {
-					parsed = parseOtlpBody(json);
-				}
-			} catch {
-				// not JSON or not OTLP
-			}
-
-			for (const e of parsed) {
-				if (
-					e.eventName === "claude_code.skill_activated" ||
-					e.eventName === "claude_code.plugin_installed"
-				) {
-					results.push({
-						eventName: e.eventName,
-						userEmail: e.userEmail,
-						timestamp,
-						attributes: e.attributes as Record<string, unknown>,
-					});
-				}
-			}
-		}
-	}
-
-	return results;
+	return parseLokiStreams(streams)
+		.filter(
+			(e) =>
+				e.eventName === "claude_code.skill_activated" ||
+				e.eventName === "claude_code.plugin_installed",
+		)
+		.map((e) => ({
+			eventName: e.eventName,
+			userEmail: e.userEmail,
+			timestamp: e.timestamp.toISOString(),
+			attributes: e.attributes,
+		}));
 }

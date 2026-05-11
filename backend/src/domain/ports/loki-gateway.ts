@@ -1,6 +1,10 @@
+export type LokiStreamValue =
+	| [tsNs: string, line: string]
+	| [tsNs: string, line: string, structuredMetadata: Record<string, string>];
+
 export interface LokiStreamResult {
 	stream: Record<string, string>;
-	values: [string, string][];
+	values: LokiStreamValue[];
 }
 
 export interface ILokiGateway {

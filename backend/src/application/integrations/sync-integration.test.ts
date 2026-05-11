@@ -166,6 +166,19 @@ function streamWithEvent(eventName: string, attrs: Record<string, string>): Loki
 	};
 }
 
+// Shape produced by Loki's native OTLP receiver: log line body is the event
+// name string, log-record attributes are structured metadata (3rd tuple
+// element) with dots converted to underscores.
+function streamWithMetadataEvent(
+	eventName: string,
+	metadata: Record<string, string>,
+): LokiStreamResult {
+	return {
+		stream: { service_name: "claude-code" },
+		values: [["1700000000000000000", eventName, metadata]],
+	};
+}
+
 describe("syncIntegration", () => {
 	it("upserts (skillName, pluginName) tuples for skill_activated events", async () => {
 		const { repo: integrations } = { repo: makeIntegrations() };
@@ -282,6 +295,68 @@ describe("syncIntegration", () => {
 		expect(upsertCalls).toEqual([]);
 		expect(pluginSkillsCalls).toHaveLength(1);
 		expect(pluginSkillsCalls[0]).toEqual([{ pluginName: "John", skillName: "commit" }]);
+	});
+
+	it("upserts skill from a Loki native-OTLP stream (body + structured metadata)", async () => {
+		const { repo: integrations } = { repo: makeIntegrations() };
+		const { repo: events, inserted } = makeEvents();
+		const { repo: skills, upsertManyCalls } = makeSkills();
+		const { repo: plugins, upsertIfAbsentCalls } = makePlugins();
+		const { repo: pluginSkills, upsertManyCalls: pluginSkillsCalls } = makePluginSkills();
+
+		const loki = makeLoki([
+			streamWithMetadataEvent("claude_code.skill_activated", {
+				skill_name: "lint",
+				plugin_name: "plugin-a",
+				user_email: "alice@example.com",
+			}),
+		]);
+
+		await syncIntegration(
+			{
+				integrations,
+				events,
+				skills,
+				plugins,
+				pluginSkills,
+				marketplaces: makeMarketplaces(),
+				loki,
+				audit: makeAudit(),
+			},
+			BASE_INTEGRATION,
+		);
+
+		expect(upsertManyCalls).toEqual([[{ skillName: "lint", pluginName: "plugin-a" }]]);
+		expect(upsertIfAbsentCalls).toEqual([{ pluginName: "plugin-a", marketplaceName: null }]);
+		expect(pluginSkillsCalls).toEqual([[{ pluginName: "plugin-a", skillName: "lint" }]]);
+		expect(inserted[0]?.[0]?.userEmail).toBe("alice@example.com");
+		expect(inserted[0]?.[0]?.eventName).toBe("claude_code.skill_activated");
+	});
+
+	it("derives event name from body when missing claude_code prefix", async () => {
+		const { repo: integrations } = { repo: makeIntegrations() };
+		const { repo: events, inserted } = makeEvents();
+		const { repo: skills } = makeSkills();
+
+		const loki = makeLoki([
+			streamWithMetadataEvent("skill_activated", { skill_name: "format" }),
+		]);
+
+		await syncIntegration(
+			{
+				integrations,
+				events,
+				skills,
+				plugins: makePlugins().repo,
+				pluginSkills: makePluginSkills().repo,
+				marketplaces: makeMarketplaces(),
+				loki,
+				audit: makeAudit(),
+			},
+			BASE_INTEGRATION,
+		);
+
+		expect(inserted[0]?.[0]?.eventName).toBe("claude_code.skill_activated");
 	});
 
 	it("does not touch plugins/plugin_skills when skill_activated has no plugin.name", async () => {

@@ -23,7 +23,7 @@ const createSchema = z.object({
 	authType: z.enum(["none", "basic"]),
 	authUsername: z.string().max(255).optional().nullable(),
 	authPassword: z.string().optional().nullable(),
-	lokiQuery: z.string().max(500).default('{service_name="claude-code"} | event_name=~`skill_activated|plugin_installed`'),
+	lokiQuery: z.string().max(500).default('{service_name="claude-code"} |~ "skill_activated|plugin_installed"'),
 	syncIntervalMs: z.number().int().min(5000).default(30000),
 	enabled: z.boolean().default(true),
 });

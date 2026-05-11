@@ -11,7 +11,7 @@ import type { IPluginRepository } from "@/domain/ports/plugin-repository";
 import type { IPluginSkillRepository } from "@/domain/ports/plugin-skill-repository";
 import type { ISkillRepository } from "@/domain/ports/skill-repository";
 import { decrypt } from "@/infrastructure/crypto/encrypt";
-import { parseOtlpBody } from "@/parsers/otlp-parser";
+import { parseLokiStreams } from "@/parsers/loki-stream-parser";
 
 // Must match the limit used in LokiHttpGateway
 const LOKI_PAGE_LIMIT = 5000;
@@ -148,18 +148,20 @@ export async function syncIntegration(
 			`[loki-sync] ${integration.name}: synced ${parsedEvents.length} events from ${from?.toISOString() ?? "beginning"} to ${syncedAt.toISOString()}${hitLimit ? " (more pages pending)" : ""}`,
 		);
 
-		await recordAudit(deps, {
-			actorEmail,
-			action: "integration_sync_completed",
-			target: integration.id,
-			metadata: {
-				mode,
-				durationMs: Date.now() - startedAt,
-				eventCount: parsedEvents.length,
-				morePending: hitLimit,
-				error: null,
-			},
-		});
+		if (mode === "manual") {
+			await recordAudit(deps, {
+				actorEmail,
+				action: "integration_sync_completed",
+				target: integration.id,
+				metadata: {
+					mode,
+					durationMs: Date.now() - startedAt,
+					eventCount: parsedEvents.length,
+					morePending: hitLimit,
+					error: null,
+				},
+			});
+		}
 
 		return { syncedAt, error: null };
 	} catch (err) {
@@ -167,17 +169,19 @@ export async function syncIntegration(
 		await deps.integrations.updateSyncStatus(integration.id, { lastSyncError: message });
 		console.error(`[loki-sync] ${integration.name}: sync failed — ${message}`);
 
-		await recordAudit(deps, {
-			actorEmail,
-			action: "integration_sync_completed",
-			target: integration.id,
-			metadata: {
-				mode,
-				durationMs: Date.now() - startedAt,
-				eventCount: 0,
-				error: message,
-			},
-		});
+		if (mode === "manual") {
+			await recordAudit(deps, {
+				actorEmail,
+				action: "integration_sync_completed",
+				target: integration.id,
+				metadata: {
+					mode,
+					durationMs: Date.now() - startedAt,
+					eventCount: 0,
+					error: message,
+				},
+			});
+		}
 
 		return { syncedAt: null, error: message };
 	}
@@ -197,36 +201,15 @@ function lastEventTimestamp(streams: LokiStreamResult[]): Date | null {
 }
 
 function parseStreams(streams: LokiStreamResult[], integrationId: string): NewEvent[] {
-	const results: NewEvent[] = [];
-
-	for (const { values } of streams) {
-		for (const [, logLine] of values) {
-			let parsed: ReturnType<typeof parseOtlpBody> = [];
-			try {
-				const json = JSON.parse(logLine) as Record<string, unknown>;
-				if (json?.resourceLogs) {
-					parsed = parseOtlpBody(json);
-				}
-			} catch {
-				// not JSON or not OTLP — store as raw
-			}
-
-			if (parsed.length > 0) {
-				const allowed = parsed.filter(
-					(e) =>
-						e.eventName === "claude_code.skill_activated" ||
-						e.eventName === "claude_code.plugin_installed",
-				);
-				results.push(
-					...allowed.map((e) => ({
-						...e,
-						source: "integration" as const,
-						sourceIntegrationId: integrationId,
-					})),
-				);
-			}
-		}
-	}
-
-	return results;
+	return parseLokiStreams(streams)
+		.filter(
+			(e) =>
+				e.eventName === "claude_code.skill_activated" ||
+				e.eventName === "claude_code.plugin_installed",
+		)
+		.map((e) => ({
+			...e,
+			source: "integration" as const,
+			sourceIntegrationId: integrationId,
+		}));
 }

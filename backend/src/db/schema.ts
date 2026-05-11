@@ -82,7 +82,7 @@ export const integrations = pgTable("integrations", {
 	authType: varchar("auth_type", { length: 20 }).notNull().default("none"),
 	authUsername: varchar("auth_username", { length: 255 }),
 	authPasswordEncrypted: text("auth_password_encrypted"),
-	lokiQuery: varchar("loki_query", { length: 500 }).notNull().default('{service_name="claude-code"} | event_name=~`skill_activated|plugin_installed`'),
+	lokiQuery: varchar("loki_query", { length: 500 }).notNull().default('{service_name="claude-code"} |~ "skill_activated|plugin_installed"'),
 	syncIntervalMs: integer("sync_interval_ms").notNull().default(30000),
 	enabled: boolean("enabled").notNull().default(true),
 	lastSyncAt: timestamp("last_sync_at"),
