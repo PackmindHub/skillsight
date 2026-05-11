@@ -97,6 +97,7 @@ function makePlugins() {
 	const repo: IPluginRepository = {
 		listWithStats: async () => [],
 		listSkillsWithActivations: async () => [],
+		listTopUsers: async () => [],
 		upsert: async (p) => {
 			upsertCalls.push({ pluginName: p.pluginName, marketplaceName: p.marketplaceName });
 		},

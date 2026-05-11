@@ -91,6 +91,7 @@ function makePlugins(removedNames: string[] = []) {
 	const repo: IPluginRepository = {
 		listWithStats: async () => [],
 		listSkillsWithActivations: async () => [],
+		listTopUsers: async () => [],
 		upsert: async () => {},
 		updateStatusByMarketplace: async () => {},
 		markRemovedByMarketplace: async (marketplaceName, activePluginNames) => {
@@ -274,9 +275,9 @@ describe("syncMarketplaceSource", () => {
 
 			expect(upsertManyCalls).toHaveLength(1);
 			expect(upsertManyCalls[0]).toEqual([
-				{ pluginName: "plugin-a", skillName: "lint" },
-				{ pluginName: "plugin-a", skillName: "format" },
-				{ pluginName: "plugin-b", skillName: "lint" },
+				{ pluginName: "plugin-a", skillName: "plugin-a:lint" },
+				{ pluginName: "plugin-a", skillName: "plugin-a:format" },
+				{ pluginName: "plugin-b", skillName: "plugin-b:lint" },
 			]);
 		});
 

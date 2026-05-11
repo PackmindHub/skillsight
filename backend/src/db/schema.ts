@@ -105,7 +105,7 @@ export const plugins = pgTable("plugins", {
 	pluginVersion: varchar("plugin_version", { length: 100 }),
 	installTrigger: varchar("install_trigger", { length: 20 }),
 	marketplaceIsOfficial: boolean("marketplace_is_official"),
-	status: varchar("status", { length: 20 }).notNull().default("unknown"),
+	status: varchar("status", { length: 20 }).notNull().default("to_review"),
 	firstSeenAt: timestamp("first_seen_at").defaultNow().notNull(),
 	lastSeenAt: timestamp("last_seen_at").defaultNow().notNull(),
 });
@@ -162,7 +162,7 @@ export const skills = pgTable(
 	{
 		skillName: varchar("skill_name", { length: 255 }).notNull(),
 		pluginName: varchar("plugin_name", { length: 255 }).notNull().default(""),
-		status: varchar("status", { length: 20 }).notNull().default("unknown"),
+		status: varchar("status", { length: 20 }).notNull().default("to_review"),
 		firstSeenAt: timestamp("first_seen_at").defaultNow().notNull(),
 		lastSeenAt: timestamp("last_seen_at").defaultNow().notNull(),
 	},

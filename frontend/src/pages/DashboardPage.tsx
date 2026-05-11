@@ -1,4 +1,4 @@
-import { Sparkline } from "@/components/ui";
+import { TrendSparkline } from "@/components/skills/TrendSparkline";
 import { api } from "@/lib/api";
 import { cn, formatDate } from "@/lib/utils";
 import type {
@@ -247,9 +247,10 @@ export default function DashboardPage() {
 	const [period, setPeriod] = useState<DashboardPeriod>(30);
 	const [usage, setUsage] = useState<UsageResponse | null>(null);
 	const [rows, setRows] = useState<SkillTableRow[]>([]);
+	const [totalMarketplaces, setTotalMarketplaces] = useState<number | null>(null);
 	const [pendingMarketplaces, setPendingMarketplaces] = useState<number | null>(null);
 	const [pendingPlugins, setPendingPlugins] = useState<number | null>(null);
-	const [activeTokens, setActiveTokens] = useState<number | null>(null);
+	const [pendingSkills, setPendingSkills] = useState<number | null>(null);
 	const [monthly, setMonthly] = useState<MonthlyTrendsResponse | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -277,11 +278,11 @@ export default function DashboardPage() {
 	useEffect(() => {
 		api.marketplaces
 			.list()
-			.then(({ marketplaces }) =>
-				setPendingMarketplaces(
-					(marketplaces as Marketplace[]).filter((m) => m.status === "to_review").length,
-				),
-			)
+			.then(({ marketplaces }) => {
+				const list = marketplaces as Marketplace[];
+				setTotalMarketplaces(list.length);
+				setPendingMarketplaces(list.filter((m) => m.status === "to_review").length);
+			})
 			.catch(() => {});
 		api.plugins
 			.list()
@@ -289,9 +290,9 @@ export default function DashboardPage() {
 				setPendingPlugins((plugins as Plugin[]).filter((p) => p.status === "to_review").length),
 			)
 			.catch(() => {});
-		api.tokens
-			.list()
-			.then((tokens) => setActiveTokens(tokens.filter((t) => !t.revokedAt).length))
+		api.skills
+			.table("all")
+			.then(({ rows }) => setPendingSkills(rows.filter((r) => r.status === "to_review").length))
 			.catch(() => {});
 		api.skills
 			.monthlyTrends()
@@ -380,10 +381,10 @@ export default function DashboardPage() {
 						{fmtFull(usage.stats.totalActivations)}
 						<span
 							className={cn(
-								"rounded-full px-2 py-[3px] font-mono text-[12px]",
-								heroDelta.cls === "up" && "bg-success/15 text-success",
-								heroDelta.cls === "down" && "bg-danger/15 text-danger",
-								heroDelta.cls === "flat" && "bg-surface-700 text-text-3",
+								"rounded-full px-2.5 py-[3px] text-[13px] font-medium tracking-normal tabular-nums ring-1",
+								heroDelta.cls === "up" && "bg-success/15 text-success ring-success/30",
+								heroDelta.cls === "down" && "bg-danger/15 text-danger ring-danger/30",
+								heroDelta.cls === "flat" && "bg-surface-700 text-text-2 ring-edge",
 							)}
 						>
 							{heroDelta.label} vs prev
@@ -401,17 +402,18 @@ export default function DashboardPage() {
 						/>
 						<MiniStat label="Active users" value={usage.stats.activeUsers} />
 						<MiniStat label="Top trigger" value={<span className="text-accent-2-soft">{topTrigger}</span>} />
-						<MiniStat label="Marketplaces" value={pendingMarketplaces == null ? "—" : `${(pendingMarketplaces ?? 0) + 0}`} />
+						<MiniStat label="Marketplaces" value={totalMarketplaces ?? "—"} />
 					</div>
-					<div className="pointer-events-none absolute -bottom-2.5 -right-2.5 h-[110px] w-[55%] overflow-hidden">
+					<div className="absolute -bottom-2.5 -right-2.5 h-[110px] w-[55%] overflow-hidden">
 						{totalDaily.length > 0 && (
 							<div className="absolute right-0 bottom-0">
-								<Sparkline
+								<TrendSparkline
 									values={totalDaily}
 									width={520}
 									height={110}
 									strokeClass="stroke-accent-bright"
 									fillClass="fill-accent-bright/10"
+									days={typeof period === "number" ? period : totalDaily.length}
 								/>
 							</div>
 						)}
@@ -435,7 +437,6 @@ export default function DashboardPage() {
 										<span className="w-[18px] font-mono text-[11px] text-text-4">#{i + 1}</span>
 										<div className="min-w-0">
 											<div className="truncate font-mono text-[13px] text-text-1">{m.skillName}</div>
-											<div className="truncate font-mono text-[10px] text-text-4">{m.pluginName ?? "—"}</div>
 										</div>
 										<span className="font-mono tabular-nums text-[13px] text-text-2">{fmtCompact(m.total)}</span>
 										<span
@@ -471,10 +472,10 @@ export default function DashboardPage() {
 					highlight={(pendingPlugins ?? 0) > 0}
 				/>
 				<KpiCard
-					label="Ingestion tokens"
-					value={activeTokens ?? "—"}
-					trailing={<span className="text-[12px] text-text-3">active</span>}
-					to="/tokens"
+					label="Skills to review"
+					value={pendingSkills ?? "—"}
+					to="/skills?status=to_review"
+					highlight={(pendingSkills ?? 0) > 0}
 				/>
 				<KpiCard
 					label="Total events"
@@ -508,9 +509,24 @@ export default function DashboardPage() {
 
 			{/* Monthly sparklines */}
 			<div className="grid gap-[18px] grid-cols-1 md:grid-cols-3">
-				<MonthlyCard title="Invocations / month" data={monthly?.invocations ?? []} stroke="stroke-accent-bright" fill="fill-accent-bright/15" />
-				<MonthlyCard title="Unique skills / month" data={monthly?.uniqueSkills ?? []} stroke="stroke-accent-2" fill="fill-accent-2/15" />
-				<MonthlyCard title="Active users / month" data={monthly?.uniqueUsers ?? []} stroke="stroke-magenta" fill="fill-magenta/15" />
+				<MonthlyCard
+					title="Invocations / month"
+					data={monthly?.invocations ?? []}
+					color="var(--color-accent-bright)"
+					valueLabel="invocations"
+				/>
+				<MonthlyCard
+					title="Unique skills / month"
+					data={monthly?.uniqueSkills ?? []}
+					color="var(--color-accent-2)"
+					valueLabel="unique skills"
+				/>
+				<MonthlyCard
+					title="Active users / month"
+					data={monthly?.uniqueUsers ?? []}
+					color="var(--color-magenta)"
+					valueLabel="active users"
+				/>
 			</div>
 
 		</div>
@@ -589,32 +605,32 @@ function TriggerStat({
 function MonthlyCard({
 	title,
 	data,
-	stroke,
-	fill,
+	color,
+	valueLabel,
 }: {
 	title: string;
 	data: MonthlyPoint[];
-	stroke: string;
-	fill: string;
+	color: string;
+	valueLabel: string;
 }) {
-	const values = data.map((d) => d.count);
 	return (
 		<Card>
-			<CardHead title={title} meta="since launch" />
+			<CardHead title={title} dotColor={color} meta="since launch" />
 			<div className="p-4 pt-1">
-				{values.length === 0 ? (
+				{data.length === 0 ? (
 					<p className="py-6 text-center text-[12px] text-text-4">No data yet.</p>
+				) : data.length === 1 ? (
+					<div className="flex h-[88px] flex-col items-center justify-center gap-1">
+						<div className="text-[26px] font-semibold tracking-[-0.02em] tabular-nums" style={{ color }}>
+							{fmtFull(data[0].count)}
+						</div>
+						<div className="font-mono text-[10px] uppercase tracking-[0.08em] text-text-4">
+							{valueLabel} · {formatMonth(data[0].month)}
+						</div>
+					</div>
 				) : (
 					<>
-						<Sparkline
-					values={values}
-					width={300}
-					height={56}
-					strokeClass={stroke}
-					fillClass={fill}
-					responsive
-					className="block h-14 w-full"
-				/>
+						<InteractiveSparkline data={data} color={color} valueLabel={valueLabel} />
 						<div className="mt-1.5 flex justify-between font-mono text-[10px] text-text-4">
 							{data.map((d) => (
 								<span key={d.month}>{formatMonth(d.month)}</span>
@@ -624,5 +640,115 @@ function MonthlyCard({
 				)}
 			</div>
 		</Card>
+	);
+}
+
+function InteractiveSparkline({
+	data,
+	color,
+	valueLabel,
+	width = 300,
+	height = 64,
+}: {
+	data: MonthlyPoint[];
+	color: string;
+	valueLabel: string;
+	width?: number;
+	height?: number;
+}) {
+	const ref = useRef<HTMLDivElement>(null);
+	const [hover, setHover] = useState<{ idx: number; x: number; y: number; side: "left" | "right" } | null>(null);
+
+	const values = data.map((d) => d.count);
+	const max = Math.max(1, ...values);
+	const points = values.map((v, i) => {
+		const x = values.length > 1 ? (i / (values.length - 1)) * width : width / 2;
+		const y = height - 1 - (v / max) * (height - 2);
+		return [x, y] as const;
+	});
+	const linePath = points.map(([x, y], i) => `${i === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`).join(" ");
+	const areaPath = `${linePath} L ${(points[points.length - 1]?.[0] ?? 0).toFixed(2)} ${height} L ${(points[0]?.[0] ?? 0).toFixed(2)} ${height} Z`;
+	const sum = values.reduce((a, b) => a + b, 0);
+
+	function onMove(e: React.MouseEvent<HTMLDivElement>) {
+		if (!ref.current || values.length === 0) return;
+		const rect = ref.current.getBoundingClientRect();
+		const px = ((e.clientX - rect.left) / rect.width) * width;
+		let idx = Math.round((px / Math.max(1, width)) * (values.length - 1));
+		idx = Math.max(0, Math.min(values.length - 1, idx));
+		const pt = points[idx];
+		if (!pt) return;
+		const side: "left" | "right" = idx > values.length / 2 ? "left" : "right";
+		setHover({ idx, x: pt[0], y: pt[1], side });
+	}
+
+	const cur = hover ? values[hover.idx] : null;
+	const prev = hover && hover.idx > 0 ? values[hover.idx - 1] : null;
+	const delta = cur != null && prev != null ? cur - prev : null;
+	const deltaPct = delta != null && prev != null && prev !== 0 ? (delta / prev) * 100 : null;
+	const sharePct = cur != null && sum > 0 ? (cur / sum) * 100 : 0;
+
+	return (
+		<div
+			ref={ref}
+			className="relative w-full cursor-crosshair"
+			onMouseMove={onMove}
+			onMouseLeave={() => setHover(null)}
+		>
+			<svg
+				viewBox={`0 0 ${width} ${height}`}
+				preserveAspectRatio="none"
+				className="block h-16 w-full"
+				aria-hidden="true"
+			>
+				<path d={areaPath} fill={color} fillOpacity="0.14" />
+				<path d={linePath} fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+				{hover && (
+					<g>
+						<line x1={hover.x} x2={hover.x} y1={0} y2={height} stroke={color} strokeOpacity="0.35" strokeDasharray="2 2" />
+						<circle cx={hover.x} cy={hover.y} r="3.5" fill="var(--color-surface-900)" stroke={color} strokeWidth="1.6" />
+					</g>
+				)}
+			</svg>
+			{hover && cur != null && (
+				<div
+					role="tooltip"
+					className="pointer-events-none absolute z-30 min-w-[200px] rounded-lg border border-edge bg-surface-700 px-3 py-2.5 shadow-[0_12px_30px_rgba(0,0,0,0.6)]"
+					style={{
+						left: `${(hover.x / width) * 100}%`,
+						top: 0,
+						transform: `translate(${hover.side === "left" ? "calc(-100% - 10px)" : "10px"}, 0)`,
+					}}
+				>
+					<div className="mb-1.5 flex justify-between gap-3 border-b border-edge-dim pb-1.5">
+						<span className="font-mono text-[12px] text-text-1">{formatMonth(data[hover.idx].month)}</span>
+						<span className="font-mono text-[10px] text-text-4">{sharePct.toFixed(1)}% of total</span>
+					</div>
+					<div className="flex items-center gap-2 py-0.5 font-mono text-[12px]">
+						<span className="h-2 w-2 rounded-sm" style={{ background: color }} />
+						<span className="flex-1 text-text-3">{valueLabel}</span>
+						<span className="tabular-nums text-text-1">{fmtFull(cur)}</span>
+					</div>
+					{delta != null && (
+						<div className="flex items-center gap-2 py-0.5 font-mono text-[11px] text-text-3">
+							<span className="h-2 w-2" />
+							<span className="flex-1">vs prev</span>
+							<span
+								className={cn(
+									"tabular-nums",
+									delta > 0 && "text-success",
+									delta < 0 && "text-danger",
+									delta === 0 && "text-text-3",
+								)}
+							>
+								{delta >= 0 ? "+" : ""}
+								{fmtFull(delta)}
+								{deltaPct != null && ` · ${delta >= 0 ? "+" : ""}${deltaPct.toFixed(0)}%`}
+							</span>
+						</div>
+					)}
+				</div>
+			)}
+		</div>
 	);
 }

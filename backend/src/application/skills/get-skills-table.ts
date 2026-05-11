@@ -1,6 +1,7 @@
 import type { DaysWindow, ISkillRepository } from "@/domain/ports/skill-repository";
 import type { IMarketplaceRepository } from "@/domain/ports/marketplace-repository";
 import type { MarketplaceStatus } from "@/domain/marketplace";
+import { defaultBundledStatus } from "@/domain/skill";
 
 export async function getSkillsTable(
 	deps: { skills: ISkillRepository; marketplaces: IMarketplaceRepository },
@@ -13,9 +14,10 @@ export async function getSkillsTable(
 
 	const mpStatusMap = new Map(statuses.map((m) => [m.name, m.status]));
 
-	return rawRows.map(({ marketplaceNames, status, ...rest }) => ({
+	return rawRows.map(({ marketplaceNames, status, skillSource, ...rest }) => ({
 		...rest,
-		status,
+		skillSource,
+		status: defaultBundledStatus(status, skillSource),
 		marketplaces: marketplaceNames.map((name) => ({
 			name,
 			status: (mpStatusMap.get(name) ?? "to_review") as MarketplaceStatus,

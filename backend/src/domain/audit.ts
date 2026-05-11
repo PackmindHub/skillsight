@@ -26,6 +26,7 @@ export type AuditAction =
 	| "marketplace_source_resumed"
 	| "plugin_status_changed"
 	| "skill_status_changed"
+	| "skills_status_changed"
 	| "skills_deleted";
 
 export const ALL_AUDIT_ACTIONS: readonly AuditAction[] = [
@@ -56,6 +57,7 @@ export const ALL_AUDIT_ACTIONS: readonly AuditAction[] = [
 	"marketplace_source_resumed",
 	"plugin_status_changed",
 	"skill_status_changed",
+	"skills_status_changed",
 	"skills_deleted",
 ] as const;
 

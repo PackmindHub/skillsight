@@ -84,7 +84,10 @@ export async function syncMarketplaceSource(
 			);
 
 			const allSkills = data.plugins.flatMap((plugin) =>
-				(plugin.skills ?? []).map((skillName) => ({ pluginName: plugin.name, skillName })),
+				(plugin.skills ?? []).map((skillName) => ({
+					pluginName: plugin.name,
+					skillName: `${plugin.name}:${skillName}`,
+				})),
 			);
 			if (allSkills.length > 0) {
 				await deps.pluginSkills.upsertMany(allSkills);

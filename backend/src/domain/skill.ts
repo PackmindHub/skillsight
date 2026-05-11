@@ -1,7 +1,6 @@
-export type SkillStatus = "unknown" | "to_review" | "approved" | "removed";
+export type SkillStatus = "to_review" | "approved" | "removed";
 
 export const SKILL_STATUSES: readonly SkillStatus[] = [
-	"unknown",
 	"to_review",
 	"approved",
 	"removed",
@@ -20,6 +19,7 @@ export interface SkillTableRow {
 	pluginName: string | null;
 	skillSource: string | null;
 	total: number;
+	uniqueUsers: number;
 	userSlash: number;
 	claudeProactive: number;
 	nestedSkill: number;
@@ -35,10 +35,23 @@ export interface SkillDetailPluginRef {
 	status: string;
 }
 
+/**
+ * Bundled skills ship inside Claude Code itself, so they are trusted by
+ * default — coerce a "to_review" status to "approved" for them. An explicit
+ * non-"to_review" choice in the DB always wins.
+ */
+export function defaultBundledStatus(
+	status: SkillStatus,
+	skillSource: string | null,
+): SkillStatus {
+	return status === "to_review" && skillSource === "bundled" ? "approved" : status;
+}
+
 export interface SkillDetailRow {
 	skillName: string;
 	skillSource: string | null;
 	total: number;
+	uniqueUsers: number;
 	userSlash: number;
 	claudeProactive: number;
 	nestedSkill: number;

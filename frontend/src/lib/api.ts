@@ -87,6 +87,14 @@ export const api = {
 				method: "PATCH",
 				body: JSON.stringify(body),
 			}),
+		updateStatusBulk: (body: {
+			skills: Array<{ skillName: string; pluginName: string }>;
+			status: SkillStatus;
+		}) =>
+			apiFetch<{ updated: number; skippedInherited: number; notFound: number }>(
+				"/api/skills/status/bulk",
+				{ method: "PATCH", body: JSON.stringify(body) },
+			),
 	},
 	tokens: {
 		list: () => apiFetch<Token[]>("/api/tokens"),

@@ -12,6 +12,7 @@ export { StatusChip } from "./StatusChip";
 export type { StatusChipOption, StatusChipTone } from "./StatusChip";
 export { SearchBar } from "./SearchBar";
 export { MultiSelect } from "./MultiSelect";
+export { SingleSelect } from "./SingleSelect";
 export { StatusFilter } from "./StatusFilter";
 export { SegmentedControl } from "./SegmentedControl";
 export { Drawer } from "./Drawer";

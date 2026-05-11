@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
+import { MarketplaceBadge } from "@/components/marketplaces/MarketplaceBadge";
 import { Drawer } from "@/components/ui/Drawer";
 import { Sparkline } from "@/components/ui/Sparkline";
 import { api } from "@/lib/api";
 import { formatRelativeTime } from "@/lib/utils";
 import type {
 	DashboardPeriod,
-	MarketplaceRef,
 	SkillDetail,
 	SkillDetailPluginRef,
 } from "@/types/api";
@@ -16,36 +16,14 @@ interface SkillDetailDrawerProps {
 	onClose: () => void;
 }
 
-const MP_STATUS_STYLES: Record<string, string> = {
-	approved: "bg-success/15 text-success border-success/30",
-	denied: "bg-danger/15 text-danger border-danger/30",
-	to_review: "bg-warning/15 text-warning border-warning/30",
-};
-
 const PLUGIN_STATUS_STYLES: Record<string, string> = {
 	approved: "bg-success/15 text-success border-success/30",
 	to_review: "bg-warning/15 text-warning border-warning/30",
 	removed: "bg-danger/15 text-danger border-danger/30",
-	unknown: "bg-surface-800 text-text-3 border-edge",
 };
 
-function MarketplaceBadge({ mp }: { mp: MarketplaceRef }) {
-	const style = MP_STATUS_STYLES[mp.status] ?? MP_STATUS_STYLES.to_review;
-	return (
-		<a
-			href={`/marketplaces?name=${encodeURIComponent(mp.name)}`}
-			target="_blank"
-			rel="noopener noreferrer"
-			title={`Open marketplace ${mp.name} in a new tab`}
-			className={`inline-flex items-center rounded border px-1.5 py-0.5 text-xs font-mono hover:underline ${style}`}
-		>
-			{mp.name}
-		</a>
-	);
-}
-
 function PluginBadge({ plugin }: { plugin: SkillDetailPluginRef }) {
-	const style = PLUGIN_STATUS_STYLES[plugin.status] ?? PLUGIN_STATUS_STYLES.unknown;
+	const style = PLUGIN_STATUS_STYLES[plugin.status] ?? PLUGIN_STATUS_STYLES.to_review;
 	return (
 		<a
 			href={`/plugins?name=${encodeURIComponent(plugin.pluginName)}`}
@@ -104,11 +82,17 @@ export function SkillDetailDrawer({ skillName, period, onClose }: SkillDetailDra
 			{error && <p className="text-sm text-danger">{error}</p>}
 			{!loading && !error && detail && (
 				<div className="space-y-6">
-					<div>
-						<p className="text-xs uppercase tracking-wide text-text-4">Activations</p>
-						<p className="mt-1 text-3xl font-semibold text-text-1">{detail.total}</p>
-						<div className="mt-2">
-							<Sparkline values={counts} width={240} height={40} />
+					<div className="grid grid-cols-2 gap-4">
+						<div>
+							<p className="text-xs uppercase tracking-wide text-text-4">Activations</p>
+							<p className="mt-1 text-3xl font-semibold text-text-1">{detail.total}</p>
+							<div className="mt-2">
+								<Sparkline values={counts} width={240} height={40} />
+							</div>
+						</div>
+						<div>
+							<p className="text-xs uppercase tracking-wide text-text-4">Unique users</p>
+							<p className="mt-1 text-3xl font-semibold text-text-1">{detail.uniqueUsers}</p>
 						</div>
 					</div>
 
@@ -143,7 +127,7 @@ export function SkillDetailDrawer({ skillName, period, onClose }: SkillDetailDra
 						) : (
 							<div className="flex flex-wrap gap-1.5">
 								{detail.marketplaces.map((mp) => (
-									<MarketplaceBadge key={mp.name} mp={mp} />
+									<MarketplaceBadge key={mp.name} name={mp.name} status={mp.status} />
 								))}
 							</div>
 						)}

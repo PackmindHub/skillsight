@@ -1,0 +1,43 @@
+import { Hono } from "hono";
+import { z } from "zod";
+import {
+	UPDATE_SKILLS_STATUS_MAX_BATCH,
+	updateSkillsStatus,
+} from "@/application/skills/update-skills-status";
+import type { AppDeps } from "@/bootstrap/compose";
+import { sessionAuth } from "@/middleware/session-auth";
+import type { AppVariables } from "@/types";
+
+const bulkSchema = z.object({
+	skills: z
+		.array(
+			z.object({
+				skillName: z.string().min(1).max(255),
+				pluginName: z.string().max(255),
+			}),
+		)
+		.min(1)
+		.max(UPDATE_SKILLS_STATUS_MAX_BATCH),
+	status: z.enum(["to_review", "approved", "removed"]),
+});
+
+export function createUpdateStatusBulkRoute(deps: Pick<AppDeps, "skills" | "audit">) {
+	const route = new Hono<{ Variables: AppVariables }>();
+	route.use("*", sessionAuth);
+
+	route.patch("/status/bulk", async (c) => {
+		const body = bulkSchema.parse(await c.req.json());
+		const result = await updateSkillsStatus(deps, {
+			entries: body.skills,
+			status: body.status,
+			actorEmail: c.get("user").email,
+		});
+		if ("error" in result) {
+			const message = result.error === "empty" ? "No skills provided" : "Too many skills";
+			return c.json({ error: message }, 400);
+		}
+		return c.json(result);
+	});
+
+	return route;
+}

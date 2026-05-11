@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 export type StatusChipTone = "success" | "warning" | "danger" | "neutral";
 
@@ -18,6 +19,16 @@ interface StatusChipProps<T extends string> {
 	className?: string;
 	ariaLabel?: string;
 	title?: string;
+	/**
+	 * Label shown when `value` does not match any option (e.g. for a "Set status" picker
+	 * where there is no current selection). Defaults to the raw value.
+	 */
+	placeholderLabel?: string;
+	/**
+	 * Optional dimmed prefix rendered only on the trigger (not in the menu). Used when the
+	 * chip doubles as a filter control and needs to read like "Status: Approved".
+	 */
+	triggerPrefix?: string;
 }
 
 const TONE_DOT_STYLE: Record<StatusChipTone, { background: string; boxShadow?: string }> = {
@@ -34,6 +45,8 @@ const TONE_CHIP: Record<StatusChipTone, string> = {
 	neutral: "text-text-3 border-edge-dim bg-surface-800 hover:bg-surface-700 hover:text-text-2",
 };
 
+const MENU_MIN_WIDTH = 168;
+
 export function StatusChip<T extends string>({
 	value,
 	options,
@@ -43,14 +56,42 @@ export function StatusChip<T extends string>({
 	className,
 	ariaLabel,
 	title,
+	placeholderLabel,
+	triggerPrefix,
 }: StatusChipProps<T>) {
 	const [open, setOpen] = useState(false);
-	const ref = useRef<HTMLDivElement>(null);
+	const triggerRef = useRef<HTMLButtonElement>(null);
+	const menuRef = useRef<HTMLDivElement>(null);
+	const [menuPos, setMenuPos] = useState<{ top: number; left: number; minWidth: number } | null>(
+		null,
+	);
+
+	useLayoutEffect(() => {
+		if (!open) return;
+		function reposition() {
+			const trigger = triggerRef.current;
+			if (!trigger) return;
+			const rect = trigger.getBoundingClientRect();
+			const minWidth = Math.max(MENU_MIN_WIDTH, rect.width);
+			const left = align === "right" ? rect.right - minWidth : rect.left;
+			setMenuPos({ top: rect.bottom + 4, left, minWidth });
+		}
+		reposition();
+		window.addEventListener("scroll", reposition, true);
+		window.addEventListener("resize", reposition);
+		return () => {
+			window.removeEventListener("scroll", reposition, true);
+			window.removeEventListener("resize", reposition);
+		};
+	}, [open, align]);
 
 	useEffect(() => {
 		if (!open) return;
 		function onClick(e: MouseEvent) {
-			if (!ref.current?.contains(e.target as Node)) setOpen(false);
+			const target = e.target as Node;
+			if (triggerRef.current?.contains(target)) return;
+			if (menuRef.current?.contains(target)) return;
+			setOpen(false);
 		}
 		function onKey(e: KeyboardEvent) {
 			if (e.key === "Escape") setOpen(false);
@@ -65,13 +106,18 @@ export function StatusChip<T extends string>({
 
 	const current =
 		options.find((o) => o.value === value) ??
-		({ value, label: value, tone: "neutral" } as StatusChipOption<T>);
+		({
+			value,
+			label: placeholderLabel ?? value,
+			tone: "neutral",
+		} as StatusChipOption<T>);
 
 	const interactive = !disabled && Boolean(onChange);
 
 	return (
-		<div ref={ref} className={cn("relative inline-block", className)}>
+		<div className={cn("relative inline-block", className)}>
 			<button
+				ref={triggerRef}
 				type="button"
 				disabled={!interactive}
 				aria-haspopup={interactive ? "menu" : undefined}
@@ -94,6 +140,7 @@ export function StatusChip<T extends string>({
 					className="h-[7px] w-[7px] shrink-0 rounded-full"
 					style={TONE_DOT_STYLE[current.tone]}
 				/>
+				{triggerPrefix && <span className="opacity-60">{triggerPrefix}</span>}
 				<span>{current.label}</span>
 				{interactive && (
 					<svg
@@ -114,65 +161,72 @@ export function StatusChip<T extends string>({
 					</svg>
 				)}
 			</button>
-			{open && (
-				<div
-					role="menu"
-					className={cn(
-						"absolute top-full z-30 mt-1 min-w-[168px] rounded-md border border-edge bg-surface-800 p-1 shadow-xl",
-						align === "right" ? "right-0" : "left-0",
-					)}
-					onClick={(e) => e.stopPropagation()}
-					onKeyDown={(e) => e.stopPropagation()}
-				>
-					{options.map((o) => {
-						const active = o.value === current.value;
-						return (
-							<button
-								key={o.value}
-								type="button"
-								role="menuitem"
-								aria-checked={active}
-								onClick={(e) => {
-									e.stopPropagation();
-									onChange?.(o.value);
-									setOpen(false);
-								}}
-								className={cn(
-									"flex w-full items-center gap-2 rounded px-2 py-1.5 text-left font-mono text-xs transition-colors",
-									active
-										? "bg-accent-bright/10 text-text-1"
-										: "text-text-2 hover:bg-accent-bright/10 hover:text-text-1",
-								)}
-							>
-								<span
-									aria-hidden="true"
-									className="h-[7px] w-[7px] shrink-0 rounded-full"
-									style={TONE_DOT_STYLE[o.tone]}
-								/>
-								<span className="flex-1">{o.label}</span>
-								{active && (
-									<svg
-										width="12"
-										height="12"
-										viewBox="0 0 16 16"
-										fill="none"
+			{open &&
+				menuPos &&
+				createPortal(
+					<div
+						ref={menuRef}
+						role="menu"
+						style={{
+							position: "fixed",
+							top: menuPos.top,
+							left: menuPos.left,
+							minWidth: menuPos.minWidth,
+						}}
+						className="z-50 rounded-md border border-edge bg-surface-800 p-1 shadow-xl"
+						onClick={(e) => e.stopPropagation()}
+						onKeyDown={(e) => e.stopPropagation()}
+					>
+						{options.map((o) => {
+							const active = o.value === current.value;
+							return (
+								<button
+									key={o.value}
+									type="button"
+									role="menuitem"
+									aria-checked={active}
+									onClick={(e) => {
+										e.stopPropagation();
+										onChange?.(o.value);
+										setOpen(false);
+									}}
+									className={cn(
+										"flex w-full items-center gap-2 rounded px-2 py-1.5 text-left font-mono text-xs transition-colors",
+										active
+											? "bg-accent-bright/10 text-text-1"
+											: "text-text-2 hover:bg-accent-bright/10 hover:text-text-1",
+									)}
+								>
+									<span
 										aria-hidden="true"
-										className="text-accent-bright"
-									>
-										<path
-											d="M3 8.5L6.5 12 13 4.5"
-											stroke="currentColor"
-											strokeWidth="1.8"
-											strokeLinecap="round"
-											strokeLinejoin="round"
-										/>
-									</svg>
-								)}
-							</button>
-						);
-					})}
-				</div>
-			)}
+										className="h-[7px] w-[7px] shrink-0 rounded-full"
+										style={TONE_DOT_STYLE[o.tone]}
+									/>
+									<span className="flex-1">{o.label}</span>
+									{active && (
+										<svg
+											width="12"
+											height="12"
+											viewBox="0 0 16 16"
+											fill="none"
+											aria-hidden="true"
+											className="text-accent-bright"
+										>
+											<path
+												d="M3 8.5L6.5 12 13 4.5"
+												stroke="currentColor"
+												strokeWidth="1.8"
+												strokeLinecap="round"
+												strokeLinejoin="round"
+											/>
+										</svg>
+									)}
+								</button>
+							);
+						})}
+					</div>,
+					document.body,
+				)}
 		</div>
 	);
 }

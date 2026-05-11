@@ -1,4 +1,4 @@
-export type PluginStatus = "unknown" | "to_review" | "approved" | "removed";
+export type PluginStatus = "to_review" | "approved" | "removed";
 
 export interface Plugin {
 	pluginName: string;
@@ -12,6 +12,7 @@ export interface Plugin {
 }
 
 export interface PluginWithStats extends Plugin {
+	marketplaceStatus: string | null;
 	installationCount: number;
 	uniqueUserCount: number;
 	skillCount: number;
@@ -20,6 +21,11 @@ export interface PluginWithStats extends Plugin {
 
 export interface PluginSkillActivation {
 	skillName: string;
+	activationCount: number;
+}
+
+export interface PluginUserActivation {
+	userEmail: string;
 	activationCount: number;
 }
 
@@ -36,7 +42,7 @@ export function computePluginStatus(
 	marketplaceName: string | null | undefined,
 	marketplaceStatus: string | null | undefined,
 ): PluginStatus {
-	if (!marketplaceName) return "unknown";
+	if (!marketplaceName) return "to_review";
 	if (marketplaceStatus === "approved") return "approved";
 	return "to_review";
 }

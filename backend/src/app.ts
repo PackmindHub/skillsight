@@ -13,6 +13,7 @@ import { createTokensRoute } from "@/http/tokens";
 import { createUsageRoute } from "@/http/skills/usage";
 import { createDeleteRoute as createSkillsDeleteRoute } from "@/http/skills/delete";
 import { createUpdateStatusRoute as createSkillsUpdateStatusRoute } from "@/http/skills/update-status";
+import { createUpdateStatusBulkRoute as createSkillsUpdateStatusBulkRoute } from "@/http/skills/update-status-bulk";
 import { createAuditRoute } from "@/http/audit";
 import { createIntegrationsRoute } from "@/http/integrations";
 import { createMarketplacesRoute } from "@/http/marketplaces";
@@ -69,6 +70,7 @@ export function createApp() {
 	app.route("/api/skills/usage", createUsageRoute(deps));
 	app.route("/api/skills", createSkillsDeleteRoute(deps));
 	app.route("/api/skills", createSkillsUpdateStatusRoute(deps));
+	app.route("/api/skills", createSkillsUpdateStatusBulkRoute(deps));
 	app.route("/api/audit", createAuditRoute(deps));
 	app.route("/api/integrations", createIntegrationsRoute(deps));
 	app.route("/api/marketplaces", createMarketplacesRoute(deps));

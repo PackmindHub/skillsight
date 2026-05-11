@@ -77,6 +77,7 @@ function makePluginRepo(opts: { byMarketplace: Record<string, string[]> }) {
 	const repo: IPluginRepository = {
 		listWithStats: async () => [],
 		listSkillsWithActivations: async () => [],
+		listTopUsers: async () => [],
 		upsert: async () => {},
 		upsertIfAbsent: async () => {},
 		updateStatusByMarketplace: async () => {},

@@ -1,9 +1,10 @@
+import { MarketplaceBadge } from "@/components/marketplaces/MarketplaceBadge";
 import { PluginSkillsDrawer } from "@/components/plugins/PluginSkillsDrawer";
 import {
 	Card,
 	Input,
 	PageHeader,
-	Select,
+	SingleSelect,
 	StatusChip,
 	type StatusChipOption,
 } from "@/components/ui";
@@ -30,7 +31,6 @@ const ASSOC_LABELS: Record<MarketplaceAssociation, string> = {
 const PLUGIN_STATUS_CHIP_OPTIONS: readonly StatusChipOption<PluginStatus>[] = [
 	{ value: "approved", label: "Approved", tone: "success" },
 	{ value: "to_review", label: "To review", tone: "warning" },
-	{ value: "unknown", label: "Unknown", tone: "neutral" },
 	{ value: "removed", label: "Removed", tone: "danger" },
 ];
 
@@ -42,7 +42,6 @@ const STATUS_FILTER_OPTIONS: {
 	{ key: "all", label: "All" },
 	{ key: "to_review", label: "To review", dot: "var(--color-warning)" },
 	{ key: "approved", label: "Approved", dot: "var(--color-success)" },
-	{ key: "unknown", label: "Unknown", dot: "var(--color-neutral)" },
 	{ key: "removed", label: "Removed", dot: "var(--color-danger)" },
 ];
 
@@ -236,7 +235,7 @@ export default function PluginsPage() {
 
 	const filteredItems = useMemo(() => {
 		return items.filter((p) => {
-			if (statusFilter !== "all" && (p.status ?? "unknown") !== statusFilter) return false;
+			if (statusFilter !== "all" && (p.status ?? "to_review") !== statusFilter) return false;
 			if (marketplaceFilter && p.marketplaceName !== marketplaceFilter) return false;
 			if (mpAssoc === "with" && !p.marketplaceName) return false;
 			if (mpAssoc === "without" && p.marketplaceName) return false;
@@ -293,13 +292,13 @@ export default function PluginsPage() {
 						<div
 							role="tablist"
 							aria-label="Filter by status"
-							className="inline-flex gap-0.5 rounded-lg border border-edge-dim bg-surface-800 p-[2px]"
+							className="inline-flex h-8 items-center gap-0.5 rounded-lg border border-edge-dim bg-surface-800 p-[2px]"
 						>
 							{STATUS_FILTER_OPTIONS.map((opt) => {
 								const count =
 									opt.key === "all"
 										? items.length
-										: items.filter((p) => (p.status ?? "unknown") === opt.key).length;
+										: items.filter((p) => (p.status ?? "to_review") === opt.key).length;
 								const active = statusFilter === opt.key;
 								return (
 									<button
@@ -335,18 +334,15 @@ export default function PluginsPage() {
 								);
 							})}
 						</div>
-						<Select
-							size="sm"
-							aria-label="Filter by marketplace association"
+						<SingleSelect<MarketplaceAssociation>
+							label="Marketplace"
 							value={mpAssoc}
-							onChange={(e) => updateMpAssoc(e.target.value as MarketplaceAssociation)}
-						>
-							{MARKETPLACE_ASSOCIATIONS.map((value) => (
-								<option key={value} value={value}>
-									Marketplace: {ASSOC_LABELS[value]}
-								</option>
-							))}
-						</Select>
+							onChange={updateMpAssoc}
+							options={MARKETPLACE_ASSOCIATIONS.map((value) => ({
+								value,
+								label: ASSOC_LABELS[value],
+							}))}
+						/>
 						{marketplaceFilter && (
 							<span className="inline-flex items-center gap-1 rounded-full border border-edge bg-surface-800 px-2 py-0.5 text-xs text-text-2">
 								Marketplace: {marketplaceFilter}
@@ -406,7 +402,7 @@ export default function PluginsPage() {
 							)}
 
 							{filteredItems.map((plugin) => {
-								const status = (plugin.status ?? "unknown") as PluginStatus;
+								const status = (plugin.status ?? "to_review") as PluginStatus;
 								const isHighlighted = highlightName === plugin.pluginName;
 								const openDrawer = () => setSelectedPlugin(plugin.pluginName);
 								const activations = plugin.skillActivationCount;
@@ -446,19 +442,10 @@ export default function PluginsPage() {
 
 										<div className="min-w-0">
 											{plugin.marketplaceName ? (
-												<a
-													href={`/marketplaces?name=${encodeURIComponent(plugin.marketplaceName)}`}
-													target="_blank"
-													rel="noopener noreferrer"
-													title={`Open marketplace ${plugin.marketplaceName}`}
-													className="inline-flex max-w-full items-center gap-1.5 overflow-hidden rounded border border-accent-bright/25 bg-accent-bright/[0.06] px-1.5 py-[2px] font-mono text-[11px] text-text-2 hover:bg-accent-bright/[0.12] hover:text-text-1"
-												>
-													<span
-														aria-hidden="true"
-														className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent-bright"
-													/>
-													<span className="truncate">{plugin.marketplaceName}</span>
-												</a>
+												<MarketplaceBadge
+													name={plugin.marketplaceName}
+													status={plugin.marketplaceStatus}
+												/>
 											) : (
 												<span
 													className="text-text-4"

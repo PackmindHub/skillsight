@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router-dom";
+import { MarketplaceBadge } from "@/components/marketplaces/MarketplaceBadge";
 import { SkillDetailDrawer } from "@/components/skills/SkillDetailDrawer";
+import { TrendSparkline } from "@/components/skills/TrendSparkline";
 import {
 	Button,
 	ConfirmDialog,
@@ -9,8 +11,7 @@ import {
 	PageHeader,
 	SearchBar,
 	SegmentedControl,
-	Select,
-	Sparkline,
+	SingleSelect,
 	StatusChip,
 	type StatusChipOption,
 	StatusFilter,
@@ -26,38 +27,14 @@ import { cn } from "@/lib/utils";
 import {
 	SKILL_STATUSES,
 	type DashboardPeriod,
-	type MarketplaceRef,
 	type SkillStatus,
 	type SkillTableRow,
 } from "@/types/api";
-
-const MP_STATUS_STYLES: Record<string, string> = {
-	approved: "bg-success/15 text-success border-success/30",
-	denied: "bg-danger/15 text-danger border-danger/30",
-	to_review: "bg-warning/15 text-warning border-warning/30",
-};
-
-function MarketplaceBadge({ mp }: { mp: MarketplaceRef }) {
-	const style = MP_STATUS_STYLES[mp.status] ?? MP_STATUS_STYLES.to_review;
-	return (
-		<a
-			href={`/marketplaces?name=${encodeURIComponent(mp.name)}`}
-			target="_blank"
-			rel="noopener noreferrer"
-			onClick={(e) => e.stopPropagation()}
-			title={`Open marketplace ${mp.name} in a new tab`}
-			className={`inline-flex items-center rounded border px-1.5 py-0.5 text-xs font-mono hover:underline ${style}`}
-		>
-			{mp.name}
-		</a>
-	);
-}
 
 const SKILL_STATUS_CHIP_OPTIONS: readonly StatusChipOption<SkillStatus>[] = [
 	{ value: "approved", label: "Approved", tone: "success" },
 	{ value: "to_review", label: "To review", tone: "warning" },
 	{ value: "removed", label: "Removed", tone: "danger" },
-	{ value: "unknown", label: "Unknown", tone: "neutral" },
 ];
 
 const TRIGGERS: {
@@ -222,6 +199,7 @@ type UsageFilter = "all" | "activated" | "never_used";
 type SortKey =
 	| "skillName"
 	| "total"
+	| "uniqueUsers"
 	| "status"
 	| "userSlash"
 	| "claudeProactive"
@@ -234,6 +212,7 @@ const USAGE_VALUES: UsageFilter[] = ["all", "activated", "never_used"];
 const SORT_KEYS: SortKey[] = [
 	"skillName",
 	"total",
+	"uniqueUsers",
 	"status",
 	"userSlash",
 	"claudeProactive",
@@ -308,6 +287,12 @@ export default function SkillsTablePage() {
 	const [deleting, setDeleting] = useState(false);
 	const [deleteError, setDeleteError] = useState<string | null>(null);
 	const [reloadToken, setReloadToken] = useState(0);
+	const [bulkStatusResult, setBulkStatusResult] = useState<{
+		updated: number;
+		skippedInherited: number;
+		notFound: number;
+	} | null>(null);
+	const [bulkStatusError, setBulkStatusError] = useState<string | null>(null);
 	const selectAllRef = useRef<HTMLInputElement>(null);
 
 	const period = pickPeriod(searchParams.get("period"));
@@ -452,7 +437,7 @@ export default function SkillsTablePage() {
 			if (pluginFilter && row.pluginName !== pluginFilter) continue;
 			if (sourceFilter === "bundled" && row.skillSource !== "bundled") continue;
 			if (sourceFilter === "external" && row.skillSource === "bundled") continue;
-			if (statusFilter !== "all" && (row.status ?? "unknown") !== statusFilter) continue;
+			if (statusFilter !== "all" && (row.status ?? "to_review") !== statusFilter) continue;
 			if (marketplaces.length > 0) {
 				const wantsNone = marketplaces.includes(NO_MARKETPLACE);
 				const wantedNames = marketplaces.filter((m) => m !== NO_MARKETPLACE);
@@ -591,6 +576,23 @@ export default function SkillsTablePage() {
 		setSelectedKeys(new Set());
 	}
 
+	useEffect(() => {
+		if (!bulkStatusResult && !bulkStatusError) return;
+		const id = setTimeout(() => {
+			setBulkStatusResult(null);
+			setBulkStatusError(null);
+		}, 6000);
+		return () => clearTimeout(id);
+	}, [bulkStatusResult, bulkStatusError]);
+
+	const editableSelectedCount = useMemo(() => {
+		let n = 0;
+		for (const k of selectedKeys) {
+			if (keyToEntry(k).pluginName === "") n++;
+		}
+		return n;
+	}, [selectedKeys]);
+
 	async function handleBulkDelete() {
 		setDeleting(true);
 		setDeleteError(null);
@@ -604,6 +606,30 @@ export default function SkillsTablePage() {
 			setDeleteError(e instanceof Error ? e.message : String(e));
 		} finally {
 			setDeleting(false);
+		}
+	}
+
+	async function handleBulkStatus(status: SkillStatus) {
+		const entries = Array.from(selectedKeys).map(keyToEntry);
+		if (entries.length === 0) return;
+		setBulkStatusError(null);
+		setBulkStatusResult(null);
+
+		setRows((prev) =>
+			prev.map((r) =>
+				selectedKeys.has(rowKey(r)) && (r.pluginName ?? "") === ""
+					? { ...r, status }
+					: r,
+			),
+		);
+
+		try {
+			const result = await api.skills.updateStatusBulk({ skills: entries, status });
+			setBulkStatusResult(result);
+			setSelectedKeys(new Set());
+		} catch (e) {
+			setBulkStatusError(e instanceof Error ? e.message : String(e));
+			setReloadToken((t) => t + 1);
 		}
 	}
 
@@ -685,24 +711,26 @@ export default function SkillsTablePage() {
 					onChange={setStatus}
 					options={SKILL_STATUSES}
 				/>
-				<Select
-					size="sm"
+				<SingleSelect<SourceFilter>
+					label="Source"
 					value={sourceFilter}
-					onChange={(e) => updateParam("source", e.target.value, "all")}
-				>
-					<option value="all">Source: All</option>
-					<option value="bundled">Bundled</option>
-					<option value="external">External</option>
-				</Select>
-				<Select
-					size="sm"
+					onChange={(v) => updateParam("source", v, "all")}
+					options={[
+						{ value: "all", label: "All" },
+						{ value: "bundled", label: "Bundled" },
+						{ value: "external", label: "External" },
+					]}
+				/>
+				<SingleSelect<UsageFilter>
+					label="Usage"
 					value={usageFilter}
-					onChange={(e) => updateParam("usage", e.target.value, "all")}
-				>
-					<option value="all">Usage: All</option>
-					<option value="activated">Activated</option>
-					<option value="never_used">Never used</option>
-				</Select>
+					onChange={(v) => updateParam("usage", v, "all")}
+					options={[
+						{ value: "all", label: "All" },
+						{ value: "activated", label: "Activated" },
+						{ value: "never_used", label: "Never used" },
+					]}
+				/>
 				<Button
 					variant="secondary"
 					size="sm"
@@ -785,7 +813,23 @@ export default function SkillsTablePage() {
 					>
 						Clear
 					</button>
-					<div className="ml-auto">
+					<div className="ml-auto flex items-center gap-2">
+						<StatusChip<SkillStatus>
+							value={"" as SkillStatus}
+							options={SKILL_STATUS_CHIP_OPTIONS}
+							placeholderLabel="Set status…"
+							onChange={(v) => handleBulkStatus(v)}
+							disabled={editableSelectedCount === 0}
+							ariaLabel="Set status for selected skills"
+							title={
+								editableSelectedCount === 0
+									? "All selected skills inherit their status from a plugin"
+									: editableSelectedCount < selectedKeys.size
+										? `${editableSelectedCount} of ${selectedKeys.size} selected can be updated — the rest inherit from a plugin`
+										: undefined
+							}
+							align="right"
+						/>
 						<Button
 							variant="danger"
 							size="sm"
@@ -798,6 +842,41 @@ export default function SkillsTablePage() {
 						</Button>
 					</div>
 				</div>
+			)}
+
+			{(bulkStatusResult || bulkStatusError) && (
+				<output
+					className={cn(
+						"block rounded-md border px-3 py-2 text-sm",
+						bulkStatusError
+							? "border-danger/30 bg-danger/10 text-danger"
+							: "border-accent-bright/30 bg-accent-bright/10 text-text-1",
+					)}
+				>
+					{bulkStatusError ? (
+						<>Failed to update status: {bulkStatusError}</>
+					) : bulkStatusResult ? (
+						<>
+							Updated <span className="font-medium">{bulkStatusResult.updated}</span>
+							{bulkStatusResult.skippedInherited > 0 && (
+								<>
+									{" · "}
+									<span className="text-text-3">
+										{bulkStatusResult.skippedInherited} skipped (inherited from plugin)
+									</span>
+								</>
+							)}
+							{bulkStatusResult.notFound > 0 && (
+								<>
+									{" · "}
+									<span className="text-text-3">
+										{bulkStatusResult.notFound} not found
+									</span>
+								</>
+							)}
+						</>
+					) : null}
+				</output>
 			)}
 
 			<Table>
@@ -832,6 +911,14 @@ export default function SkillsTablePage() {
 							onSort={toggleSort}
 							className="text-right"
 						/>
+						<SortableHeader
+							label="Users"
+							sortKey="uniqueUsers"
+							currentKey={sortKey}
+							currentDir={sortDir}
+							onSort={toggleSort}
+							className="text-right"
+						/>
 						<th className="text-left px-4 py-3 font-medium text-text-3">Δ 30d</th>
 						<th className="text-left px-4 py-3 font-medium text-text-3">Trend</th>
 						<th className="text-left px-4 py-3 font-medium text-text-3">Marketplaces</th>
@@ -860,19 +947,19 @@ export default function SkillsTablePage() {
 						SKELETON_KEYS.map((k) => <SkeletonRow key={k} />)
 					) : error ? (
 						<tr>
-							<td colSpan={10} className="px-4 py-8 text-center text-danger text-sm">
+							<td colSpan={11} className="px-4 py-8 text-center text-danger text-sm">
 								{error}
 							</td>
 						</tr>
 					) : rows.length === 0 ? (
 						<tr>
-							<td colSpan={10} className="px-4 py-12 text-center text-text-3 text-sm">
+							<td colSpan={11} className="px-4 py-12 text-center text-text-3 text-sm">
 								No skills found.
 							</td>
 						</tr>
 					) : filteredRows.length === 0 ? (
 						<tr>
-							<td colSpan={10} className="px-4 py-8 text-center text-text-4 text-sm">
+							<td colSpan={11} className="px-4 py-8 text-center text-text-4 text-sm">
 								No skills match the current filters.
 								{filtersActive && (
 									<>
@@ -923,22 +1010,26 @@ export default function SkillsTablePage() {
 									/>
 								</td>
 								<td className="px-4 py-3 font-mono text-text-1">
-									<span className="flex flex-col gap-0.5">
-										<span className="flex items-center gap-2">
-											{row.skillName}
-											{row.total === 0 && (
-												<span className="inline-flex items-center rounded border border-edge bg-surface-800 px-1.5 py-0.5 text-xs text-text-3">
-													Never used
-												</span>
-											)}
-										</span>
-										<span className="text-xs text-text-3">
-											{row.pluginName ?? <span className="text-text-4">no plugin</span>}
-										</span>
+									<span className="flex items-center gap-2">
+										{row.skillName}
+										{row.total === 0 && (
+											<span className="inline-flex items-center rounded border border-edge bg-surface-800 px-1.5 py-0.5 text-xs text-text-3">
+												Never used
+											</span>
+										)}
 									</span>
 								</td>
 								<td className="px-4 py-3 text-right font-mono text-text-1 tabular-nums">
 									{row.total.toLocaleString("en-US")}
+								</td>
+								<td className="px-4 py-3 text-right font-mono tabular-nums">
+									{row.uniqueUsers > 0 ? (
+										<span className="text-text-1">
+											{row.uniqueUsers.toLocaleString("en-US")}
+										</span>
+									) : (
+										<span className="text-text-4">—</span>
+									)}
 								</td>
 								<td className="px-4 py-3">
 									{(() => {
@@ -955,19 +1046,25 @@ export default function SkillsTablePage() {
 									})()}
 								</td>
 								<td className="px-4 py-3">
-									<Sparkline
+									<TrendSparkline
 										values={row.dailyCounts}
 										width={80}
 										height={20}
 										strokeClass={row.total === 0 ? "stroke-text-4" : "stroke-accent-bright"}
 										fillClass={row.total === 0 ? "fill-transparent" : "fill-accent-bright/15"}
+										days={typeof period === "number" ? period : row.dailyCounts.length}
 									/>
 								</td>
 								<td className="px-4 py-3">
 									{row.marketplaces.length > 0 ? (
 										<div className="flex flex-wrap gap-1">
 											{row.marketplaces.map((mp) => (
-												<MarketplaceBadge key={mp.name} mp={mp} />
+												<MarketplaceBadge
+													key={mp.name}
+													name={mp.name}
+													status={mp.status}
+													onClick={(e) => e.stopPropagation()}
+												/>
 											))}
 										</div>
 									) : (
@@ -976,7 +1073,10 @@ export default function SkillsTablePage() {
 								</td>
 								<td className="px-4 py-3">
 									{row.skillSource === "bundled" ? (
-										<span className="inline-flex items-center rounded border border-accent-soft/30 bg-accent-bright/15 px-1.5 py-0.5 font-mono text-[11px] text-accent-soft">
+										<span
+											className="inline-flex cursor-help items-center rounded border border-accent-soft/30 bg-accent-bright/15 px-1.5 py-0.5 font-mono text-[11px] text-accent-soft"
+											title="Bundled skills ship inside Claude Code itself, so they are approved by default. You can still override their status manually."
+										>
 											bundled
 										</span>
 									) : (
@@ -989,7 +1089,7 @@ export default function SkillsTablePage() {
 									onKeyDown={(e) => e.stopPropagation()}
 								>
 									{(() => {
-										const status = (row.status ?? "unknown") as SkillStatus;
+										const status = (row.status ?? "to_review") as SkillStatus;
 										const pluginName = row.pluginName ?? "";
 										const editable = pluginName === "";
 										return (
@@ -1126,6 +1226,9 @@ function SkeletonRow() {
 			</td>
 			<td className="px-4 py-3 text-right">
 				<div className="ml-auto h-3 w-10 rounded bg-surface-800 animate-pulse" />
+			</td>
+			<td className="px-4 py-3 text-right">
+				<div className="ml-auto h-3 w-8 rounded bg-surface-800 animate-pulse" />
 			</td>
 			<td className="px-4 py-3">
 				<div className="h-3 w-8 rounded bg-surface-800 animate-pulse" />

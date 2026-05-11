@@ -56,7 +56,7 @@ function makeSkill(overrides: Partial<Skill> = {}): Skill {
 	return {
 		skillName: "linting",
 		pluginName: "",
-		status: "unknown",
+		status: "to_review",
 		firstSeenAt: new Date("2025-01-01"),
 		lastSeenAt: new Date("2025-01-02"),
 		...overrides,
@@ -65,7 +65,7 @@ function makeSkill(overrides: Partial<Skill> = {}): Skill {
 
 describe("updateSkillStatus", () => {
 	it("updates a plugin-less skill and emits an audit entry", async () => {
-		const { deps, auditCalls } = makeDeps(makeSkill({ status: "unknown" }));
+		const { deps, auditCalls } = makeDeps(makeSkill({ status: "to_review" }));
 
 		const result = await updateSkillStatus(deps, {
 			skillName: "linting",
@@ -83,7 +83,7 @@ describe("updateSkillStatus", () => {
 		expect(auditCalls[0].actorEmail).toBe("u@x");
 		expect(auditCalls[0].target).toBe("linting");
 		expect(auditCalls[0].metadata).toEqual({
-			from: "unknown",
+			from: "to_review",
 			to: "approved",
 			pluginName: "",
 			scope: "direct",
@@ -142,21 +142,17 @@ describe("updateSkillStatus", () => {
 	});
 
 	it("supports all skill statuses", async () => {
-		const targets: SkillStatus[] = ["unknown", "to_review", "approved", "removed"];
+		const targets: SkillStatus[] = ["to_review", "approved", "removed"];
 		for (const target of targets) {
-			const { deps } = makeDeps(makeSkill({ status: "unknown" }));
+			const { deps } = makeDeps(makeSkill({ status: "to_review" }));
 			const result = await updateSkillStatus(deps, {
 				skillName: "linting",
 				pluginName: "",
 				status: target,
 				actorEmail: "u@x",
 			});
-			if (target === "unknown") {
-				expect("error" in result).toBe(false);
-			} else {
-				expect("error" in result).toBe(false);
-				if (!("error" in result)) expect(result.status).toBe(target);
-			}
+			expect("error" in result).toBe(false);
+			if (!("error" in result)) expect(result.status).toBe(target);
 		}
 	});
 });

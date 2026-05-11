@@ -3,7 +3,6 @@ import type { MarketplaceStatus, PluginStatus, SkillStatus } from "@/types/api";
 export type AnyStatus = PluginStatus | MarketplaceStatus | SkillStatus;
 
 const STATUS_BADGE_CLASS: Record<AnyStatus, string> = {
-	unknown: "bg-gray-100 text-gray-600 border-gray-200",
 	to_review: "bg-amber-100 text-amber-700 border-amber-200",
 	approved: "bg-emerald-100 text-emerald-700 border-emerald-200",
 	removed: "bg-red-100 text-red-600 border-red-200",
@@ -11,7 +10,6 @@ const STATUS_BADGE_CLASS: Record<AnyStatus, string> = {
 };
 
 const STATUS_LABEL: Record<AnyStatus, string> = {
-	unknown: "Unknown",
 	to_review: "To Review",
 	approved: "Approved",
 	removed: "Removed",

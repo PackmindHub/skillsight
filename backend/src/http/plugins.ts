@@ -8,7 +8,7 @@ import { sessionAuth } from "@/middleware/session-auth";
 import type { AppVariables } from "@/types";
 
 const updateSchema = z.object({
-	status: z.enum(["unknown", "to_review", "approved", "removed"]).optional(),
+	status: z.enum(["to_review", "approved", "removed"]).optional(),
 });
 
 export function createPluginsRoute(deps: Pick<AppDeps, "plugins" | "skills" | "audit">) {
@@ -21,8 +21,8 @@ export function createPluginsRoute(deps: Pick<AppDeps, "plugins" | "skills" | "a
 
 	route.get("/:pluginName/skills", async (c) => {
 		const pluginName = decodeURIComponent(c.req.param("pluginName"));
-		const skills = await listPluginSkills(deps, pluginName);
-		return c.json({ skills });
+		const data = await listPluginSkills(deps, pluginName);
+		return c.json(data);
 	});
 
 	route.patch("/:pluginName", async (c) => {

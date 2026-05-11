@@ -2,47 +2,40 @@ import { describe, expect, it } from "bun:test";
 import { renderToString } from "react-dom/server";
 import { StatusFilter } from "./StatusFilter";
 
-const PLUGIN = ["unknown", "to_review", "approved", "removed"] as const;
+const PLUGIN = ["to_review", "approved", "removed"] as const;
 
 describe("StatusFilter", () => {
-	it("renders the 'all' option and one option per allowed status", () => {
+	it("renders the trigger button with the 'Status:' prefix and current label", () => {
 		const html = renderToString(
 			<StatusFilter value="all" onChange={() => {}} options={PLUGIN} />,
 		);
-		expect(html).toContain('value="all"');
-		expect(html).toContain('value="unknown"');
-		expect(html).toContain('value="to_review"');
-		expect(html).toContain('value="approved"');
-		expect(html).toContain('value="removed"');
+		expect(html).toContain("Status:");
+		expect(html).toContain("All");
 	});
 
-	it("uses the provided allLabel", () => {
+	it("uses the provided allLabel for the 'all' state", () => {
 		const html = renderToString(
 			<StatusFilter
 				value="all"
 				onChange={() => {}}
 				options={PLUGIN}
-				allLabel="All statuses"
+				allLabel="Any status"
 			/>,
 		);
-		expect(html).toContain("All statuses");
+		expect(html).toContain("Any status");
 	});
 
-	it("renders human-readable labels for each status", () => {
-		const html = renderToString(
-			<StatusFilter value="all" onChange={() => {}} options={PLUGIN} />,
-		);
-		expect(html).toContain("To Review");
-		expect(html).toContain("Approved");
-		expect(html).toContain("Removed");
-	});
-
-	it("marks the current value as selected", () => {
+	it("renders the current status label when a specific status is selected", () => {
 		const html = renderToString(
 			<StatusFilter value="approved" onChange={() => {}} options={PLUGIN} />,
 		);
-		// React server-renders selected option via defaultValue on the select; just
-		// check the selected option's value appears in the markup.
-		expect(html).toContain('value="approved"');
+		expect(html).toContain("Approved");
+	});
+
+	it("exposes the aria-label on the trigger", () => {
+		const html = renderToString(
+			<StatusFilter value="all" onChange={() => {}} options={PLUGIN} />,
+		);
+		expect(html).toContain('aria-label="Filter by status"');
 	});
 });

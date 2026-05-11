@@ -4,7 +4,6 @@ import { StatusBadge, statusLabel } from "./StatusBadge";
 
 describe("StatusBadge", () => {
 	it("renders the label for each known status", () => {
-		expect(renderToString(<StatusBadge status="unknown" />)).toContain("Unknown");
 		expect(renderToString(<StatusBadge status="to_review" />)).toContain("To Review");
 		expect(renderToString(<StatusBadge status="approved" />)).toContain("Approved");
 		expect(renderToString(<StatusBadge status="removed" />)).toContain("Removed");

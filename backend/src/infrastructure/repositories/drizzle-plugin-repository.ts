@@ -8,6 +8,7 @@ import type {
 	Plugin,
 	PluginSkillActivation,
 	PluginStatus,
+	PluginUserActivation,
 	PluginWithStats,
 } from "@/domain/plugin";
 
@@ -23,6 +24,7 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			  p.install_trigger         AS "installTrigger",
 			  p.marketplace_is_official AS "marketplaceIsOfficial",
 			  p.status,
+			  m.status                  AS "marketplaceStatus",
 			  p.first_seen_at           AS "firstSeenAt",
 			  p.last_seen_at            AS "lastSeenAt",
 			  COALESCE(s.install_count, 0)::int AS "installationCount",
@@ -30,6 +32,7 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			  COALESCE(ps.skill_count, 0)::int  AS "skillCount",
 			  COALESCE(sa.activation_count, 0)::int AS "skillActivationCount"
 			FROM plugins p
+			LEFT JOIN marketplaces m ON m.name = p.marketplace_name
 			LEFT JOIN (
 			  SELECT
 			    attributes->>'plugin.name'      AS plugin_name,
@@ -72,6 +75,24 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			ORDER BY "activationCount" DESC, ps.skill_name ASC
 		`);
 		return rows as unknown as PluginSkillActivation[];
+	}
+
+	async listTopUsers(pluginName: string, limit: number): Promise<PluginUserActivation[]> {
+		const rows = await this.db.execute(sql`
+			SELECT
+			  e.user_email           AS "userEmail",
+			  COUNT(e.id)::int       AS "activationCount"
+			FROM events e
+			JOIN plugin_skills ps
+			  ON ps.skill_name = e.attributes->>'skill.name'
+			WHERE e.event_name = ${EVENT_NAMES.SKILL_ACTIVATED}
+			  AND ps.plugin_name = ${pluginName}
+			  AND e.user_email IS NOT NULL
+			GROUP BY e.user_email
+			ORDER BY "activationCount" DESC, e.user_email ASC
+			LIMIT ${limit}
+		`);
+		return rows as unknown as PluginUserActivation[];
 	}
 
 	async findByName(pluginName: string): Promise<Plugin | null> {

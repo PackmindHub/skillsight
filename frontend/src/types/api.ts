@@ -65,19 +65,17 @@ export interface MonthlyTrendsResponse {
 
 export type MarketplaceStatus = "to_review" | "approved" | "denied";
 
-export type PluginStatus = "unknown" | "to_review" | "approved" | "removed";
+export type PluginStatus = "to_review" | "approved" | "removed";
 
-export type SkillStatus = "unknown" | "to_review" | "approved" | "removed";
+export type SkillStatus = "to_review" | "approved" | "removed";
 
 export const SKILL_STATUSES: readonly SkillStatus[] = [
-	"unknown",
 	"to_review",
 	"approved",
 	"removed",
 ] as const;
 
 export const PLUGIN_STATUSES: readonly PluginStatus[] = [
-	"unknown",
 	"to_review",
 	"approved",
 	"removed",
@@ -92,6 +90,7 @@ export const MARKETPLACE_STATUSES: readonly MarketplaceStatus[] = [
 export interface Plugin {
 	pluginName: string;
 	marketplaceName: string | null;
+	marketplaceStatus: MarketplaceStatus | null;
 	pluginVersion: string | null;
 	installTrigger: string | null;
 	marketplaceIsOfficial: boolean | null;
@@ -109,8 +108,14 @@ export interface PluginSkillRow {
 	activationCount: number;
 }
 
+export interface PluginUserRow {
+	userEmail: string;
+	activationCount: number;
+}
+
 export interface PluginSkillsResponse {
 	skills: PluginSkillRow[];
+	topUsers: PluginUserRow[];
 }
 
 export interface MarketplaceRef {
@@ -156,6 +161,7 @@ export interface SkillTableRow {
 	pluginName: string | null;
 	skillSource: string | null;
 	total: number;
+	uniqueUsers: number;
 	userSlash: number;
 	claudeProactive: number;
 	nestedSkill: number;
@@ -184,6 +190,7 @@ export interface SkillDetail {
 	skillName: string;
 	skillSource: string | null;
 	total: number;
+	uniqueUsers: number;
 	userSlash: number;
 	claudeProactive: number;
 	nestedSkill: number;

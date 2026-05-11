@@ -3,7 +3,7 @@ import { renderToString } from "react-dom/server";
 import { MemoryRouter, useSearchParams } from "react-router-dom";
 import { useStatusFilter } from "./use-status-filter";
 
-const STATUSES = ["unknown", "to_review", "approved", "removed"] as const;
+const STATUSES = ["to_review", "approved", "removed"] as const;
 
 function Probe({ initialUrl }: { initialUrl: string }) {
 	const { status } = useStatusFilter("status", STATUSES);

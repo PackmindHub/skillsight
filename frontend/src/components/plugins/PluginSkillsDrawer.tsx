@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Drawer } from "@/components/ui/Drawer";
 import { api } from "@/lib/api";
-import type { PluginSkillRow } from "@/types/api";
+import type { PluginSkillRow, PluginUserRow } from "@/types/api";
 
 interface PluginSkillsDrawerProps {
 	pluginName: string | null;
@@ -10,12 +10,14 @@ interface PluginSkillsDrawerProps {
 
 export function PluginSkillsDrawer({ pluginName, onClose }: PluginSkillsDrawerProps) {
 	const [skills, setSkills] = useState<PluginSkillRow[] | null>(null);
+	const [topUsers, setTopUsers] = useState<PluginUserRow[] | null>(null);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
 		if (!pluginName) {
 			setSkills(null);
+			setTopUsers(null);
 			setError(null);
 			return;
 		}
@@ -25,7 +27,9 @@ export function PluginSkillsDrawer({ pluginName, onClose }: PluginSkillsDrawerPr
 		api.plugins
 			.skills(pluginName)
 			.then((res) => {
-				if (!cancelled) setSkills(res.skills);
+				if (cancelled) return;
+				setSkills(res.skills);
+				setTopUsers(res.topUsers);
 			})
 			.catch((e) => {
 				if (!cancelled) setError(String(e));
@@ -94,6 +98,31 @@ export function PluginSkillsDrawer({ pluginName, onClose }: PluginSkillsDrawerPr
 										</li>
 									);
 								})}
+							</ul>
+						)}
+					</div>
+
+					<div className="space-y-2">
+						<p className="text-xs uppercase tracking-wide text-text-4">
+							Top users (by activations)
+						</p>
+						{!topUsers || topUsers.length === 0 ? (
+							<p className="text-sm text-text-4">No activations recorded.</p>
+						) : (
+							<ul className="space-y-1">
+								{topUsers.map((u) => (
+									<li
+										key={u.userEmail}
+										className="flex items-center justify-between rounded border border-edge-dim bg-surface-800 px-3 py-1.5 text-sm"
+									>
+										<span className="font-mono text-text-2 truncate" title={u.userEmail}>
+											{u.userEmail}
+										</span>
+										<span className="font-medium tabular-nums text-text-1">
+											{u.activationCount}
+										</span>
+									</li>
+								))}
 							</ul>
 						)}
 					</div>

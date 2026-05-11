@@ -3,12 +3,14 @@ import type {
 	Plugin,
 	PluginSkillActivation,
 	PluginStatus,
+	PluginUserActivation,
 	PluginWithStats,
 } from "@/domain/plugin";
 
 export interface IPluginRepository {
 	listWithStats(): Promise<PluginWithStats[]>;
 	listSkillsWithActivations(pluginName: string): Promise<PluginSkillActivation[]>;
+	listTopUsers(pluginName: string, limit: number): Promise<PluginUserActivation[]>;
 	findByName(pluginName: string): Promise<Plugin | null>;
 	upsert(plugin: NewPlugin): Promise<void>;
 	upsertIfAbsent(plugin: NewPlugin): Promise<void>;
