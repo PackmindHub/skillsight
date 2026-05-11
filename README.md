@@ -1,4 +1,4 @@
-# Skillsight
+# <img src="frontend/public/favicon.svg" width="32" height="32" alt=""> Skillsight
 
 **A self-hosted dashboard for understanding how your team uses Claude Code skills.**
 
