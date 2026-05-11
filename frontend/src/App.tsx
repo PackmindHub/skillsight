@@ -1,5 +1,4 @@
 import { AppShell } from "@/components/layout/AppShell";
-import { SettingsLayout } from "@/components/layout/SettingsLayout";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { IntegrationsHealthProvider } from "@/context/IntegrationsHealthContext";
 import { MarketplaceSourcesHealthProvider } from "@/context/MarketplaceSourcesHealthContext";
@@ -45,10 +44,8 @@ export default function App() {
 						<Route path="/plugins" element={<PluginsPage />} />
 						<Route path="/tokens" element={<TokensPage />} />
 						<Route path="/audit" element={<AuditLogPage />} />
-						<Route path="/settings" element={<SettingsLayout />}>
-							<Route index element={<Navigate to="/settings/integrations" replace />} />
-							<Route path="integrations" element={<IntegrationsPage />} />
-						</Route>
+						<Route path="/settings" element={<Navigate to="/settings/integrations" replace />} />
+						<Route path="/settings/integrations" element={<IntegrationsPage />} />
 					</Route>
 					<Route path="*" element={<Navigate to="/dashboard" replace />} />
 				</Routes>
