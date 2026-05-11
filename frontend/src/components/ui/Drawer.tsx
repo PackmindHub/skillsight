@@ -56,7 +56,7 @@ export function Drawer({ open, onClose, title, children, footer, widthClass = "w
 				open
 				aria-modal="true"
 				aria-label={title}
-				className={`absolute right-0 top-0 h-full ${widthClass} max-w-full m-0 flex flex-col bg-surface-900 border-l border-edge shadow-2xl text-text-1`}
+				className={`absolute right-0 left-auto top-0 h-full ${widthClass} max-w-full m-0 flex flex-col bg-surface-900 border-l border-edge shadow-2xl text-text-1`}
 			>
 				<header className="flex items-center justify-between border-b border-edge px-5 py-4 shrink-0">
 					<h2 className="text-sm font-semibold text-text-1">{title}</h2>
