@@ -76,11 +76,17 @@ export function createIntegrationsRoute(
 
 	route.post("/preview", async (c) => {
 		const body = previewSchema.parse(await c.req.json());
-		const results = await previewIntegration(
-			{ integrations: deps.integrations, loki: deps.loki },
-			body,
-		);
-		return c.json(results);
+		try {
+			const results = await previewIntegration(
+				{ integrations: deps.integrations, loki: deps.loki },
+				body,
+			);
+			return c.json(results);
+		} catch (err) {
+			const message = err instanceof Error ? err.message : String(err);
+			const status = message.includes("authentication failed") ? 401 : 400;
+			return c.json({ error: message }, status);
+		}
 	});
 
 	route.post("/", async (c) => {

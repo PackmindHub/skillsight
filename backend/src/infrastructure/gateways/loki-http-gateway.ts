@@ -41,8 +41,16 @@ export class LokiHttpGateway implements ILokiGateway {
 			signal: AbortSignal.timeout(15_000),
 		});
 
+		if (res.status === 401 || res.status === 403) {
+			throw new Error(
+				`Loki authentication failed (HTTP ${res.status}). Check the username and password.`,
+			);
+		}
+		if (res.status === 404) {
+			throw new Error("Loki endpoint not found (HTTP 404). Check the URL.");
+		}
 		if (!res.ok) {
-			throw new Error(`Loki responded with HTTP ${res.status}: ${await res.text()}`);
+			throw new Error(`Loki responded with HTTP ${res.status}.`);
 		}
 
 		const body = (await res.json()) as LokiQueryResponse;

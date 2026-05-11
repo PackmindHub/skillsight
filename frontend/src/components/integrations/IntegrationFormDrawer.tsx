@@ -17,6 +17,15 @@ interface FormState {
 	enabled: boolean;
 }
 
+function extractErrorMessage(e: unknown): string {
+	const raw = e instanceof Error ? e.message : String(e);
+	try {
+		const parsed = JSON.parse(raw);
+		if (parsed && typeof parsed.error === "string") return parsed.error;
+	} catch {}
+	return raw || "Preview failed";
+}
+
 const defaultForm: FormState = {
 	name: "",
 	url: "",
@@ -82,7 +91,7 @@ export function IntegrationFormDrawer({ open, editing, onClose, onSaved }: Integ
 			});
 			setPreviewEvents(results);
 		} catch (err) {
-			setPreviewError(err instanceof Error ? err.message : "Preview failed");
+			setPreviewError(extractErrorMessage(err));
 		} finally {
 			setPreviewing(false);
 		}
