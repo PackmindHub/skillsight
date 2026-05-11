@@ -162,6 +162,7 @@ export interface SkillTableRow {
 	dailyCounts: number[];
 	marketplaces: MarketplaceRef[];
 	status: SkillStatus;
+	lastSeenAt: string | null;
 }
 
 export interface SkillsTableResponse {

@@ -26,6 +26,7 @@ export interface SkillTableRow {
 	dailyCounts: number[];
 	marketplaceNames: string[];
 	status: SkillStatus;
+	lastSeenAt: string | null;
 }
 
 export interface SkillDetailPluginRef {

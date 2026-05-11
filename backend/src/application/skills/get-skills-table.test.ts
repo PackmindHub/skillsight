@@ -62,6 +62,7 @@ describe("getSkillsTable", () => {
 					dailyCounts: [],
 					marketplaceNames: ["acme"],
 					status: "unknown",
+					lastSeenAt: null,
 				},
 			]),
 			marketplaces: makeMarketplaces([{ name: "acme", status: "approved" }]),
@@ -90,6 +91,7 @@ describe("getSkillsTable", () => {
 					dailyCounts: [],
 					marketplaceNames: ["mystery-mp"],
 					status: "unknown",
+					lastSeenAt: null,
 				},
 			]),
 			marketplaces: makeMarketplaces([]),
@@ -114,6 +116,7 @@ describe("getSkillsTable", () => {
 					dailyCounts: [],
 					marketplaceNames: [],
 					status: "removed",
+					lastSeenAt: null,
 				},
 			]),
 			marketplaces: makeMarketplaces([]),
@@ -139,6 +142,7 @@ describe("getSkillsTable", () => {
 					dailyCounts: [],
 					marketplaceNames: [],
 					status: "approved",
+					lastSeenAt: null,
 				},
 				{
 					skillName: "review-skill",
@@ -151,6 +155,7 @@ describe("getSkillsTable", () => {
 					dailyCounts: [],
 					marketplaceNames: [],
 					status: "to_review",
+					lastSeenAt: null,
 				},
 			]),
 			marketplaces: makeMarketplaces([]),
@@ -176,6 +181,7 @@ describe("getSkillsTable", () => {
 					dailyCounts: [1, 2, 3, 1, 0, 2, 3],
 					marketplaceNames: ["acme"],
 					status: "unknown",
+					lastSeenAt: "2026-05-10T12:00:00.000Z",
 				},
 			]),
 			marketplaces: makeMarketplaces([{ name: "acme", status: "approved" }]),
@@ -194,7 +200,49 @@ describe("getSkillsTable", () => {
 			dailyCounts: [1, 2, 3, 1, 0, 2, 3],
 			status: "unknown",
 			marketplaces: [{ name: "acme", status: "approved" }],
+			lastSeenAt: "2026-05-10T12:00:00.000Z",
 		});
+	});
+
+	it("forwards lastSeenAt from the repository (or null for never-used rows)", async () => {
+		const deps = {
+			skills: makeSkills([
+				{
+					skillName: "recent",
+					pluginName: "p/a",
+					skillSource: null,
+					total: 1,
+					userSlash: 1,
+					claudeProactive: 0,
+					nestedSkill: 0,
+					dailyCounts: [1],
+					marketplaceNames: [],
+					status: "unknown",
+					lastSeenAt: "2026-05-01T00:00:00.000Z",
+				},
+				{
+					skillName: "never",
+					pluginName: "p/b",
+					skillSource: null,
+					total: 0,
+					userSlash: 0,
+					claudeProactive: 0,
+					nestedSkill: 0,
+					dailyCounts: [],
+					marketplaceNames: [],
+					status: "unknown",
+					lastSeenAt: null,
+				},
+			]),
+			marketplaces: makeMarketplaces([]),
+		};
+
+		const result = await getSkillsTable(deps, { days: 30 });
+
+		expect(result.find((r) => r.skillName === "recent")?.lastSeenAt).toBe(
+			"2026-05-01T00:00:00.000Z",
+		);
+		expect(result.find((r) => r.skillName === "never")?.lastSeenAt).toBeNull();
 	});
 
 	it("returns one row per (skill, plugin) when the same skill appears in multiple plugins", async () => {
@@ -211,6 +259,7 @@ describe("getSkillsTable", () => {
 					dailyCounts: [],
 					marketplaceNames: ["acme"],
 					status: "unknown",
+					lastSeenAt: null,
 				},
 				{
 					skillName: "review",
@@ -223,6 +272,7 @@ describe("getSkillsTable", () => {
 					dailyCounts: [],
 					marketplaceNames: ["acme"],
 					status: "unknown",
+					lastSeenAt: null,
 				},
 			]),
 			marketplaces: makeMarketplaces([{ name: "acme", status: "approved" }]),
@@ -252,6 +302,7 @@ describe("getSkillsTable", () => {
 					dailyCounts: [1, 1, 1],
 					marketplaceNames: [],
 					status: "unknown",
+					lastSeenAt: null,
 				},
 			]),
 			marketplaces: makeMarketplaces([]),

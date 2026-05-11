@@ -58,29 +58,80 @@ const STATUS_OPTIONS: { value: SkillStatus; label: string }[] = [
 	{ value: "removed", label: "Removed" },
 ];
 
-const TRIGGERS: { key: "userSlash" | "claudeProactive" | "nestedSkill"; label: string; color: string }[] = [
-	{ key: "userSlash", label: "user-slash", color: "bg-accent-bright" },
-	{ key: "claudeProactive", label: "claude-proactive", color: "bg-success" },
-	{ key: "nestedSkill", label: "nested-skill", color: "bg-warning" },
+const TRIGGERS: {
+	key: "userSlash" | "claudeProactive" | "nestedSkill";
+	label: string;
+	swatch: string;
+	gradient: string;
+}[] = [
+	{
+		key: "userSlash",
+		label: "user-slash",
+		swatch: "bg-accent-bright",
+		gradient: "linear-gradient(90deg, var(--color-accent), var(--color-accent-bright))",
+	},
+	{
+		key: "claudeProactive",
+		label: "claude-proactive",
+		swatch: "bg-accent-2",
+		gradient: "linear-gradient(90deg, var(--color-accent-2), var(--color-accent-2-soft))",
+	},
+	{
+		key: "nestedSkill",
+		label: "nested-skill",
+		swatch: "bg-warning",
+		gradient: "linear-gradient(90deg, var(--color-warning), var(--color-caution))",
+	},
 ];
 
-function ProgressCell({ count, total, color }: { count: number; total: number; color: string }) {
-	const pct = total > 0 ? (count / total) * 100 : 0;
+function TriggerMixCell({ row }: { row: SkillTableRow }) {
+	const sum = Math.max(1, row.total);
 	return (
-		<td className="px-4 py-3 group/cell relative">
-			<div className="h-3 w-full bg-surface-700 rounded-full overflow-hidden">
-				<div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
+		<td className="px-4 py-3">
+			<div className="flex h-2 w-full max-w-[160px] overflow-hidden rounded-full bg-surface-700">
+				{TRIGGERS.map((t) => {
+					const v = row[t.key];
+					return (
+						<div
+							key={t.key}
+							className="h-full"
+							style={{ width: `${(v / sum) * 100}%`, background: t.gradient }}
+							title={`${t.label} · ${v}`}
+						/>
+					);
+				})}
 			</div>
-			<span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover/cell:block whitespace-nowrap rounded bg-surface-800 border border-edge px-2 py-1 text-xs text-text-1 z-10">
-				{count} ({pct.toFixed(1)}%)
-			</span>
+			<div className="mt-1 flex items-center gap-3 font-mono text-[10px] text-text-4">
+				{TRIGGERS.map((t) => (
+					<span key={t.key} className="inline-flex items-center gap-1">
+						<span className={cn("inline-block h-1.5 w-1.5 rounded-sm", t.swatch)} />
+						{row[t.key]}
+					</span>
+				))}
+			</div>
 		</td>
 	);
 }
 
+function computeDeltaPct(dailyCounts: number[]): number {
+	if (dailyCounts.length < 4) return 0;
+	const mid = Math.floor(dailyCounts.length / 2);
+	const first = dailyCounts.slice(0, mid).reduce((a, b) => a + b, 0);
+	const second = dailyCounts.slice(mid).reduce((a, b) => a + b, 0);
+	if (first === 0) return second > 0 ? 100 : 0;
+	return Math.round(((second - first) / first) * 100);
+}
+
 type SourceFilter = "all" | "bundled" | "external";
 type UsageFilter = "all" | "activated" | "never_used";
-type SortKey = "skillName" | "total" | "status" | "userSlash" | "claudeProactive" | "nestedSkill";
+type SortKey =
+	| "skillName"
+	| "total"
+	| "status"
+	| "userSlash"
+	| "claudeProactive"
+	| "nestedSkill"
+	| "lastSeenAt";
 type SortDir = "asc" | "desc";
 
 const SOURCE_VALUES: SourceFilter[] = ["all", "bundled", "external"];
@@ -92,7 +143,18 @@ const SORT_KEYS: SortKey[] = [
 	"userSlash",
 	"claudeProactive",
 	"nestedSkill",
+	"lastSeenAt",
 ];
+
+function lastUsedLabel(iso: string | null): { text: string; cold: boolean } {
+	if (!iso) return { text: "—", cold: true };
+	const min = Math.floor((Date.now() - new Date(iso).getTime()) / 60_000);
+	if (min < 60) return { text: `${min}m ago`, cold: false };
+	const h = Math.floor(min / 60);
+	if (h < 24) return { text: `${h}h ago`, cold: false };
+	const d = Math.floor(h / 24);
+	return { text: `${d}d ago`, cold: min > 1440 };
+}
 const TRIGGER_KEYS = TRIGGERS.map((t) => t.key);
 const SKELETON_KEYS = ["a", "b", "c", "d", "e", "f", "g", "h"];
 const NO_MARKETPLACE = "__none__";
@@ -328,6 +390,15 @@ export default function SkillsTablePage() {
 		const sorted = scored.slice();
 		if (q && sortKey === "total" && sortDir === "desc") {
 			sorted.sort((a, b) => a.score - b.score || b.row.total - a.row.total);
+		} else if (sortKey === "lastSeenAt") {
+			sorted.sort((a, b) => {
+				const at = a.row.lastSeenAt ? new Date(a.row.lastSeenAt).getTime() : null;
+				const bt = b.row.lastSeenAt ? new Date(b.row.lastSeenAt).getTime() : null;
+				if (at === bt) return 0;
+				if (at === null) return 1;
+				if (bt === null) return -1;
+				return sortDir === "asc" ? at - bt : bt - at;
+			});
 		} else {
 			sorted.sort((a, b) => {
 				const av = a.row[sortKey] as string | number;
@@ -666,6 +737,7 @@ export default function SkillsTablePage() {
 							onSort={toggleSort}
 							className="text-right"
 						/>
+						<th className="text-left px-4 py-3 font-medium text-text-3">Δ 30d</th>
 						<th className="text-left px-4 py-3 font-medium text-text-3">Trend</th>
 						<th className="text-left px-4 py-3 font-medium text-text-3">Marketplaces</th>
 						<th className="text-left px-4 py-3 font-medium text-text-3">Source</th>
@@ -677,22 +749,15 @@ export default function SkillsTablePage() {
 							onSort={toggleSort}
 							className="text-left"
 						/>
-						{TRIGGERS.map(({ key, label, color }) => (
-							<SortableHeader
-								key={key}
-								label={
-									<span className="flex items-center gap-1.5">
-										<span className={`inline-block w-2.5 h-2.5 rounded-sm ${color}`} />
-										{label}
-									</span>
-								}
-								sortKey={key}
-								currentKey={sortKey}
-								currentDir={sortDir}
-								onSort={toggleSort}
-								className="min-w-32 text-left"
-							/>
-						))}
+						<SortableHeader
+							label="Last used"
+							sortKey="lastSeenAt"
+							currentKey={sortKey}
+							currentDir={sortDir}
+							onSort={toggleSort}
+							className="text-left"
+						/>
+						<th className="min-w-44 text-left px-4 py-3 font-medium text-text-3">Trigger mix</th>
 					</tr>
 				</THead>
 				<TBody>
@@ -777,9 +842,31 @@ export default function SkillsTablePage() {
 										</span>
 									</span>
 								</td>
-								<td className="px-4 py-3 text-right text-text-2 tabular-nums">{row.total}</td>
+								<td className="px-4 py-3 text-right font-mono text-text-1 tabular-nums">
+									{row.total.toLocaleString("en-US")}
+								</td>
 								<td className="px-4 py-3">
-									<Sparkline values={row.dailyCounts} width={80} height={20} />
+									{(() => {
+										const pct = computeDeltaPct(row.dailyCounts);
+										if (pct === 0) return <span className="font-mono text-[11px] text-text-4">·</span>;
+										return (
+											<span className={cn(
+												"font-mono text-[11px]",
+												pct > 0 ? "text-success" : "text-danger",
+											)}>
+												{pct > 0 ? `+${pct}%` : `${pct}%`}
+											</span>
+										);
+									})()}
+								</td>
+								<td className="px-4 py-3">
+									<Sparkline
+										values={row.dailyCounts}
+										width={80}
+										height={20}
+										strokeClass={row.total === 0 ? "stroke-text-4" : "stroke-accent-bright"}
+										fillClass={row.total === 0 ? "fill-transparent" : "fill-accent-bright/15"}
+									/>
 								</td>
 								<td className="px-4 py-3">
 									{row.marketplaces.length > 0 ? (
@@ -794,11 +881,11 @@ export default function SkillsTablePage() {
 								</td>
 								<td className="px-4 py-3">
 									{row.skillSource === "bundled" ? (
-										<span className="inline-flex items-center rounded border border-accent-soft/30 bg-accent-soft/15 px-1.5 py-0.5 text-xs font-medium text-accent-soft">
-											Bundled
+										<span className="inline-flex items-center rounded border border-accent-soft/30 bg-accent-bright/15 px-1.5 py-0.5 font-mono text-[11px] text-accent-soft">
+											bundled
 										</span>
 									) : (
-										<span className="text-text-4">—</span>
+										<span className="font-mono text-[11px] text-text-4">external</span>
 									)}
 								</td>
 								<td className="px-4 py-3">
@@ -837,14 +924,23 @@ export default function SkillsTablePage() {
 										);
 									})()}
 								</td>
-								{TRIGGERS.map(({ key: triggerKey, color }) => (
-									<ProgressCell
-										key={triggerKey}
-										count={row[triggerKey]}
-										total={row.total}
-										color={color}
-									/>
-								))}
+								<td className="px-4 py-3">
+									{(() => {
+										const { text, cold } = lastUsedLabel(row.lastSeenAt);
+										return (
+											<span
+												title={row.lastSeenAt ?? "Never used"}
+												className={cn(
+													"font-mono text-[11px]",
+													cold ? "text-text-4" : "text-text-3",
+												)}
+											>
+												{text}
+											</span>
+										);
+									})()}
+								</td>
+								<TriggerMixCell row={row} />
 							</tr>
 							);
 						})
@@ -944,6 +1040,9 @@ function SkeletonRow() {
 				<div className="ml-auto h-3 w-10 rounded bg-surface-800 animate-pulse" />
 			</td>
 			<td className="px-4 py-3">
+				<div className="h-3 w-8 rounded bg-surface-800 animate-pulse" />
+			</td>
+			<td className="px-4 py-3">
 				<div className="h-3 w-20 rounded bg-surface-800 animate-pulse" />
 			</td>
 			<td className="px-4 py-3">
@@ -955,11 +1054,12 @@ function SkeletonRow() {
 			<td className="px-4 py-3">
 				<div className="h-3 w-20 rounded bg-surface-800 animate-pulse" />
 			</td>
-			{TRIGGERS.map(({ key }) => (
-				<td key={key} className="px-4 py-3">
-					<div className="h-3 w-full rounded bg-surface-800 animate-pulse" />
-				</td>
-			))}
+			<td className="px-4 py-3">
+				<div className="h-3 w-14 rounded bg-surface-800 animate-pulse" />
+			</td>
+			<td className="px-4 py-3">
+				<div className="h-3 w-32 rounded bg-surface-800 animate-pulse" />
+			</td>
 		</tr>
 	);
 }
