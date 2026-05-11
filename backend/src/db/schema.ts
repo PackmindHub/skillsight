@@ -9,6 +9,7 @@ import {
 	primaryKey,
 	text,
 	timestamp,
+	uniqueIndex,
 	uuid,
 	varchar,
 } from "drizzle-orm/pg-core";
@@ -46,6 +47,12 @@ export const events = pgTable(
 		sourceIntegrationId: uuid("source_integration_id"),
 	},
 	(table) => [
+		uniqueIndex("events_dedup_idx").on(
+			table.timestamp,
+			table.userEmail,
+			table.sessionId,
+			table.eventName,
+		),
 		index("events_event_name_ts_idx").on(table.eventName, table.timestamp),
 		index("events_session_id_idx").on(table.sessionId),
 		index("events_user_email_ts_idx").on(table.userEmail, table.timestamp),
