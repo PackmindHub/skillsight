@@ -21,8 +21,8 @@ import { cn, formatDateTime } from "@/lib/utils";
 import type { Marketplace, MarketplaceSource, MarketplaceStatus } from "@/types/api";
 import { ExternalLink, Pencil, Trash2 } from "lucide-react";
 import {
-	Fragment,
 	type FormEvent,
+	Fragment,
 	useEffect,
 	useLayoutEffect,
 	useMemo,
@@ -49,7 +49,7 @@ const MP_FILTER_OPTIONS: {
 ];
 
 const MP_GRID_COLS =
-	"grid-cols-[minmax(260px,2fr)_70px_70px_80px_80px_80px_96px_110px_140px_64px]";
+	"grid-cols-[minmax(260px,2fr)_70px_70px_120px_80px_80px_96px_110px_140px_64px]";
 
 function hostnameFromUrl(url: string): string {
 	const stripped = url.replace(/^https?:\/\//, "").replace(/^git@/, "");
@@ -96,7 +96,6 @@ function MarketplaceLogo({ name, size = "md" }: { name: string; size?: "md" | "l
 		</span>
 	);
 }
-
 function MarketplaceNumCell({
 	value,
 	onClick,
@@ -113,10 +112,7 @@ function MarketplaceNumCell({
 	const isZero = value === 0;
 	const dim = isZero || dimWhenZero === undefined ? isZero : false;
 	const display = isZero && dimWhenZero ? "—" : value.toLocaleString("en-US");
-	const cls = cn(
-		"font-mono text-[15px] tabular-nums",
-		dim ? "text-text-4" : "text-text-1",
-	);
+	const cls = cn("font-mono text-[15px] tabular-nums", dim ? "text-text-4" : "text-text-1");
 
 	if (href && !isZero) {
 		return (
@@ -152,6 +148,50 @@ function MarketplaceNumCell({
 			<span className={cls} title={title}>
 				{display}
 			</span>
+		</div>
+	);
+}
+
+function MarketplaceAdoptionCell({
+	activated,
+	total,
+}: {
+	activated: number;
+	total: number;
+}) {
+	if (total === 0) {
+		return (
+			<div>
+				<span className="font-mono text-[11px] text-text-4">—</span>
+			</div>
+		);
+	}
+	const clampedActivated = Math.min(activated, total);
+	const pct = (clampedActivated / total) * 100;
+	const color =
+		pct >= 66 ? "var(--color-success)" : pct >= 33 ? "var(--color-warning)" : "var(--color-danger)";
+	return (
+		<div
+			className="flex min-w-0 flex-col gap-1 pr-3"
+			title={`${clampedActivated} of ${total} skills used at least once`}
+		>
+			<div
+				className="h-1.5 overflow-hidden rounded-[3px]"
+				style={{
+					background: "color-mix(in srgb, var(--color-surface-700) 70%, transparent)",
+				}}
+			>
+				<div
+					className="h-full rounded-[3px] transition-[width] duration-200 ease-out"
+					style={{ width: `${pct}%`, background: color }}
+				/>
+			</div>
+			<div className="flex items-baseline justify-between font-mono tabular-nums">
+				<span className="text-[12px] text-text-1">{Math.round(pct)}%</span>
+				<span className="text-[10px] text-text-4">
+					{clampedActivated}/{total}
+				</span>
+			</div>
 		</div>
 	);
 }
@@ -240,7 +280,10 @@ export default function MarketplacesPage() {
 	const [pausingSourceId, setPausingSourceId] = useState<string | null>(null);
 	const [resumingSourceId, setResumingSourceId] = useState<string | null>(null);
 	const [sourceSyncResult, setSourceSyncResult] = useState<
-		Record<string, { syncedAt: string | null; pluginCount: number; skillCount: number; error: string | null }>
+		Record<
+			string,
+			{ syncedAt: string | null; pluginCount: number; skillCount: number; error: string | null }
+		>
 	>({});
 	const [testingConnection, setTestingConnection] = useState(false);
 	const [connectionTestResult, setConnectionTestResult] = useState<
@@ -271,7 +314,10 @@ export default function MarketplacesPage() {
 		try {
 			await api.marketplaces.update(name, { status });
 		} catch {
-			api.marketplaces.list().then((res) => setItems(res.marketplaces)).catch(() => {});
+			api.marketplaces
+				.list()
+				.then((res) => setItems(res.marketplaces))
+				.catch(() => {});
 		}
 	}
 
@@ -507,6 +553,16 @@ export default function MarketplacesPage() {
 		});
 	}, [items, statusFilter, search]);
 
+	const marketplacesWithImportingSource = useMemo(() => {
+		const names = new Set<string>();
+		for (const s of sources) {
+			if (s.marketplaceName && s.gitUrl && s.importPluginsAndSkills) {
+				names.add(s.marketplaceName);
+			}
+		}
+		return names;
+	}, [sources]);
+
 	useLayoutEffect(() => {
 		if (!highlightName || loading) return;
 		const node = highlightedRowRef.current;
@@ -537,9 +593,8 @@ export default function MarketplacesPage() {
 							{!editingSourceId && importForMarketplace && (
 								<p className="mb-3 text-xs text-text-3">
 									This source will link to{" "}
-									<span className="font-mono text-text-2">{importForMarketplace}</span>{" "}
-									if its <span className="font-mono">marketplace.json</span> declares
-									this name.
+									<span className="font-mono text-text-2">{importForMarketplace}</span> if its{" "}
+									<span className="font-mono">marketplace.json</span> declares this name.
 								</p>
 							)}
 							<form onSubmit={handleSourceSubmit} className="space-y-5">
@@ -569,17 +624,16 @@ export default function MarketplacesPage() {
 											placeholder="main"
 										/>
 									</FormField>
-									<FormField
-										label="Sync interval (seconds, min 60)"
-										htmlFor="ms-interval"
-									>
+									<FormField label="Sync interval (seconds, min 60)" htmlFor="ms-interval">
 										<Input
 											id="ms-interval"
 											type="number"
 											min="60"
 											size="sm"
 											value={sourceForm.syncIntervalSecs}
-											onChange={(e) => setSourceForm((f) => ({ ...f, syncIntervalSecs: e.target.value }))}
+											onChange={(e) =>
+												setSourceForm((f) => ({ ...f, syncIntervalSecs: e.target.value }))
+											}
 										/>
 									</FormField>
 								</div>
@@ -615,7 +669,9 @@ export default function MarketplacesPage() {
 											type="checkbox"
 											className="h-4 w-4 rounded border-edge bg-surface-800 accent-accent-bright"
 											checked={sourceForm.importPluginsAndSkills}
-											onChange={(e) => setSourceForm((f) => ({ ...f, importPluginsAndSkills: e.target.checked }))}
+											onChange={(e) =>
+												setSourceForm((f) => ({ ...f, importPluginsAndSkills: e.target.checked }))
+											}
 										/>
 										Import plugins and skills into registry
 									</label>
@@ -865,8 +921,7 @@ export default function MarketplacesPage() {
 							</span>
 						)}
 						<span className="ml-auto font-mono text-xs text-text-4">
-							{filteredItems.length}{" "}
-							<span className="text-text-4">/ {items.length}</span>
+							{filteredItems.length} <span className="text-text-4">/ {items.length}</span>
 						</span>
 					</div>
 				)}
@@ -874,20 +929,33 @@ export default function MarketplacesPage() {
 				{items.length === 0 ? (
 					<Card padding="lg" className="flex flex-col items-center gap-3 text-center py-12">
 						<div className="w-12 h-12 rounded-full bg-surface-800 border border-edge flex items-center justify-center">
-							<svg className="w-6 h-6 text-text-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} role="img" aria-label="No marketplaces">
-								<path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" />
+							<svg
+								className="w-6 h-6 text-text-3"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+								strokeWidth={1.5}
+								role="img"
+								aria-label="No marketplaces"
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z"
+								/>
 							</svg>
 						</div>
 						<div>
 							<p className="text-sm font-medium text-text-2">No marketplaces yet</p>
 							<p className="text-xs text-text-4 mt-1">
-								Import a git repository above, or marketplaces appear automatically when skills are activated.
+								Import a git repository above, or marketplaces appear automatically when skills are
+								activated.
 							</p>
 						</div>
 					</Card>
 				) : (
 					<div className="overflow-x-auto">
-						<div className="min-w-[1080px] rounded-lg border border-edge bg-surface-900">
+						<div className="min-w-[1120px] rounded-lg border border-edge bg-surface-900">
 							<div
 								className={cn(
 									"grid items-center gap-3 border-b border-edge px-4 h-9 font-mono text-[10px] uppercase tracking-wider text-text-4",
@@ -898,7 +966,7 @@ export default function MarketplacesPage() {
 								<div>Source</div>
 								<div className="text-right">Plugins</div>
 								<div className="text-right">Skills</div>
-								<div className="text-right">Activated</div>
+								<div>Adoption</div>
 								<div className="text-right">Installs</div>
 								<div className="text-right">Linked</div>
 								<div className="text-right">Acts</div>
@@ -952,7 +1020,10 @@ export default function MarketplacesPage() {
 													)}
 												</div>
 												{mp.description && (
-													<div className="mt-0.5 truncate text-xs text-text-3" title={mp.description}>
+													<div
+														className="mt-0.5 truncate text-xs text-text-3"
+														title={mp.description}
+													>
 														{mp.description}
 													</div>
 												)}
@@ -969,18 +1040,39 @@ export default function MarketplacesPage() {
 											onClick={() => openMarketplaceDrawer(mp.name)}
 											title="View marketplace skills"
 										/>
-										<MarketplaceNumCell
-											value={mp.activatedSkillCount}
-											onClick={mp.knownSkillCount > 0 ? () => openMarketplaceDrawer(mp.name) : undefined}
-											title={
-												mp.knownSkillCount === 0
-													? "No skills known yet"
-													: mp.activatedSkillCount === 0
-														? "No skill activated yet — click to inspect"
-														: "View activated skills"
+										{(() => {
+											const adoptionAvailable =
+												marketplacesWithImportingSource.has(mp.name) && mp.knownSkillCount > 0;
+											if (!adoptionAvailable) {
+												return (
+													<div>
+														<span
+															className="font-mono text-[11px] text-text-4"
+															title="Adoption is only computed when a git source is configured with plugin/skill import enabled."
+														>
+															—
+														</span>
+													</div>
+												);
 											}
-											dimWhenZero
-										/>
+											return (
+												<button
+													type="button"
+													onClick={() => openMarketplaceDrawer(mp.name)}
+													className="text-left transition-opacity hover:opacity-80"
+													title={
+														mp.activatedSkillCount === 0
+															? "No skill activated yet — click to inspect"
+															: "View activated skills"
+													}
+												>
+													<MarketplaceAdoptionCell
+														activated={mp.activatedSkillCount}
+														total={mp.knownSkillCount}
+													/>
+												</button>
+											);
+										})()}
 										<MarketplaceNumCell
 											value={mp.pluginInstallCount}
 											href={
@@ -1032,9 +1124,7 @@ export default function MarketplacesPage() {
 
 			<MarketplaceDetailsDrawer
 				marketplace={
-					selectedMarketplace
-						? (items.find((m) => m.name === selectedMarketplace) ?? null)
-						: null
+					selectedMarketplace ? (items.find((m) => m.name === selectedMarketplace) ?? null) : null
 				}
 				linkedSources={
 					selectedMarketplace
@@ -1047,113 +1137,110 @@ export default function MarketplacesPage() {
 				onRequestImport={handleRequestImport}
 			/>
 
-			{deleteConfirm && (() => {
-				const linkedSources = sources.filter((s) => s.marketplaceName === deleteConfirm.name);
-				return (
-					<div className="fixed inset-0 z-50 flex items-center justify-center">
-						<button
-							type="button"
-							aria-label="Close"
-							onClick={closeDeleteMarketplace}
-							className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-						/>
-						<dialog
-							open
-							aria-modal="true"
-							aria-label={`Delete marketplace ${deleteConfirm.name}`}
-							className="relative m-0 w-[440px] max-w-[92vw] rounded-md border border-edge bg-surface-900 p-5 text-text-1 shadow-2xl"
-						>
-							<h2 className="text-sm font-semibold text-text-1">
-								Delete <span className="font-mono">{deleteConfirm.name}</span>?
-							</h2>
-							<p className="mt-2 text-xs text-text-3">
-								This marketplace will be removed.
-							</p>
-							<label className="mt-4 flex items-start gap-2 text-sm text-text-2 cursor-pointer">
-								<input
-									type="checkbox"
-									className="mt-0.5 h-4 w-4 rounded border-edge bg-surface-800 accent-accent-bright"
-									checked={deleteConfirm.cascade}
-									onChange={(e) =>
-										setDeleteConfirm((prev) =>
-											prev ? { ...prev, cascade: e.target.checked } : prev,
-										)
-									}
-									disabled={deletingMarketplace}
-								/>
-								<span>
-									Also delete linked plugins and skills
-									<span className="block mt-1 text-xs text-text-4">
-										Off: plugins from this marketplace are kept as orphaned “removed” entries; their
-										history stays intact. On: plugins, plugin-skill links, and skill records tied to
-										those plugins are permanently deleted.
-									</span>
-								</span>
-							</label>
-							{linkedSources.length > 0 && (
-								<label className="mt-3 flex items-start gap-2 text-sm text-text-2 cursor-pointer">
+			{deleteConfirm &&
+				(() => {
+					const linkedSources = sources.filter((s) => s.marketplaceName === deleteConfirm.name);
+					return (
+						<div className="fixed inset-0 z-50 flex items-center justify-center">
+							<button
+								type="button"
+								aria-label="Close"
+								onClick={closeDeleteMarketplace}
+								className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+							/>
+							<dialog
+								open
+								aria-modal="true"
+								aria-label={`Delete marketplace ${deleteConfirm.name}`}
+								className="relative m-0 w-[440px] max-w-[92vw] rounded-md border border-edge bg-surface-900 p-5 text-text-1 shadow-2xl"
+							>
+								<h2 className="text-sm font-semibold text-text-1">
+									Delete <span className="font-mono">{deleteConfirm.name}</span>?
+								</h2>
+								<p className="mt-2 text-xs text-text-3">This marketplace will be removed.</p>
+								<label className="mt-4 flex items-start gap-2 text-sm text-text-2 cursor-pointer">
 									<input
 										type="checkbox"
 										className="mt-0.5 h-4 w-4 rounded border-edge bg-surface-800 accent-accent-bright"
-										checked={deleteConfirm.withSources}
+										checked={deleteConfirm.cascade}
 										onChange={(e) =>
 											setDeleteConfirm((prev) =>
-												prev ? { ...prev, withSources: e.target.checked } : prev,
+												prev ? { ...prev, cascade: e.target.checked } : prev,
 											)
 										}
 										disabled={deletingMarketplace}
 									/>
 									<span>
-										Also delete {linkedSources.length} linked git source
-										{linkedSources.length === 1 ? "" : "s"}
-										<span className="mt-1 block text-xs text-text-4">
-											{deleteConfirm.withSources ? (
-												<>
-													These git sources will be removed and their schedulers stopped:
-													<ul className="mt-1 list-disc pl-4 font-mono">
-														{linkedSources.map((s) => (
-															<li key={s.id} className="truncate" title={s.gitUrl}>
-																{s.gitUrl}
-															</li>
-														))}
-													</ul>
-												</>
-											) : (
-												<>
-													If left off, the marketplace cannot be deleted while these sources still
-													reference it.
-												</>
-											)}
+										Also delete linked plugins and skills
+										<span className="block mt-1 text-xs text-text-4">
+											Off: plugins from this marketplace are kept as orphaned “removed” entries;
+											their history stays intact. On: plugins, plugin-skill links, and skill records
+											tied to those plugins are permanently deleted.
 										</span>
 									</span>
 								</label>
-							)}
-							{deleteError && (
-								<p className="mt-3 text-xs text-danger">{deleteError}</p>
-							)}
-							<div className="mt-5 flex items-center justify-end gap-2">
-								<Button
-									variant="ghost"
-									size="sm"
-									onClick={closeDeleteMarketplace}
-									disabled={deletingMarketplace}
-								>
-									Cancel
-								</Button>
-								<Button
-									variant="ghost"
-									size="sm"
-									onClick={confirmDeleteMarketplace}
-									loading={deletingMarketplace}
-									className="text-danger hover:text-danger"
-								>
-									Delete
-								</Button>
-							</div>
-						</dialog>
-					</div>
-				);
-			})()}
+								{linkedSources.length > 0 && (
+									<label className="mt-3 flex items-start gap-2 text-sm text-text-2 cursor-pointer">
+										<input
+											type="checkbox"
+											className="mt-0.5 h-4 w-4 rounded border-edge bg-surface-800 accent-accent-bright"
+											checked={deleteConfirm.withSources}
+											onChange={(e) =>
+												setDeleteConfirm((prev) =>
+													prev ? { ...prev, withSources: e.target.checked } : prev,
+												)
+											}
+											disabled={deletingMarketplace}
+										/>
+										<span>
+											Also delete {linkedSources.length} linked git source
+											{linkedSources.length === 1 ? "" : "s"}
+											<span className="mt-1 block text-xs text-text-4">
+												{deleteConfirm.withSources ? (
+													<>
+														These git sources will be removed and their schedulers stopped:
+														<ul className="mt-1 list-disc pl-4 font-mono">
+															{linkedSources.map((s) => (
+																<li key={s.id} className="truncate" title={s.gitUrl}>
+																	{s.gitUrl}
+																</li>
+															))}
+														</ul>
+													</>
+												) : (
+													<>
+														If left off, the marketplace cannot be deleted while these sources still
+														reference it.
+													</>
+												)}
+											</span>
+										</span>
+									</label>
+								)}
+								{deleteError && <p className="mt-3 text-xs text-danger">{deleteError}</p>}
+								<div className="mt-5 flex items-center justify-end gap-2">
+									<Button
+										variant="ghost"
+										size="sm"
+										onClick={closeDeleteMarketplace}
+										disabled={deletingMarketplace}
+									>
+										Cancel
+									</Button>
+									<Button
+										variant="ghost"
+										size="sm"
+										onClick={confirmDeleteMarketplace}
+										loading={deletingMarketplace}
+										className="text-danger hover:text-danger"
+									>
+										Delete
+									</Button>
+								</div>
+							</dialog>
+						</div>
+					);
+				})()}
 		</div>
 	);
 }
