@@ -196,6 +196,40 @@ export const api = {
 			apiFetch<void>(`/api/integrations/${id}/reset-cursor`, { method: "POST" }),
 		clearData: (id: string) =>
 			apiFetch<void>(`/api/integrations/${id}/data`, { method: "DELETE" }),
+		openStream: (handlers: {
+			onUpdate?: (integration: Integration) => void;
+			onDelete?: (id: string) => void;
+			onError?: () => void;
+		}): (() => void) => {
+			const source = new EventSource("/api/integrations/stream", {
+				withCredentials: true,
+			});
+			source.addEventListener("integration.updated", (event) => {
+				try {
+					handlers.onUpdate?.(JSON.parse((event as MessageEvent).data) as Integration);
+				} catch {
+					// ignore malformed payload
+				}
+			});
+			source.addEventListener("integration.deleted", (event) => {
+				try {
+					const payload = JSON.parse((event as MessageEvent).data) as { id: string };
+					handlers.onDelete?.(payload.id);
+				} catch {
+					// ignore malformed payload
+				}
+			});
+			source.addEventListener("error", () => {
+				// EventSource auto-reconnects on transient errors. If the server
+				// closed the socket because the session is invalid, reconnects
+				// will keep 401-ing; surface that to the caller so they can
+				// fall back to a manual refresh or redirect.
+				if (source.readyState === EventSource.CLOSED) {
+					handlers.onError?.();
+				}
+			});
+			return () => source.close();
+		},
 		preview: (data: {
 			url: string;
 			authType: string;

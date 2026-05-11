@@ -5,6 +5,12 @@ interface SparklineProps {
 	className?: string;
 	strokeClass?: string;
 	fillClass?: string;
+	/**
+	 * When true, the SVG renders with viewBox so it can be scaled via
+	 * CSS (width: 100%, etc.). The width/height props then act as the
+	 * internal coordinate space.
+	 */
+	responsive?: boolean;
 }
 
 export function Sparkline({
@@ -14,10 +20,15 @@ export function Sparkline({
 	className,
 	strokeClass = "stroke-accent-bright",
 	fillClass = "fill-accent-bright/15",
+	responsive = false,
 }: SparklineProps) {
+	const svgProps = responsive
+		? { viewBox: `0 0 ${width} ${height}`, preserveAspectRatio: "none" as const }
+		: { width, height };
+
 	if (values.length === 0) {
 		return (
-			<svg width={width} height={height} className={className} aria-hidden="true">
+			<svg {...svgProps} className={className} aria-hidden="true">
 				<line
 					x1="0"
 					y1={height - 1}
@@ -47,7 +58,7 @@ export function Sparkline({
 	const areaPath = `M 0 ${height - 1} ${inner} L ${lastX} ${height - 1} Z`;
 
 	return (
-		<svg width={width} height={height} className={className} aria-hidden="true">
+		<svg {...svgProps} className={className} aria-hidden="true">
 			<title>{`${values.reduce((a, b) => a + b, 0)} activations across ${values.length} days`}</title>
 			<path d={areaPath} className={fillClass} />
 			<path d={linePath} className={strokeClass} strokeWidth="1.5" fill="none" strokeLinejoin="round" strokeLinecap="round" />

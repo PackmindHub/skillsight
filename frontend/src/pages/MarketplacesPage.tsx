@@ -3,13 +3,11 @@ import { SourceErrorBanner } from "@/components/marketplaces/SourceErrorBanner";
 import {
 	Button,
 	Card,
-	EmptyRow,
 	FormField,
 	Input,
 	PageHeader,
-	Select,
-	StatusBadge,
-	StatusFilter,
+	StatusChip,
+	type StatusChipOption,
 	TBody,
 	TD,
 	TH,
@@ -19,15 +17,9 @@ import {
 } from "@/components/ui";
 import { useMarketplaceSourcesHealth } from "@/context/MarketplaceSourcesHealthContext";
 import { api } from "@/lib/api";
-import { useStatusFilter } from "@/lib/use-status-filter";
 import { cn, formatDateTime } from "@/lib/utils";
-import {
-	MARKETPLACE_STATUSES,
-	type Marketplace,
-	type MarketplaceSource,
-	type MarketplaceStatus,
-} from "@/types/api";
-import { ExternalLink } from "lucide-react";
+import type { Marketplace, MarketplaceSource, MarketplaceStatus } from "@/types/api";
+import { ExternalLink, Pencil, Trash2 } from "lucide-react";
 import {
 	Fragment,
 	type FormEvent,
@@ -39,11 +31,130 @@ import {
 } from "react";
 import { useSearchParams } from "react-router-dom";
 
-const STATUS_OPTIONS: { value: MarketplaceStatus; label: string }[] = [
-	{ value: "to_review", label: "To Review" },
-	{ value: "approved", label: "Approved" },
-	{ value: "denied", label: "Denied" },
+const MARKETPLACE_STATUS_CHIP_OPTIONS: readonly StatusChipOption<MarketplaceStatus>[] = [
+	{ value: "approved", label: "Approved", tone: "success" },
+	{ value: "to_review", label: "To review", tone: "warning" },
+	{ value: "denied", label: "Denied", tone: "danger" },
 ];
+
+const MP_FILTER_OPTIONS: {
+	key: "all" | MarketplaceStatus;
+	label: string;
+	dot?: string;
+}[] = [
+	{ key: "all", label: "All" },
+	{ key: "to_review", label: "To review", dot: "var(--color-warning)" },
+	{ key: "approved", label: "Approved", dot: "var(--color-success)" },
+	{ key: "denied", label: "Denied", dot: "var(--color-danger)" },
+];
+
+const MP_GRID_COLS =
+	"grid-cols-[minmax(260px,2fr)_70px_70px_80px_80px_80px_96px_110px_140px_64px]";
+
+function hostnameFromUrl(url: string): string {
+	const stripped = url.replace(/^https?:\/\//, "").replace(/^git@/, "");
+	const host = stripped.split("/")[0] ?? stripped;
+	return host || url;
+}
+
+const LOGO_GRADIENTS = [
+	"linear-gradient(135deg, var(--color-accent-bright), color-mix(in srgb, var(--color-accent-bright) 50%, var(--color-surface-700)))",
+	"linear-gradient(135deg, var(--color-accent-2), color-mix(in srgb, var(--color-accent-2) 50%, var(--color-surface-700)))",
+	"linear-gradient(135deg, var(--color-warning), color-mix(in srgb, var(--color-warning) 50%, var(--color-surface-700)))",
+	"linear-gradient(135deg, var(--color-magenta), color-mix(in srgb, var(--color-magenta) 50%, var(--color-surface-700)))",
+	"linear-gradient(135deg, var(--color-danger), color-mix(in srgb, var(--color-danger) 50%, var(--color-surface-700)))",
+];
+
+function hashIndex(input: string, mod: number): number {
+	let h = 0;
+	for (let i = 0; i < input.length; i++) {
+		h = (h * 31 + input.charCodeAt(i)) | 0;
+	}
+	return Math.abs(h) % mod;
+}
+
+function initialsFromName(name: string): string {
+	const parts = name.split(/[-_\s]/).filter(Boolean);
+	if (parts.length >= 2) {
+		return (parts[0]![0]! + parts[1]![0]!).toUpperCase();
+	}
+	return name.slice(0, 2).toUpperCase();
+}
+
+function MarketplaceLogo({ name, size = "md" }: { name: string; size?: "md" | "lg" }) {
+	const gradient = LOGO_GRADIENTS[hashIndex(name, LOGO_GRADIENTS.length)];
+	return (
+		<span
+			aria-hidden="true"
+			className={cn(
+				"inline-flex shrink-0 items-center justify-center rounded-md font-semibold text-surface-950",
+				size === "lg" ? "h-9 w-9 text-sm" : "h-7 w-7 text-[11px]",
+			)}
+			style={{ background: gradient }}
+		>
+			{initialsFromName(name)}
+		</span>
+	);
+}
+
+function MarketplaceNumCell({
+	value,
+	onClick,
+	href,
+	title,
+	dimWhenZero,
+}: {
+	value: number;
+	onClick?: () => void;
+	href?: string;
+	title?: string;
+	dimWhenZero?: boolean;
+}) {
+	const isZero = value === 0;
+	const dim = isZero || dimWhenZero === undefined ? isZero : false;
+	const display = isZero && dimWhenZero ? "—" : value.toLocaleString("en-US");
+	const cls = cn(
+		"font-mono text-[15px] tabular-nums",
+		dim ? "text-text-4" : "text-text-1",
+	);
+
+	if (href && !isZero) {
+		return (
+			<div className="text-right">
+				<a
+					href={href}
+					target="_blank"
+					rel="noopener noreferrer"
+					title={title}
+					className={cn(cls, "hover:underline")}
+				>
+					{display}
+				</a>
+			</div>
+		);
+	}
+	if (onClick && !isZero) {
+		return (
+			<div className="text-right">
+				<button
+					type="button"
+					onClick={onClick}
+					title={title}
+					className={cn(cls, "hover:underline")}
+				>
+					{display}
+				</button>
+			</div>
+		);
+	}
+	return (
+		<div className="text-right">
+			<span className={cls} title={title}>
+				{display}
+			</span>
+		</div>
+	);
+}
 
 interface SourceForm {
 	gitUrl: string;
@@ -75,13 +186,27 @@ export default function MarketplacesPage() {
 
 	const { refresh: refreshSourcesHealth } = useMarketplaceSourcesHealth();
 
-	const { status: statusFilter, setStatus } = useStatusFilter<MarketplaceStatus>(
-		"status",
-		MARKETPLACE_STATUSES,
-	);
+	const statusFilterParam = searchParams.get("status");
+	const statusFilter: "all" | MarketplaceStatus =
+		statusFilterParam === "to_review" ||
+		statusFilterParam === "approved" ||
+		statusFilterParam === "denied"
+			? statusFilterParam
+			: "all";
+	function setStatusFilter(next: "all" | MarketplaceStatus) {
+		setSearchParams(
+			(prev) => {
+				const params = new URLSearchParams(prev);
+				if (next === "all") params.delete("status");
+				else params.set("status", next);
+				return params;
+			},
+			{ replace: true },
+		);
+	}
 	const search = searchParams.get("search") ?? "";
 	const highlightName = searchParams.get("name") ?? "";
-	const highlightedRowRef = useRef<HTMLTableRowElement | null>(null);
+	const highlightedRowRef = useRef<HTMLDivElement | null>(null);
 
 	function clearParam(key: string) {
 		setSearchParams(
@@ -673,19 +798,59 @@ export default function MarketplacesPage() {
 				)}
 
 				{items.length > 0 && (
-					<div className="flex flex-wrap items-center gap-2">
+					<div className="flex flex-wrap items-center gap-3">
 						<Input
 							size="sm"
-							placeholder="Search marketplace name…"
+							placeholder="Search marketplace name or description…"
 							value={search}
 							onChange={(e) => updateSearch(e.target.value)}
-							className="min-w-48"
+							className="min-w-64 max-w-md flex-1"
 						/>
-						<StatusFilter<MarketplaceStatus>
-							value={statusFilter}
-							onChange={setStatus}
-							options={MARKETPLACE_STATUSES}
-						/>
+						<div
+							role="tablist"
+							aria-label="Filter by status"
+							className="inline-flex gap-0.5 rounded-lg border border-edge-dim bg-surface-800 p-[2px]"
+						>
+							{MP_FILTER_OPTIONS.map((opt) => {
+								const count =
+									opt.key === "all"
+										? items.length
+										: items.filter((m) => m.status === opt.key).length;
+								const active = statusFilter === opt.key;
+								return (
+									<button
+										key={opt.key}
+										type="button"
+										role="tab"
+										aria-selected={active}
+										onClick={() => setStatusFilter(opt.key)}
+										className={cn(
+											"inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 font-mono text-[11px] transition-colors",
+											active
+												? "bg-surface-700 text-text-1 shadow-[inset_0_0_0_1px_var(--color-edge)]"
+												: "text-text-3 hover:text-text-1",
+										)}
+									>
+										{opt.dot && (
+											<span
+												aria-hidden="true"
+												className="h-1.5 w-1.5 rounded-full"
+												style={{ background: opt.dot, boxShadow: `0 0 4px ${opt.dot}` }}
+											/>
+										)}
+										{opt.label}
+										<span
+											className={cn(
+												"font-mono text-[10px]",
+												active ? "text-text-2" : "text-text-4",
+											)}
+										>
+											{count}
+										</span>
+									</button>
+								);
+							})}
+						</div>
 						{highlightName && (
 							<span className="inline-flex items-center gap-1 rounded-full border border-edge bg-surface-800 px-2 py-0.5 text-xs text-text-2">
 								Highlighted: {highlightName}
@@ -699,11 +864,10 @@ export default function MarketplacesPage() {
 								</button>
 							</span>
 						)}
-						{filteredItems.length !== items.length && (
-							<span className="text-xs text-text-4">
-								{filteredItems.length} / {items.length}
-							</span>
-						)}
+						<span className="ml-auto font-mono text-xs text-text-4">
+							{filteredItems.length}{" "}
+							<span className="text-text-4">/ {items.length}</span>
+						</span>
 					</div>
 				)}
 
@@ -722,176 +886,147 @@ export default function MarketplacesPage() {
 						</div>
 					</Card>
 				) : (
-					<Table>
-						<THead>
-							<TR>
-								<TH>Name</TH>
-								<TH>Status</TH>
-								<TH>URL</TH>
-								<TH>Description</TH>
-								<TH align="right">Plugins</TH>
-								<TH align="right">Skills</TH>
-								<TH align="right">Activated</TH>
-								<TH align="right">Activations</TH>
-								<TH align="right">Activations (30d)</TH>
-								<TH align="right">Plugin installs</TH>
-								<TH align="right">Linked skill activations</TH>
-								<TH align="right">{""}</TH>
-							</TR>
-						</THead>
-						<TBody>
+					<div className="overflow-x-auto">
+						<div className="min-w-[1080px] rounded-lg border border-edge bg-surface-900">
+							<div
+								className={cn(
+									"grid items-center gap-3 border-b border-edge px-4 h-9 font-mono text-[10px] uppercase tracking-wider text-text-4",
+									"bg-gradient-to-b from-accent-bright/[0.04] to-transparent",
+									MP_GRID_COLS,
+								)}
+							>
+								<div>Source</div>
+								<div className="text-right">Plugins</div>
+								<div className="text-right">Skills</div>
+								<div className="text-right">Activated</div>
+								<div className="text-right">Installs</div>
+								<div className="text-right">Linked</div>
+								<div className="text-right">Acts</div>
+								<div className="text-right">Acts · 30d</div>
+								<div>Status</div>
+								<div />
+							</div>
+
 							{filteredItems.length === 0 && (
-								<EmptyRow colSpan={12}>No marketplaces match the current filters.</EmptyRow>
+								<div className="px-7 py-7 text-center font-mono text-xs text-text-4">
+									No marketplaces match the current filters.
+								</div>
 							)}
+
 							{filteredItems.map((mp) => {
 								const isHighlighted = highlightName === mp.name;
 								return (
-									<TR
+									<div
 										key={mp.name}
 										ref={isHighlighted ? highlightedRowRef : undefined}
-										highlighted={isHighlighted}
+										className={cn(
+											"grid items-center gap-3 border-t border-edge-dim px-4 py-3.5 transition-colors first:border-t-0 hover:bg-accent-bright/[0.03]",
+											isHighlighted &&
+												"bg-accent-bright/[0.06] ring-1 ring-inset ring-accent-bright/40",
+											MP_GRID_COLS,
+										)}
 									>
-										<TD className="font-mono whitespace-nowrap">
+										<div className="flex min-w-0 items-center gap-3">
+											<MarketplaceLogo name={mp.name} size="lg" />
+											<div className="min-w-0">
+												<div className="flex min-w-0 items-center gap-2">
+													<button
+														type="button"
+														onClick={() => openMarketplaceDrawer(mp.name)}
+														className="truncate font-mono text-sm text-text-1 hover:underline"
+														title={mp.name}
+													>
+														{mp.name}
+													</button>
+													{mp.url && (
+														<a
+															href={mp.url}
+															target="_blank"
+															rel="noreferrer"
+															title={mp.url}
+															className="inline-flex max-w-[200px] shrink-0 items-center gap-1 overflow-hidden rounded border border-accent-2/30 bg-accent-2/[0.06] px-1.5 py-[1px] font-mono text-[10px] text-accent-2-soft hover:bg-accent-2/[0.12] hover:text-accent-2"
+														>
+															<ExternalLink className="h-2.5 w-2.5 shrink-0" aria-hidden="true" />
+															<span className="truncate">{hostnameFromUrl(mp.url)}</span>
+														</a>
+													)}
+												</div>
+												{mp.description && (
+													<div className="mt-0.5 truncate text-xs text-text-3" title={mp.description}>
+														{mp.description}
+													</div>
+												)}
+											</div>
+										</div>
+
+										<MarketplaceNumCell
+											value={mp.pluginCount}
+											onClick={() => openMarketplaceDrawer(mp.name)}
+											title="View marketplace plugins"
+										/>
+										<MarketplaceNumCell
+											value={mp.knownSkillCount}
+											onClick={() => openMarketplaceDrawer(mp.name)}
+											title="View marketplace skills"
+										/>
+										<MarketplaceNumCell
+											value={mp.activatedSkillCount}
+											onClick={mp.knownSkillCount > 0 ? () => openMarketplaceDrawer(mp.name) : undefined}
+											title={
+												mp.knownSkillCount === 0
+													? "No skills known yet"
+													: mp.activatedSkillCount === 0
+														? "No skill activated yet — click to inspect"
+														: "View activated skills"
+											}
+											dimWhenZero
+										/>
+										<MarketplaceNumCell
+											value={mp.pluginInstallCount}
+											href={
+												mp.pluginInstallCount > 0
+													? `/plugins?marketplace=${encodeURIComponent(mp.name)}`
+													: undefined
+											}
+										/>
+										<MarketplaceNumCell value={mp.skillActivatedLinkedCount} />
+										<MarketplaceNumCell value={mp.totalActivationCount} />
+										<MarketplaceNumCell value={mp.activationCount} />
+
+										<div>
+											<StatusChip
+												value={mp.status}
+												options={MARKETPLACE_STATUS_CHIP_OPTIONS}
+												onChange={(v) => handleStatusChange(mp.name, v)}
+												ariaLabel={`Status for ${mp.name}`}
+											/>
+										</div>
+
+										<div className="flex items-center justify-end gap-1">
 											<button
 												type="button"
-												onClick={() => openMarketplaceDrawer(mp.name)}
-												className="text-accent-soft hover:underline"
-												title="View marketplace details"
+												aria-label={`Edit ${mp.name}`}
+												title="Edit"
+												onClick={() => openMarketplaceDrawer(mp.name, "edit")}
+												className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-transparent text-text-3 transition-colors hover:border-edge hover:bg-surface-700 hover:text-text-1"
 											>
-												{mp.name}
+												<Pencil className="h-3.5 w-3.5" aria-hidden="true" />
 											</button>
-										</TD>
-										<TD>
-											<div className="flex items-center gap-2">
-												<StatusBadge status={mp.status} />
-												<Select
-													size="sm"
-													value={mp.status}
-													onChange={(e) =>
-														handleStatusChange(mp.name, e.target.value as MarketplaceStatus)
-													}
-												>
-													{STATUS_OPTIONS.map((opt) => (
-														<option key={opt.value} value={opt.value}>
-															{opt.label}
-														</option>
-													))}
-												</Select>
-											</div>
-										</TD>
-										<TD className="text-text-3 max-w-xs">
-											{mp.url ? (
-												<a
-													href={mp.url}
-													target="_blank"
-													rel="noreferrer"
-													className="text-accent-soft hover:underline truncate block max-w-48"
-												>
-													{mp.url}
-												</a>
-											) : (
-												<span className="text-text-4">—</span>
-											)}
-										</TD>
-										<TD className="text-text-3 max-w-xs">
-											{mp.description ? (
-												<span className="truncate block max-w-56">{mp.description}</span>
-											) : (
-												<span className="text-text-4">—</span>
-											)}
-										</TD>
-										<TD numeric>
-											{mp.pluginCount > 0 ? (
-												<button
-													type="button"
-													onClick={() => openMarketplaceDrawer(mp.name)}
-													className="text-accent-soft hover:underline"
-													title="View marketplace plugins"
-												>
-													{mp.pluginCount}
-												</button>
-											) : (
-												<span className="text-text-4">0</span>
-											)}
-										</TD>
-										<TD numeric>
-											{mp.knownSkillCount > 0 ? (
-												<button
-													type="button"
-													onClick={() => openMarketplaceDrawer(mp.name)}
-													className="text-accent-soft hover:underline"
-													title="View marketplace skills"
-												>
-													{mp.knownSkillCount}
-												</button>
-											) : (
-												<span className="text-text-4">0</span>
-											)}
-										</TD>
-										<TD numeric>
-											{mp.knownSkillCount > 0 ? (
-												<button
-													type="button"
-													onClick={() => openMarketplaceDrawer(mp.name)}
-													className={cn(
-														"hover:underline",
-														mp.activatedSkillCount > 0
-															? "text-accent-soft"
-															: "text-text-4",
-													)}
-													title={
-														mp.activatedSkillCount === 0
-															? "No skill activated yet — click to inspect"
-															: "View activated skills"
-													}
-												>
-													{mp.activatedSkillCount}
-												</button>
-											) : (
-												<span className="text-text-4">—</span>
-											)}
-										</TD>
-										<TD numeric>{mp.totalActivationCount}</TD>
-										<TD numeric>{mp.activationCount}</TD>
-										<TD numeric>
-											{mp.pluginInstallCount > 0 ? (
-												<a
-													href={`/plugins?marketplace=${encodeURIComponent(mp.name)}`}
-													target="_blank"
-													rel="noopener noreferrer"
-													className="text-accent-soft hover:underline"
-												>
-													{mp.pluginInstallCount}
-												</a>
-											) : (
-												mp.pluginInstallCount
-											)}
-										</TD>
-										<TD numeric>{mp.skillActivatedLinkedCount}</TD>
-										<TD align="right" className="whitespace-nowrap">
-											<div className="flex items-center justify-end gap-2">
-												<Button
-													variant="ghost"
-													size="sm"
-													onClick={() => openMarketplaceDrawer(mp.name, "edit")}
-												>
-													Edit
-												</Button>
-												<Button
-													variant="ghost"
-													size="sm"
-													onClick={() => openDeleteMarketplace(mp.name)}
-													className="text-danger hover:text-danger"
-												>
-													Delete
-												</Button>
-											</div>
-										</TD>
-									</TR>
+											<button
+												type="button"
+												aria-label={`Delete ${mp.name}`}
+												title="Delete"
+												onClick={() => openDeleteMarketplace(mp.name)}
+												className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-transparent text-text-3 transition-colors hover:border-danger/35 hover:bg-surface-700 hover:text-danger"
+											>
+												<Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+											</button>
+										</div>
+									</div>
 								);
 							})}
-						</TBody>
-					</Table>
+						</div>
+					</div>
 				)}
 			</div>
 

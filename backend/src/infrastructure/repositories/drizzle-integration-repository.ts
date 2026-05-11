@@ -1,4 +1,4 @@
-import { count, eq } from "drizzle-orm";
+import { and, count, eq } from "drizzle-orm";
 import type { AppDb } from "@/db/client";
 import { events, integrations } from "@/db/schema";
 import { encrypt } from "@/infrastructure/crypto/encrypt";
@@ -123,5 +123,13 @@ export class DrizzleIntegrationRepository implements IIntegrationRepository {
 			.where(eq(events.source, "integration"))
 			.groupBy(events.sourceIntegrationId);
 		return new Map(counts.map((r) => [r.integrationId ?? "", Number(r.cnt)]));
+	}
+
+	async countEventsByIntegrationId(id: string): Promise<number> {
+		const [row] = await this.db
+			.select({ cnt: count() })
+			.from(events)
+			.where(and(eq(events.source, "integration"), eq(events.sourceIntegrationId, id)));
+		return Number(row?.cnt ?? 0);
 	}
 }

@@ -1,21 +1,15 @@
 import { PluginSkillsDrawer } from "@/components/plugins/PluginSkillsDrawer";
 import {
 	Card,
-	EmptyRow,
 	Input,
 	PageHeader,
 	Select,
-	StatusBadge,
-	StatusFilter,
-	TBody,
-	TD,
-	TH,
-	THead,
-	TR,
-	Table,
+	StatusChip,
+	type StatusChipOption,
 } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useStatusFilter } from "@/lib/use-status-filter";
+import { cn, formatRelativeTime } from "@/lib/utils";
 import { PLUGIN_STATUSES, type Plugin, type PluginStatus } from "@/types/api";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -33,12 +27,122 @@ const ASSOC_LABELS: Record<MarketplaceAssociation, string> = {
 	without: "Without marketplace",
 };
 
-const STATUS_OPTIONS: { value: PluginStatus; label: string }[] = [
-	{ value: "unknown", label: "Unknown" },
-	{ value: "to_review", label: "To Review" },
-	{ value: "approved", label: "Approved" },
-	{ value: "removed", label: "Removed" },
+const PLUGIN_STATUS_CHIP_OPTIONS: readonly StatusChipOption<PluginStatus>[] = [
+	{ value: "approved", label: "Approved", tone: "success" },
+	{ value: "to_review", label: "To review", tone: "warning" },
+	{ value: "unknown", label: "Unknown", tone: "neutral" },
+	{ value: "removed", label: "Removed", tone: "danger" },
 ];
+
+const STATUS_FILTER_OPTIONS: {
+	key: "all" | PluginStatus;
+	label: string;
+	dot?: string;
+}[] = [
+	{ key: "all", label: "All" },
+	{ key: "to_review", label: "To review", dot: "var(--color-warning)" },
+	{ key: "approved", label: "Approved", dot: "var(--color-success)" },
+	{ key: "unknown", label: "Unknown", dot: "var(--color-neutral)" },
+	{ key: "removed", label: "Removed", dot: "var(--color-danger)" },
+];
+
+const PL_GRID_COLS =
+	"grid-cols-[minmax(220px,1.6fr)_minmax(150px,1.1fr)_72px_120px_72px_104px_80px_72px_136px]";
+
+const LOGO_GRADIENTS = [
+	"linear-gradient(135deg, var(--color-accent-bright), color-mix(in srgb, var(--color-accent-bright) 50%, var(--color-surface-700)))",
+	"linear-gradient(135deg, var(--color-accent-2), color-mix(in srgb, var(--color-accent-2) 50%, var(--color-surface-700)))",
+	"linear-gradient(135deg, var(--color-warning), color-mix(in srgb, var(--color-warning) 50%, var(--color-surface-700)))",
+	"linear-gradient(135deg, var(--color-magenta), color-mix(in srgb, var(--color-magenta) 50%, var(--color-surface-700)))",
+	"linear-gradient(135deg, var(--color-danger), color-mix(in srgb, var(--color-danger) 50%, var(--color-surface-700)))",
+	"linear-gradient(135deg, var(--color-success), color-mix(in srgb, var(--color-success) 50%, var(--color-surface-700)))",
+];
+
+function hashIndex(input: string, mod: number): number {
+	let h = 0;
+	for (let i = 0; i < input.length; i++) {
+		h = (h * 31 + input.charCodeAt(i)) | 0;
+	}
+	return Math.abs(h) % mod;
+}
+
+function initialsFromName(name: string): string {
+	const parts = name.split(/[-_\s]/).filter(Boolean);
+	if (parts.length >= 2) {
+		return (parts[0]![0]! + parts[1]![0]!).toUpperCase();
+	}
+	return name.slice(0, 2).toUpperCase();
+}
+
+function PluginLogo({ name }: { name: string }) {
+	const gradient = LOGO_GRADIENTS[hashIndex(name, LOGO_GRADIENTS.length)];
+	return (
+		<span
+			aria-hidden="true"
+			className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md font-semibold text-surface-950 text-sm"
+			style={{ background: gradient }}
+		>
+			{initialsFromName(name)}
+		</span>
+	);
+}
+
+function PluginNumCell({
+	value,
+	onClick,
+	title,
+	display,
+}: {
+	value: number;
+	onClick?: () => void;
+	title?: string;
+	display?: string;
+}) {
+	const isZero = value === 0;
+	const text = display ?? value.toLocaleString("en-US");
+	const cls = cn("font-mono text-[15px] tabular-nums", isZero ? "text-text-4" : "text-text-1");
+	if (onClick && !isZero) {
+		return (
+			<div className="text-right">
+				<button type="button" onClick={onClick} title={title} className={cn(cls, "hover:underline")}>
+					{text}
+				</button>
+			</div>
+		);
+	}
+	return (
+		<div className="text-right">
+			<span className={cls} title={title}>
+				{text}
+			</span>
+		</div>
+	);
+}
+
+const TRIGGER_PILL_STYLES: Record<string, string> = {
+	"user-slash":
+		"text-accent-bright border-accent-bright/30 bg-accent-bright/[0.06]",
+	"claude-proactive":
+		"text-accent-2 border-accent-2/30 bg-accent-2/[0.06]",
+	"nested-skill":
+		"text-warning border-warning/30 bg-warning/[0.06]",
+};
+
+function TriggerPill({ trigger }: { trigger: string }) {
+	const style =
+		TRIGGER_PILL_STYLES[trigger] ??
+		"text-text-2 border-edge-dim bg-surface-800";
+	return (
+		<span
+			className={cn(
+				"inline-flex items-center whitespace-nowrap rounded border px-[7px] py-[2px] font-mono text-[10px]",
+				style,
+			)}
+		>
+			{trigger}
+		</span>
+	);
+}
 
 export default function PluginsPage() {
 	const [items, setItems] = useState<Plugin[]>([]);
@@ -56,7 +160,7 @@ export default function PluginsPage() {
 	const marketplaceFilter = searchParams.get("marketplace") ?? "";
 	const mpAssocParam = searchParams.get("mpAssoc");
 	const mpAssoc: MarketplaceAssociation = isMarketplaceAssociation(mpAssocParam) ? mpAssocParam : "all";
-	const highlightedRowRef = useRef<HTMLTableRowElement | null>(null);
+	const highlightedRowRef = useRef<HTMLDivElement | null>(null);
 
 	function updateSearch(value: string) {
 		setSearchParams(
@@ -178,19 +282,59 @@ export default function PluginsPage() {
 				</Card>
 			) : (
 				<>
-					<div className="flex flex-wrap items-center gap-2">
+					<div className="flex flex-wrap items-center gap-3">
 						<Input
 							size="sm"
 							placeholder="Search plugin name…"
 							value={search}
 							onChange={(e) => updateSearch(e.target.value)}
-							className="min-w-48"
+							className="min-w-64 max-w-md flex-1"
 						/>
-						<StatusFilter<PluginStatus>
-							value={statusFilter}
-							onChange={setStatus}
-							options={PLUGIN_STATUSES}
-						/>
+						<div
+							role="tablist"
+							aria-label="Filter by status"
+							className="inline-flex gap-0.5 rounded-lg border border-edge-dim bg-surface-800 p-[2px]"
+						>
+							{STATUS_FILTER_OPTIONS.map((opt) => {
+								const count =
+									opt.key === "all"
+										? items.length
+										: items.filter((p) => (p.status ?? "unknown") === opt.key).length;
+								const active = statusFilter === opt.key;
+								return (
+									<button
+										key={opt.key}
+										type="button"
+										role="tab"
+										aria-selected={active}
+										onClick={() => setStatus(opt.key)}
+										className={cn(
+											"inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 font-mono text-[11px] transition-colors",
+											active
+												? "bg-surface-700 text-text-1 shadow-[inset_0_0_0_1px_var(--color-edge)]"
+												: "text-text-3 hover:text-text-1",
+										)}
+									>
+										{opt.dot && (
+											<span
+												aria-hidden="true"
+												className="h-1.5 w-1.5 rounded-full"
+												style={{ background: opt.dot, boxShadow: `0 0 4px ${opt.dot}` }}
+											/>
+										)}
+										{opt.label}
+										<span
+											className={cn(
+												"font-mono text-[10px]",
+												active ? "text-text-2" : "text-text-4",
+											)}
+										>
+											{count}
+										</span>
+									</button>
+								);
+							})}
+						</div>
 						<Select
 							size="sm"
 							aria-label="Filter by marketplace association"
@@ -229,148 +373,153 @@ export default function PluginsPage() {
 								</button>
 							</span>
 						)}
-						{filteredItems.length !== items.length && (
-							<span className="text-xs text-text-4">
-								{filteredItems.length} / {items.length}
-							</span>
-						)}
+						<span className="ml-auto font-mono text-xs text-text-4">
+							{filteredItems.length}{" "}
+							<span className="text-text-4">/ {items.length}</span>
+						</span>
 					</div>
 
-					<Table>
-						<THead>
-							<TR>
-								<TH>Plugin</TH>
-								<TH>Marketplace</TH>
-								<TH>Version</TH>
-								<TH>Trigger</TH>
-								<TH>Status</TH>
-								<TH align="right">Skills</TH>
-								<TH align="right">Activations</TH>
-								<TH align="right">Installations</TH>
-								<TH align="right">Unique Users</TH>
-							</TR>
-						</THead>
-						<TBody>
-							{filteredItems.length === 0 ? (
-								<EmptyRow colSpan={9}>No plugins match the current filters.</EmptyRow>
-							) : (
-								filteredItems.map((plugin) => {
-									const status = (plugin.status ?? "unknown") as PluginStatus;
-									const isHighlighted = highlightName === plugin.pluginName;
-									const openDrawer = () => setSelectedPlugin(plugin.pluginName);
-									const activations = plugin.skillActivationCount;
-									return (
-										<TR
-											key={plugin.pluginName}
-											ref={isHighlighted ? highlightedRowRef : undefined}
-											highlighted={isHighlighted}
-										>
-											<TD className="font-mono whitespace-nowrap">
+					<div className="overflow-x-auto">
+						<div className="min-w-[1100px] rounded-lg border border-edge bg-surface-900">
+							<div
+								className={cn(
+									"grid items-center gap-3 border-b border-edge px-4 h-9 font-mono text-[10px] uppercase tracking-wider text-text-4",
+									"bg-gradient-to-b from-accent-bright/[0.04] to-transparent",
+									PL_GRID_COLS,
+								)}
+							>
+								<div>Plugin</div>
+								<div>Marketplace</div>
+								<div>Version</div>
+								<div>Trigger</div>
+								<div className="text-right">Skills</div>
+								<div className="text-right">Activations</div>
+								<div className="text-right">Installs</div>
+								<div className="text-right">Users</div>
+								<div>Status</div>
+							</div>
+
+							{filteredItems.length === 0 && (
+								<div className="px-7 py-7 text-center font-mono text-xs text-text-4">
+									No plugins match the current filters.
+								</div>
+							)}
+
+							{filteredItems.map((plugin) => {
+								const status = (plugin.status ?? "unknown") as PluginStatus;
+								const isHighlighted = highlightName === plugin.pluginName;
+								const openDrawer = () => setSelectedPlugin(plugin.pluginName);
+								const activations = plugin.skillActivationCount;
+								return (
+									<div
+										key={plugin.pluginName}
+										ref={isHighlighted ? highlightedRowRef : undefined}
+										className={cn(
+											"grid items-center gap-3 border-t border-edge-dim px-4 py-3.5 transition-colors first:border-t-0 hover:bg-accent-bright/[0.03]",
+											isHighlighted &&
+												"bg-accent-bright/[0.06] ring-1 ring-inset ring-accent-bright/40",
+											PL_GRID_COLS,
+										)}
+									>
+										<div className="flex min-w-0 items-center gap-3">
+											<PluginLogo name={plugin.pluginName} />
+											<div className="min-w-0">
 												<button
 													type="button"
 													onClick={openDrawer}
-													className="text-accent-soft hover:underline"
-													title="View plugin skills"
+													className="truncate font-mono text-sm text-text-1 hover:underline"
+													title={plugin.pluginName}
 												>
 													{plugin.pluginName}
 												</button>
-											</TD>
-											<TD className="text-text-3">
-												{plugin.marketplaceName ? (
-													<a
-														href={`/marketplaces?name=${encodeURIComponent(plugin.marketplaceName)}`}
-														target="_blank"
-														rel="noopener noreferrer"
-														className="text-accent-soft hover:underline"
-													>
-														{plugin.marketplaceName}
-													</a>
-												) : (
-													<span
-														className="text-text-4"
-														title="Locally installed (no marketplace)"
-													>
-														—
-													</span>
-												)}
-											</TD>
-											<TD className="text-text-3">
-												{plugin.pluginVersion ?? <span className="text-text-4">—</span>}
-											</TD>
-											<TD>
-												{plugin.installTrigger ? (
-													<span className="inline-block rounded border border-edge bg-surface-800 px-2 py-0.5 text-xs font-medium text-text-2">
-														{plugin.installTrigger}
-													</span>
-												) : (
-													<span className="text-text-4">—</span>
-												)}
-											</TD>
-											<TD>
-												<div className="flex items-center gap-2">
-													<StatusBadge status={status} />
-													<Select
-														size="sm"
-														value={status}
-														onChange={(e) =>
-															handleStatusChange(
-																plugin.pluginName,
-																e.target.value as PluginStatus,
-															)
-														}
-													>
-														{STATUS_OPTIONS.map((opt) => (
-															<option key={opt.value} value={opt.value}>
-																{opt.label}
-															</option>
-														))}
-													</Select>
+												<div className="mt-0.5 truncate text-xs text-text-3">
+													{plugin.skillCount} skill{plugin.skillCount === 1 ? "" : "s"}
+													{plugin.lastSeenAt && (
+														<>
+															{" · last seen "}
+															{formatRelativeTime(plugin.lastSeenAt)}
+														</>
+													)}
 												</div>
-											</TD>
-											<TD numeric>
-												{plugin.skillCount > 0 ? (
-													<button
-														type="button"
-														onClick={openDrawer}
-														className="text-accent-soft hover:underline"
-														title="View plugin skills"
-													>
-														{plugin.skillCount}
-													</button>
-												) : (
-													<span className="text-text-4">0</span>
-												)}
-											</TD>
-											<TD numeric>
-												{plugin.skillCount > 0 ? (
-													<button
-														type="button"
-														onClick={openDrawer}
-														className={
-															activations > 0
-																? "text-accent-soft hover:underline"
-																: "text-text-4 hover:underline"
-														}
-														title={
-															activations === 0
-																? "Skills declared but never activated — click to inspect"
-																: "View plugin skills"
-														}
-													>
-														{activations}
-													</button>
-												) : (
-													<span className="text-text-4">—</span>
-												)}
-											</TD>
-											<TD numeric>{plugin.installationCount}</TD>
-											<TD numeric>{plugin.uniqueUserCount}</TD>
-										</TR>
-									);
-								})
-							)}
-						</TBody>
-					</Table>
+											</div>
+										</div>
+
+										<div className="min-w-0">
+											{plugin.marketplaceName ? (
+												<a
+													href={`/marketplaces?name=${encodeURIComponent(plugin.marketplaceName)}`}
+													target="_blank"
+													rel="noopener noreferrer"
+													title={`Open marketplace ${plugin.marketplaceName}`}
+													className="inline-flex max-w-full items-center gap-1.5 overflow-hidden rounded border border-accent-bright/25 bg-accent-bright/[0.06] px-1.5 py-[2px] font-mono text-[11px] text-text-2 hover:bg-accent-bright/[0.12] hover:text-text-1"
+												>
+													<span
+														aria-hidden="true"
+														className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent-bright"
+													/>
+													<span className="truncate">{plugin.marketplaceName}</span>
+												</a>
+											) : (
+												<span
+													className="text-text-4"
+													title="Locally installed (no marketplace)"
+												>
+													—
+												</span>
+											)}
+										</div>
+
+										<div className="font-mono text-[11px] text-text-3">
+											{plugin.pluginVersion ?? <span className="text-text-4">—</span>}
+										</div>
+
+										<div>
+											{plugin.installTrigger ? (
+												<TriggerPill trigger={plugin.installTrigger} />
+											) : (
+												<span className="text-text-4">—</span>
+											)}
+										</div>
+
+										<PluginNumCell
+											value={plugin.skillCount}
+											onClick={plugin.skillCount > 0 ? openDrawer : undefined}
+											title="View plugin skills"
+										/>
+										<PluginNumCell
+											value={activations}
+											onClick={plugin.skillCount > 0 ? openDrawer : undefined}
+											title={
+												plugin.skillCount === 0
+													? undefined
+													: activations === 0
+														? "Skills declared but never activated — click to inspect"
+														: "View plugin skills"
+											}
+											display={
+												plugin.skillCount === 0
+													? "—"
+													: activations === 0
+														? "0"
+														: activations.toLocaleString("en-US")
+											}
+										/>
+										<PluginNumCell value={plugin.installationCount} />
+										<PluginNumCell value={plugin.uniqueUserCount} />
+
+										<div>
+											<StatusChip
+												value={status}
+												options={PLUGIN_STATUS_CHIP_OPTIONS}
+												onChange={(v) => handleStatusChange(plugin.pluginName, v)}
+												ariaLabel={`Status for ${plugin.pluginName}`}
+											/>
+										</div>
+									</div>
+								);
+							})}
+						</div>
+					</div>
 				</>
 			)}
 

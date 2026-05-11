@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { streamSSE } from "hono/streaming";
 import { z } from "zod";
 import type { AppVariables } from "@/types";
 import type { AppDeps } from "@/bootstrap/compose";
@@ -11,12 +12,18 @@ import { deleteIntegration } from "@/application/integrations/delete-integration
 import { clearIntegrationData } from "@/application/integrations/clear-integration-data";
 import { syncIntegration } from "@/application/integrations/sync-integration";
 import { previewIntegration } from "@/application/integrations/preview-integration";
+import { publishIntegrationUpdate } from "@/application/integrations/publish-integration-update";
 import { recordAudit } from "@/application/audit/record-audit";
 import {
 	scheduleIntegration,
 	rescheduleIntegration,
 	cancelIntegration,
 } from "@/infrastructure/scheduler/sync-scheduler";
+import {
+	eventBus,
+	type IntegrationDeletedEvent,
+	type IntegrationUpdatedEvent,
+} from "@/lib/event-bus";
 
 const createSchema = z.object({
 	name: z.string().min(1).max(255),
@@ -75,6 +82,44 @@ export function createIntegrationsRoute(
 		return c.json(await listIntegrations(deps));
 	});
 
+	route.get("/stream", (c) => {
+		return streamSSE(c, async (stream) => {
+			const onUpdate = (payload: IntegrationUpdatedEvent) => {
+				if (stream.aborted || stream.closed) return;
+				stream
+					.writeSSE({
+						event: "integration.updated",
+						data: JSON.stringify(payload),
+					})
+					.catch(() => {});
+			};
+			const onDelete = (payload: IntegrationDeletedEvent) => {
+				if (stream.aborted || stream.closed) return;
+				stream
+					.writeSSE({
+						event: "integration.deleted",
+						data: JSON.stringify(payload),
+					})
+					.catch(() => {});
+			};
+
+			eventBus.onIntegrationUpdated(onUpdate);
+			eventBus.onIntegrationDeleted(onDelete);
+			stream.onAbort(() => {
+				eventBus.offIntegrationUpdated(onUpdate);
+				eventBus.offIntegrationDeleted(onDelete);
+			});
+
+			await stream.writeSSE({ event: "ready", data: JSON.stringify({ ts: Date.now() }) });
+
+			while (!stream.aborted) {
+				await stream.sleep(25_000);
+				if (stream.aborted) break;
+				await stream.writeSSE({ event: "heartbeat", data: "" });
+			}
+		});
+	});
+
 	route.post("/preview", async (c) => {
 		const body = previewSchema.parse(await c.req.json());
 		try {
@@ -98,6 +143,7 @@ export function createIntegrationsRoute(
 		);
 		const integration = await deps.integrations.findById(result.id);
 		if (integration) scheduleIntegration(integration, scheduledSyncFn);
+		await publishIntegrationUpdate(deps.integrations, result.id);
 		return c.json({ ...result, eventCount: 0 }, 201);
 	});
 
@@ -110,6 +156,7 @@ export function createIntegrationsRoute(
 		);
 		if ("error" in result) return c.json({ error: "Not found" }, 404);
 		await rescheduleIntegration(id, deps.integrations, scheduledSyncFn);
+		await publishIntegrationUpdate(deps.integrations, id);
 		return c.json({ ...result, eventCount: 0 });
 	});
 
@@ -121,6 +168,7 @@ export function createIntegrationsRoute(
 			{ id, actorEmail: c.get("user").email },
 		);
 		if (result && "error" in result) return c.json({ error: "Not found" }, 404);
+		eventBus.emitIntegrationDeleted({ id });
 		return c.body(null, 204);
 	});
 
@@ -131,6 +179,7 @@ export function createIntegrationsRoute(
 			{ id, actorEmail: c.get("user").email },
 		);
 		if (result && "error" in result) return c.json({ error: "Not found" }, 404);
+		await publishIntegrationUpdate(deps.integrations, id);
 		return c.body(null, 204);
 	});
 
@@ -152,6 +201,7 @@ export function createIntegrationsRoute(
 				},
 			},
 		);
+		await publishIntegrationUpdate(deps.integrations, id);
 		return c.body(null, 204);
 	});
 
@@ -178,6 +228,7 @@ export function createIntegrationsRoute(
 		);
 		if ("error" in result) return c.json({ error: "Not found" }, 404);
 		cancelIntegration(id);
+		await publishIntegrationUpdate(deps.integrations, id);
 		return c.json({ ...result, eventCount: 0 });
 	});
 
@@ -190,6 +241,7 @@ export function createIntegrationsRoute(
 		);
 		if ("error" in result) return c.json({ error: "Not found" }, 404);
 		await rescheduleIntegration(id, deps.integrations, scheduledSyncFn);
+		await publishIntegrationUpdate(deps.integrations, id);
 		const integration = await deps.integrations.findById(id);
 		if (integration) {
 			await syncIntegration(syncDeps, integration, {

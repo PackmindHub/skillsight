@@ -26,7 +26,7 @@ export interface DailyTrend {
 }
 
 export interface TopUser {
-	user_email: string;
+	userEmail: string;
 	count: number;
 }
 

@@ -8,6 +8,8 @@ export { PageHeader } from "./PageHeader";
 export { EmptyRow, TBody, TD, TH, THead, TR, Table } from "./Table";
 export { StatusBadge, statusLabel } from "./StatusBadge";
 export type { AnyStatus } from "./StatusBadge";
+export { StatusChip } from "./StatusChip";
+export type { StatusChipOption, StatusChipTone } from "./StatusChip";
 export { SearchBar } from "./SearchBar";
 export { MultiSelect } from "./MultiSelect";
 export { StatusFilter } from "./StatusFilter";

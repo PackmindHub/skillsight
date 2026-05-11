@@ -1,9 +1,18 @@
 import { api } from "@/lib/api";
-import { type ReactNode, createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
-
-const POLL_INTERVAL_MS = 30_000;
+import type { Integration } from "@/types/api";
+import {
+	type ReactNode,
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 
 interface IntegrationsHealthValue {
+	integrations: Integration[];
 	errorCount: number;
 	loading: boolean;
 	refresh: () => Promise<void>;
@@ -12,14 +21,14 @@ interface IntegrationsHealthValue {
 const IntegrationsHealthContext = createContext<IntegrationsHealthValue | null>(null);
 
 export function IntegrationsHealthProvider({ children }: { children: ReactNode }) {
-	const [errorCount, setErrorCount] = useState(0);
+	const [integrations, setIntegrations] = useState<Integration[]>([]);
 	const [loading, setLoading] = useState(true);
-	const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+	const closeStreamRef = useRef<(() => void) | null>(null);
 
 	const refresh = useCallback(async () => {
 		try {
 			const items = await api.integrations.list();
-			setErrorCount(items.filter((i) => i.lastSyncError).length);
+			setIntegrations(items);
 		} catch {
 			// Silent: a transient list failure shouldn't crash the shell.
 		} finally {
@@ -28,39 +37,60 @@ export function IntegrationsHealthProvider({ children }: { children: ReactNode }
 	}, []);
 
 	useEffect(() => {
-		refresh();
-
-		function start() {
-			if (intervalRef.current !== null) return;
-			intervalRef.current = setInterval(refresh, POLL_INTERVAL_MS);
+		function applyUpdate(updated: Integration) {
+			setIntegrations((prev) => {
+				const idx = prev.findIndex((i) => i.id === updated.id);
+				if (idx === -1) return [updated, ...prev];
+				const next = prev.slice();
+				next[idx] = updated;
+				return next;
+			});
 		}
 
-		function stop() {
-			if (intervalRef.current === null) return;
-			clearInterval(intervalRef.current);
-			intervalRef.current = null;
+		function applyDelete(id: string) {
+			setIntegrations((prev) => prev.filter((i) => i.id !== id));
 		}
+
+		function openStream() {
+			if (closeStreamRef.current) return;
+			closeStreamRef.current = api.integrations.openStream({
+				onUpdate: applyUpdate,
+				onDelete: applyDelete,
+			});
+		}
+
+		function closeStream() {
+			closeStreamRef.current?.();
+			closeStreamRef.current = null;
+		}
+
+		refresh().then(() => {
+			if (document.visibilityState === "visible") openStream();
+		});
 
 		function onVisibilityChange() {
 			if (document.visibilityState === "hidden") {
-				stop();
+				closeStream();
 			} else {
-				refresh();
-				start();
+				refresh().then(openStream);
 			}
 		}
 
-		if (document.visibilityState === "visible") start();
 		document.addEventListener("visibilitychange", onVisibilityChange);
 
 		return () => {
-			stop();
+			closeStream();
 			document.removeEventListener("visibilitychange", onVisibilityChange);
 		};
 	}, [refresh]);
 
+	const errorCount = useMemo(
+		() => integrations.filter((i) => i.lastSyncError).length,
+		[integrations],
+	);
+
 	return (
-		<IntegrationsHealthContext.Provider value={{ errorCount, loading, refresh }}>
+		<IntegrationsHealthContext.Provider value={{ integrations, errorCount, loading, refresh }}>
 			{children}
 		</IntegrationsHealthContext.Provider>
 	);

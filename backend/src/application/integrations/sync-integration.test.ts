@@ -49,6 +49,7 @@ function makeIntegrations(): IIntegrationRepository {
 		delete: async () => {},
 		updateSyncStatus: async () => {},
 		countEventsByIntegration: async () => new Map(),
+		countEventsByIntegrationId: async () => 0,
 	};
 }
 
@@ -430,5 +431,85 @@ describe("syncIntegration", () => {
 
 		expect(upsertIfAbsentCalls).toEqual([]);
 		expect(pluginSkillsCalls).toEqual([]);
+	});
+});
+
+describe("syncIntegration — 'inline' marketplace normalization", () => {
+	it("normalizes 'inline' to null on skill_activated and skips marketplace upsert", async () => {
+		const { repo: integrations } = { repo: makeIntegrations() };
+		const { repo: events } = makeEvents();
+		const { repo: skills } = makeSkills();
+		const { repo: plugins, upsertIfAbsentCalls } = makePlugins();
+		const { repo: pluginSkills } = makePluginSkills();
+		const { repo: marketplaces, upsertSeenCalls } = makeMarketplaces();
+
+		const loki = makeLoki([
+			streamWithEvent(EVENT_NAMES.SKILL_ACTIVATED, {
+				"skill.name": "format",
+				"plugin.name": "local-plugin",
+				"marketplace.name": "inline",
+			}),
+		]);
+
+		await syncIntegration(
+			{
+				integrations,
+				events,
+				skills,
+				plugins,
+				pluginSkills,
+				marketplaces,
+				loki,
+				audit: makeAudit(),
+			},
+			BASE_INTEGRATION,
+		);
+
+		expect(upsertSeenCalls).toEqual([]);
+		expect(upsertIfAbsentCalls).toEqual([
+			{ pluginName: "local-plugin", marketplaceName: null },
+		]);
+	});
+
+	it("passes real marketplace names through unchanged alongside 'inline' events", async () => {
+		const { repo: integrations } = { repo: makeIntegrations() };
+		const { repo: events } = makeEvents();
+		const { repo: skills } = makeSkills();
+		const { repo: plugins, upsertIfAbsentCalls } = makePlugins();
+		const { repo: pluginSkills } = makePluginSkills();
+		const { repo: marketplaces, upsertSeenCalls } = makeMarketplaces();
+
+		const loki = makeLoki([
+			streamWithEvent(EVENT_NAMES.SKILL_ACTIVATED, {
+				"skill.name": "lint",
+				"plugin.name": "real-plugin",
+				"marketplace.name": "claude-plugins-official",
+			}),
+			streamWithEvent(EVENT_NAMES.SKILL_ACTIVATED, {
+				"skill.name": "format",
+				"plugin.name": "local-plugin",
+				"marketplace.name": "inline",
+			}),
+		]);
+
+		await syncIntegration(
+			{
+				integrations,
+				events,
+				skills,
+				plugins,
+				pluginSkills,
+				marketplaces,
+				loki,
+				audit: makeAudit(),
+			},
+			BASE_INTEGRATION,
+		);
+
+		expect(upsertSeenCalls).toEqual([["claude-plugins-official"]]);
+		expect(upsertIfAbsentCalls).toEqual([
+			{ pluginName: "real-plugin", marketplaceName: "claude-plugins-official" },
+			{ pluginName: "local-plugin", marketplaceName: null },
+		]);
 	});
 });

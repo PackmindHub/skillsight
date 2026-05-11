@@ -1,7 +1,8 @@
 import { recordAudit } from "@/application/audit/record-audit";
+import { publishIntegrationUpdate } from "@/application/integrations/publish-integration-update";
 import { EVENT_NAMES, type NewEvent } from "@/domain/event";
 import type { IntegrationWithSecret } from "@/domain/integration";
-import { computePluginStatus } from "@/domain/plugin";
+import { computePluginStatus, normalizeMarketplaceName } from "@/domain/plugin";
 import type { IAuditRepository } from "@/domain/ports/audit-repository";
 import type { IEventRepository } from "@/domain/ports/event-repository";
 import type { IIntegrationRepository } from "@/domain/ports/integration-repository";
@@ -92,12 +93,15 @@ export async function syncIntegration(
 		const mpNames = [
 			...new Set(
 				parsedEvents
-					.filter(
-						(e) =>
-							e.eventName === EVENT_NAMES.SKILL_ACTIVATED &&
-							typeof e.attributes["marketplace.name"] === "string",
+					.filter((e) => e.eventName === EVENT_NAMES.SKILL_ACTIVATED)
+					.map((e) =>
+						normalizeMarketplaceName(
+							typeof e.attributes["marketplace.name"] === "string"
+								? (e.attributes["marketplace.name"] as string)
+								: null,
+						),
 					)
-					.map((e) => e.attributes["marketplace.name"] as string),
+					.filter((name): name is string => name !== null),
 			),
 		];
 		if (mpNames.length > 0) {
@@ -127,10 +131,11 @@ export async function syncIntegration(
 				if (seenPlugins.has(pluginName)) continue;
 				seenPlugins.add(pluginName);
 
-				const marketplaceName =
+				const marketplaceName = normalizeMarketplaceName(
 					typeof event.attributes["marketplace.name"] === "string"
 						? (event.attributes["marketplace.name"] as string)
-						: null;
+						: null,
+				);
 				const status = computePluginStatus(
 					marketplaceName,
 					marketplaceName ? statusMap[marketplaceName] : null,
@@ -178,6 +183,8 @@ export async function syncIntegration(
 			});
 		}
 
+		await publishIntegrationUpdate(deps.integrations, integration.id);
+
 		return { syncedAt, error: null };
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
@@ -197,6 +204,8 @@ export async function syncIntegration(
 				},
 			});
 		}
+
+		await publishIntegrationUpdate(deps.integrations, integration.id);
 
 		return { syncedAt: null, error: message };
 	}

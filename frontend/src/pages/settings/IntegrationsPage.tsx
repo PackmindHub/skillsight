@@ -4,12 +4,10 @@ import { Button, PageHeader } from "@/components/ui";
 import { useIntegrationsHealth } from "@/context/IntegrationsHealthContext";
 import { api } from "@/lib/api";
 import type { Integration } from "@/types/api";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function IntegrationsPage() {
-	const { refresh: refreshHealth } = useIntegrationsHealth();
-	const [integrations, setIntegrations] = useState<Integration[]>([]);
-	const [loading, setLoading] = useState(true);
+	const { integrations, loading } = useIntegrationsHealth();
 	const [drawerOpen, setDrawerOpen] = useState(false);
 	const [editing, setEditing] = useState<Integration | null>(null);
 
@@ -20,13 +18,6 @@ export default function IntegrationsPage() {
 	const [pausingId, setPausingId] = useState<string | null>(null);
 	const [resumingId, setResumingId] = useState<string | null>(null);
 	const [recentlySyncedId, setRecentlySyncedId] = useState<string | null>(null);
-
-	useEffect(() => {
-		api.integrations
-			.list()
-			.then(setIntegrations)
-			.finally(() => setLoading(false));
-	}, []);
 
 	function openCreate() {
 		setEditing(null);
@@ -42,12 +33,8 @@ export default function IntegrationsPage() {
 		setDrawerOpen(false);
 	}
 
-	function handleSaved(integration: Integration, mode: "create" | "update") {
-		if (mode === "update") {
-			setIntegrations((prev) => prev.map((i) => (i.id === integration.id ? integration : i)));
-		} else {
-			setIntegrations((prev) => [integration, ...prev]);
-		}
+	function handleSaved(_integration: Integration, _mode: "create" | "update") {
+		// SSE pushes the new/updated row into IntegrationsHealthContext; just close.
 		setDrawerOpen(false);
 	}
 
@@ -55,8 +42,6 @@ export default function IntegrationsPage() {
 		setDeletingId(id);
 		try {
 			await api.integrations.remove(id);
-			setIntegrations((prev) => prev.filter((i) => i.id !== id));
-			refreshHealth();
 		} finally {
 			setDeletingId(null);
 		}
@@ -66,14 +51,6 @@ export default function IntegrationsPage() {
 		setClearingDataId(id);
 		try {
 			await api.integrations.clearData(id);
-			setIntegrations((prev) =>
-				prev.map((i) =>
-					i.id === id
-						? { ...i, eventCount: 0, lastSyncAt: null, lastSyncError: null }
-						: i,
-				),
-			);
-			refreshHealth();
 		} finally {
 			setClearingDataId(null);
 		}
@@ -83,10 +60,6 @@ export default function IntegrationsPage() {
 		setResettingId(id);
 		try {
 			await api.integrations.resetCursor(id);
-			setIntegrations((prev) =>
-				prev.map((i) => (i.id === id ? { ...i, lastSyncAt: null, lastSyncError: null } : i)),
-			);
-			refreshHealth();
 		} finally {
 			setResettingId(null);
 		}
@@ -96,14 +69,6 @@ export default function IntegrationsPage() {
 		setSyncingId(id);
 		try {
 			const result = await api.integrations.syncNow(id);
-			setIntegrations((prev) =>
-				prev.map((i) =>
-					i.id === id
-						? { ...i, lastSyncAt: result.syncedAt, lastSyncError: result.error }
-						: i,
-				),
-			);
-			refreshHealth();
 			if (!result.error) {
 				setRecentlySyncedId(id);
 				setTimeout(() => {
@@ -118,9 +83,7 @@ export default function IntegrationsPage() {
 	async function handlePause(id: string) {
 		setPausingId(id);
 		try {
-			const updated = await api.integrations.pause(id);
-			setIntegrations((prev) => prev.map((i) => (i.id === id ? { ...i, ...updated } : i)));
-			refreshHealth();
+			await api.integrations.pause(id);
 		} finally {
 			setPausingId(null);
 		}
@@ -130,9 +93,6 @@ export default function IntegrationsPage() {
 		setResumingId(id);
 		try {
 			await api.integrations.resume(id);
-			const refreshed = await api.integrations.list();
-			setIntegrations(refreshed);
-			refreshHealth();
 		} finally {
 			setResumingId(null);
 		}

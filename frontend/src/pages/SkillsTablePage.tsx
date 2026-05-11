@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router-dom";
 import { SkillDetailDrawer } from "@/components/skills/SkillDetailDrawer";
 import {
@@ -10,7 +11,8 @@ import {
 	SegmentedControl,
 	Select,
 	Sparkline,
-	StatusBadge,
+	StatusChip,
+	type StatusChipOption,
 	StatusFilter,
 	TBody,
 	THead,
@@ -51,71 +53,157 @@ function MarketplaceBadge({ mp }: { mp: MarketplaceRef }) {
 	);
 }
 
-const STATUS_OPTIONS: { value: SkillStatus; label: string }[] = [
-	{ value: "unknown", label: "Unknown" },
-	{ value: "to_review", label: "To Review" },
-	{ value: "approved", label: "Approved" },
-	{ value: "removed", label: "Removed" },
+const SKILL_STATUS_CHIP_OPTIONS: readonly StatusChipOption<SkillStatus>[] = [
+	{ value: "approved", label: "Approved", tone: "success" },
+	{ value: "to_review", label: "To review", tone: "warning" },
+	{ value: "removed", label: "Removed", tone: "danger" },
+	{ value: "unknown", label: "Unknown", tone: "neutral" },
 ];
-
-const STATUS_SELECT_CLASS: Record<SkillStatus, string> = {
-	unknown: "bg-gray-100 text-gray-600 border-gray-200",
-	to_review: "bg-amber-100 text-amber-700 border-amber-200",
-	approved: "bg-emerald-100 text-emerald-700 border-emerald-200",
-	removed: "bg-red-100 text-red-600 border-red-200",
-};
 
 const TRIGGERS: {
 	key: "userSlash" | "claudeProactive" | "nestedSkill";
 	label: string;
+	hint: string;
 	swatch: string;
 	gradient: string;
 }[] = [
 	{
 		key: "userSlash",
 		label: "user-slash",
+		hint: "Invoked via /skill in chat",
 		swatch: "bg-accent-bright",
 		gradient: "linear-gradient(90deg, var(--color-accent), var(--color-accent-bright))",
 	},
 	{
 		key: "claudeProactive",
 		label: "claude-proactive",
+		hint: "Claude chose to load it",
 		swatch: "bg-accent-2",
 		gradient: "linear-gradient(90deg, var(--color-accent-2), var(--color-accent-2-soft))",
 	},
 	{
 		key: "nestedSkill",
 		label: "nested-skill",
+		hint: "Loaded by another skill",
 		swatch: "bg-warning",
 		gradient: "linear-gradient(90deg, var(--color-warning), var(--color-caution))",
 	},
 ];
 
+const TRIG_TIP_WIDTH = 460;
+const TRIG_TIP_MARGIN = 12;
+
 function TriggerMixCell({ row }: { row: SkillTableRow }) {
 	const sum = Math.max(1, row.total);
+	const wrapRef = useRef<HTMLDivElement>(null);
+	const [tipPos, setTipPos] = useState<{ left: number; top: number } | null>(null);
+
+	const computePosition = () => {
+		const el = wrapRef.current;
+		if (!el) return;
+		const rect = el.getBoundingClientRect();
+		const vw = window.innerWidth;
+		const vh = window.innerHeight;
+		const width = Math.min(TRIG_TIP_WIDTH, vw - TRIG_TIP_MARGIN * 2);
+		// Anchor to right edge of trigger, clamp inside viewport.
+		let left = rect.right - width;
+		left = Math.max(TRIG_TIP_MARGIN, Math.min(left, vw - width - TRIG_TIP_MARGIN));
+		// Below by default; flip above if not enough room.
+		const belowTop = rect.bottom + 8;
+		const approxHeight = 220;
+		const top =
+			belowTop + approxHeight > vh - TRIG_TIP_MARGIN && rect.top - 8 - approxHeight > TRIG_TIP_MARGIN
+				? rect.top - 8 - approxHeight
+				: belowTop;
+		setTipPos({ left, top });
+	};
+
+	useEffect(() => {
+		if (!tipPos) return;
+		const onScroll = () => setTipPos(null);
+		window.addEventListener("scroll", onScroll, true);
+		window.addEventListener("resize", onScroll);
+		return () => {
+			window.removeEventListener("scroll", onScroll, true);
+			window.removeEventListener("resize", onScroll);
+		};
+	}, [tipPos]);
+
 	return (
 		<td className="px-4 py-3">
-			<div className="flex h-2 w-full max-w-[160px] overflow-hidden rounded-full bg-surface-700">
-				{TRIGGERS.map((t) => {
-					const v = row[t.key];
-					return (
-						<div
-							key={t.key}
-							className="h-full"
-							style={{ width: `${(v / sum) * 100}%`, background: t.gradient }}
-							title={`${t.label} · ${v}`}
-						/>
-					);
-				})}
+			<div
+				ref={wrapRef}
+				className="relative inline-block"
+				onMouseEnter={computePosition}
+				onMouseLeave={() => setTipPos(null)}
+			>
+				<div className="flex h-2 w-full max-w-[160px] overflow-hidden rounded-full bg-surface-700">
+					{TRIGGERS.map((t) => {
+						const v = row[t.key];
+						return (
+							<div
+								key={t.key}
+								className="h-full"
+								style={{ width: `${(v / sum) * 100}%`, background: t.gradient }}
+							/>
+						);
+					})}
+				</div>
+				<div className="mt-1 flex items-center gap-3 font-mono text-[10px] text-text-4">
+					{TRIGGERS.map((t) => (
+						<span key={t.key} className="inline-flex items-center gap-1">
+							<span className={cn("inline-block h-1.5 w-1.5 rounded-sm", t.swatch)} />
+							{row[t.key]}
+						</span>
+					))}
+				</div>
 			</div>
-			<div className="mt-1 flex items-center gap-3 font-mono text-[10px] text-text-4">
-				{TRIGGERS.map((t) => (
-					<span key={t.key} className="inline-flex items-center gap-1">
-						<span className={cn("inline-block h-1.5 w-1.5 rounded-sm", t.swatch)} />
-						{row[t.key]}
-					</span>
-				))}
-			</div>
+			{tipPos &&
+				createPortal(
+					<div
+						role="tooltip"
+						className="pointer-events-none fixed z-50 rounded-[10px] border border-edge bg-surface-800 px-[18px] py-4 shadow-[0_18px_44px_rgba(0,0,0,0.7)]"
+						style={{
+							left: tipPos.left,
+							top: tipPos.top,
+							width: Math.min(TRIG_TIP_WIDTH, window.innerWidth - TRIG_TIP_MARGIN * 2),
+							boxShadow:
+								"0 18px 44px rgba(0,0,0,0.7), 0 0 0 1px color-mix(in srgb, var(--color-accent-bright) 8%, transparent)",
+						}}
+					>
+						<div className="mb-2 border-b border-edge-dim pb-2 font-mono text-[10px] uppercase tracking-[0.08em] text-text-4">
+							Trigger mix · {row.total.toLocaleString("en-US")} total
+						</div>
+						{TRIGGERS.map((t, i) => {
+							const v = row[t.key];
+							const pct = ((v / sum) * 100).toFixed(0);
+							return (
+								<div
+									key={t.key}
+									className={cn(
+										"grid items-center gap-3 py-2.5 font-mono text-[13px]",
+										i > 0 && "border-t border-dashed border-edge-dim",
+									)}
+									style={{ gridTemplateColumns: "12px 150px 1fr 64px 48px" }}
+								>
+									<span
+										className="h-3 w-3 rounded-[3px]"
+										style={{ background: t.gradient }}
+									/>
+									<span className="text-text-1">{t.label}</span>
+									<span className="font-sans text-[13px] leading-snug text-text-3">
+										{t.hint}
+									</span>
+									<span className="text-right text-[14px] tabular-nums text-text-1">
+										{v.toLocaleString("en-US")}
+									</span>
+									<span className="text-right tabular-nums text-text-3">{pct}%</span>
+								</div>
+							);
+						})}
+					</div>,
+					document.body,
+				)}
 		</td>
 	);
 }
@@ -903,33 +991,24 @@ export default function SkillsTablePage() {
 									{(() => {
 										const status = (row.status ?? "unknown") as SkillStatus;
 										const pluginName = row.pluginName ?? "";
-										if (pluginName === "") {
-											return (
-												<Select
-													size="sm"
-													aria-label={`Status for ${row.skillName}`}
-													value={status}
-													onChange={(e) =>
-														handleStatusChange(
-															row.skillName,
-															"",
-															e.target.value as SkillStatus,
-														)
-													}
-													className={cn("font-medium", STATUS_SELECT_CLASS[status])}
-												>
-													{STATUS_OPTIONS.map((opt) => (
-														<option key={opt.value} value={opt.value}>
-															{opt.label}
-														</option>
-													))}
-												</Select>
-											);
-										}
+										const editable = pluginName === "";
 										return (
-											<span title={`Status inherited from plugin ${pluginName}`}>
-												<StatusBadge status={status} />
-											</span>
+											<StatusChip
+												value={status}
+												options={SKILL_STATUS_CHIP_OPTIONS}
+												onChange={
+													editable
+														? (v) => handleStatusChange(row.skillName, "", v)
+														: undefined
+												}
+												disabled={!editable}
+												ariaLabel={`Status for ${row.skillName}`}
+												title={
+													editable
+														? undefined
+														: `Status inherited from plugin ${pluginName}`
+												}
+											/>
 										);
 									})()}
 								</td>

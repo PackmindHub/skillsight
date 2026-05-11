@@ -15,4 +15,5 @@ export interface IIntegrationRepository {
 		status: { lastSyncAt?: Date | null; lastSyncError?: string | null },
 	): Promise<void>;
 	countEventsByIntegration(): Promise<Map<string, number>>;
+	countEventsByIntegrationId(id: string): Promise<number>;
 }
