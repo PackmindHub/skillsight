@@ -9,7 +9,12 @@ import type { ISkillRepository } from "@/domain/ports/skill-repository";
 export type DeleteMarketplaceMode = "orphan" | "cascade";
 
 export type DeleteMarketplaceResult =
-	| { ok: true; mode: DeleteMarketplaceMode; affectedPluginNames: string[] }
+	| {
+			ok: true;
+			mode: DeleteMarketplaceMode;
+			affectedPluginNames: string[];
+			deletedSourceIds: string[];
+	  }
 	| { ok: false; reason: "not_found" }
 	| { ok: false; reason: "linked_sources"; sourceIds: string[] };
 
@@ -22,19 +27,25 @@ export async function deleteMarketplace(
 		skills: ISkillRepository;
 		audit: IAuditRepository;
 	},
-	input: { name: string; mode: DeleteMarketplaceMode },
+	input: { name: string; mode: DeleteMarketplaceMode; withSources?: boolean },
 	options?: { actorEmail?: string | null },
 ): Promise<DeleteMarketplaceResult> {
 	const existing = await deps.marketplaces.findByName(input.name);
 	if (!existing) return { ok: false, reason: "not_found" };
 
 	const linkedSources = await deps.marketplaceSources.findByMarketplaceName(input.name);
-	if (linkedSources.length > 0) {
+	if (linkedSources.length > 0 && !input.withSources) {
 		return {
 			ok: false,
 			reason: "linked_sources",
 			sourceIds: linkedSources.map((s) => s.id),
 		};
+	}
+
+	const deletedSourceIds: string[] = [];
+	for (const source of linkedSources) {
+		await deps.marketplaceSources.delete(source.id);
+		deletedSourceIds.push(source.id);
 	}
 
 	let affectedPluginNames: string[];
@@ -60,8 +71,10 @@ export async function deleteMarketplace(
 			description: existing.description,
 			affectedPluginNames,
 			affectedPluginCount: affectedPluginNames.length,
+			deletedSourceIds,
+			deletedSourceCount: deletedSourceIds.length,
 		},
 	});
 
-	return { ok: true, mode: input.mode, affectedPluginNames };
+	return { ok: true, mode: input.mode, affectedPluginNames, deletedSourceIds };
 }

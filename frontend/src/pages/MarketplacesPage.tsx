@@ -124,9 +124,11 @@ export default function MarketplacesPage() {
 		| null
 	>(null);
 	const [submitError, setSubmitError] = useState<string | null>(null);
-	const [deleteConfirm, setDeleteConfirm] = useState<{ name: string; cascade: boolean } | null>(
-		null,
-	);
+	const [deleteConfirm, setDeleteConfirm] = useState<{
+		name: string;
+		cascade: boolean;
+		withSources: boolean;
+	} | null>(null);
 	const [deletingMarketplace, setDeletingMarketplace] = useState(false);
 	const [deleteError, setDeleteError] = useState<string | null>(null);
 
@@ -245,7 +247,7 @@ export default function MarketplacesPage() {
 
 	function openDeleteMarketplace(name: string) {
 		setDeleteError(null);
-		setDeleteConfirm({ name, cascade: false });
+		setDeleteConfirm({ name, cascade: false, withSources: false });
 	}
 
 	function closeDeleteMarketplace() {
@@ -256,17 +258,21 @@ export default function MarketplacesPage() {
 
 	async function confirmDeleteMarketplace() {
 		if (!deleteConfirm) return;
-		const { name, cascade } = deleteConfirm;
+		const { name, cascade, withSources } = deleteConfirm;
 		setDeletingMarketplace(true);
 		setDeleteError(null);
 		try {
-			await api.marketplaces.remove(name, { mode: cascade ? "cascade" : "orphan" });
+			await api.marketplaces.remove(name, {
+				mode: cascade ? "cascade" : "orphan",
+				withSources,
+			});
 			const [mpRes, srcRes] = await Promise.all([
 				api.marketplaces.list(),
 				api.marketplaceSources.list(),
 			]);
 			setItems(mpRes.marketplaces);
 			setSources(srcRes);
+			refreshSourcesHealth();
 			setDeleteConfirm(null);
 		} catch (e) {
 			setDeleteError(extractErrorMessage(e));
@@ -906,72 +912,113 @@ export default function MarketplacesPage() {
 				onRequestImport={handleRequestImport}
 			/>
 
-			{deleteConfirm && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center">
-					<button
-						type="button"
-						aria-label="Close"
-						onClick={closeDeleteMarketplace}
-						className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-					/>
-					<dialog
-						open
-						aria-modal="true"
-						aria-label={`Delete marketplace ${deleteConfirm.name}`}
-						className="relative m-0 w-[440px] max-w-[92vw] rounded-md border border-edge bg-surface-900 p-5 text-text-1 shadow-2xl"
-					>
-						<h2 className="text-sm font-semibold text-text-1">
-							Delete <span className="font-mono">{deleteConfirm.name}</span>?
-						</h2>
-						<p className="mt-2 text-xs text-text-3">
-							This marketplace will be removed.
-						</p>
-						<label className="mt-4 flex items-start gap-2 text-sm text-text-2 cursor-pointer">
-							<input
-								type="checkbox"
-								className="mt-0.5 h-4 w-4 rounded border-edge bg-surface-800 accent-accent-bright"
-								checked={deleteConfirm.cascade}
-								onChange={(e) =>
-									setDeleteConfirm((prev) =>
-										prev ? { ...prev, cascade: e.target.checked } : prev,
-									)
-								}
-								disabled={deletingMarketplace}
-							/>
-							<span>
-								Also delete linked plugins and skills
-								<span className="block mt-1 text-xs text-text-4">
-									Off: plugins from this marketplace are kept as orphaned “removed” entries; their
-									history stays intact. On: plugins, plugin-skill links, and skill records tied to
-									those plugins are permanently deleted.
+			{deleteConfirm && (() => {
+				const linkedSources = sources.filter((s) => s.marketplaceName === deleteConfirm.name);
+				return (
+					<div className="fixed inset-0 z-50 flex items-center justify-center">
+						<button
+							type="button"
+							aria-label="Close"
+							onClick={closeDeleteMarketplace}
+							className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+						/>
+						<dialog
+							open
+							aria-modal="true"
+							aria-label={`Delete marketplace ${deleteConfirm.name}`}
+							className="relative m-0 w-[440px] max-w-[92vw] rounded-md border border-edge bg-surface-900 p-5 text-text-1 shadow-2xl"
+						>
+							<h2 className="text-sm font-semibold text-text-1">
+								Delete <span className="font-mono">{deleteConfirm.name}</span>?
+							</h2>
+							<p className="mt-2 text-xs text-text-3">
+								This marketplace will be removed.
+							</p>
+							<label className="mt-4 flex items-start gap-2 text-sm text-text-2 cursor-pointer">
+								<input
+									type="checkbox"
+									className="mt-0.5 h-4 w-4 rounded border-edge bg-surface-800 accent-accent-bright"
+									checked={deleteConfirm.cascade}
+									onChange={(e) =>
+										setDeleteConfirm((prev) =>
+											prev ? { ...prev, cascade: e.target.checked } : prev,
+										)
+									}
+									disabled={deletingMarketplace}
+								/>
+								<span>
+									Also delete linked plugins and skills
+									<span className="block mt-1 text-xs text-text-4">
+										Off: plugins from this marketplace are kept as orphaned “removed” entries; their
+										history stays intact. On: plugins, plugin-skill links, and skill records tied to
+										those plugins are permanently deleted.
+									</span>
 								</span>
-							</span>
-						</label>
-						{deleteError && (
-							<p className="mt-3 text-xs text-danger">{deleteError}</p>
-						)}
-						<div className="mt-5 flex items-center justify-end gap-2">
-							<Button
-								variant="ghost"
-								size="sm"
-								onClick={closeDeleteMarketplace}
-								disabled={deletingMarketplace}
-							>
-								Cancel
-							</Button>
-							<Button
-								variant="ghost"
-								size="sm"
-								onClick={confirmDeleteMarketplace}
-								loading={deletingMarketplace}
-								className="text-danger hover:text-danger"
-							>
-								Delete
-							</Button>
-						</div>
-					</dialog>
-				</div>
-			)}
+							</label>
+							{linkedSources.length > 0 && (
+								<label className="mt-3 flex items-start gap-2 text-sm text-text-2 cursor-pointer">
+									<input
+										type="checkbox"
+										className="mt-0.5 h-4 w-4 rounded border-edge bg-surface-800 accent-accent-bright"
+										checked={deleteConfirm.withSources}
+										onChange={(e) =>
+											setDeleteConfirm((prev) =>
+												prev ? { ...prev, withSources: e.target.checked } : prev,
+											)
+										}
+										disabled={deletingMarketplace}
+									/>
+									<span>
+										Also delete {linkedSources.length} linked git source
+										{linkedSources.length === 1 ? "" : "s"}
+										<span className="mt-1 block text-xs text-text-4">
+											{deleteConfirm.withSources ? (
+												<>
+													These git sources will be removed and their schedulers stopped:
+													<ul className="mt-1 list-disc pl-4 font-mono">
+														{linkedSources.map((s) => (
+															<li key={s.id} className="truncate" title={s.gitUrl}>
+																{s.gitUrl}
+															</li>
+														))}
+													</ul>
+												</>
+											) : (
+												<>
+													If left off, the marketplace cannot be deleted while these sources still
+													reference it.
+												</>
+											)}
+										</span>
+									</span>
+								</label>
+							)}
+							{deleteError && (
+								<p className="mt-3 text-xs text-danger">{deleteError}</p>
+							)}
+							<div className="mt-5 flex items-center justify-end gap-2">
+								<Button
+									variant="ghost"
+									size="sm"
+									onClick={closeDeleteMarketplace}
+									disabled={deletingMarketplace}
+								>
+									Cancel
+								</Button>
+								<Button
+									variant="ghost"
+									size="sm"
+									onClick={confirmDeleteMarketplace}
+									loading={deletingMarketplace}
+									className="text-danger hover:text-danger"
+								>
+									Delete
+								</Button>
+							</div>
+						</dialog>
+					</div>
+				);
+			})()}
 		</div>
 	);
 }

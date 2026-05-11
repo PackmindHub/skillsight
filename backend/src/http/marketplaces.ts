@@ -7,6 +7,7 @@ import { deleteMarketplace } from "@/application/marketplaces/delete-marketplace
 import { listMarketplaceDetail } from "@/application/marketplaces/list-marketplace-detail";
 import { listMarketplaces } from "@/application/marketplaces/list-marketplaces";
 import { updateMarketplace } from "@/application/marketplaces/update-marketplace";
+import { cancelMarketplaceSource } from "@/infrastructure/scheduler/marketplace-source-scheduler";
 
 const updateSchema = z.object({
 	status: z.enum(["to_review", "approved", "denied"]).optional(),
@@ -49,8 +50,18 @@ export function createMarketplacesRoute(
 	route.delete("/:name", async (c) => {
 		const name = decodeURIComponent(c.req.param("name"));
 		const mode = deleteModeSchema.parse(c.req.query("mode"));
-		const result = await deleteMarketplace(deps, { name, mode }, { actorEmail: c.get("user").email });
-		if (result.ok) return c.body(null, 204);
+		const withSources = c.req.query("withSources") === "true";
+		const result = await deleteMarketplace(
+			deps,
+			{ name, mode, withSources },
+			{ actorEmail: c.get("user").email },
+		);
+		if (result.ok) {
+			for (const sourceId of result.deletedSourceIds) {
+				cancelMarketplaceSource(sourceId);
+			}
+			return c.body(null, 204);
+		}
 		if (result.reason === "not_found") return c.json({ error: "Marketplace not found" }, 404);
 		return c.json(
 			{ error: "Marketplace is still linked to one or more sources", sourceIds: result.sourceIds },

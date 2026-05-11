@@ -137,11 +137,17 @@ export const api = {
 				method: "PATCH",
 				body: JSON.stringify(body),
 			}),
-		remove: (name: string, opts?: { mode?: "orphan" | "cascade" }) =>
-			apiFetch<void>(
-				`/api/marketplaces/${encodeURIComponent(name)}?mode=${opts?.mode ?? "orphan"}`,
+		remove: (
+			name: string,
+			opts?: { mode?: "orphan" | "cascade"; withSources?: boolean },
+		) => {
+			const params = new URLSearchParams({ mode: opts?.mode ?? "orphan" });
+			if (opts?.withSources) params.set("withSources", "true");
+			return apiFetch<void>(
+				`/api/marketplaces/${encodeURIComponent(name)}?${params.toString()}`,
 				{ method: "DELETE" },
-			),
+			);
+		},
 	},
 	integrations: {
 		list: () => apiFetch<Integration[]>("/api/integrations"),

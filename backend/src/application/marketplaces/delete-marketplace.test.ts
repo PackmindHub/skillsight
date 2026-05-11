@@ -48,6 +48,7 @@ function makeMarketplaceRepo(initial: Marketplace | null) {
 }
 
 function makeSourceRepo(linked: MarketplaceSource[] = []) {
+	const deleteCalls: string[] = [];
 	const repo: IMarketplaceSourceRepository = {
 		findAll: async () => [],
 		findById: async () => null,
@@ -58,10 +59,12 @@ function makeSourceRepo(linked: MarketplaceSource[] = []) {
 		update: async () => {
 			throw new Error("not used");
 		},
-		delete: async () => {},
+		delete: async (id) => {
+			deleteCalls.push(id);
+		},
 		updateSyncStatus: async () => {},
 	};
-	return repo;
+	return { repo, deleteCalls };
 }
 
 function makePluginRepo(opts: { byMarketplace: Record<string, string[]> }) {
@@ -162,7 +165,7 @@ describe("deleteMarketplace", () => {
 	it("returns not_found when the marketplace does not exist", async () => {
 		const { audit } = makeAudit();
 		const { repo: marketplaces } = makeMarketplaceRepo(null);
-		const marketplaceSources = makeSourceRepo();
+		const { repo: marketplaceSources } = makeSourceRepo();
 		const { repo: plugins } = makePluginRepo({ byMarketplace: {} });
 		const { repo: pluginSkills } = makePluginSkillRepo();
 		const { repo: skills } = makeSkillRepo();
@@ -175,10 +178,12 @@ describe("deleteMarketplace", () => {
 		expect(result).toEqual({ ok: false, reason: "not_found" });
 	});
 
-	it("returns linked_sources and mutates nothing when a source still links the marketplace", async () => {
+	it("returns linked_sources and mutates nothing when sources are linked and withSources is not set", async () => {
 		const { audit, calls: auditCalls } = makeAudit();
 		const { repo: marketplaces, state: mpState } = makeMarketplaceRepo(BASE_MARKETPLACE);
-		const marketplaceSources = makeSourceRepo([BASE_SOURCE]);
+		const { repo: marketplaceSources, deleteCalls: sourceDeleteCalls } = makeSourceRepo([
+			BASE_SOURCE,
+		]);
 		const { repo: plugins, calls: pluginCalls, state: pluginState } = makePluginRepo({
 			byMarketplace: { mp: ["p1", "p2"] },
 		});
@@ -198,13 +203,14 @@ describe("deleteMarketplace", () => {
 		expect(pluginCalls.deleteByMarketplace).toEqual([]);
 		expect(pskCalls).toEqual([]);
 		expect(skillCalls).toEqual([]);
+		expect(sourceDeleteCalls).toEqual([]);
 		expect(auditCalls).toEqual([]);
 	});
 
 	it("orphan mode: marks plugins removed, leaves plugin_skills/skills untouched, deletes marketplace, audits", async () => {
 		const { audit, calls: auditCalls } = makeAudit();
 		const { repo: marketplaces, state: mpState } = makeMarketplaceRepo(BASE_MARKETPLACE);
-		const marketplaceSources = makeSourceRepo();
+		const { repo: marketplaceSources } = makeSourceRepo();
 		const { repo: plugins, calls: pluginCalls } = makePluginRepo({ byMarketplace: { mp: ["p1", "p2"] } });
 		const { repo: pluginSkills, calls: pskCalls } = makePluginSkillRepo();
 		const { repo: skills, calls: skillCalls } = makeSkillRepo();
@@ -215,7 +221,12 @@ describe("deleteMarketplace", () => {
 			{ actorEmail: "admin@example.com" },
 		);
 
-		expect(result).toEqual({ ok: true, mode: "orphan", affectedPluginNames: ["p1", "p2"] });
+		expect(result).toEqual({
+			ok: true,
+			mode: "orphan",
+			affectedPluginNames: ["p1", "p2"],
+			deletedSourceIds: [],
+		});
 		expect(pluginCalls.orphanByMarketplace).toEqual(["mp"]);
 		expect(pluginCalls.deleteByMarketplace).toEqual([]);
 		expect(pskCalls).toEqual([]);
@@ -229,13 +240,15 @@ describe("deleteMarketplace", () => {
 			mode: "orphan",
 			affectedPluginCount: 2,
 			affectedPluginNames: ["p1", "p2"],
+			deletedSourceCount: 0,
+			deletedSourceIds: [],
 		});
 	});
 
 	it("cascade mode: deletes plugin_skills, skills, plugins, then marketplace; audits with mode=cascade", async () => {
 		const { audit, calls: auditCalls } = makeAudit();
 		const { repo: marketplaces, state: mpState } = makeMarketplaceRepo(BASE_MARKETPLACE);
-		const marketplaceSources = makeSourceRepo();
+		const { repo: marketplaceSources } = makeSourceRepo();
 		const { repo: plugins, calls: pluginCalls, state: pluginState } = makePluginRepo({
 			byMarketplace: { mp: ["p1", "p2"] },
 		});
@@ -247,7 +260,12 @@ describe("deleteMarketplace", () => {
 			{ name: "mp", mode: "cascade" },
 		);
 
-		expect(result).toEqual({ ok: true, mode: "cascade", affectedPluginNames: ["p1", "p2"] });
+		expect(result).toEqual({
+			ok: true,
+			mode: "cascade",
+			affectedPluginNames: ["p1", "p2"],
+			deletedSourceIds: [],
+		});
 		expect(pluginCalls.listNames).toEqual(["mp"]);
 		expect(pskCalls).toEqual([["p1", "p2"]]);
 		expect(skillCalls).toEqual([["p1", "p2"]]);
@@ -263,7 +281,7 @@ describe("deleteMarketplace", () => {
 		for (const mode of ["orphan", "cascade"] as const) {
 			const { audit, calls: auditCalls } = makeAudit();
 			const { repo: marketplaces } = makeMarketplaceRepo(BASE_MARKETPLACE);
-			const marketplaceSources = makeSourceRepo();
+			const { repo: marketplaceSources } = makeSourceRepo();
 			const { repo: plugins } = makePluginRepo({ byMarketplace: {} });
 			const { repo: pluginSkills } = makePluginSkillRepo();
 			const { repo: skills } = makeSkillRepo();
@@ -273,8 +291,72 @@ describe("deleteMarketplace", () => {
 				{ name: "mp", mode },
 			);
 
-			expect(result).toEqual({ ok: true, mode, affectedPluginNames: [] });
+			expect(result).toEqual({
+				ok: true,
+				mode,
+				affectedPluginNames: [],
+				deletedSourceIds: [],
+			});
 			expect(auditCalls[0].metadata).toMatchObject({ mode, affectedPluginCount: 0 });
 		}
+	});
+
+	it("withSources=true: deletes each linked source, then proceeds with the marketplace delete; records source IDs in audit", async () => {
+		const { audit, calls: auditCalls } = makeAudit();
+		const { repo: marketplaces, state: mpState } = makeMarketplaceRepo(BASE_MARKETPLACE);
+		const secondSource: MarketplaceSource = { ...BASE_SOURCE, id: "src-2" };
+		const { repo: marketplaceSources, deleteCalls: sourceDeleteCalls } = makeSourceRepo([
+			BASE_SOURCE,
+			secondSource,
+		]);
+		const { repo: plugins, calls: pluginCalls } = makePluginRepo({
+			byMarketplace: { mp: ["p1"] },
+		});
+		const { repo: pluginSkills } = makePluginSkillRepo();
+		const { repo: skills } = makeSkillRepo();
+
+		const result = await deleteMarketplace(
+			{ marketplaces, marketplaceSources, plugins, pluginSkills, skills, audit },
+			{ name: "mp", mode: "cascade", withSources: true },
+			{ actorEmail: "admin@example.com" },
+		);
+
+		expect(result).toEqual({
+			ok: true,
+			mode: "cascade",
+			affectedPluginNames: ["p1"],
+			deletedSourceIds: ["src-1", "src-2"],
+		});
+		expect(sourceDeleteCalls).toEqual(["src-1", "src-2"]);
+		expect(pluginCalls.deleteByMarketplace).toEqual(["mp"]);
+		expect(mpState.current).toBeNull();
+		expect(auditCalls).toHaveLength(1);
+		expect(auditCalls[0].metadata).toMatchObject({
+			mode: "cascade",
+			deletedSourceCount: 2,
+			deletedSourceIds: ["src-1", "src-2"],
+		});
+	});
+
+	it("withSources=true with no linked sources is a no-op for sources", async () => {
+		const { audit } = makeAudit();
+		const { repo: marketplaces } = makeMarketplaceRepo(BASE_MARKETPLACE);
+		const { repo: marketplaceSources, deleteCalls: sourceDeleteCalls } = makeSourceRepo();
+		const { repo: plugins } = makePluginRepo({ byMarketplace: {} });
+		const { repo: pluginSkills } = makePluginSkillRepo();
+		const { repo: skills } = makeSkillRepo();
+
+		const result = await deleteMarketplace(
+			{ marketplaces, marketplaceSources, plugins, pluginSkills, skills, audit },
+			{ name: "mp", mode: "orphan", withSources: true },
+		);
+
+		expect(result).toEqual({
+			ok: true,
+			mode: "orphan",
+			affectedPluginNames: [],
+			deletedSourceIds: [],
+		});
+		expect(sourceDeleteCalls).toEqual([]);
 	});
 });
