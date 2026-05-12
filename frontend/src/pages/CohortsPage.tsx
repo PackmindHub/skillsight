@@ -5,17 +5,9 @@ import { CohortDrawer } from "@/components/cohorts/CohortDrawer";
 import { skillColor } from "@/components/cohorts/skill-color";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import type { Cohort, CohortsResponse, DashboardPeriod } from "@/types/api";
+import type { Cohort, CohortMember, CohortsResponse, DashboardPeriod } from "@/types/api";
 
-type SortKey = "users" | "acts" | "recent" | "size";
 type GroupBy = "none" | "anchor";
-
-const SORT_OPTIONS: Array<{ value: SortKey; label: string }> = [
-  { value: "users", label: "By users" },
-  { value: "acts", label: "By activations" },
-  { value: "recent", label: "By recency" },
-  { value: "size", label: "By skill count" },
-];
 
 const PERIOD_OPTIONS: Array<{ value: DashboardPeriod; label: string }> = [
   { value: 30, label: "30d" },
@@ -36,7 +28,6 @@ export default function CohortsPage() {
   const [groupBy, setGroupBy] = useState<GroupBy>("none");
   const [hideSolo, setHideSolo] = useState(false);
   const [minSkills, setMinSkills] = useState<number>(2);
-  const [sort, setSort] = useState<SortKey>("users");
   const [selected, setSelected] = useState<Cohort | null>(null);
 
   useEffect(() => {
@@ -63,11 +54,6 @@ export default function CohortsPage() {
 
   const cohorts = data?.cohorts ?? [];
 
-  const soloCount = useMemo(
-    () => cohorts.filter((c) => c.skills.length >= minSkills && c.users.length === 1).length,
-    [cohorts, minSkills],
-  );
-
   const skillOptions = useMemo(() => {
     const set = new Set<string>();
     for (const c of cohorts) for (const s of c.skills) set.add(s);
@@ -76,13 +62,54 @@ export default function CohortsPage() {
       .map((s) => ({ value: s, label: s }));
   }, [cohorts]);
 
+  // When the user picks skills in the filter, re-cluster users so each cohort's
+  // skill set is exactly the subset they activated within the selected universe.
+  const projected = useMemo<Cohort[] | null>(() => {
+    if (skillFilter.length === 0) return null;
+    const selected = new Set(skillFilter);
+    const groups = new Map<string, { skills: string[]; users: CohortMember[] }>();
+    for (const c of cohorts) {
+      for (const u of c.users) {
+        const present = Object.keys(u.perSkill)
+          .filter((s) => selected.has(s))
+          .sort();
+        if (present.length === 0) continue;
+        const sig = present.join("|");
+        const bucket = groups.get(sig);
+        if (bucket) bucket.users.push(u);
+        else groups.set(sig, { skills: present, users: [u] });
+      }
+    }
+    let i = 1;
+    return [...groups.values()].map(({ skills, users }) => {
+      const activations = users.reduce(
+        (sum, u) => sum + skills.reduce((s, k) => s + (u.perSkill[k] ?? 0), 0),
+        0,
+      );
+      const lastActiveAt = users.reduce(
+        (max, u) => (new Date(u.lastActiveAt).getTime() > new Date(max).getTime() ? u.lastActiveAt : max),
+        users[0]!.lastActiveAt,
+      );
+      return { id: `proj-${i++}`, skills, users, activations, lastActiveAt };
+    });
+  }, [cohorts, skillFilter]);
+
+  const baseCohorts = projected ?? cohorts;
+  const effectiveMinSkills = projected ? Math.min(minSkills, skillFilter.length) : minSkills;
+
+  const soloCount = useMemo(
+    () =>
+      baseCohorts.filter(
+        (c) => c.skills.length >= effectiveMinSkills && c.users.length === 1,
+      ).length,
+    [baseCohorts, effectiveMinSkills],
+  );
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    const skillSet = skillFilter.length > 0 ? new Set(skillFilter) : null;
-    return cohorts.filter((c) => {
-      if (c.skills.length < minSkills) return false;
+    return baseCohorts.filter((c) => {
+      if (c.skills.length < effectiveMinSkills) return false;
       if (hideSolo && c.users.length < 2) return false;
-      if (skillSet && !c.skills.some((s) => skillSet.has(s))) return false;
       if (q) {
         const skillHit = c.skills.some((s) => s.toLowerCase().includes(q));
         const userHit = c.users.some((u) => u.email.toLowerCase().includes(q));
@@ -90,28 +117,13 @@ export default function CohortsPage() {
       }
       return true;
     });
-  }, [cohorts, minSkills, hideSolo, search, skillFilter]);
+  }, [baseCohorts, effectiveMinSkills, hideSolo, search]);
 
   const sorted = useMemo(() => {
-    const arr = [...filtered];
-    switch (sort) {
-      case "users":
-        arr.sort((a, b) => b.users.length - a.users.length || b.activations - a.activations);
-        break;
-      case "acts":
-        arr.sort((a, b) => b.activations - a.activations);
-        break;
-      case "recent":
-        arr.sort(
-          (a, b) => new Date(b.lastActiveAt).getTime() - new Date(a.lastActiveAt).getTime(),
-        );
-        break;
-      case "size":
-        arr.sort((a, b) => b.skills.length - a.skills.length);
-        break;
-    }
-    return arr;
-  }, [filtered, sort]);
+    return [...filtered].sort(
+      (a, b) => b.users.length - a.users.length || b.activations - a.activations,
+    );
+  }, [filtered]);
 
   const grouped = useMemo(() => {
     if (groupBy !== "anchor") return null;
@@ -210,19 +222,6 @@ export default function CohortsPage() {
           ))}
         </div>
 
-        <div className="cohort-seg">
-          {SORT_OPTIONS.map((o) => (
-            <button
-              key={o.value}
-              type="button"
-              className={cn(sort === o.value && "on")}
-              onClick={() => setSort(o.value)}
-            >
-              {o.label}
-            </button>
-          ))}
-        </div>
-
         <button
           type="button"
           className={cn("cohort-solo-toggle", hideSolo && "on")}
@@ -234,7 +233,7 @@ export default function CohortsPage() {
         </button>
 
         <div className="cohort-results-meta">
-          {sorted.length} of {cohorts.length} cohorts
+          {sorted.length} of {baseCohorts.length} cohorts
         </div>
       </div>
 
