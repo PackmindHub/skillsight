@@ -58,6 +58,8 @@ export const events = pgTable(
 		index("events_event_name_ts_idx").on(table.eventName, table.timestamp),
 		index("events_session_id_idx").on(table.sessionId),
 		index("events_user_email_ts_idx").on(table.userEmail, table.timestamp),
+		index("events_source_ts_idx").on(table.source, table.timestamp),
+		index("events_source_integration_id_idx").on(table.sourceIntegrationId),
 	],
 );
 
