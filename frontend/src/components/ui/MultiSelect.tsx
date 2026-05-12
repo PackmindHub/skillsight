@@ -58,6 +58,16 @@ export function MultiSelect({ label, options, values, onChange, className }: Mul
 		);
 	}, [options, query]);
 
+	const canSelectAll =
+		filteredOptions.length > 0 &&
+		filteredOptions.some((o) => !values.includes(o.value));
+
+	function selectAllFiltered() {
+		const merged = new Set(values);
+		for (const o of filteredOptions) merged.add(o.value);
+		onChange([...merged]);
+	}
+
 	const summary =
 		values.length === 0
 			? "All"
@@ -133,15 +143,28 @@ export function MultiSelect({ label, options, values, onChange, className }: Mul
 							})
 						)}
 					</div>
-					{values.length > 0 && (
-						<div className="border-t border-edge-dim">
-							<button
-								type="button"
-								onClick={() => onChange([])}
-								className="w-full px-3 py-1.5 text-left text-xs text-text-3 hover:text-text-1 hover:bg-surface-700"
-							>
-								Clear
-							</button>
+					{(canSelectAll || values.length > 0) && (
+						<div className="flex border-t border-edge-dim">
+							{canSelectAll && (
+								<button
+									type="button"
+									onClick={selectAllFiltered}
+									className="flex-1 px-3 py-1.5 text-left text-xs text-text-3 hover:text-text-1 hover:bg-surface-700"
+								>
+									{query.trim()
+										? `Select all (${filteredOptions.length})`
+										: "Select all"}
+								</button>
+							)}
+							{values.length > 0 && (
+								<button
+									type="button"
+									onClick={() => onChange([])}
+									className="flex-1 px-3 py-1.5 text-right text-xs text-text-3 hover:text-text-1 hover:bg-surface-700"
+								>
+									Clear
+								</button>
+							)}
 						</div>
 					)}
 				</div>
