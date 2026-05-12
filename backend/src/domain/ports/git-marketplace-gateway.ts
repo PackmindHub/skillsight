@@ -3,6 +3,7 @@ export interface MarketplacePluginEntry {
 	description?: string;
 	version?: string;
 	skills?: string[];
+	source?: string;
 }
 
 export interface MarketplaceJsonData {

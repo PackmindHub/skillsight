@@ -105,6 +105,7 @@ export const plugins = pgTable("plugins", {
 	pluginVersion: varchar("plugin_version", { length: 100 }),
 	installTrigger: varchar("install_trigger", { length: 20 }),
 	marketplaceIsOfficial: boolean("marketplace_is_official"),
+	source: varchar("source", { length: 500 }),
 	status: varchar("status", { length: 20 }).notNull().default("to_review"),
 	firstSeenAt: timestamp("first_seen_at").defaultNow().notNull(),
 	lastSeenAt: timestamp("last_seen_at").defaultNow().notNull(),

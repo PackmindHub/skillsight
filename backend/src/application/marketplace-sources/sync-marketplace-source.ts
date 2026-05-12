@@ -74,6 +74,7 @@ export async function syncMarketplaceSource(
 					pluginVersion: plugin.version ?? null,
 					installTrigger: null,
 					marketplaceIsOfficial: false,
+					source: plugin.source ?? null,
 					status: pluginStatus,
 				});
 			}

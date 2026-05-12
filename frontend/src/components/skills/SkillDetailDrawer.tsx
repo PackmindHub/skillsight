@@ -168,6 +168,29 @@ export function SkillDetailDrawer({ skillName, period, onClose }: SkillDetailDra
 						)}
 					</div>
 
+					{detail.plugins.some((p) => p.skillRepoUrl) && (
+						<div className="space-y-2">
+							<p className="text-xs uppercase tracking-wide text-text-4">Source code</p>
+							<ul className="space-y-1">
+								{detail.plugins
+									.filter((p) => p.skillRepoUrl)
+									.map((p) => (
+										<li key={p.pluginName}>
+											<a
+												href={p.skillRepoUrl ?? undefined}
+												target="_blank"
+												rel="noopener noreferrer"
+												className="text-sm text-accent-bright hover:underline break-all"
+												title={`Open skill source for ${p.pluginName} in a new tab`}
+											>
+												{p.skillRepoUrl}
+											</a>
+										</li>
+									))}
+							</ul>
+						</div>
+					)}
+
 					<div className="grid grid-cols-2 gap-3">
 						<SeenStat label="First seen" iso={detail.firstSeenAt} />
 						<SeenStat label="Last seen" iso={detail.lastSeenAt} />

@@ -1,4 +1,5 @@
 import type { IGitMarketplaceGateway, MarketplaceJsonData } from "@/domain/ports/git-marketplace-gateway";
+import { parseGitUrl } from "@/infrastructure/gateways/git-browse-url";
 
 function resolveRawUrl(gitUrl: string, branch: string): { url: string; host: "github" | "gitlab" | "bitbucket" | "other" } {
 	const trimmed = gitUrl.trim().replace(/\.git$/, "");
@@ -64,29 +65,6 @@ function isLocalPlugin(source: unknown): source is string {
 	if (typeof source !== "string") return false;
 	if (source.startsWith("http") || source.startsWith("git@")) return false;
 	return true;
-}
-
-function parseGitUrl(gitUrl: string): {
-	host: "github" | "gitlab" | "bitbucket" | "other";
-	owner: string;
-	repo: string;
-} {
-	const trimmed = gitUrl.trim().replace(/\.git$/, "");
-	if (/^[\w.-]+\/[\w.-]+$/.test(trimmed)) {
-		const [owner, repo] = trimmed.split("/");
-		return { host: "github", owner, repo };
-	}
-	try {
-		const parsed = new URL(trimmed);
-		const parts = parsed.pathname.replace(/^\//, "").split("/");
-		if (parsed.hostname === "github.com")
-			return { host: "github", owner: parts[0], repo: parts[1] };
-		if (parsed.hostname === "gitlab.com")
-			return { host: "gitlab", owner: parts[0], repo: parts.slice(1).join("/") };
-		if (parsed.hostname === "bitbucket.org")
-			return { host: "bitbucket", owner: parts[0], repo: parts[1] };
-	} catch {}
-	return { host: "other", owner: "", repo: "" };
 }
 
 async function fetchPluginSkills(params: {
@@ -198,7 +176,7 @@ export class GitMarketplaceHttpGateway implements IGitMarketplaceGateway {
 						branch,
 						accessToken: params.accessToken,
 					});
-					return { name, description, version, skills };
+					return { name, description, version, skills, source: pluginPath };
 				}
 				return { name, description, version };
 			}),

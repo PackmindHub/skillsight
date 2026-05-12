@@ -75,6 +75,12 @@ export function MarketplaceDetailsDrawer({
 	const [sourceForm, setSourceForm] = useState<SourceForm | null>(null);
 	const [saving, setSaving] = useState(false);
 	const [saveError, setSaveError] = useState<string | null>(null);
+	const [syncing, setSyncing] = useState(false);
+	const [syncResult, setSyncResult] = useState<
+		| { kind: "ok"; pluginCount: number; skillCount: number; syncedAt: string | null }
+		| { kind: "err"; message: string }
+		| null
+	>(null);
 	const lastInitializedName = useRef<string | null>(null);
 
 	useEffect(() => {
@@ -116,6 +122,8 @@ export function MarketplaceDetailsDrawer({
 		setMetadata(metadataFromMarketplace(marketplace));
 		setSourceForm(editableSource ? sourceFormFromSource(editableSource) : null);
 		setSaveError(null);
+		setSyncResult(null);
+		setSyncing(false);
 	}, [marketplace, initialMode, editableSource]);
 
 	function enterEdit() {
@@ -123,6 +131,7 @@ export function MarketplaceDetailsDrawer({
 		setMetadata(metadataFromMarketplace(marketplace));
 		setSourceForm(editableSource ? sourceFormFromSource(editableSource) : null);
 		setSaveError(null);
+		setSyncResult(null);
 		setMode("edit");
 	}
 
@@ -131,6 +140,7 @@ export function MarketplaceDetailsDrawer({
 		setMetadata(metadataFromMarketplace(marketplace));
 		setSourceForm(editableSource ? sourceFormFromSource(editableSource) : null);
 		setSaveError(null);
+		setSyncResult(null);
 		setMode("view");
 	}
 
@@ -171,6 +181,7 @@ export function MarketplaceDetailsDrawer({
 
 			await Promise.all(ops);
 			onChanged();
+			setSyncResult(null);
 			setMode("view");
 		} catch (err) {
 			setSaveError(extractErrorMessage(err));
@@ -178,6 +189,43 @@ export function MarketplaceDetailsDrawer({
 			setSaving(false);
 		}
 	}
+
+	async function handleSyncNow() {
+		if (!editableSource) return;
+		setSyncing(true);
+		setSyncResult(null);
+		try {
+			const res = await api.marketplaceSources.syncNow(editableSource.id);
+			if (res.error) {
+				setSyncResult({ kind: "err", message: res.error });
+			} else {
+				setSyncResult({
+					kind: "ok",
+					pluginCount: res.pluginCount,
+					skillCount: res.skillCount,
+					syncedAt: res.syncedAt,
+				});
+				onChanged();
+			}
+		} catch (e) {
+			setSyncResult({ kind: "err", message: extractErrorMessage(e) });
+		} finally {
+			setSyncing(false);
+		}
+	}
+
+	const sourceDirty = (() => {
+		if (!editableSource || !sourceForm) return false;
+		const persisted = sourceFormFromSource(editableSource);
+		return (
+			sourceForm.gitUrl !== persisted.gitUrl ||
+			sourceForm.branch !== persisted.branch ||
+			sourceForm.syncIntervalSecs !== persisted.syncIntervalSecs ||
+			sourceForm.enabled !== persisted.enabled ||
+			sourceForm.importPluginsAndSkills !== persisted.importPluginsAndSkills ||
+			sourceForm.accessToken !== ""
+		);
+	})();
 
 	const plugins = detail?.plugins ?? [];
 	const skills = detail?.skills ?? [];
@@ -396,6 +444,38 @@ export function MarketplaceDetailsDrawer({
 												/>
 												Import plugins and skills into registry
 											</label>
+										</div>
+										<div className="flex flex-col gap-1 pt-3 border-t border-edge-dim">
+											<div className="flex items-center gap-3">
+												<Button
+													type="button"
+													variant="secondary"
+													size="sm"
+													onClick={handleSyncNow}
+													disabled={syncing || saving || sourceDirty}
+													loading={syncing}
+												>
+													Sync now
+												</Button>
+												{sourceDirty && !syncing && (
+													<span className="text-xs text-text-4">
+														Save changes first
+													</span>
+												)}
+											</div>
+											{syncResult?.kind === "ok" && (
+												<p className="text-xs text-text-3">
+													Synced — {syncResult.pluginCount} plugin
+													{syncResult.pluginCount === 1 ? "" : "s"},{" "}
+													{syncResult.skillCount} skill
+													{syncResult.skillCount === 1 ? "" : "s"}.
+												</p>
+											)}
+											{syncResult?.kind === "err" && (
+												<p className="text-xs text-danger">
+													{syncResult.message}
+												</p>
+											)}
 										</div>
 									</>
 								)}

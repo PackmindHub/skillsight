@@ -4,7 +4,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-skills_obs}
       POSTGRES_USER: ${POSTGRES_USER:-skills_obs}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-skills_obs}
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
@@ -19,12 +19,12 @@ services:
   app:
     image: ${SKILLSIGHT_IMAGE:-ghcr.io/packmindhub/skills-obs:latest}
     environment:
-      DATABASE_URL: "postgres://${POSTGRES_USER:-skills_obs}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-skills_obs}"
-      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required (min 32 chars)}
+      DATABASE_URL: "postgres://${POSTGRES_USER:-skills_obs}:${POSTGRES_PASSWORD:-skills_obs}@postgres:5432/${POSTGRES_DB:-skills_obs}"
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production-please-at-least-32-chars}
       JWT_SECRET_PREVIOUS: ${JWT_SECRET_PREVIOUS:-}
       PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-}
-      ADMIN_EMAIL: ${ADMIN_EMAIL:?ADMIN_EMAIL is required}
-      ADMIN_PASSWORD_INITIAL: ${ADMIN_PASSWORD_INITIAL:?ADMIN_PASSWORD_INITIAL is required}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
+      ADMIN_PASSWORD_INITIAL: ${ADMIN_PASSWORD_INITIAL:-admin}
       PORT: "4200"
       NODE_ENV: production
     networks:
