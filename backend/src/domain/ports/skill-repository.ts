@@ -2,6 +2,10 @@ import type { Skill, SkillDetailRow, SkillStatus, SkillTableRow } from "@/domain
 
 export type DaysWindow = number | "all";
 
+export type TimeWindow =
+	| { kind: "preset"; days: DaysWindow }
+	| { kind: "range"; from: Date; to: Date };
+
 export interface MonthlyPoint {
 	month: string;
 	count: number;
@@ -14,15 +18,15 @@ export interface MonthlyTrends {
 }
 
 export interface ISkillRepository {
-	getTopSkills(days: DaysWindow): Promise<Array<{ skillName: string; count: number }>>;
-	getDailyTrend(days: DaysWindow): Promise<Array<{ date: string; count: number }>>;
-	getTopUsers(days: DaysWindow): Promise<Array<{ userEmail: string; count: number }>>;
-	getByTrigger(days: DaysWindow): Promise<Array<{ trigger: string | null; count: number }>>;
-	getTotalActivations(days: DaysWindow): Promise<number>;
-	getUniqueSkillsCount(days: DaysWindow): Promise<number>;
-	getActiveUsersCount(days: DaysWindow): Promise<number>;
-	getSkillsTable(days: DaysWindow, includeIgnored?: boolean): Promise<SkillTableRow[]>;
-	getSkillDetail(skillName: string, days: DaysWindow): Promise<SkillDetailRow | null>;
+	getTopSkills(window: TimeWindow): Promise<Array<{ skillName: string; count: number }>>;
+	getDailyTrend(window: TimeWindow): Promise<Array<{ date: string; count: number }>>;
+	getTopUsers(window: TimeWindow): Promise<Array<{ userEmail: string; count: number }>>;
+	getByTrigger(window: TimeWindow): Promise<Array<{ trigger: string | null; count: number }>>;
+	getTotalActivations(window: TimeWindow): Promise<number>;
+	getUniqueSkillsCount(window: TimeWindow): Promise<number>;
+	getActiveUsersCount(window: TimeWindow): Promise<number>;
+	getSkillsTable(window: TimeWindow, includeIgnored?: boolean): Promise<SkillTableRow[]>;
+	getSkillDetail(skillName: string, window: TimeWindow): Promise<SkillDetailRow | null>;
 	getMonthlyTrends(): Promise<MonthlyTrends>;
 	upsertMany(entries: SkillUpsertEntry[]): Promise<void>;
 	propagateStatusFromPlugins(affectedPluginNames: string[], newStatus: SkillStatus): Promise<void>;

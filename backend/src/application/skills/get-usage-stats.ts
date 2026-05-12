@@ -1,18 +1,18 @@
-import type { DaysWindow, ISkillRepository } from "@/domain/ports/skill-repository";
+import type { ISkillRepository, TimeWindow } from "@/domain/ports/skill-repository";
 
 export async function getUsageStats(
 	deps: { skills: ISkillRepository },
-	input: { days: DaysWindow },
+	input: { window: TimeWindow },
 ) {
 	const [topSkills, dailyTrend, topUsers, byTrigger, totalActivations, uniqueSkills, activeUsers] =
 		await Promise.all([
-			deps.skills.getTopSkills(input.days),
-			deps.skills.getDailyTrend(input.days),
-			deps.skills.getTopUsers(input.days),
-			deps.skills.getByTrigger(input.days),
-			deps.skills.getTotalActivations(input.days),
-			deps.skills.getUniqueSkillsCount(input.days),
-			deps.skills.getActiveUsersCount(input.days),
+			deps.skills.getTopSkills(input.window),
+			deps.skills.getDailyTrend(input.window),
+			deps.skills.getTopUsers(input.window),
+			deps.skills.getByTrigger(input.window),
+			deps.skills.getTotalActivations(input.window),
+			deps.skills.getUniqueSkillsCount(input.window),
+			deps.skills.getActiveUsersCount(input.window),
 		]);
 
 	return {

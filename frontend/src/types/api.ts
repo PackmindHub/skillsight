@@ -51,6 +51,10 @@ export interface UsageResponse {
 
 export type DashboardPeriod = 7 | 30 | 90 | "all";
 
+export type PeriodFilter =
+	| { kind: "preset"; days: DashboardPeriod }
+	| { kind: "range"; from: string; to: string };
+
 export interface MonthlyPoint {
 	month: string;
 	count: number;

@@ -11,6 +11,7 @@ import type {
 	MarketplaceDetailResponse,
 	MarketplaceSource,
 	MonthlyTrendsResponse,
+	PeriodFilter,
 	Plugin,
 	PluginSkillsResponse,
 	SkillDetail,
@@ -20,6 +21,17 @@ import type {
 	UsageResponse,
 	User,
 } from "@/types/api";
+
+function periodFilterParams(filter: PeriodFilter): URLSearchParams {
+	const params = new URLSearchParams();
+	if (filter.kind === "range") {
+		params.set("from", filter.from);
+		params.set("to", filter.to);
+	} else {
+		params.set("days", String(filter.days));
+	}
+	return params;
+}
 
 function buildAuditQuery(filters: AuditFilters, extras: Record<string, string> = {}): string {
 	const params = new URLSearchParams();
@@ -67,17 +79,21 @@ export const api = {
 		onboardingComplete: () => apiFetch<void>("/api/auth/onboarding-complete", { method: "POST" }),
 	},
 	skills: {
-		usage: (period: DashboardPeriod = 30) =>
-			apiFetch<UsageResponse>(`/api/skills/usage?days=${period}`),
-		table: (period: DashboardPeriod = 30, opts: { includeIgnored?: boolean } = {}) => {
-			const params = new URLSearchParams({ days: String(period) });
+		usage: (filter: PeriodFilter = { kind: "preset", days: 30 }) =>
+			apiFetch<UsageResponse>(`/api/skills/usage?${periodFilterParams(filter).toString()}`),
+		table: (
+			filter: PeriodFilter = { kind: "preset", days: 30 },
+			opts: { includeIgnored?: boolean } = {},
+		) => {
+			const params = periodFilterParams(filter);
 			if (opts.includeIgnored) params.set("includeIgnored", "1");
 			return apiFetch<SkillsTableResponse>(`/api/skills/usage/table?${params.toString()}`);
 		},
-		detail: (skillName: string, period: DashboardPeriod = 30) =>
-			apiFetch<SkillDetail>(
-				`/api/skills/usage/detail?days=${period}&skill=${encodeURIComponent(skillName)}`,
-			),
+		detail: (skillName: string, filter: PeriodFilter = { kind: "preset", days: 30 }) => {
+			const params = periodFilterParams(filter);
+			params.set("skill", skillName);
+			return apiFetch<SkillDetail>(`/api/skills/usage/detail?${params.toString()}`);
+		},
 		monthlyTrends: () => apiFetch<MonthlyTrendsResponse>("/api/skills/usage/monthly"),
 		deleteMany: (entries: Array<{ skillName: string; pluginName: string }>) =>
 			apiFetch<{ skillsDeleted: number; eventsDeleted: number }>("/api/skills/delete", {

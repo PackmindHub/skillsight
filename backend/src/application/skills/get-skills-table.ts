@@ -1,14 +1,14 @@
-import type { DaysWindow, ISkillRepository } from "@/domain/ports/skill-repository";
+import type { ISkillRepository, TimeWindow } from "@/domain/ports/skill-repository";
 import type { IMarketplaceRepository } from "@/domain/ports/marketplace-repository";
 import type { MarketplaceStatus } from "@/domain/marketplace";
 import { defaultBundledStatus } from "@/domain/skill";
 
 export async function getSkillsTable(
 	deps: { skills: ISkillRepository; marketplaces: IMarketplaceRepository },
-	input: { days: DaysWindow; includeIgnored?: boolean },
+	input: { window: TimeWindow; includeIgnored?: boolean },
 ) {
 	const [rawRows, statuses] = await Promise.all([
-		deps.skills.getSkillsTable(input.days, input.includeIgnored ?? false),
+		deps.skills.getSkillsTable(input.window, input.includeIgnored ?? false),
 		deps.marketplaces.listStatuses(),
 	]);
 
@@ -24,4 +24,3 @@ export async function getSkillsTable(
 		})),
 	}));
 }
-

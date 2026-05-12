@@ -272,7 +272,8 @@ export default function DashboardPage() {
 	useEffect(() => {
 		let cancelled = false;
 		setLoading(true);
-		Promise.all([api.skills.usage(period), api.skills.table(period)])
+		const periodFilter = { kind: "preset" as const, days: period };
+		Promise.all([api.skills.usage(periodFilter), api.skills.table(periodFilter)])
 			.then(([u, t]) => {
 				if (cancelled) return;
 				setUsage(u);
@@ -307,7 +308,7 @@ export default function DashboardPage() {
 			})
 			.catch(() => {});
 		api.skills
-			.table("all")
+			.table({ kind: "preset", days: "all" })
 			.then(({ rows }) => setPendingSkills(rows.filter((r) => r.status === "to_review").length))
 			.catch(() => {});
 		api.skills

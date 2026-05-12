@@ -5,14 +5,14 @@ import { TrendSparkline } from "@/components/skills/TrendSparkline";
 import { api } from "@/lib/api";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import type {
-	DashboardPeriod,
+	PeriodFilter,
 	SkillDetail,
 	SkillDetailPluginRef,
 } from "@/types/api";
 
 interface SkillDetailDrawerProps {
 	skillName: string | null;
-	period: DashboardPeriod;
+	period: PeriodFilter;
 	onClose: () => void;
 }
 
@@ -49,6 +49,10 @@ export function SkillDetailDrawer({ skillName, period, onClose }: SkillDetailDra
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
+	const periodKey =
+		period.kind === "preset" ? `preset:${period.days}` : `range:${period.from}:${period.to}`;
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: periodKey is the stable identity of `period`
 	useEffect(() => {
 		if (!skillName) {
 			setDetail(null);
@@ -72,7 +76,7 @@ export function SkillDetailDrawer({ skillName, period, onClose }: SkillDetailDra
 		return () => {
 			cancelled = true;
 		};
-	}, [skillName, period]);
+	}, [skillName, periodKey]);
 
 	const counts = detail?.dailyCounts.map((d) => d.count) ?? [];
 
@@ -91,7 +95,11 @@ export function SkillDetailDrawer({ skillName, period, onClose }: SkillDetailDra
 									values={counts}
 									width={240}
 									height={40}
-									days={typeof period === "number" ? period : counts.length}
+									days={
+										period.kind === "preset" && typeof period.days === "number"
+											? period.days
+											: counts.length
+									}
 								/>
 							</div>
 						</div>

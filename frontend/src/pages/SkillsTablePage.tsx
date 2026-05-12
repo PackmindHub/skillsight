@@ -29,6 +29,7 @@ import { cn } from "@/lib/utils";
 import {
 	SKILL_STATUSES,
 	type DashboardPeriod,
+	type PeriodFilter,
 	type SkillStatus,
 	type SkillTableRow,
 } from "@/types/api";
@@ -270,11 +271,14 @@ function keyToEntry(key: string): { skillName: string; pluginName: string } {
 	return { skillName, pluginName: pluginPart === NO_PLUGIN_KEY ? "" : pluginPart };
 }
 
-const PERIOD_OPTIONS: { value: DashboardPeriod; label: string }[] = [
+type PeriodValue = DashboardPeriod | "custom";
+
+const PERIOD_OPTIONS: { value: PeriodValue; label: string }[] = [
 	{ value: 7, label: "7d" },
 	{ value: 30, label: "30d" },
 	{ value: 90, label: "90d" },
 	{ value: "all", label: "All" },
+	{ value: "custom", label: "Custom" },
 ];
 
 const PERIOD_LABEL: Record<DashboardPeriod, string> = {
@@ -284,15 +288,46 @@ const PERIOD_LABEL: Record<DashboardPeriod, string> = {
 	all: "all time",
 };
 
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+function todayYmd(): string {
+	return new Date().toISOString().slice(0, 10);
+}
+
+function daysAgoYmd(days: number): string {
+	const d = new Date();
+	d.setUTCDate(d.getUTCDate() - days);
+	return d.toISOString().slice(0, 10);
+}
+
 function pick<T extends string>(raw: string | null, values: readonly T[], fallback: T): T {
 	return values.includes((raw ?? "") as T) ? (raw as T) : fallback;
 }
 
-function pickPeriod(raw: string | null): DashboardPeriod {
+function pickPeriodValue(raw: string | null): PeriodValue {
 	if (raw === "all") return "all";
+	if (raw === "custom") return "custom";
 	const n = Number.parseInt(raw ?? "", 10);
 	if (n === 7 || n === 30 || n === 90) return n;
 	return 30;
+}
+
+function pickPeriodFilter(
+	periodValue: PeriodValue,
+	fromRaw: string | null,
+	toRaw: string | null,
+): PeriodFilter {
+	if (periodValue === "custom") {
+		const from = fromRaw && ISO_DATE_RE.test(fromRaw) ? fromRaw : daysAgoYmd(30);
+		const to = toRaw && ISO_DATE_RE.test(toRaw) ? toRaw : todayYmd();
+		return { kind: "range", from, to };
+	}
+	return { kind: "preset", days: periodValue };
+}
+
+function describePeriodFilter(filter: PeriodFilter): string {
+	if (filter.kind === "preset") return PERIOD_LABEL[filter.days];
+	return `${filter.from} → ${filter.to}`;
 }
 
 function pickList(raw: string | null, allowed: readonly string[]): string[] {
@@ -320,7 +355,12 @@ export default function SkillsTablePage() {
 	const [bulkStatusError, setBulkStatusError] = useState<string | null>(null);
 	const selectAllRef = useRef<HTMLInputElement>(null);
 
-	const period = pickPeriod(searchParams.get("period"));
+	const periodValue = pickPeriodValue(searchParams.get("period"));
+	const periodFilter = pickPeriodFilter(
+		periodValue,
+		searchParams.get("from"),
+		searchParams.get("to"),
+	);
 	const search = searchParams.get("search") ?? "";
 	const sourceFilter = pick<SourceFilter>(searchParams.get("source"), SOURCE_VALUES, "all");
 	const usageFilter = pick<UsageFilter>(searchParams.get("usage"), USAGE_VALUES, "all");
@@ -379,8 +419,38 @@ export default function SkillsTablePage() {
 		updateParam(key, values.join(","), "");
 	}
 
-	function setPeriod(value: DashboardPeriod) {
-		updateParam("period", String(value), "30");
+	function setPeriod(value: PeriodValue) {
+		setSearchParams(
+			(prev) => {
+				const next = new URLSearchParams(prev);
+				if (value === "custom") {
+					next.set("period", "custom");
+					if (!next.get("from")) next.set("from", daysAgoYmd(30));
+					if (!next.get("to")) next.set("to", todayYmd());
+				} else {
+					if (value === 30) next.delete("period");
+					else next.set("period", String(value));
+					next.delete("from");
+					next.delete("to");
+				}
+				return next;
+			},
+			{ replace: true },
+		);
+	}
+
+	function setRangeBound(key: "from" | "to", value: string) {
+		setSearchParams(
+			(prev) => {
+				const next = new URLSearchParams(prev);
+				next.set("period", "custom");
+				next.set(key, value);
+				if (!next.get("from")) next.set("from", daysAgoYmd(30));
+				if (!next.get("to")) next.set("to", todayYmd());
+				return next;
+			},
+			{ replace: true },
+		);
 	}
 
 	function toggleSort(key: SortKey) {
@@ -428,13 +498,20 @@ export default function SkillsTablePage() {
 		setSearchParams(
 			(prev) => {
 				const next = new URLSearchParams();
-				const periodParam = prev.get("period");
-				if (periodParam) next.set("period", periodParam);
+				for (const k of ["period", "from", "to"]) {
+					const v = prev.get(k);
+					if (v) next.set(k, v);
+				}
 				return next;
 			},
 			{ replace: true },
 		);
 	}
+
+	const periodFilterKey =
+		periodFilter.kind === "preset"
+			? `preset:${periodFilter.days}`
+			: `range:${periodFilter.from}:${periodFilter.to}`;
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: reloadToken is a manual refetch trigger
 	useEffect(() => {
@@ -442,7 +519,7 @@ export default function SkillsTablePage() {
 		setError(null);
 		let cancelled = false;
 		api.skills
-			.table(period, { includeIgnored })
+			.table(periodFilter, { includeIgnored })
 			.then((res) => {
 				if (!cancelled) setRows(res.rows);
 			})
@@ -455,7 +532,7 @@ export default function SkillsTablePage() {
 		return () => {
 			cancelled = true;
 		};
-	}, [period, reloadToken, includeIgnored]);
+	}, [periodFilterKey, reloadToken, includeIgnored]);
 
 	useEffect(() => {
 		function onFocus() {
@@ -734,14 +811,38 @@ export default function SkillsTablePage() {
 		<div className="space-y-4">
 			<PageHeader
 				title="Skills"
-				subtitle={`All known skills, with activations in ${PERIOD_LABEL[period]}.`}
+				subtitle={`All known skills, with activations in ${describePeriodFilter(periodFilter)}.`}
 				actions={
-					<SegmentedControl
-						ariaLabel="Time range"
-						value={period}
-						onChange={setPeriod}
-						options={PERIOD_OPTIONS}
-					/>
+					<div className="flex flex-wrap items-center gap-2">
+						<SegmentedControl
+							ariaLabel="Time range"
+							value={periodValue}
+							onChange={setPeriod}
+							options={PERIOD_OPTIONS}
+						/>
+						{periodFilter.kind === "range" && (
+							<div className="flex items-center gap-1">
+								<input
+									type="date"
+									aria-label="From date"
+									value={periodFilter.from}
+									max={periodFilter.to}
+									onChange={(e) => setRangeBound("from", e.target.value)}
+									className="rounded border border-edge bg-surface-800 px-2 py-1 font-mono text-xs text-text-1"
+								/>
+								<span className="text-text-4 text-xs">→</span>
+								<input
+									type="date"
+									aria-label="To date"
+									value={periodFilter.to}
+									min={periodFilter.from}
+									max={todayYmd()}
+									onChange={(e) => setRangeBound("to", e.target.value)}
+									className="rounded border border-edge bg-surface-800 px-2 py-1 font-mono text-xs text-text-1"
+								/>
+							</div>
+						)}
+					</div>
 				}
 			/>
 
@@ -999,7 +1100,7 @@ export default function SkillsTablePage() {
 							onSort={toggleSort}
 							className="text-right"
 						/>
-						<th className="text-left px-4 py-3 font-medium text-text-3">Δ 30d</th>
+						<th className="text-left px-4 py-3 font-medium text-text-3">Δ</th>
 						<th className="text-left px-4 py-3 font-medium text-text-3">Trend</th>
 						<th className="text-left px-4 py-3 font-medium text-text-3">Marketplaces</th>
 						<th className="text-left px-4 py-3 font-medium text-text-3">Source</th>
@@ -1132,7 +1233,11 @@ export default function SkillsTablePage() {
 										height={20}
 										strokeClass={row.total === 0 ? "stroke-text-4" : "stroke-accent-bright"}
 										fillClass={row.total === 0 ? "fill-transparent" : "fill-accent-bright/15"}
-										days={typeof period === "number" ? period : row.dailyCounts.length}
+										days={
+											periodFilter.kind === "preset" && typeof periodFilter.days === "number"
+												? periodFilter.days
+												: row.dailyCounts.length
+										}
 									/>
 								</td>
 								<td className="px-4 py-3">
@@ -1218,7 +1323,7 @@ export default function SkillsTablePage() {
 
 			<SkillDetailDrawer
 				skillName={openSkill}
-				period={period}
+				period={periodFilter}
 				onClose={() => setOpenSkill(null)}
 			/>
 

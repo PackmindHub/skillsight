@@ -1,14 +1,14 @@
-import type { DaysWindow, ISkillRepository } from "@/domain/ports/skill-repository";
+import type { ISkillRepository, TimeWindow } from "@/domain/ports/skill-repository";
 import type { IMarketplaceRepository } from "@/domain/ports/marketplace-repository";
 import type { MarketplaceStatus } from "@/domain/marketplace";
 import { defaultBundledStatus } from "@/domain/skill";
 
 export async function getSkillDetail(
 	deps: { skills: ISkillRepository; marketplaces: IMarketplaceRepository },
-	input: { skillName: string; days: DaysWindow },
+	input: { skillName: string; window: TimeWindow },
 ) {
 	const [raw, statuses] = await Promise.all([
-		deps.skills.getSkillDetail(input.skillName, input.days),
+		deps.skills.getSkillDetail(input.skillName, input.window),
 		deps.marketplaces.listStatuses(),
 	]);
 

@@ -1,10 +1,13 @@
 import { describe, expect, it } from "bun:test";
 import type { IMarketplaceRepository } from "@/domain/ports/marketplace-repository";
-import type { ISkillRepository } from "@/domain/ports/skill-repository";
+import type { ISkillRepository, TimeWindow } from "@/domain/ports/skill-repository";
 import type { SkillTableRow } from "@/domain/skill";
 import { getSkillsTable } from "./get-skills-table";
 
-function makeSkills(rows: SkillTableRow[]): ISkillRepository {
+function makeSkills(
+	rows: SkillTableRow[],
+	captured?: { window: TimeWindow | null },
+): ISkillRepository {
 	return {
 		getTopSkills: async () => [],
 		getDailyTrend: async () => [],
@@ -13,7 +16,10 @@ function makeSkills(rows: SkillTableRow[]): ISkillRepository {
 		getTotalActivations: async () => 0,
 		getUniqueSkillsCount: async () => 0,
 		getActiveUsersCount: async () => 0,
-		getSkillsTable: async () => rows,
+		getSkillsTable: async (window) => {
+			if (captured) captured.window = window;
+			return rows;
+		},
 		getSkillDetail: async () => null,
 		getMonthlyTrends: async () => ({ invocations: [], uniqueSkills: [], uniqueUsers: [] }),
 		upsertMany: async () => {},
@@ -69,7 +75,7 @@ describe("getSkillsTable", () => {
 			marketplaces: makeMarketplaces([{ name: "acme", status: "approved" }]),
 		};
 
-		const result = await getSkillsTable(deps, { days: 30 });
+		const result = await getSkillsTable(deps, { window: { kind: "preset", days: 30 } });
 
 		expect(result).toHaveLength(1);
 		expect(result[0].skillName).toBe("linting");
@@ -99,7 +105,7 @@ describe("getSkillsTable", () => {
 			marketplaces: makeMarketplaces([]),
 		};
 
-		const result = await getSkillsTable(deps, { days: 30 });
+		const result = await getSkillsTable(deps, { window: { kind: "preset", days: 30 } });
 
 		expect(result[0].marketplaces).toEqual([{ name: "mystery-mp", status: "to_review" }]);
 	});
@@ -125,7 +131,7 @@ describe("getSkillsTable", () => {
 			marketplaces: makeMarketplaces([]),
 		};
 
-		const result = await getSkillsTable(deps, { days: 30 });
+		const result = await getSkillsTable(deps, { window: { kind: "preset", days: 30 } });
 
 		expect(result[0].status).toBe("removed");
 		expect(result[0].marketplaces).toEqual([]);
@@ -166,7 +172,7 @@ describe("getSkillsTable", () => {
 			marketplaces: makeMarketplaces([]),
 		};
 
-		const result = await getSkillsTable(deps, { days: 30 });
+		const result = await getSkillsTable(deps, { window: { kind: "preset", days: 30 } });
 
 		expect(result.find((r) => r.skillName === "approved-skill")?.status).toBe("approved");
 		expect(result.find((r) => r.skillName === "review-skill")?.status).toBe("to_review");
@@ -193,7 +199,7 @@ describe("getSkillsTable", () => {
 			marketplaces: makeMarketplaces([{ name: "acme", status: "approved" }]),
 		};
 
-		const result = await getSkillsTable(deps, { days: 30 });
+		const result = await getSkillsTable(deps, { window: { kind: "preset", days: 30 } });
 
 		expect(result[0]).toEqual({
 			skillName: "active-skill",
@@ -232,7 +238,7 @@ describe("getSkillsTable", () => {
 			marketplaces: makeMarketplaces([]),
 		};
 
-		const result = await getSkillsTable(deps, { days: 30 });
+		const result = await getSkillsTable(deps, { window: { kind: "preset", days: 30 } });
 
 		expect(result[0].status).toBe("approved");
 	});
@@ -272,7 +278,7 @@ describe("getSkillsTable", () => {
 			marketplaces: makeMarketplaces([]),
 		};
 
-		const result = await getSkillsTable(deps, { days: 30 });
+		const result = await getSkillsTable(deps, { window: { kind: "preset", days: 30 } });
 
 		expect(result.find((r) => r.skillName === "approved-bundled")?.status).toBe("approved");
 		expect(result.find((r) => r.skillName === "removed-bundled")?.status).toBe("removed");
@@ -313,7 +319,7 @@ describe("getSkillsTable", () => {
 			marketplaces: makeMarketplaces([]),
 		};
 
-		const result = await getSkillsTable(deps, { days: 30 });
+		const result = await getSkillsTable(deps, { window: { kind: "preset", days: 30 } });
 
 		expect(result.find((r) => r.skillName === "recent")?.lastSeenAt).toBe(
 			"2026-05-01T00:00:00.000Z",
@@ -356,7 +362,7 @@ describe("getSkillsTable", () => {
 			marketplaces: makeMarketplaces([{ name: "acme", status: "approved" }]),
 		};
 
-		const result = await getSkillsTable(deps, { days: 30 });
+		const result = await getSkillsTable(deps, { window: { kind: "preset", days: 30 } });
 
 		expect(result).toHaveLength(2);
 		expect(result.map((r) => r.pluginName).sort()).toEqual(["alpha/tools", "beta/tools"]);
@@ -364,6 +370,20 @@ describe("getSkillsTable", () => {
 			expect(row.skillName).toBe("review");
 			expect(row.marketplaces).toEqual([{ name: "acme", status: "approved" }]);
 		}
+	});
+
+	it("forwards a custom date range window to the repository", async () => {
+		const captured: { window: TimeWindow | null } = { window: null };
+		const from = new Date("2026-04-01T00:00:00Z");
+		const to = new Date("2026-04-16T00:00:00Z");
+		const deps = {
+			skills: makeSkills([], captured),
+			marketplaces: makeMarketplaces([]),
+		};
+
+		await getSkillsTable(deps, { window: { kind: "range", from, to } });
+
+		expect(captured.window).toEqual({ kind: "range", from, to });
 	});
 
 	it("handles orphan rows (event-only skills) with pluginName=null", async () => {
@@ -387,7 +407,7 @@ describe("getSkillsTable", () => {
 			marketplaces: makeMarketplaces([]),
 		};
 
-		const result = await getSkillsTable(deps, { days: 30 });
+		const result = await getSkillsTable(deps, { window: { kind: "preset", days: 30 } });
 
 		expect(result).toHaveLength(1);
 		expect(result[0].pluginName).toBeNull();
