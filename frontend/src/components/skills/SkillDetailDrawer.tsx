@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { MarketplaceBadge } from "@/components/marketplaces/MarketplaceBadge";
 import { Drawer } from "@/components/ui/Drawer";
-import { Sparkline } from "@/components/ui/Sparkline";
+import { TrendSparkline } from "@/components/skills/TrendSparkline";
 import { api } from "@/lib/api";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import type {
@@ -87,7 +87,12 @@ export function SkillDetailDrawer({ skillName, period, onClose }: SkillDetailDra
 							<p className="text-xs uppercase tracking-wide text-text-4">Activations</p>
 							<p className="mt-1 text-3xl font-semibold text-text-1">{detail.total}</p>
 							<div className="mt-2">
-								<Sparkline values={counts} width={240} height={40} />
+								<TrendSparkline
+									values={counts}
+									width={240}
+									height={40}
+									days={typeof period === "number" ? period : counts.length}
+								/>
 							</div>
 						</div>
 						<div>
