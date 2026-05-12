@@ -25,6 +25,8 @@ services:
       API_BASE_URL: "http://app:4200"
     volumes:
       - ./frontend/src:/app/frontend/src
+      - ./frontend/public:/app/frontend/public
+      - ./frontend/index.html:/app/frontend/index.html
       - ./bun.lock:/app/bun.lock
       - ./package.json:/app/package.json
       - ./frontend/package.json:/app/frontend/package.json
