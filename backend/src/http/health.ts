@@ -1,8 +1,9 @@
 import { Hono } from "hono";
 import { sql } from "drizzle-orm";
 import { db } from "@/db/client";
+import pkg from "../../../package.json" with { type: "json" };
 
-const VERSION = "0.1.0";
+const VERSION = pkg.version;
 
 export function createHealthRoute() {
 	const route = new Hono();

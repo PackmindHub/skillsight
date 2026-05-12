@@ -1,6 +1,7 @@
 {
   "name": "skillsight",
   "private": true,
+  "version": "0.1.0",
   "workspaces": ["backend", "frontend"],
   "scripts": {
     "dev": "bun run --filter backend dev & bun run --filter frontend dev",
@@ -9,6 +10,7 @@
     "lint:frontend": "bun run --filter frontend lint",
     "lint:backend": "bun run --filter backend lint",
     "typecheck": "bun run --filter '*' typecheck",
-    "test": "bun run --filter '*' test"
+    "test": "bun run --filter '*' test",
+    "version:sync": "bun scripts/sync-version.mjs"
   }
 }

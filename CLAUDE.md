@@ -90,6 +90,20 @@ After changing the schema, always run `bun run migrate:generate` from `backend/`
 - **Plugins**: Synced from marketplace sources. Read-only from the UI (`PluginsPage`).
 - **Audit Log**: All write operations emit audit events (`AuditLogPage`).
 
+## Releases
+
+The shipped version is sourced from the **root `package.json`** `version` field. It is displayed in the frontend Sidebar (`v{version} · self-hosted`) and returned by the backend `/health` endpoint.
+
+To cut a release:
+1. Bump `version` in the **root** `package.json` (e.g. `0.1.0` → `1.2.3`).
+2. Run `bun run version:sync` — this propagates the same version into `backend/package.json` and `frontend/package.json` (kept in sync so workspace tools and the frontend's Vite-bundled import stay consistent).
+3. Commit and tag: `git commit -am "release 1.2.3" && git tag release/1.2.3 && git push --follow-tags`.
+4. The `release.yml` workflow triggers on tags matching `release/*`. It verifies that all three `package.json` files match the tag's `x.y.z`, then builds and pushes `ghcr.io/packmindhub/skills-obs:1.2.3` + `:latest`.
+
+**One-time GHCR setup**: GHCR packages are created **private** by default. After the very first successful push, go to GitHub → Packages → `skills-obs` → "Package settings" → "Change package visibility" → Public. Subsequent pushes inherit this visibility.
+
+To deploy a specific version: `SKILLSIGHT_IMAGE=ghcr.io/packmindhub/skills-obs:1.2.3 docker compose up -d` (the production `docker-compose.yml` defaults to `:latest`).
+
 ## OTLP Ingestion
 
 The telemetry endpoint (`POST /api/v0/telemetry/v1/logs`) accepts OTLP HTTP/JSON format. Parsing logic is in `backend/src/parsers/`. Authenticated via Bearer token (ingestion tokens, not session JWTs). The endpoint responds in OpenTelemetry `PartialSuccess` format.
