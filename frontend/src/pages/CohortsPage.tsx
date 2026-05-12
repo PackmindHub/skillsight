@@ -1,6 +1,5 @@
-import { Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { PageHeader, SegmentedControl } from "@/components/ui";
+import { MultiSelect, PageHeader, SearchBar, SegmentedControl } from "@/components/ui";
 import { CohortCard } from "@/components/cohorts/CohortCard";
 import { CohortDrawer } from "@/components/cohorts/CohortDrawer";
 import { skillColor } from "@/components/cohorts/skill-color";
@@ -24,7 +23,7 @@ const PERIOD_OPTIONS: Array<{ value: DashboardPeriod; label: string }> = [
   { value: "all", label: "All" },
 ];
 
-const MIN_SKILLS_OPTIONS = [2, 3, 4, 5, 6] as const;
+const MIN_SKILLS_OPTIONS = [1, 2, 3, 4, 5, 6] as const;
 
 export default function CohortsPage() {
   const [period, setPeriod] = useState<DashboardPeriod>("all");
@@ -33,6 +32,7 @@ export default function CohortsPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [search, setSearch] = useState("");
+  const [skillFilter, setSkillFilter] = useState<string[]>([]);
   const [groupBy, setGroupBy] = useState<GroupBy>("none");
   const [hideSolo, setHideSolo] = useState(false);
   const [minSkills, setMinSkills] = useState<number>(2);
@@ -68,11 +68,21 @@ export default function CohortsPage() {
     [cohorts, minSkills],
   );
 
+  const skillOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const c of cohorts) for (const s of c.skills) set.add(s);
+    return [...set]
+      .sort((a, b) => a.localeCompare(b))
+      .map((s) => ({ value: s, label: s }));
+  }, [cohorts]);
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
+    const skillSet = skillFilter.length > 0 ? new Set(skillFilter) : null;
     return cohorts.filter((c) => {
       if (c.skills.length < minSkills) return false;
       if (hideSolo && c.users.length < 2) return false;
+      if (skillSet && !c.skills.some((s) => skillSet.has(s))) return false;
       if (q) {
         const skillHit = c.skills.some((s) => s.toLowerCase().includes(q));
         const userHit = c.users.some((u) => u.email.toLowerCase().includes(q));
@@ -80,7 +90,7 @@ export default function CohortsPage() {
       }
       return true;
     });
-  }, [cohorts, minSkills, hideSolo, search]);
+  }, [cohorts, minSkills, hideSolo, search, skillFilter]);
 
   const sorted = useMemo(() => {
     const arr = [...filtered];
@@ -154,19 +164,20 @@ export default function CohortsPage() {
       {error && <p className="text-sm text-danger">{error}</p>}
 
       <div className="cohort-toolbar">
-        <div className="relative max-w-[360px] flex-1">
-          <Search
-            size={14}
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-4"
-          />
-          <input
-            type="text"
-            placeholder="Search skill or user…"
+        <div className="max-w-[360px] flex-1">
+          <SearchBar
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="h-9 w-full rounded-md border border-edge bg-surface-800 pl-9 pr-3 text-sm text-text-1 placeholder:text-text-4 focus:outline-none focus:ring-1 focus:ring-accent-bright focus:border-accent-bright"
+            onChange={setSearch}
+            placeholder="Search skill or user…"
           />
         </div>
+
+        <MultiSelect
+          label="Skills"
+          options={skillOptions}
+          values={skillFilter}
+          onChange={setSkillFilter}
+        />
 
         <div className="cohort-seg">
           <button
