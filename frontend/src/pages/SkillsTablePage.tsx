@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { MarketplaceBadge } from "@/components/marketplaces/MarketplaceBadge";
 import { SkillDetailDrawer } from "@/components/skills/SkillDetailDrawer";
 import { TrendSparkline } from "@/components/skills/TrendSparkline";
@@ -300,6 +300,7 @@ export default function SkillsTablePage() {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [searchParams, setSearchParams] = useSearchParams();
+	const navigate = useNavigate();
 	const [openSkill, setOpenSkill] = useState<string | null>(null);
 	const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
 	const [confirmOpen, setConfirmOpen] = useState(false);
@@ -593,6 +594,17 @@ export default function SkillsTablePage() {
 
 	function clearSelection() {
 		setSelectedKeys(new Set());
+	}
+
+	function handleViewCohorts() {
+		const names = new Set<string>();
+		for (const key of selectedKeys) {
+			const name = key.split("::")[0];
+			if (name) names.add(name);
+		}
+		if (names.size === 0) return;
+		const skills = [...names].sort().join(",");
+		navigate(`/cohorts?skills=${encodeURIComponent(skills)}`);
 	}
 
 	useEffect(() => {
