@@ -871,6 +871,7 @@ export default function SkillsTablePage() {
 										: undefined
 							}
 							align="right"
+							size="md"
 						/>
 						<Button
 							variant="danger"

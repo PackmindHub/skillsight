@@ -10,6 +10,8 @@ export interface StatusChipOption<T extends string> {
 	tone: StatusChipTone;
 }
 
+type StatusChipSize = "sm" | "md";
+
 interface StatusChipProps<T extends string> {
 	value: T;
 	options: readonly StatusChipOption<T>[];
@@ -29,6 +31,11 @@ interface StatusChipProps<T extends string> {
 	 * chip doubles as a filter control and needs to read like "Status: Approved".
 	 */
 	triggerPrefix?: string;
+	/**
+	 * Visual size. `sm` (default) is the compact in-table chip; `md` matches Button
+	 * `size="sm"` (h-8 px-3) so the chip can sit on a row of buttons without looking shorter.
+	 */
+	size?: StatusChipSize;
 }
 
 const TONE_DOT_STYLE: Record<StatusChipTone, { background: string; boxShadow?: string }> = {
@@ -47,6 +54,11 @@ const TONE_CHIP: Record<StatusChipTone, string> = {
 
 const MENU_MIN_WIDTH = 168;
 
+const SIZE_TRIGGER: Record<StatusChipSize, string> = {
+	sm: "px-2 py-1 text-[11px] leading-tight",
+	md: "h-8 px-3 text-[13px] leading-none",
+};
+
 export function StatusChip<T extends string>({
 	value,
 	options,
@@ -58,6 +70,7 @@ export function StatusChip<T extends string>({
 	title,
 	placeholderLabel,
 	triggerPrefix,
+	size = "sm",
 }: StatusChipProps<T>) {
 	const [open, setOpen] = useState(false);
 	const triggerRef = useRef<HTMLButtonElement>(null);
@@ -129,7 +142,8 @@ export function StatusChip<T extends string>({
 					if (interactive) setOpen((o) => !o);
 				}}
 				className={cn(
-					"inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border px-2 py-1 font-mono text-[11px] leading-tight transition-colors",
+					"inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border font-mono transition-colors",
+					SIZE_TRIGGER[size],
 					"focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-bright/60",
 					TONE_CHIP[current.tone],
 					interactive ? "cursor-pointer" : "cursor-default opacity-90",
