@@ -142,7 +142,7 @@ export function createIntegrationsRoute(
 			{ ...body, actorEmail: c.get("user").email },
 		);
 		const integration = await deps.integrations.findById(result.id);
-		if (integration) scheduleIntegration(integration, scheduledSyncFn);
+		if (integration) scheduleIntegration(integration, deps.integrations, scheduledSyncFn);
 		await publishIntegrationUpdate(deps.integrations, result.id);
 		return c.json({ ...result, eventCount: 0 }, 201);
 	});

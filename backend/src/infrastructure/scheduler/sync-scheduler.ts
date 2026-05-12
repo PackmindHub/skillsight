@@ -15,15 +15,27 @@ export async function startScheduler(
 	const integrations = await integrationRepo.findAll();
 	const enabled = integrations.filter((i) => i.enabled);
 	for (const integration of enabled) {
-		scheduleIntegration(integration, syncFn);
+		scheduleIntegration(integration, integrationRepo, syncFn);
 	}
 	console.log(`[scheduler] Started ${enabled.length} integration(s)`);
 }
 
-export function scheduleIntegration(integration: IntegrationWithSecret, syncFn: SyncFn): void {
+export function scheduleIntegration(
+	integration: IntegrationWithSecret,
+	integrationRepo: IIntegrationRepository,
+	syncFn: SyncFn,
+): void {
 	cancelIntegration(integration.id);
 	const handle = setInterval(async () => {
-		await syncFn(integration).catch(() => {});
+		// Re-fetch each tick so lastSyncAt (and other edits) are fresh.
+		// The captured `integration` is only used for its id/interval at schedule time.
+		const fresh = await integrationRepo.findById(integration.id).catch(() => null);
+		if (!fresh) {
+			cancelIntegration(integration.id);
+			return;
+		}
+		if (!fresh.enabled) return;
+		await syncFn(fresh).catch(() => {});
 	}, integration.syncIntervalMs);
 	handles.set(integration.id, handle);
 }
@@ -36,7 +48,7 @@ export async function rescheduleIntegration(
 	cancelIntegration(id);
 	const integration = await integrationRepo.findById(id);
 	if (integration?.enabled) {
-		scheduleIntegration(integration, syncFn);
+		scheduleIntegration(integration, integrationRepo, syncFn);
 	}
 }
 
