@@ -32,8 +32,8 @@ interface MainLink {
 const mainLinks: MainLink[] = [
 	{ to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
 	{ to: "/skills", label: "Skills", icon: Sparkles },
-	{ to: "/marketplaces", label: "Marketplaces", icon: Boxes },
 	{ to: "/plugins", label: "Plugins", icon: Plug },
+	{ to: "/marketplaces", label: "Marketplaces", icon: Boxes },
 	{ to: "/cohorts", label: "Cohorts", icon: Users },
 	{ to: "/tokens", label: "Tokens", icon: KeyRound },
 	{ to: "/events", label: "Events", icon: Activity },

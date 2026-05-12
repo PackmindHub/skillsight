@@ -262,6 +262,7 @@ export default function DashboardPage() {
 	const [rows, setRows] = useState<SkillTableRow[]>([]);
 	const [totalMarketplaces, setTotalMarketplaces] = useState<number | null>(null);
 	const [pendingMarketplaces, setPendingMarketplaces] = useState<number | null>(null);
+	const [totalPlugins, setTotalPlugins] = useState<number | null>(null);
 	const [pendingPlugins, setPendingPlugins] = useState<number | null>(null);
 	const [pendingSkills, setPendingSkills] = useState<number | null>(null);
 	const [monthly, setMonthly] = useState<MonthlyTrendsResponse | null>(null);
@@ -299,9 +300,11 @@ export default function DashboardPage() {
 			.catch(() => {});
 		api.plugins
 			.list()
-			.then(({ plugins }) =>
-				setPendingPlugins((plugins as Plugin[]).filter((p) => p.status === "to_review").length),
-			)
+			.then(({ plugins }) => {
+				const list = plugins as Plugin[];
+				setTotalPlugins(list.length);
+				setPendingPlugins(list.filter((p) => p.status === "to_review").length);
+			})
 			.catch(() => {});
 		api.skills
 			.table("all")
@@ -334,8 +337,6 @@ export default function DashboardPage() {
 	}, [rows]);
 
 	const totalDaily = useMemo(() => (usage?.dailyTrend ?? []).map((d) => d.count), [usage]);
-
-	const topTrigger = useMemo(() => usage?.byTrigger[0]?.trigger ?? "—", [usage]);
 
 	const overallDelta = useMemo(() => computeDeltaPct(totalDaily), [totalDaily]);
 
@@ -414,8 +415,8 @@ export default function DashboardPage() {
 							}
 						/>
 						<MiniStat label="Active users" value={usage.stats.activeUsers} />
-						<MiniStat label="Top trigger" value={<span className="text-accent-2-soft">{topTrigger}</span>} />
 						<MiniStat label="Marketplaces" value={totalMarketplaces ?? "—"} />
+						<MiniStat label="Plugins" value={totalPlugins ?? "—"} />
 					</div>
 					<div className="absolute -bottom-2.5 -right-2.5 h-[110px] w-[55%] overflow-hidden">
 						{totalDaily.length > 0 && (
