@@ -17,7 +17,7 @@ Skillsight is small, open-source, and runs entirely on your own infrastructure w
 - [Connecting Claude Code](#connecting-claude-code)
 - [Ingesting from Loki instead](#ingesting-from-loki-instead)
 - [Marketplace sources](#marketplace-sources)
-- [Development mode](#development-mode)
+- [Contributing](#contributing)
 - [Roadmap](#roadmap)
 - [Architecture](#architecture)
 
@@ -72,9 +72,13 @@ The relationships are loose on purpose, because Claude Code is loose about them:
 
 ## Quick start
 
-```bash
-docker build -t skillsight:latest .
+The production `docker-compose.yml` pulls a pre-built image from GitHub Container Registry — no local build needed.
 
+```bash
+# 1. Grab the compose file (or clone the repo)
+curl -O https://raw.githubusercontent.com/PackmindHub/skills-obs/main/docker-compose.yml
+
+# 2. Provide the required env vars (inline, or via a .env file next to docker-compose.yml)
 POSTGRES_PASSWORD=changeme \
 JWT_SECRET=change-me-in-production-at-least-32-chars \
 ADMIN_EMAIL=admin@example.com \
@@ -83,6 +87,12 @@ ADMIN_PASSWORD_INITIAL=admin \
 ```
 
 Open http://localhost:4200 and sign in. On first login you're redirected to `/onboarding`, which auto-mints an ingestion token and renders the exact env block to point Claude Code at this instance.
+
+By default the stack tracks `ghcr.io/packmindhub/skills-obs:latest`. To pin a specific version:
+
+```bash
+SKILLSIGHT_IMAGE=ghcr.io/packmindhub/skills-obs:1.2.3 docker compose up -d
+```
 
 ### Required environment variables
 
@@ -93,7 +103,7 @@ Open http://localhost:4200 and sign in. On first login you're redirected to `/on
 | `ADMIN_EMAIL` | Bootstrap admin email |
 | `ADMIN_PASSWORD_INITIAL` | Bootstrap admin password (used once on first start) |
 
-Optional: `JWT_SECRET_PREVIOUS` for zero-downtime rotation, `PUBLIC_BASE_URL` to lock CORS to one origin, `HOST_BIND` / `HOST_PORT` to change the published port.
+Optional: `JWT_SECRET_PREVIOUS` for zero-downtime rotation, `PUBLIC_BASE_URL` to lock CORS to one origin, `HOST_BIND` / `HOST_PORT` to change the published port, `SKILLSIGHT_IMAGE` to pin a specific image tag.
 
 ## Connecting Claude Code
 
@@ -153,14 +163,9 @@ Configurable fields per source:
 
 > Marketplace sources are managed via the API today (`/api/marketplace-sources`); the `Marketplaces` page is a read-only view of the synced results.
 
-## Development mode
+## Contributing
 
-```bash
-docker compose -f docker-compose.dev.yml up -d   # PostgreSQL only
-bun install
-cp .env.example .env
-bun run dev                                       # backend on :4200, frontend on :5173
-```
+Bug reports, feature ideas, and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to run the stack locally for development.
 
 ## Roadmap
 
