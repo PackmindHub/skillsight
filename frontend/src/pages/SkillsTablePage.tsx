@@ -256,6 +256,8 @@ const SKELETON_KEYS = ["a", "b", "c", "d", "e", "f", "g", "h"];
 const NO_MARKETPLACE = "__none__";
 const NO_MARKETPLACE_LABEL = "(none)";
 const NO_PLUGIN_KEY = "__none__";
+const NO_PLUGIN_FILTER = "__no_plugin__";
+const NO_PLUGIN_LABEL = "(none)";
 
 function rowKey(row: { skillName: string; pluginName: string | null }): string {
 	return `${row.skillName}::${row.pluginName ?? NO_PLUGIN_KEY}`;
@@ -324,7 +326,6 @@ export default function SkillsTablePage() {
 	const usageFilter = pick<UsageFilter>(searchParams.get("usage"), USAGE_VALUES, "all");
 	const sortKey = pick<SortKey>(searchParams.get("sort"), SORT_KEYS, "total");
 	const sortDir: SortDir = searchParams.get("dir") === "asc" ? "asc" : "desc";
-	const pluginFilter = searchParams.get("plugin") ?? "";
 	const { status: statusFilter, setStatus } = useStatusFilter<SkillStatus>(
 		"status",
 		SKILL_STATUSES,
@@ -345,6 +346,20 @@ export default function SkillsTablePage() {
 	);
 	const marketplaces = pickList(searchParams.get("marketplace"), marketplaceFilterValues);
 	const triggers = pickList(searchParams.get("trigger"), TRIGGER_KEYS);
+
+	const allPluginNames = useMemo(() => {
+		const names = new Set<string>();
+		for (const row of rows) {
+			if (row.pluginName) names.add(row.pluginName);
+		}
+		return Array.from(names).sort();
+	}, [rows]);
+
+	const pluginFilterValues = useMemo(
+		() => [...allPluginNames, NO_PLUGIN_FILTER],
+		[allPluginNames],
+	);
+	const plugins = pickList(searchParams.get("plugin"), pluginFilterValues);
 
 	const debouncedSearch = useDebouncedValue(search, 150);
 
@@ -458,7 +473,13 @@ export default function SkillsTablePage() {
 		const q = debouncedSearch.trim();
 		const scored: { row: SkillTableRow; score: number }[] = [];
 		for (const row of rows) {
-			if (pluginFilter && row.pluginName !== pluginFilter) continue;
+			if (plugins.length > 0) {
+				const wantsNone = plugins.includes(NO_PLUGIN_FILTER);
+				const wantedNames = plugins.filter((p) => p !== NO_PLUGIN_FILTER);
+				const hasNone = !row.pluginName;
+				const matchesNamed = !!row.pluginName && wantedNames.includes(row.pluginName);
+				if (!((wantsNone && hasNone) || matchesNamed)) continue;
+			}
 			if (sourceFilter === "bundled" && row.skillSource !== "bundled") continue;
 			if (sourceFilter === "external" && row.skillSource === "bundled") continue;
 			if (statusFilter !== "all" && (row.status ?? "to_review") !== statusFilter) continue;
@@ -526,7 +547,7 @@ export default function SkillsTablePage() {
 		usageFilter,
 		sortKey,
 		sortDir,
-		pluginFilter,
+		plugins,
 	]);
 
 	const suggestions = useMemo(() => {
@@ -673,6 +694,10 @@ export default function SkillsTablePage() {
 		...allMarketplaceNames.map((n) => ({ value: n, label: n })),
 		{ value: NO_MARKETPLACE, label: NO_MARKETPLACE_LABEL },
 	];
+	const pluginOptions = [
+		...allPluginNames.map((n) => ({ value: n, label: n })),
+		{ value: NO_PLUGIN_FILTER, label: NO_PLUGIN_LABEL },
+	];
 
 	const filtersActive =
 		search !== "" ||
@@ -681,7 +706,7 @@ export default function SkillsTablePage() {
 		statusFilter !== "all" ||
 		marketplaces.length > 0 ||
 		triggers.length > 0 ||
-		pluginFilter !== "";
+		plugins.length > 0;
 
 	const isLeastUsedPreset =
 		usageFilter === "activated" && sortKey === "total" && sortDir === "asc";
@@ -734,6 +759,12 @@ export default function SkillsTablePage() {
 					options={marketplaceOptions}
 					values={marketplaces}
 					onChange={(v) => setListParam("marketplace", v)}
+				/>
+				<MultiSelect
+					label="Plugin"
+					options={pluginOptions}
+					values={plugins}
+					onChange={(v) => setListParam("plugin", v)}
 				/>
 				<MultiSelect
 					label="Trigger"
@@ -799,12 +830,13 @@ export default function SkillsTablePage() {
 					{search && (
 						<FilterPill label={`"${search}"`} onRemove={() => updateParam("search", "", "")} />
 					)}
-					{pluginFilter && (
+					{plugins.map((p) => (
 						<FilterPill
-							label={`Plugin: ${pluginFilter}`}
-							onRemove={() => updateParam("plugin", "", "")}
+							key={`pl-${p}`}
+							label={`Plugin: ${p === NO_PLUGIN_FILTER ? NO_PLUGIN_LABEL : p}`}
+							onRemove={() => setListParam("plugin", plugins.filter((x) => x !== p))}
 						/>
-					)}
+					))}
 					{sourceFilter !== "all" && (
 						<FilterPill
 							label={`Source: ${sourceFilter}`}

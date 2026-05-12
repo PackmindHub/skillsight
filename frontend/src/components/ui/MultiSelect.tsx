@@ -15,8 +15,6 @@ interface MultiSelectProps {
 	className?: string;
 }
 
-const SEARCH_THRESHOLD = 8;
-
 export function MultiSelect({ label, options, values, onChange, className }: MultiSelectProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const searchInputRef = useRef<HTMLInputElement>(null);
@@ -49,7 +47,6 @@ export function MultiSelect({ label, options, values, onChange, className }: Mul
 		onChange(next);
 	}
 
-	const showSearch = options.length > SEARCH_THRESHOLD;
 	const filteredOptions = useMemo(() => {
 		const q = query.trim().toLowerCase();
 		if (!q) return options;
@@ -93,18 +90,16 @@ export function MultiSelect({ label, options, values, onChange, className }: Mul
 			</button>
 			{open && (
 				<div className={cn(DROPDOWN_PANEL, "left-0 min-w-[14rem] flex flex-col")}>
-					{showSearch && (
-						<div className="border-b border-edge-dim p-2">
-							<input
-								ref={searchInputRef}
-								type="text"
-								value={query}
-								onChange={(e) => setQuery(e.target.value)}
-								placeholder={`Search ${label.toLowerCase()}…`}
-								className="h-7 w-full rounded border border-edge bg-surface-900 px-2 text-xs text-text-1 placeholder:text-text-4 focus:outline-none focus:ring-1 focus:ring-accent-bright focus:border-accent-bright"
-							/>
-						</div>
-					)}
+					<div className="border-b border-edge-dim p-2">
+						<input
+							ref={searchInputRef}
+							type="text"
+							value={query}
+							onChange={(e) => setQuery(e.target.value)}
+							placeholder={`Search ${label.toLowerCase()}…`}
+							className="h-7 w-full rounded border border-edge bg-surface-900 px-2 text-xs text-text-1 placeholder:text-text-4 focus:outline-none focus:ring-1 focus:ring-accent-bright focus:border-accent-bright"
+						/>
+					</div>
 					<div className="max-h-64 overflow-y-auto">
 						{options.length === 0 ? (
 							<p className="px-3 py-2 text-xs text-text-4">No options available</p>
