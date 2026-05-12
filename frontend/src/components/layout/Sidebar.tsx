@@ -35,13 +35,13 @@ const mainLinks: MainLink[] = [
 	{ to: "/plugins", label: "Plugins", icon: Plug },
 	{ to: "/marketplaces", label: "Marketplaces", icon: Boxes },
 	{ to: "/cohorts", label: "Cohorts", icon: Users },
-	{ to: "/tokens", label: "Tokens", icon: KeyRound },
 	{ to: "/events", label: "Events", icon: Activity },
 	{ to: "/audit", label: "Audit Log", icon: ScrollText },
 ];
 
 const settingsLinks: MainLink[] = [
 	{ to: "/settings/integrations", label: "Integrations", icon: SettingsIcon },
+	{ to: "/tokens", label: "Tokens", icon: KeyRound },
 ];
 
 function NavItem({ to, label, icon: Icon, badge }: MainLink & { badge?: NavBadge }) {
