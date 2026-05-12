@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { MultiSelect, PageHeader, SearchBar, SegmentedControl } from "@/components/ui";
 import { CohortCard } from "@/components/cohorts/CohortCard";
 import { CohortDrawer } from "@/components/cohorts/CohortDrawer";
@@ -29,6 +30,23 @@ export default function CohortsPage() {
   const [hideSolo, setHideSolo] = useState(false);
   const [minSkills, setMinSkills] = useState<number>(2);
   const [selected, setSelected] = useState<Cohort | null>(null);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: seed once on mount; subsequent skillFilter edits are owned by component state.
+  useEffect(() => {
+    const raw = searchParams.get("skills");
+    if (!raw) return;
+    const names = raw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (names.length === 0) return;
+    setSkillFilter(names);
+    const next = new URLSearchParams(searchParams);
+    next.delete("skills");
+    setSearchParams(next, { replace: true });
+  }, []);
 
   useEffect(() => {
     let cancelled = false;

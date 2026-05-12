@@ -833,18 +833,29 @@ export default function SkillsTablePage() {
 			)}
 
 			{selectedKeys.size > 0 && (
-				<div className="flex items-center gap-3 rounded-md border border-accent-bright/30 bg-accent-bright/10 px-3 py-2 text-sm text-text-1">
-					<span>
-						<span className="font-medium">{selectedKeys.size}</span> selected
+				<div className="flex flex-wrap items-center gap-3 rounded-md border border-accent-bright/30 bg-accent-bright/10 px-3 py-2 text-sm text-text-1">
+					<span className="flex items-center gap-2">
+						<span>
+							<span className="font-medium">{selectedKeys.size}</span> selected
+						</span>
+						<button
+							type="button"
+							onClick={clearSelection}
+							className="text-xs text-text-3 hover:text-text-1 hover:underline"
+						>
+							Clear
+						</button>
 					</span>
-					<button
-						type="button"
-						onClick={clearSelection}
-						className="text-xs text-text-3 hover:text-text-1 hover:underline"
-					>
-						Clear
-					</button>
-					<div className="ml-auto flex items-center gap-2">
+					<span className="h-5 border-l border-edge" aria-hidden />
+					<div className="flex items-center gap-2">
+						<Button
+							variant="secondary"
+							size="sm"
+							onClick={handleViewCohorts}
+							title="Open the Cohorts page filtered to the selected skills"
+						>
+							View cohorts
+						</Button>
 						<StatusChip<SkillStatus>
 							value={"" as SkillStatus}
 							options={SKILL_STATUS_CHIP_OPTIONS}
