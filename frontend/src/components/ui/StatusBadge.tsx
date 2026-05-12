@@ -7,6 +7,7 @@ const STATUS_BADGE_CLASS: Record<AnyStatus, string> = {
 	approved: "bg-emerald-100 text-emerald-700 border-emerald-200",
 	removed: "bg-red-100 text-red-600 border-red-200",
 	denied: "bg-red-100 text-red-700 border-red-200",
+	ignored: "bg-slate-200 text-slate-600 border-slate-300",
 };
 
 const STATUS_LABEL: Record<AnyStatus, string> = {
@@ -14,6 +15,7 @@ const STATUS_LABEL: Record<AnyStatus, string> = {
 	approved: "Approved",
 	removed: "Removed",
 	denied: "Denied",
+	ignored: "Ignored",
 };
 
 export function statusLabel(status: AnyStatus): string {

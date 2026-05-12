@@ -15,7 +15,7 @@ import type {
 export class DrizzlePluginRepository implements IPluginRepository {
 	constructor(private readonly db: AppDb) {}
 
-	async listWithStats(): Promise<PluginWithStats[]> {
+	async listWithStats(includeIgnored = false): Promise<PluginWithStats[]> {
 		const rows = await this.db.execute(sql`
 			SELECT
 			  p.plugin_name             AS "pluginName",
@@ -23,6 +23,7 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			  p.plugin_version          AS "pluginVersion",
 			  p.install_trigger         AS "installTrigger",
 			  p.marketplace_is_official AS "marketplaceIsOfficial",
+			  p.source                  AS "source",
 			  p.status,
 			  m.status                  AS "marketplaceStatus",
 			  p.first_seen_at           AS "firstSeenAt",
@@ -60,6 +61,11 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			   AND e.attributes->>'skill.name' = ps.skill_name
 			  GROUP BY ps.plugin_name
 			) sa ON sa.plugin_name = p.plugin_name
+			${
+				includeIgnored
+					? sql``
+					: sql`WHERE p.status <> 'ignored' AND COALESCE(m.status, '') <> 'ignored'`
+			}
 			ORDER BY s.install_count DESC NULLS LAST, p.plugin_name
 		`);
 		return rows as unknown as PluginWithStats[];
@@ -113,6 +119,7 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			pluginVersion: row.pluginVersion,
 			installTrigger: row.installTrigger,
 			marketplaceIsOfficial: row.marketplaceIsOfficial,
+			source: row.source,
 			status: row.status as PluginStatus,
 			firstSeenAt: row.firstSeenAt,
 			lastSeenAt: row.lastSeenAt,
@@ -139,6 +146,7 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			pluginVersion: row.pluginVersion,
 			installTrigger: row.installTrigger,
 			marketplaceIsOfficial: row.marketplaceIsOfficial,
+			source: row.source,
 			status: row.status as PluginStatus,
 			firstSeenAt: row.firstSeenAt,
 			lastSeenAt: row.lastSeenAt,
@@ -147,6 +155,7 @@ export class DrizzlePluginRepository implements IPluginRepository {
 
 	async upsert(plugin: NewPlugin): Promise<void> {
 		const now = new Date();
+		const sourceValue = plugin.source === undefined ? null : plugin.source;
 		await this.db
 			.insert(plugins)
 			.values({
@@ -155,6 +164,7 @@ export class DrizzlePluginRepository implements IPluginRepository {
 				pluginVersion: plugin.pluginVersion,
 				installTrigger: plugin.installTrigger,
 				marketplaceIsOfficial: plugin.marketplaceIsOfficial,
+				source: sourceValue,
 				status: plugin.status,
 				firstSeenAt: now,
 				lastSeenAt: now,
@@ -166,6 +176,7 @@ export class DrizzlePluginRepository implements IPluginRepository {
 					pluginVersion: plugin.pluginVersion,
 					installTrigger: plugin.installTrigger,
 					marketplaceIsOfficial: plugin.marketplaceIsOfficial,
+					source: sourceValue,
 					status: plugin.status,
 					lastSeenAt: now,
 				},
@@ -182,6 +193,7 @@ export class DrizzlePluginRepository implements IPluginRepository {
 				pluginVersion: plugin.pluginVersion,
 				installTrigger: plugin.installTrigger,
 				marketplaceIsOfficial: plugin.marketplaceIsOfficial,
+				source: plugin.source === undefined ? null : plugin.source,
 				status: plugin.status,
 				firstSeenAt: now,
 				lastSeenAt: now,

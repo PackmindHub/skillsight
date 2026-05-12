@@ -1,9 +1,10 @@
-export type SkillStatus = "to_review" | "approved" | "removed";
+export type SkillStatus = "to_review" | "approved" | "removed" | "ignored";
 
 export const SKILL_STATUSES: readonly SkillStatus[] = [
 	"to_review",
 	"approved",
 	"removed",
+	"ignored",
 ] as const;
 
 export interface Skill {
@@ -33,6 +34,7 @@ export interface SkillDetailPluginRef {
 	pluginName: string;
 	marketplaceName: string | null;
 	status: string;
+	skillRepoUrl: string | null;
 }
 
 /**

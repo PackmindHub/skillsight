@@ -4,6 +4,7 @@ import {
 	Button,
 	Card,
 	FormField,
+	IncludeIgnoredToggle,
 	Input,
 	PageHeader,
 	StatusChip,
@@ -17,6 +18,7 @@ import {
 } from "@/components/ui";
 import { useMarketplaceSourcesHealth } from "@/context/MarketplaceSourcesHealthContext";
 import { api } from "@/lib/api";
+import { useIncludeIgnored } from "@/lib/use-include-ignored";
 import { cn, formatDateTime } from "@/lib/utils";
 import type { Marketplace, MarketplaceSource, MarketplaceStatus } from "@/types/api";
 import { ExternalLink, Pencil, Trash2 } from "lucide-react";
@@ -35,6 +37,7 @@ const MARKETPLACE_STATUS_CHIP_OPTIONS: readonly StatusChipOption<MarketplaceStat
 	{ value: "approved", label: "Approved", tone: "success" },
 	{ value: "to_review", label: "To review", tone: "warning" },
 	{ value: "denied", label: "Denied", tone: "danger" },
+	{ value: "ignored", label: "Ignored", tone: "neutral" },
 ];
 
 const MP_FILTER_OPTIONS: {
@@ -46,6 +49,7 @@ const MP_FILTER_OPTIONS: {
 	{ key: "to_review", label: "To review", dot: "var(--color-warning)" },
 	{ key: "approved", label: "Approved", dot: "var(--color-success)" },
 	{ key: "denied", label: "Denied", dot: "var(--color-danger)" },
+	{ key: "ignored", label: "Ignored", dot: "var(--color-text-3)" },
 ];
 
 const MP_GRID_COLS =
@@ -230,9 +234,11 @@ export default function MarketplacesPage() {
 	const statusFilter: "all" | MarketplaceStatus =
 		statusFilterParam === "to_review" ||
 		statusFilterParam === "approved" ||
-		statusFilterParam === "denied"
+		statusFilterParam === "denied" ||
+		statusFilterParam === "ignored"
 			? statusFilterParam
 			: "all";
+	const { includeIgnored, setIncludeIgnored } = useIncludeIgnored();
 	function setStatusFilter(next: "all" | MarketplaceStatus) {
 		setSearchParams(
 			(prev) => {
@@ -302,12 +308,12 @@ export default function MarketplacesPage() {
 
 	useEffect(() => {
 		Promise.all([
-			api.marketplaces.list().then((res) => setItems(res.marketplaces)),
+			api.marketplaces.list({ includeIgnored }).then((res) => setItems(res.marketplaces)),
 			api.marketplaceSources.list().then(setSources),
 		])
 			.catch((e) => setError(String(e)))
 			.finally(() => setLoading(false));
-	}, []);
+	}, [includeIgnored]);
 
 	async function handleStatusChange(name: string, status: MarketplaceStatus) {
 		setItems((prev) => prev.map((m) => (m.name === name ? { ...m, status } : m)));
@@ -315,7 +321,7 @@ export default function MarketplacesPage() {
 			await api.marketplaces.update(name, { status });
 		} catch {
 			api.marketplaces
-				.list()
+				.list({ includeIgnored })
 				.then((res) => setItems(res.marketplaces))
 				.catch(() => {});
 		}
@@ -333,7 +339,7 @@ export default function MarketplacesPage() {
 
 	async function refreshMarketplaceData() {
 		const [mpRes, srcRes] = await Promise.all([
-			api.marketplaces.list(),
+			api.marketplaces.list({ includeIgnored }),
 			api.marketplaceSources.list(),
 		]);
 		setItems(mpRes.marketplaces);
@@ -438,7 +444,7 @@ export default function MarketplacesPage() {
 				withSources,
 			});
 			const [mpRes, srcRes] = await Promise.all([
-				api.marketplaces.list(),
+				api.marketplaces.list({ includeIgnored }),
 				api.marketplaceSources.list(),
 			]);
 			setItems(mpRes.marketplaces);
@@ -514,7 +520,7 @@ export default function MarketplacesPage() {
 			const result = await api.marketplaceSources.syncNow(id);
 			setSourceSyncResult((prev) => ({ ...prev, [id]: result }));
 			await Promise.all([
-				api.marketplaces.list().then((res) => setItems(res.marketplaces)),
+				api.marketplaces.list({ includeIgnored }).then((res) => setItems(res.marketplaces)),
 				api.marketplaceSources.list().then(setSources),
 			]);
 			refreshSourcesHealth();
@@ -907,6 +913,7 @@ export default function MarketplacesPage() {
 								);
 							})}
 						</div>
+						<IncludeIgnoredToggle value={includeIgnored} onChange={setIncludeIgnored} />
 						{highlightName && (
 							<span className="inline-flex items-center gap-1 rounded-full border border-edge bg-surface-800 px-2 py-0.5 text-xs text-text-2">
 								Highlighted: {highlightName}

@@ -8,7 +8,7 @@ import type {
 } from "@/domain/plugin";
 
 export interface IPluginRepository {
-	listWithStats(): Promise<PluginWithStats[]>;
+	listWithStats(includeIgnored?: boolean): Promise<PluginWithStats[]>;
 	listSkillsWithActivations(pluginName: string): Promise<PluginSkillActivation[]>;
 	listTopUsers(pluginName: string, limit: number): Promise<PluginUserActivation[]>;
 	findByName(pluginName: string): Promise<Plugin | null>;

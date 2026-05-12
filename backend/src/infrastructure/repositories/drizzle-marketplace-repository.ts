@@ -14,7 +14,7 @@ import type {
 export class DrizzleMarketplaceRepository implements IMarketplaceRepository {
 	constructor(private readonly db: AppDb) {}
 
-	async listWithStats(): Promise<MarketplaceWithStats[]> {
+	async listWithStats(includeIgnored = false): Promise<MarketplaceWithStats[]> {
 		const rows = await this.db.execute(sql`
 			SELECT
 			  m.name,
@@ -75,6 +75,7 @@ export class DrizzleMarketplaceRepository implements IMarketplaceRepository {
 			  WHERE pl.marketplace_name IS NOT NULL
 			  GROUP BY pl.marketplace_name
 			) skills_agg ON skills_agg.marketplace_name = m.name
+			${includeIgnored ? sql`` : sql`WHERE m.status <> 'ignored'`}
 			ORDER BY "activationCount" DESC, m.name
 		`);
 		return rows as unknown as MarketplaceWithStats[];

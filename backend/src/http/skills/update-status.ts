@@ -8,7 +8,7 @@ import type { AppVariables } from "@/types";
 const updateSchema = z.object({
 	skillName: z.string().min(1).max(255),
 	pluginName: z.string().max(255),
-	status: z.enum(["to_review", "approved", "removed"]),
+	status: z.enum(["to_review", "approved", "removed", "ignored"]),
 });
 
 export function createUpdateStatusRoute(deps: Pick<AppDeps, "skills" | "audit">) {

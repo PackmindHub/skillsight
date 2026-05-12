@@ -17,6 +17,7 @@ const STATUS_DOT: Record<AnyStatus, { background: string; boxShadow?: string }> 
 	to_review: { background: "var(--color-warning)", boxShadow: "0 0 4px var(--color-warning)" },
 	removed: { background: "var(--color-danger)", boxShadow: "0 0 4px var(--color-danger)" },
 	denied: { background: "var(--color-danger)", boxShadow: "0 0 4px var(--color-danger)" },
+	ignored: { background: "var(--color-text-3)" },
 };
 
 export function StatusFilter<S extends AnyStatus>({

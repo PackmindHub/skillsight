@@ -69,8 +69,11 @@ export const api = {
 	skills: {
 		usage: (period: DashboardPeriod = 30) =>
 			apiFetch<UsageResponse>(`/api/skills/usage?days=${period}`),
-		table: (period: DashboardPeriod = 30) =>
-			apiFetch<SkillsTableResponse>(`/api/skills/usage/table?days=${period}`),
+		table: (period: DashboardPeriod = 30, opts: { includeIgnored?: boolean } = {}) => {
+			const params = new URLSearchParams({ days: String(period) });
+			if (opts.includeIgnored) params.set("includeIgnored", "1");
+			return apiFetch<SkillsTableResponse>(`/api/skills/usage/table?${params.toString()}`);
+		},
 		detail: (skillName: string, period: DashboardPeriod = 30) =>
 			apiFetch<SkillDetail>(
 				`/api/skills/usage/detail?days=${period}&skill=${encodeURIComponent(skillName)}`,
@@ -154,7 +157,10 @@ export const api = {
 			apiFetch<CohortsResponse>(`/api/cohorts?days=${period}`),
 	},
 	plugins: {
-		list: () => apiFetch<{ plugins: Plugin[] }>("/api/plugins"),
+		list: (opts: { includeIgnored?: boolean } = {}) => {
+			const qs = opts.includeIgnored ? "?includeIgnored=1" : "";
+			return apiFetch<{ plugins: Plugin[] }>(`/api/plugins${qs}`);
+		},
 		skills: (pluginName: string) =>
 			apiFetch<PluginSkillsResponse>(
 				`/api/plugins/${encodeURIComponent(pluginName)}/skills`,
@@ -166,7 +172,10 @@ export const api = {
 			}),
 	},
 	marketplaces: {
-		list: () => apiFetch<{ marketplaces: Marketplace[] }>("/api/marketplaces"),
+		list: (opts: { includeIgnored?: boolean } = {}) => {
+			const qs = opts.includeIgnored ? "?includeIgnored=1" : "";
+			return apiFetch<{ marketplaces: Marketplace[] }>(`/api/marketplaces${qs}`);
+		},
 		detail: (name: string) =>
 			apiFetch<MarketplaceDetailResponse>(
 				`/api/marketplaces/${encodeURIComponent(name)}/detail`,

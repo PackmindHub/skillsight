@@ -83,6 +83,24 @@ describe("syncPluginStatuses", () => {
 		expect(propagateCalls[0].pluginNames).toEqual(["plugin-a"]);
 	});
 
+	it("propagates 'ignored' to plugins and skills when marketplace becomes ignored", async () => {
+		const { repo: plugins, updateCalls } = makePlugins({
+			"acme-mp": ["plugin-a", "plugin-b"],
+		});
+		const { repo: skills, propagateCalls } = makeSkills();
+
+		await syncPluginStatuses(
+			{ plugins, skills, audit: makeAudit() },
+			"acme-mp",
+			"ignored" as MarketplaceStatus,
+		);
+
+		expect(updateCalls[0].status).toBe("ignored");
+		expect(propagateCalls).toHaveLength(1);
+		expect(propagateCalls[0].pluginNames).toEqual(["plugin-a", "plugin-b"]);
+		expect(propagateCalls[0].status).toBe("ignored");
+	});
+
 	it("calls propagation with empty array when marketplace has no plugins", async () => {
 		const { repo: plugins } = makePlugins({ "empty-mp": [] });
 		const { repo: skills, propagateCalls } = makeSkills();

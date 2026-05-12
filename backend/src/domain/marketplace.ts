@@ -1,6 +1,6 @@
 import type { PluginStatus } from "@/domain/plugin";
 
-export type MarketplaceStatus = "to_review" | "approved" | "denied";
+export type MarketplaceStatus = "to_review" | "approved" | "denied" | "ignored";
 
 export interface Marketplace {
 	name: string;

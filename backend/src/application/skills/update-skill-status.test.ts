@@ -142,7 +142,7 @@ describe("updateSkillStatus", () => {
 	});
 
 	it("supports all skill statuses", async () => {
-		const targets: SkillStatus[] = ["to_review", "approved", "removed"];
+		const targets: SkillStatus[] = ["to_review", "approved", "removed", "ignored"];
 		for (const target of targets) {
 			const { deps } = makeDeps(makeSkill({ status: "to_review" }));
 			const result = await updateSkillStatus(deps, {

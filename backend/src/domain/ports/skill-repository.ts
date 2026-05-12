@@ -21,7 +21,7 @@ export interface ISkillRepository {
 	getTotalActivations(days: DaysWindow): Promise<number>;
 	getUniqueSkillsCount(days: DaysWindow): Promise<number>;
 	getActiveUsersCount(days: DaysWindow): Promise<number>;
-	getSkillsTable(days: DaysWindow): Promise<SkillTableRow[]>;
+	getSkillsTable(days: DaysWindow, includeIgnored?: boolean): Promise<SkillTableRow[]>;
 	getSkillDetail(skillName: string, days: DaysWindow): Promise<SkillDetailRow | null>;
 	getMonthlyTrends(): Promise<MonthlyTrends>;
 	upsertMany(entries: SkillUpsertEntry[]): Promise<void>;

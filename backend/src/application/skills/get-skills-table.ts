@@ -5,10 +5,10 @@ import { defaultBundledStatus } from "@/domain/skill";
 
 export async function getSkillsTable(
 	deps: { skills: ISkillRepository; marketplaces: IMarketplaceRepository },
-	input: { days: DaysWindow },
+	input: { days: DaysWindow; includeIgnored?: boolean },
 ) {
 	const [rawRows, statuses] = await Promise.all([
-		deps.skills.getSkillsTable(input.days),
+		deps.skills.getSkillsTable(input.days, input.includeIgnored ?? false),
 		deps.marketplaces.listStatuses(),
 	]);
 

@@ -3,6 +3,7 @@ import type { MarketplaceWithStats } from "@/domain/marketplace";
 
 export async function listMarketplaces(
 	deps: { marketplaces: IMarketplaceRepository },
+	input: { includeIgnored?: boolean } = {},
 ): Promise<MarketplaceWithStats[]> {
-	return deps.marketplaces.listWithStats();
+	return deps.marketplaces.listWithStats(input.includeIgnored ?? false);
 }

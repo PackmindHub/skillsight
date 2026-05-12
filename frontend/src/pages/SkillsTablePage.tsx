@@ -7,6 +7,7 @@ import { TrendSparkline } from "@/components/skills/TrendSparkline";
 import {
 	Button,
 	ConfirmDialog,
+	IncludeIgnoredToggle,
 	MultiSelect,
 	PageHeader,
 	SearchBar,
@@ -22,6 +23,7 @@ import {
 import { api } from "@/lib/api";
 import { fuzzyScore } from "@/lib/fuzzy";
 import { useDebouncedValue } from "@/lib/use-debounced-value";
+import { useIncludeIgnored } from "@/lib/use-include-ignored";
 import { useStatusFilter } from "@/lib/use-status-filter";
 import { cn } from "@/lib/utils";
 import {
@@ -35,6 +37,7 @@ const SKILL_STATUS_CHIP_OPTIONS: readonly StatusChipOption<SkillStatus>[] = [
 	{ value: "approved", label: "Approved", tone: "success" },
 	{ value: "to_review", label: "To review", tone: "warning" },
 	{ value: "removed", label: "Removed", tone: "danger" },
+	{ value: "ignored", label: "Ignored", tone: "neutral" },
 ];
 
 const TRIGGERS: {
@@ -326,6 +329,7 @@ export default function SkillsTablePage() {
 		"status",
 		SKILL_STATUSES,
 	);
+	const { includeIgnored, setIncludeIgnored } = useIncludeIgnored();
 
 	const allMarketplaceNames = useMemo(() => {
 		const names = new Set<string>();
@@ -423,7 +427,7 @@ export default function SkillsTablePage() {
 		setError(null);
 		let cancelled = false;
 		api.skills
-			.table(period)
+			.table(period, { includeIgnored })
 			.then((res) => {
 				if (!cancelled) setRows(res.rows);
 			})
@@ -436,7 +440,7 @@ export default function SkillsTablePage() {
 		return () => {
 			cancelled = true;
 		};
-	}, [period, reloadToken]);
+	}, [period, reloadToken, includeIgnored]);
 
 	useEffect(() => {
 		function onFocus() {
@@ -742,6 +746,7 @@ export default function SkillsTablePage() {
 					onChange={setStatus}
 					options={SKILL_STATUSES}
 				/>
+				<IncludeIgnoredToggle value={includeIgnored} onChange={setIncludeIgnored} />
 				<SingleSelect<SourceFilter>
 					label="Source"
 					value={sourceFilter}

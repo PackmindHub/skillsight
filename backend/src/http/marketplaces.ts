@@ -10,7 +10,7 @@ import { updateMarketplace } from "@/application/marketplaces/update-marketplace
 import { cancelMarketplaceSource } from "@/infrastructure/scheduler/marketplace-source-scheduler";
 
 const updateSchema = z.object({
-	status: z.enum(["to_review", "approved", "denied"]).optional(),
+	status: z.enum(["to_review", "approved", "denied", "ignored"]).optional(),
 	url: z.string().url().max(1000).nullable().optional(),
 	description: z.string().max(2000).nullable().optional(),
 });
@@ -27,7 +27,8 @@ export function createMarketplacesRoute(
 	route.use("*", sessionAuth);
 
 	route.get("/", async (c) => {
-		return c.json({ marketplaces: await listMarketplaces(deps) });
+		const includeIgnored = c.req.query("includeIgnored") === "1";
+		return c.json({ marketplaces: await listMarketplaces(deps, { includeIgnored }) });
 	});
 
 	route.get("/:name/detail", async (c) => {

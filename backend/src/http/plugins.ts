@@ -8,7 +8,7 @@ import { sessionAuth } from "@/middleware/session-auth";
 import type { AppVariables } from "@/types";
 
 const updateSchema = z.object({
-	status: z.enum(["to_review", "approved", "removed"]).optional(),
+	status: z.enum(["to_review", "approved", "removed", "ignored"]).optional(),
 });
 
 export function createPluginsRoute(deps: Pick<AppDeps, "plugins" | "skills" | "audit">) {
@@ -16,7 +16,8 @@ export function createPluginsRoute(deps: Pick<AppDeps, "plugins" | "skills" | "a
 	route.use("*", sessionAuth);
 
 	route.get("/", async (c) => {
-		return c.json({ plugins: await listPlugins(deps) });
+		const includeIgnored = c.req.query("includeIgnored") === "1";
+		return c.json({ plugins: await listPlugins(deps, { includeIgnored }) });
 	});
 
 	route.get("/:pluginName/skills", async (c) => {

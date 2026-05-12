@@ -63,28 +63,31 @@ export interface MonthlyTrendsResponse {
 }
 
 
-export type MarketplaceStatus = "to_review" | "approved" | "denied";
+export type MarketplaceStatus = "to_review" | "approved" | "denied" | "ignored";
 
-export type PluginStatus = "to_review" | "approved" | "removed";
+export type PluginStatus = "to_review" | "approved" | "removed" | "ignored";
 
-export type SkillStatus = "to_review" | "approved" | "removed";
+export type SkillStatus = "to_review" | "approved" | "removed" | "ignored";
 
 export const SKILL_STATUSES: readonly SkillStatus[] = [
 	"to_review",
 	"approved",
 	"removed",
+	"ignored",
 ] as const;
 
 export const PLUGIN_STATUSES: readonly PluginStatus[] = [
 	"to_review",
 	"approved",
 	"removed",
+	"ignored",
 ] as const;
 
 export const MARKETPLACE_STATUSES: readonly MarketplaceStatus[] = [
 	"to_review",
 	"approved",
 	"denied",
+	"ignored",
 ] as const;
 
 export interface Plugin {
@@ -185,6 +188,7 @@ export interface SkillDetailPluginRef {
 	pluginName: string;
 	marketplaceName: string | null;
 	status: string;
+	skillRepoUrl: string | null;
 }
 
 export interface SkillDetail {

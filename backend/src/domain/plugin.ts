@@ -1,4 +1,4 @@
-export type PluginStatus = "to_review" | "approved" | "removed";
+export type PluginStatus = "to_review" | "approved" | "removed" | "ignored";
 
 export interface Plugin {
 	pluginName: string;
@@ -6,6 +6,7 @@ export interface Plugin {
 	pluginVersion: string | null;
 	installTrigger: string | null;
 	marketplaceIsOfficial: boolean | null;
+	source: string | null;
 	status: PluginStatus;
 	firstSeenAt: Date;
 	lastSeenAt: Date;
@@ -36,6 +37,7 @@ export interface NewPlugin {
 	pluginVersion: string | null;
 	installTrigger: string | null;
 	marketplaceIsOfficial: boolean | null;
+	source?: string | null;
 	status: PluginStatus;
 }
 
@@ -44,6 +46,7 @@ export function computePluginStatus(
 	marketplaceStatus: string | null | undefined,
 ): PluginStatus {
 	if (!marketplaceName) return "to_review";
+	if (marketplaceStatus === "ignored") return "ignored";
 	if (marketplaceStatus === "approved") return "approved";
 	return "to_review";
 }

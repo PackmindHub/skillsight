@@ -28,7 +28,8 @@ export function createUsageRoute(deps: Pick<AppDeps, "skills" | "marketplaces">)
 	route.get("/table", async (c) => {
 		const days = parseDays(c.req.query("days"));
 		if (typeof days === "object") return c.json(days, 400);
-		return c.json({ rows: await getSkillsTable(deps, { days }) });
+		const includeIgnored = c.req.query("includeIgnored") === "1";
+		return c.json({ rows: await getSkillsTable(deps, { days, includeIgnored }) });
 	});
 
 	route.get("/detail", async (c) => {

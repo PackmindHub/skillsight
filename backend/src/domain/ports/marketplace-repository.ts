@@ -7,7 +7,7 @@ import type {
 } from "@/domain/marketplace";
 
 export interface IMarketplaceRepository {
-	listWithStats(): Promise<MarketplaceWithStats[]>;
+	listWithStats(includeIgnored?: boolean): Promise<MarketplaceWithStats[]>;
 	findByName(name: string): Promise<Marketplace | null>;
 	delete(name: string): Promise<boolean>;
 	update(
