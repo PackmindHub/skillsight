@@ -30,7 +30,7 @@ services:
     networks:
       - internal
     ports:
-      - "${HOST_BIND:-0.0.0.0}:${HOST_PORT:-4200}:4200"
+      - "${HOST_BIND:-0.0.0.0}:${HOST_PORT:-5173}:4200"
     depends_on:
       postgres:
         condition: service_healthy

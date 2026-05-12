@@ -95,7 +95,7 @@ curl -O https://raw.githubusercontent.com/PackmindHub/skills-obs/main/docker-com
 docker compose up -d
 ```
 
-Open http://localhost:4200 and sign in with `admin@example.com` / `admin`. On first login you're redirected to `/onboarding`, which auto-mints an ingestion token and renders the exact env block to point Claude Code at this instance.
+Open http://localhost:5173 and sign in with `admin@example.com` / `admin`. On first login you're redirected to `/onboarding`, which auto-mints an ingestion token and renders the exact env block to point Claude Code at this instance.
 
 By default the stack tracks `ghcr.io/packmindhub/skills-obs:latest`. To pin a specific version:
 
@@ -116,12 +116,11 @@ Every variable below has a sensible default baked into `docker-compose.yml`. Ove
 | `JWT_SECRET_PREVIOUS` | *(empty)* | Previous secret, kept valid for zero-downtime rotation |
 | `ADMIN_EMAIL` | `admin@example.com` | Bootstrap admin email (used only on the very first start, when the `users` table is empty) |
 | `ADMIN_PASSWORD_INITIAL` | `admin` | Bootstrap admin password (same one-shot semantics) |
-| `PUBLIC_BASE_URL` | *(empty — derived from request)* | Lock CORS to a single origin in production |
 | `HOST_BIND` | `0.0.0.0` | Host interface to bind the published port to |
-| `HOST_PORT` | `4200` | Host-side published port |
+| `HOST_PORT` | `5173` | Host-side published port |
 | `SKILLSIGHT_IMAGE` | `ghcr.io/packmindhub/skills-obs:latest` | Pin a specific image tag |
 
-> **Going to production:** the bundled defaults are for kicking the tires, not for production. At minimum, set a strong `POSTGRES_PASSWORD`, replace `JWT_SECRET` with a 32+ char random string (e.g. `openssl rand -hex 32`), change `ADMIN_EMAIL` / `ADMIN_PASSWORD_INITIAL` **before the first start** (the admin password can also be rotated from the UI afterwards), and set `PUBLIC_BASE_URL` to your public origin. `.env.example` is a good starting template.
+> **Going to production:** the bundled defaults are for kicking the tires, not for production. At minimum, set a strong `POSTGRES_PASSWORD`, replace `JWT_SECRET` with a 32+ char random string (e.g. `openssl rand -hex 32`), and change `ADMIN_EMAIL` / `ADMIN_PASSWORD_INITIAL` **before the first start** (the admin password can also be rotated from the UI afterwards). `.env.example` is a good starting template.
 
 ## Connecting Claude Code
 
@@ -133,7 +132,7 @@ Point Claude Code at Skillsight's OTLP endpoint:
 export CLAUDE_CODE_ENABLE_TELEMETRY=1
 export OTEL_LOGS_EXPORTER=otlp
 export OTEL_EXPORTER_OTLP_PROTOCOL=http/json   # must be http/json, not grpc
-export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4200/api/v0/telemetry/v1/logs
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:5173/api/v0/telemetry/v1/logs
 export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer <your-token>"
 export OTEL_LOG_TOOL_DETAILS=1                  # required for real skill names
 ```
@@ -146,7 +145,7 @@ For org-wide rollout via managed settings (`.claude/settings.json`):
     "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
     "OTEL_LOGS_EXPORTER": "otlp",
     "OTEL_EXPORTER_OTLP_PROTOCOL": "http/json",
-    "OTEL_EXPORTER_OTLP_ENDPOINT": "http://<your-host>:4200/api/v0/telemetry/v1/logs",
+    "OTEL_EXPORTER_OTLP_ENDPOINT": "http://<your-host>:5173/api/v0/telemetry/v1/logs",
     "OTEL_EXPORTER_OTLP_HEADERS": "Authorization=Bearer <your-token>",
     "OTEL_LOG_TOOL_DETAILS": "1"
   }
