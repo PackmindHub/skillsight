@@ -37,6 +37,19 @@ Claude Code emits OpenTelemetry events for every skill activation, but it ships 
 
 Skillsight is the missing thin layer: small enough to deploy in an afternoon, opinionated enough to be useful out of the box.
 
+### How this relates to Claude Code's native controls
+
+Claude Code Enterprise/Team already lets an organization admin register marketplaces centrally and govern each plugin with one of four statuses:
+
+- `available` — installable on demand
+- `pre-installed` — installed by default for everyone
+- `required` — must be installed (cannot be removed)
+- `hidden` — not surfaced in the catalog
+
+Skillsight does **not** replace, mirror, or write to those controls. It works the other way around: it watches what your developers actually activate and gives you a curation view on top of that signal. Its own statuses (`to_review` / `approved` / `removed`) are just labels inside Skillsight to organize the review queue — they never reach a developer's machine.
+
+The two layers are complementary: Claude Code decides *what is allowed*; Skillsight tells you *what is actually used*, so the decisions in the first layer can be grounded in field data instead of intuition.
+
 **Who it's for:** developer-experience teams, AI-enablement teams, and anyone curating a skills marketplace for an organization. It's built to support adoption and curation, not to surveil developers.
 
 ## What you get
@@ -171,7 +184,7 @@ Bug reports, feature ideas, and pull requests are welcome. See [CONTRIBUTING.md]
 
 Planned, no dates — direction, not commitment.
 
-- **Allow-list export to Claude Code** — let `approved` / `removed` statuses optionally drive what Claude Code allows on developer machines.
+- **Claude Code integration (exploratory)** — investigate ways to feed Skillsight's curation signal back into Claude Code's native marketplace controls. Intent is to enrich, not replace, the existing governance — scope and feasibility are open.
 - **Cohort segmentation** — tag users into teams and slice every metric by cohort.
 - **New-skill / new-marketplace alerts** — get notified the first time an unknown skill, plugin, or marketplace appears.
 - **Marketplace recommendations** — surface third-party skills gaining traction or duplicating official ones.
