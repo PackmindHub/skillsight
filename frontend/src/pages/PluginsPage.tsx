@@ -1,7 +1,9 @@
 import { MarketplaceBadge } from "@/components/marketplaces/MarketplaceBadge";
 import { PluginSkillsDrawer } from "@/components/plugins/PluginSkillsDrawer";
 import {
+	Button,
 	Card,
+	IncludeIgnoredToggle,
 	Input,
 	PageHeader,
 	SingleSelect,
@@ -9,11 +11,12 @@ import {
 	type StatusChipOption,
 } from "@/components/ui";
 import { api } from "@/lib/api";
+import { useIncludeIgnored } from "@/lib/use-include-ignored";
 import { useStatusFilter } from "@/lib/use-status-filter";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import { PLUGIN_STATUSES, type Plugin, type PluginStatus } from "@/types/api";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 type MarketplaceAssociation = "all" | "with" | "without";
 const MARKETPLACE_ASSOCIATIONS: readonly MarketplaceAssociation[] = ["all", "with", "without"] as const;
@@ -32,6 +35,7 @@ const PLUGIN_STATUS_CHIP_OPTIONS: readonly StatusChipOption<PluginStatus>[] = [
 	{ value: "approved", label: "Approved", tone: "success" },
 	{ value: "to_review", label: "To review", tone: "warning" },
 	{ value: "removed", label: "Removed", tone: "danger" },
+	{ value: "ignored", label: "Ignored", tone: "neutral" },
 ];
 
 const STATUS_FILTER_OPTIONS: {
@@ -43,10 +47,11 @@ const STATUS_FILTER_OPTIONS: {
 	{ key: "to_review", label: "To review", dot: "var(--color-warning)" },
 	{ key: "approved", label: "Approved", dot: "var(--color-success)" },
 	{ key: "removed", label: "Removed", dot: "var(--color-danger)" },
+	{ key: "ignored", label: "Ignored", dot: "var(--color-text-3)" },
 ];
 
 const PL_GRID_COLS =
-	"grid-cols-[minmax(220px,1.6fr)_minmax(150px,1.1fr)_72px_104px_80px_72px_136px]";
+	"grid-cols-[40px_minmax(220px,1.6fr)_minmax(150px,1.1fr)_72px_104px_80px_72px_136px]";
 
 const LOGO_GRADIENTS = [
 	"linear-gradient(135deg, var(--color-accent-bright), color-mix(in srgb, var(--color-accent-bright) 50%, var(--color-surface-700)))",
@@ -123,11 +128,21 @@ export default function PluginsPage() {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [searchParams, setSearchParams] = useSearchParams();
+	const navigate = useNavigate();
 	const { status: statusFilter, setStatus } = useStatusFilter<PluginStatus>(
 		"status",
 		PLUGIN_STATUSES,
 	);
+	const { includeIgnored, setIncludeIgnored } = useIncludeIgnored();
 	const [selectedPlugin, setSelectedPlugin] = useState<string | null>(null);
+	const [selected, setSelected] = useState<Set<string>>(new Set());
+	const selectAllRef = useRef<HTMLInputElement>(null);
+	const [bulkBusy, setBulkBusy] = useState(false);
+	const [bulkStatusResult, setBulkStatusResult] = useState<{
+		updated: number;
+		failed: number;
+	} | null>(null);
+	const [bulkError, setBulkError] = useState<string | null>(null);
 
 	const search = searchParams.get("search") ?? "";
 	const highlightName = searchParams.get("name") ?? "";
@@ -176,11 +191,11 @@ export default function PluginsPage() {
 	// biome-ignore lint/correctness/useExhaustiveDependencies: reloadToken is a manual refetch trigger
 	useEffect(() => {
 		api.plugins
-			.list()
+			.list({ includeIgnored })
 			.then((res) => setItems(res.plugins))
 			.catch((e) => setError(String(e)))
 			.finally(() => setLoading(false));
-	}, [reloadToken]);
+	}, [reloadToken, includeIgnored]);
 
 	useEffect(() => {
 		function onFocus() {
@@ -202,7 +217,7 @@ export default function PluginsPage() {
 			await api.plugins.update(pluginName, { status });
 		} catch {
 			api.plugins
-				.list()
+				.list({ includeIgnored })
 				.then((res) => setItems(res.plugins))
 				.catch(() => {});
 		}
@@ -218,6 +233,120 @@ export default function PluginsPage() {
 			return true;
 		});
 	}, [items, statusFilter, search, marketplaceFilter, mpAssoc]);
+
+	const filteredNames = useMemo(() => filteredItems.map((p) => p.pluginName), [filteredItems]);
+	const visibleSelectedCount = useMemo(
+		() => filteredNames.reduce((n, name) => n + (selected.has(name) ? 1 : 0), 0),
+		[filteredNames, selected],
+	);
+	const allVisibleSelected =
+		filteredNames.length > 0 && visibleSelectedCount === filteredNames.length;
+	const someVisibleSelected = visibleSelectedCount > 0 && !allVisibleSelected;
+
+	useEffect(() => {
+		if (selectAllRef.current) selectAllRef.current.indeterminate = someVisibleSelected;
+	}, [someVisibleSelected]);
+
+	// Drop selected names that are no longer in the filtered view, so the toolbar
+	// count always matches what the user can actually act on.
+	useEffect(() => {
+		setSelected((prev) => {
+			if (prev.size === 0) return prev;
+			const visible = new Set(filteredNames);
+			let changed = false;
+			const next = new Set<string>();
+			for (const name of prev) {
+				if (visible.has(name)) next.add(name);
+				else changed = true;
+			}
+			return changed ? next : prev;
+		});
+	}, [filteredNames]);
+
+	function toggleRowSelect(name: string) {
+		setSelected((prev) => {
+			const next = new Set(prev);
+			if (next.has(name)) next.delete(name);
+			else next.add(name);
+			return next;
+		});
+	}
+
+	function toggleSelectAll() {
+		setSelected((prev) => {
+			if (allVisibleSelected) {
+				const next = new Set(prev);
+				for (const name of filteredNames) next.delete(name);
+				return next;
+			}
+			const next = new Set(prev);
+			for (const name of filteredNames) next.add(name);
+			return next;
+		});
+	}
+
+	function clearSelection() {
+		setSelected(new Set());
+	}
+
+	useEffect(() => {
+		if (!bulkStatusResult && !bulkError) return;
+		const id = setTimeout(() => {
+			setBulkStatusResult(null);
+			setBulkError(null);
+		}, 6000);
+		return () => clearTimeout(id);
+	}, [bulkStatusResult, bulkError]);
+
+	async function handleBulkStatus(status: PluginStatus) {
+		const names = Array.from(selected);
+		if (names.length === 0 || bulkBusy) return;
+		setBulkBusy(true);
+		setBulkError(null);
+		setBulkStatusResult(null);
+
+		setItems((prev) =>
+			prev.map((p) => (selected.has(p.pluginName) ? { ...p, status } : p)),
+		);
+
+		const results = await Promise.allSettled(
+			names.map((name) => api.plugins.update(name, { status })),
+		);
+		const updated = results.filter((r) => r.status === "fulfilled").length;
+		const failed = results.length - updated;
+		setBulkStatusResult({ updated, failed });
+		setSelected(new Set());
+		setReloadToken((t) => t + 1);
+		setBulkBusy(false);
+	}
+
+	async function handleViewCohort() {
+		const names = Array.from(selected);
+		if (names.length === 0 || bulkBusy) return;
+		setBulkBusy(true);
+		setBulkError(null);
+		try {
+			const responses = await Promise.all(
+				names.map((name) => api.plugins.skills(name)),
+			);
+			const skillNames = new Set<string>();
+			for (const res of responses) {
+				for (const s of res.skills) {
+					if (s.skillName) skillNames.add(s.skillName);
+				}
+			}
+			if (skillNames.size === 0) {
+				setBulkError("Selected plugins have no skills yet.");
+				return;
+			}
+			const skills = [...skillNames].sort().join(",");
+			navigate(`/cohorts?skills=${encodeURIComponent(skills)}`);
+		} catch (e) {
+			setBulkError(e instanceof Error ? e.message : String(e));
+		} finally {
+			setBulkBusy(false);
+		}
+	}
 
 	useLayoutEffect(() => {
 		if (!highlightName || loading) return;
@@ -318,6 +447,7 @@ export default function PluginsPage() {
 								label: ASSOC_LABELS[value],
 							}))}
 						/>
+						<IncludeIgnoredToggle value={includeIgnored} onChange={setIncludeIgnored} />
 						{marketplaceFilter && (
 							<span className="inline-flex items-center gap-1 rounded-full border border-edge bg-surface-800 px-2 py-0.5 text-xs text-text-2">
 								Marketplace: {marketplaceFilter}
@@ -350,6 +480,72 @@ export default function PluginsPage() {
 						</span>
 					</div>
 
+					{selected.size > 0 && (
+						<div className="flex flex-wrap items-center gap-3 rounded-md border border-accent-bright/30 bg-accent-bright/10 px-3 py-2 text-sm text-text-1">
+							<span className="flex items-center gap-2">
+								<span>
+									<span className="font-medium">{selected.size}</span> selected
+								</span>
+								<button
+									type="button"
+									onClick={clearSelection}
+									className="text-xs text-text-3 hover:text-text-1 hover:underline"
+								>
+									Clear
+								</button>
+							</span>
+							<span className="h-5 border-l border-edge" aria-hidden />
+							<div className="flex items-center gap-2">
+								<Button
+									variant="secondary"
+									size="sm"
+									onClick={handleViewCohort}
+									disabled={bulkBusy}
+									title="Open the Cohorts page filtered to the skills of the selected plugins"
+								>
+									View cohort
+								</Button>
+								<StatusChip<PluginStatus>
+									value={"" as PluginStatus}
+									options={PLUGIN_STATUS_CHIP_OPTIONS}
+									placeholderLabel="Set status…"
+									onChange={(v) => handleBulkStatus(v)}
+									disabled={bulkBusy}
+									ariaLabel="Set status for selected plugins"
+									align="right"
+									size="md"
+								/>
+							</div>
+						</div>
+					)}
+
+					{(bulkStatusResult || bulkError) && (
+						<output
+							className={cn(
+								"block rounded-md border px-3 py-2 text-sm",
+								bulkError
+									? "border-danger/30 bg-danger/10 text-danger"
+									: "border-accent-bright/30 bg-accent-bright/10 text-text-1",
+							)}
+						>
+							{bulkError ? (
+								<>{bulkError}</>
+							) : bulkStatusResult ? (
+								<>
+									Updated <span className="font-medium">{bulkStatusResult.updated}</span>
+									{bulkStatusResult.failed > 0 && (
+										<>
+											{" · "}
+											<span className="text-text-3">
+												{bulkStatusResult.failed} failed
+											</span>
+										</>
+									)}
+								</>
+							) : null}
+						</output>
+					)}
+
 					<div className="overflow-x-auto">
 						<div className="min-w-[1100px] rounded-lg border border-edge bg-surface-900">
 							<div
@@ -359,6 +555,21 @@ export default function PluginsPage() {
 									PL_GRID_COLS,
 								)}
 							>
+								<div className="flex items-center">
+									<input
+										ref={selectAllRef}
+										type="checkbox"
+										aria-label={
+											allVisibleSelected
+												? "Deselect all filtered plugins"
+												: "Select all filtered plugins"
+										}
+										checked={allVisibleSelected}
+										onChange={toggleSelectAll}
+										disabled={filteredItems.length === 0}
+										className="h-4 w-4 cursor-pointer accent-accent-bright disabled:cursor-not-allowed disabled:opacity-40"
+									/>
+								</div>
 								<div>Plugin</div>
 								<div>Marketplace</div>
 								<div className="text-right">Skills</div>
@@ -377,6 +588,7 @@ export default function PluginsPage() {
 							{filteredItems.map((plugin) => {
 								const status = (plugin.status ?? "to_review") as PluginStatus;
 								const isHighlighted = highlightName === plugin.pluginName;
+								const isSelected = selected.has(plugin.pluginName);
 								const openDrawer = () => setSelectedPlugin(plugin.pluginName);
 								const activations = plugin.skillActivationCount;
 								return (
@@ -387,9 +599,19 @@ export default function PluginsPage() {
 											"grid items-center gap-3 border-t border-edge-dim px-4 py-3.5 transition-colors first:border-t-0 hover:bg-accent-bright/[0.03]",
 											isHighlighted &&
 												"bg-accent-bright/[0.06] ring-1 ring-inset ring-accent-bright/40",
+											isSelected && !isHighlighted && "bg-accent-bright/5",
 											PL_GRID_COLS,
 										)}
 									>
+										<div className="flex items-center">
+											<input
+												type="checkbox"
+												aria-label={`Select plugin ${plugin.pluginName}`}
+												checked={isSelected}
+												onChange={() => toggleRowSelect(plugin.pluginName)}
+												className="h-4 w-4 cursor-pointer accent-accent-bright"
+											/>
+										</div>
 										<div className="flex min-w-0 items-center gap-3">
 											<PluginLogo name={plugin.pluginName} />
 											<div className="min-w-0">
