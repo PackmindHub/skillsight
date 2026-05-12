@@ -52,6 +52,7 @@ function makeDeps(overrides?: {
 			return overrides?.eventsDeletedReturn ?? entries.length * 3;
 		},
 		listRecentSkillActivations: async () => [],
+		listUserSkillActivations: async () => [],
 	};
 
 	const audit: IAuditRepository = {
@@ -128,6 +129,7 @@ describe("deleteSkills", () => {
 				return 5;
 			},
 			listRecentSkillActivations: async () => [],
+		listUserSkillActivations: async () => [],
 		};
 		const audit: IAuditRepository = {
 			log: async () => {},
@@ -227,6 +229,7 @@ describe("deleteSkills", () => {
 			deleteByIntegrationId: async () => {},
 			deleteBySkillKeys: async () => 1,
 			listRecentSkillActivations: async () => [],
+		listUserSkillActivations: async () => [],
 		};
 		const audit: IAuditRepository = {
 			log: async () => {

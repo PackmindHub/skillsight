@@ -14,6 +14,7 @@ import {
 	ScrollText,
 	Settings as SettingsIcon,
 	Sparkles,
+	Users,
 } from "lucide-react";
 import { useNavigate, NavLink } from "react-router-dom";
 
@@ -33,6 +34,7 @@ const mainLinks: MainLink[] = [
 	{ to: "/skills", label: "Skills", icon: Sparkles },
 	{ to: "/marketplaces", label: "Marketplaces", icon: Boxes },
 	{ to: "/plugins", label: "Plugins", icon: Plug },
+	{ to: "/cohorts", label: "Cohorts", icon: Users },
 	{ to: "/tokens", label: "Tokens", icon: KeyRound },
 	{ to: "/events", label: "Events", icon: Activity },
 	{ to: "/audit", label: "Audit Log", icon: ScrollText },

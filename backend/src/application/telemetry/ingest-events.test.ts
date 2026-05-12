@@ -16,6 +16,7 @@ function makeEvents(): IEventRepository {
 		deleteByIntegrationId: async () => {},
 		deleteBySkillKeys: async () => 0,
 		listRecentSkillActivations: async () => [],
+		listUserSkillActivations: async () => [],
 	};
 }
 

@@ -2,8 +2,10 @@ import type { AppDb } from "@/db/client";
 import { events } from "@/db/schema";
 import { EVENT_NAMES } from "@/domain/event";
 import type {
+	CohortsWindow,
 	IEventRepository,
 	RecentSkillActivatedEvent,
+	UserSkillActivation,
 } from "@/domain/ports/event-repository";
 import type { NewEvent } from "@/domain/event";
 import { and, desc, eq, or, sql } from "drizzle-orm";
@@ -91,5 +93,39 @@ export class DrizzleEventRepository implements IEventRepository {
 						: null,
 			};
 		});
+	}
+
+	async listUserSkillActivations(window: CohortsWindow): Promise<UserSkillActivation[]> {
+		const skillExpr = sql<string>`(${events.attributes}->>'skill.name')`;
+		const conditions = [
+			eq(events.eventName, EVENT_NAMES.SKILL_ACTIVATED),
+			sql`${events.userEmail} IS NOT NULL`,
+			sql`${skillExpr} IS NOT NULL`,
+		];
+		if (window !== "all") {
+			conditions.push(sql`${events.timestamp} >= NOW() - (${window} || ' days')::interval`);
+		}
+
+		const rows = await this.db
+			.select({
+				userEmail: events.userEmail,
+				skillName: skillExpr,
+				activations: sql<number>`COUNT(*)::int`,
+				lastActivatedAt: sql<Date>`MAX(${events.timestamp})`,
+			})
+			.from(events)
+			.where(and(...conditions))
+			.groupBy(events.userEmail, skillExpr);
+
+		return rows
+			.filter((r): r is typeof r & { userEmail: string } => r.userEmail != null)
+			.map((r) => ({
+				userEmail: r.userEmail,
+				skillName: r.skillName,
+				activations: Number(r.activations),
+				lastActivatedAt: r.lastActivatedAt instanceof Date
+					? r.lastActivatedAt
+					: new Date(r.lastActivatedAt as unknown as string),
+			}));
 	}
 }

@@ -289,3 +289,25 @@ export interface LiveSkillActivatedEvent {
 export interface LiveEventsResponse {
 	events: LiveSkillActivatedEvent[];
 }
+
+export interface CohortMember {
+	email: string;
+	totalActivations: number;
+	lastActiveAt: string;
+	perSkill: Record<string, number>;
+}
+
+export interface Cohort {
+	id: string;
+	skills: string[];
+	users: CohortMember[];
+	activations: number;
+	lastActiveAt: string;
+}
+
+export interface CohortsResponse {
+	cohorts: Cohort[];
+	windowDays: number | null;
+	totalUsers: number;
+	totalSkills: number;
+}
