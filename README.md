@@ -73,7 +73,7 @@ The relationships are loose on purpose, because Claude Code is loose about them:
 - A **skill** may belong to a **plugin**, or be standalone — the bundled built-ins aren't owned by any plugin.
 - A **plugin** may belong to a **marketplace**, or be inline / local.
 - **Status flows downward**: marketplace → plugin → skill. Approve a marketplace, and its plugins and skills inherit the approval.
-- **Bundled skills auto-display as `approved`** so the built-ins don't sit in your review queue forever.
+- **Bundled skills (shipped with Claude Code) auto-display as `approved`** so the built-ins don't sit in your review queue forever.
 - **Status is informational only.** It organizes your view inside Skillsight; it does **not** gate or allow-list anything on the developer's machine.
 
 ## Use cases
@@ -85,21 +85,17 @@ The relationships are loose on purpose, because Claude Code is loose about them:
 
 ## Quick start
 
-The production `docker-compose.yml` pulls a pre-built image from GitHub Container Registry — no local build needed.
+The production `docker-compose.yml` pulls a pre-built image from GitHub Container Registry — no local build needed, no env file required to get started.
 
 ```bash
 # 1. Grab the compose file (or clone the repo)
 curl -O https://raw.githubusercontent.com/PackmindHub/skills-obs/main/docker-compose.yml
 
-# 2. Provide the required env vars (inline, or via a .env file next to docker-compose.yml)
-POSTGRES_PASSWORD=changeme \
-JWT_SECRET=change-me-in-production-at-least-32-chars \
-ADMIN_EMAIL=admin@example.com \
-ADMIN_PASSWORD_INITIAL=admin \
-  docker compose up -d
+# 2. Start the stack — defaults are baked into the compose file
+docker compose up -d
 ```
 
-Open http://localhost:4200 and sign in. On first login you're redirected to `/onboarding`, which auto-mints an ingestion token and renders the exact env block to point Claude Code at this instance.
+Open http://localhost:4200 and sign in with `admin@example.com` / `admin`. On first login you're redirected to `/onboarding`, which auto-mints an ingestion token and renders the exact env block to point Claude Code at this instance.
 
 By default the stack tracks `ghcr.io/packmindhub/skills-obs:latest`. To pin a specific version:
 
@@ -107,16 +103,25 @@ By default the stack tracks `ghcr.io/packmindhub/skills-obs:latest`. To pin a sp
 SKILLSIGHT_IMAGE=ghcr.io/packmindhub/skills-obs:1.2.3 docker compose up -d
 ```
 
-### Required environment variables
+### Environment variables
 
-| Variable | Description |
-|---|---|
-| `POSTGRES_PASSWORD` | PostgreSQL password |
-| `JWT_SECRET` | HS256 signing secret, minimum 32 characters |
-| `ADMIN_EMAIL` | Bootstrap admin email |
-| `ADMIN_PASSWORD_INITIAL` | Bootstrap admin password (used once on first start) |
+Every variable below has a sensible default baked into `docker-compose.yml`. Override any of them by exporting in your shell or by dropping a `.env` file next to `docker-compose.yml` (see `.env.example` for a template).
 
-Optional: `JWT_SECRET_PREVIOUS` for zero-downtime rotation, `PUBLIC_BASE_URL` to lock CORS to one origin, `HOST_BIND` / `HOST_PORT` to change the published port, `SKILLSIGHT_IMAGE` to pin a specific image tag.
+| Variable | Default | Description |
+|---|---|---|
+| `POSTGRES_PASSWORD` | `skills_obs` | PostgreSQL password (used by both the DB and the app's connection string) |
+| `POSTGRES_USER` | `skills_obs` | PostgreSQL user — override only if reusing an existing DB |
+| `POSTGRES_DB` | `skills_obs` | PostgreSQL database name — override only if reusing an existing DB |
+| `JWT_SECRET` | `change-me-in-production-please-at-least-32-chars` | HS256 session-signing secret, minimum 32 characters |
+| `JWT_SECRET_PREVIOUS` | *(empty)* | Previous secret, kept valid for zero-downtime rotation |
+| `ADMIN_EMAIL` | `admin@example.com` | Bootstrap admin email (used only on the very first start, when the `users` table is empty) |
+| `ADMIN_PASSWORD_INITIAL` | `admin` | Bootstrap admin password (same one-shot semantics) |
+| `PUBLIC_BASE_URL` | *(empty — derived from request)* | Lock CORS to a single origin in production |
+| `HOST_BIND` | `0.0.0.0` | Host interface to bind the published port to |
+| `HOST_PORT` | `4200` | Host-side published port |
+| `SKILLSIGHT_IMAGE` | `ghcr.io/packmindhub/skills-obs:latest` | Pin a specific image tag |
+
+> **Going to production:** the bundled defaults are for kicking the tires, not for production. At minimum, set a strong `POSTGRES_PASSWORD`, replace `JWT_SECRET` with a 32+ char random string (e.g. `openssl rand -hex 32`), change `ADMIN_EMAIL` / `ADMIN_PASSWORD_INITIAL` **before the first start** (the admin password can also be rotated from the UI afterwards), and set `PUBLIC_BASE_URL` to your public origin. `.env.example` is a good starting template.
 
 ## Connecting Claude Code
 
@@ -160,6 +165,27 @@ If your Claude Code fleet already ships logs to a Grafana Loki stack, Skillsight
 - Optional basic-auth, encrypted at rest.
 
 A scheduler polls each enabled integration and feeds the parsed events into the same pipeline as direct OTLP push.
+
+### Pointing Claude Code at Grafana Cloud
+
+If you don't yet ship Claude Code telemetry anywhere, the quickest path to a Loki-backed setup is Grafana Cloud's hosted OTLP endpoint. Drop this into `.claude/settings.json` (or your org-wide managed settings):
+
+```json
+{
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+    "OTEL_EXPORTER_OTLP_ENDPOINT": "https://acme.grafana.net/otlp",
+    "OTEL_EXPORTER_OTLP_HEADERS": "Authorization=Basic <user:api_token encoded in base64>",
+    "OTEL_EXPORTER_OTLP_PROTOCOL": "http/protobuf",
+    "OTEL_LOGS_EXPORTER": "otlp",
+    "OTEL_LOGS_EXPORT_INTERVAL": "30000",
+    "OTEL_LOG_TOOL_DETAILS": "1",
+    "OTEL_METRICS_EXPORTER": "none"
+  }
+}
+```
+
+Replace `acme.grafana.net` with your Grafana Cloud stack's OTLP endpoint, and `<user:api_token encoded in base64>` with `printf '%s' '<instance-id>:<api-token>' | base64` (the instance ID and token come from Grafana Cloud → Connections → OTLP). Once events are flowing into Loki, register a Skillsight integration that points at the same stack's Loki URL.
 
 ## Marketplace sources
 
