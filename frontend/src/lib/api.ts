@@ -247,6 +247,12 @@ export const api = {
 			apiFetch<void>(`/api/integrations/${id}/reset-cursor`, { method: "POST" }),
 		clearData: (id: string) =>
 			apiFetch<void>(`/api/integrations/${id}/data`, { method: "DELETE" }),
+		getDirectStats: () =>
+			apiFetch<{ eventCount: number; lastEventAt: string | null }>(
+				"/api/integrations/direct/stats",
+			),
+		clearDirectData: () =>
+			apiFetch<void>("/api/integrations/direct/events", { method: "DELETE" }),
 		openStream: (handlers: {
 			onUpdate?: (integration: Integration) => void;
 			onDelete?: (id: string) => void;

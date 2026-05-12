@@ -3,6 +3,7 @@ import { events } from "@/db/schema";
 import { EVENT_NAMES } from "@/domain/event";
 import type {
 	CohortsWindow,
+	DirectEventStats,
 	IEventRepository,
 	RecentSkillActivatedEvent,
 	UserSkillActivation,
@@ -34,6 +35,30 @@ export class DrizzleEventRepository implements IEventRepository {
 
 	async deleteByIntegrationId(integrationId: string): Promise<void> {
 		await this.db.delete(events).where(eq(events.sourceIntegrationId, integrationId));
+	}
+
+	async deleteDirectEvents(): Promise<void> {
+		await this.db.delete(events).where(eq(events.source, "direct"));
+	}
+
+	async getDirectStats(): Promise<DirectEventStats> {
+		const [row] = await this.db
+			.select({
+				cnt: sql<number>`COUNT(*)::int`,
+				lastEventAt: sql<Date | null>`MAX(${events.timestamp})`,
+			})
+			.from(events)
+			.where(eq(events.source, "direct"));
+		const lastEventAt = row?.lastEventAt ?? null;
+		return {
+			eventCount: Number(row?.cnt ?? 0),
+			lastEventAt:
+				lastEventAt === null
+					? null
+					: lastEventAt instanceof Date
+						? lastEventAt
+						: new Date(lastEventAt as unknown as string),
+		};
 	}
 
 	async deleteBySkillKeys(

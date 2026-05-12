@@ -120,6 +120,13 @@
       "when": 1778970000000,
       "tag": "0016_plugins_source",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1778980000000,
+      "tag": "0017_events_source_integration_fk",
+      "breakpoints": true
     }
   ]
 }

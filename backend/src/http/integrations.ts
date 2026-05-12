@@ -10,6 +10,8 @@ import { createIntegration } from "@/application/integrations/create-integration
 import { updateIntegration } from "@/application/integrations/update-integration";
 import { deleteIntegration } from "@/application/integrations/delete-integration";
 import { clearIntegrationData } from "@/application/integrations/clear-integration-data";
+import { clearDirectData } from "@/application/integrations/clear-direct-data";
+import { getDirectStats } from "@/application/integrations/get-direct-stats";
 import { syncIntegration } from "@/application/integrations/sync-integration";
 import { previewIntegration } from "@/application/integrations/preview-integration";
 import { publishIntegrationUpdate } from "@/application/integrations/publish-integration-update";
@@ -118,6 +120,18 @@ export function createIntegrationsRoute(
 				await stream.writeSSE({ event: "heartbeat", data: "" });
 			}
 		});
+	});
+
+	route.get("/direct/stats", async (c) => {
+		return c.json(await getDirectStats({ events: deps.events }));
+	});
+
+	route.delete("/direct/events", async (c) => {
+		await clearDirectData(
+			{ events: deps.events, audit: deps.audit },
+			{ actorEmail: c.get("user").email },
+		);
+		return c.body(null, 204);
 	});
 
 	route.post("/preview", async (c) => {

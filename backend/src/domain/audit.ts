@@ -9,6 +9,7 @@ export type AuditAction =
 	| "integration_updated"
 	| "integration_deleted"
 	| "integration_data_cleared"
+	| "direct_telemetry_data_cleared"
 	| "integration_paused"
 	| "integration_resumed"
 	| "integration_sync_triggered"
@@ -40,6 +41,7 @@ export const ALL_AUDIT_ACTIONS: readonly AuditAction[] = [
 	"integration_updated",
 	"integration_deleted",
 	"integration_data_cleared",
+	"direct_telemetry_data_cleared",
 	"integration_paused",
 	"integration_resumed",
 	"integration_sync_triggered",

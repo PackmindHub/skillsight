@@ -44,7 +44,9 @@ export const events = pgTable(
 		timestamp: timestamp("timestamp").notNull(),
 		attributes: jsonb("attributes"),
 		source: varchar("source", { length: 20 }).notNull().default("direct"),
-		sourceIntegrationId: uuid("source_integration_id"),
+		sourceIntegrationId: uuid("source_integration_id").references(() => integrations.id, {
+			onDelete: "set null",
+		}),
 	},
 	(table) => [
 		uniqueIndex("events_dedup_idx").on(

@@ -1,3 +1,4 @@
+import { DirectIntegrationCard } from "@/components/integrations/DirectIntegrationCard";
 import { IntegrationCard } from "@/components/integrations/IntegrationCard";
 import { IntegrationFormDrawer } from "@/components/integrations/IntegrationFormDrawer";
 import { Button, PageHeader } from "@/components/ui";
@@ -108,19 +109,20 @@ export default function IntegrationsPage() {
 				actions={<Button onClick={openCreate}>Add integration</Button>}
 			/>
 
-			{integrations.length === 0 ? (
-				<div className="rounded-lg border border-dashed border-edge bg-surface-900/50 px-6 py-12 text-center">
-					<p className="text-sm text-text-2">No integrations yet.</p>
-					<p className="mt-1 text-xs text-text-4">
-						Add your first one to start ingesting events.
-					</p>
-					<div className="mt-4 inline-flex">
-						<Button onClick={openCreate}>Add integration</Button>
+			<div className="space-y-3">
+				<DirectIntegrationCard />
+				{integrations.length === 0 ? (
+					<div className="rounded-lg border border-dashed border-edge bg-surface-900/50 px-6 py-12 text-center">
+						<p className="text-sm text-text-2">No external integrations yet.</p>
+						<p className="mt-1 text-xs text-text-4">
+							Connect a Loki source to pull events from your existing observability stack.
+						</p>
+						<div className="mt-4 inline-flex">
+							<Button onClick={openCreate}>Add integration</Button>
+						</div>
 					</div>
-				</div>
-			) : (
-				<div className="space-y-3">
-					{integrations.map((integration) => (
+				) : (
+					integrations.map((integration) => (
 						<IntegrationCard
 							key={integration.id}
 							integration={integration}
@@ -139,9 +141,9 @@ export default function IntegrationsPage() {
 							onClearData={() => handleClearData(integration.id)}
 							onDelete={() => handleDelete(integration.id)}
 						/>
-					))}
-				</div>
-			)}
+					))
+				)}
+			</div>
 
 			<IntegrationFormDrawer
 				open={drawerOpen}

@@ -20,10 +20,17 @@ export interface UserSkillActivation {
 
 export type CohortsWindow = "all" | number;
 
+export interface DirectEventStats {
+	eventCount: number;
+	lastEventAt: Date | null;
+}
+
 export interface IEventRepository {
 	insertMany(events: NewEvent[]): Promise<void>;
 	deleteByIntegrationId(integrationId: string): Promise<void>;
+	deleteDirectEvents(): Promise<void>;
 	deleteBySkillKeys(entries: Array<{ skillName: string; pluginName: string }>): Promise<number>;
 	listRecentSkillActivations(limit: number): Promise<RecentSkillActivatedEvent[]>;
 	listUserSkillActivations(window: CohortsWindow): Promise<UserSkillActivation[]>;
+	getDirectStats(): Promise<DirectEventStats>;
 }
