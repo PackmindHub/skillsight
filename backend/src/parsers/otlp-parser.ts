@@ -79,7 +79,6 @@ export function parseOtlpBody(body: unknown): ParsedEvent[] {
 
 	for (const resourceLog of data.resourceLogs) {
 		const resourceAttrs = flattenAttributes(resourceLog.resource?.attributes);
-		const userEmail = (resourceAttrs["user.email"] as string | undefined) ?? null;
 
 		for (const scopeLog of resourceLog.scopeLogs ?? []) {
 			for (const record of scopeLog.logRecords ?? []) {
@@ -94,6 +93,11 @@ export function parseOtlpBody(body: unknown): ParsedEvent[] {
 				const eventName = shortName.startsWith(CLAUDE_CODE_EVENT_PREFIX)
 					? shortName
 					: `${CLAUDE_CODE_EVENT_PREFIX}${shortName}`;
+
+				const userEmail =
+					(attrs["user.email"] as string | undefined) ??
+					(resourceAttrs["user.email"] as string | undefined) ??
+					null;
 
 				const sessionId =
 					(attrs["session.id"] as string | undefined) ??

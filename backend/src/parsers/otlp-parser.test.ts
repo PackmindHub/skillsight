@@ -63,6 +63,33 @@ describe("parseOtlpBody", () => {
 		expect(event.eventName).toBe("claude_code.tool_use");
 	});
 
+	it("reads user.email from record attributes when missing from resource", () => {
+		const body = {
+			resourceLogs: [
+				{
+					scopeLogs: [
+						{
+							logRecords: [
+								{
+									attributes: [
+										{ key: "user.email", value: { stringValue: "bob@example.com" } },
+										{
+											key: "event.name",
+											value: { stringValue: SHORT_EVENT_NAMES.SKILL_ACTIVATED },
+										},
+									],
+								},
+							],
+						},
+					],
+				},
+			],
+		};
+
+		const [event] = parseOtlpBody(body);
+		expect(event.userEmail).toBe("bob@example.com");
+	});
+
 	it("falls back to 'unknown' event name when attribute is missing", () => {
 		const body = {
 			resourceLogs: [{ scopeLogs: [{ logRecords: [{}] }] }],
