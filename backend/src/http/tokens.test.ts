@@ -72,10 +72,27 @@ describe("POST /api/tokens", () => {
 		expect(res.status).toBe(400);
 	});
 
-	it("returns 400 when expiresAt is missing", async () => {
+	it("creates a token with no exp claim when expiresAt is omitted", async () => {
 		const deps = makeDeps();
 		const res = await authenticatedRequest(makeApp(deps), { name: "ingest" });
-		expect(res.status).toBe(400);
+		expect(res.status).toBe(201);
+		expect(deps.created[0]?.expiresAt).toBeNull();
+		const body = (await res.json()) as { jwt: string };
+		const [, payloadB64] = body.jwt.split(".");
+		const payload = JSON.parse(Buffer.from(payloadB64, "base64url").toString()) as {
+			exp?: number;
+		};
+		expect(payload.exp).toBeUndefined();
+	});
+
+	it("creates a token with no exp claim when expiresAt is null", async () => {
+		const deps = makeDeps();
+		const res = await authenticatedRequest(makeApp(deps), {
+			name: "ingest",
+			expiresAt: null,
+		});
+		expect(res.status).toBe(201);
+		expect(deps.created[0]?.expiresAt).toBeNull();
 	});
 
 	it("returns 400 when expiresAt is not a valid ISO datetime", async () => {

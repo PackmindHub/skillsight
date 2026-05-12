@@ -10,7 +10,12 @@ import { revokeToken } from "@/application/tokens/revoke-token";
 const createTokenSchema = z.object({
 	name: z.string().min(1).max(255),
 	userLabel: z.string().max(255).optional().nullable(),
-	expiresAt: z.string().datetime(),
+	expiresAt: z
+		.string()
+		.datetime()
+		.optional()
+		.nullable()
+		.transform((v) => (v ? v : null)),
 });
 
 export function createTokensRoute(deps: Pick<AppDeps, "tokens" | "audit">) {
@@ -26,7 +31,7 @@ export function createTokensRoute(deps: Pick<AppDeps, "tokens" | "audit">) {
 		const result = await createToken(deps, {
 			name,
 			userLabel,
-			expiresAt: new Date(expiresAt),
+			expiresAt: expiresAt ? new Date(expiresAt) : null,
 			actorEmail: c.get("user").email,
 		});
 		return c.json(result, 201);

@@ -8,7 +8,7 @@ export async function createToken(
 	input: {
 		name: string;
 		userLabel?: string | null;
-		expiresAt: Date;
+		expiresAt: Date | null;
 		actorEmail: string;
 	},
 ): Promise<TokenWithJwt> {

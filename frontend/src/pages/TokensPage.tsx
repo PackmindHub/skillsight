@@ -32,6 +32,7 @@ export default function TokensPage() {
 	const [jwtCopied, setJwtCopied] = useState(false);
 	const [form, setForm] = useState({ name: "", userLabel: "", expiresAt: "" });
 	const [creating, setCreating] = useState(false);
+	const [createError, setCreateError] = useState<string | null>(null);
 
 	useEffect(() => {
 		api.tokens
@@ -45,17 +46,25 @@ export default function TokensPage() {
 	async function handleCreate(e: FormEvent) {
 		e.preventDefault();
 		setCreating(true);
+		setCreateError(null);
 		try {
+			const expiresAt = form.expiresAt
+				? new Date(form.expiresAt).toISOString()
+				: undefined;
 			const created = await api.tokens.create({
 				name: form.name,
 				userLabel: form.userLabel || undefined,
-				expiresAt: form.expiresAt || undefined,
+				expiresAt,
 			});
 			const { jwt, ...token } = created;
 			setTokens((t) => [token, ...t]);
 			setNewJwt(jwt);
 			setShowCreate(false);
 			setForm({ name: "", userLabel: "", expiresAt: "" });
+		} catch (e) {
+			setCreateError(
+				e instanceof Error && e.message ? e.message : "Failed to create token.",
+			);
 		} finally {
 			setCreating(false);
 		}
@@ -81,7 +90,16 @@ export default function TokensPage() {
 		<div className="space-y-4">
 			<PageHeader
 				title="Ingestion Tokens"
-				actions={<Button onClick={() => setShowCreate(true)}>Create token</Button>}
+				actions={
+					<Button
+						onClick={() => {
+							setCreateError(null);
+							setShowCreate(true);
+						}}
+					>
+						Create token
+					</Button>
+				}
 			/>
 
 			{expiringSoon.length > 0 && (
@@ -116,6 +134,14 @@ export default function TokensPage() {
 			{showCreate && (
 				<Card surface="raised">
 					<h2 className="text-sm font-medium text-text-1 mb-3">New token</h2>
+					{createError && (
+						<div
+							role="alert"
+							className="mb-3 rounded-md border border-danger/25 bg-danger/10 px-3 py-2 text-xs text-danger"
+						>
+							{createError}
+						</div>
+					)}
 					<form onSubmit={handleCreate} className="space-y-3">
 						<div className="grid grid-cols-2 gap-3">
 							<FormField label="Name" htmlFor="token-name" required>
@@ -157,7 +183,10 @@ export default function TokensPage() {
 								type="button"
 								variant="secondary"
 								size="sm"
-								onClick={() => setShowCreate(false)}
+								onClick={() => {
+									setShowCreate(false);
+									setCreateError(null);
+								}}
 							>
 								Cancel
 							</Button>
