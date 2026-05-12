@@ -48,6 +48,6 @@ jobs:
           file: ./Dockerfile
           platforms: linux/amd64
           push: false
-          tags: skills-obs:ci
+          tags: skillsight:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max

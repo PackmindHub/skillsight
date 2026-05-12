@@ -17,7 +17,7 @@ services:
       retries: 5
 
   app:
-    image: ${SKILLSIGHT_IMAGE:-ghcr.io/packmindhub/skills-obs:latest}
+    image: ${SKILLSIGHT_IMAGE:-ghcr.io/packmindhub/skillsight:latest}
     environment:
       DATABASE_URL: "postgres://${POSTGRES_USER:-skills_obs}:${POSTGRES_PASSWORD:-skills_obs}@postgres:5432/${POSTGRES_DB:-skills_obs}"
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production-please-at-least-32-chars}

@@ -11,7 +11,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: packmindhub/skills-obs
+  IMAGE_NAME: packmindhub/skillsight
 
 jobs:
   build-and-push:
