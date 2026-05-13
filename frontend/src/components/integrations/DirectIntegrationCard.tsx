@@ -80,6 +80,14 @@ export function DirectIntegrationCard() {
 	}
 
 	const meta = STATUS_META.active;
+	const isLocalhost = (() => {
+		try {
+			const host = new URL(origin).hostname;
+			return host === "localhost" || host === "127.0.0.1";
+		} catch {
+			return false;
+		}
+	})();
 	const envBlock = `{
   "env": {
     "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
@@ -195,7 +203,48 @@ export function DirectIntegrationCard() {
 						</Link>
 						.
 					</p>
+					<p className="mt-2">
+						<code className="rounded border border-edge-dim bg-surface-800 px-1 font-mono text-[11px] text-accent-soft">
+							settings.json
+						</code>{" "}
+						can also be deployed at the organization level — see{" "}
+						<a
+							href="https://code.claude.com/docs/en/server-managed-settings"
+							target="_blank"
+							rel="noreferrer"
+							className="font-medium text-accent-2 underline-offset-2 hover:underline"
+						>
+							Server-managed settings
+						</a>
+						.
+					</p>
 				</div>
+
+				{isLocalhost && (
+					<div
+						className="mt-3 rounded-md px-3 py-2 text-xs"
+						style={{
+							borderWidth: 1,
+							borderStyle: "solid",
+							borderColor:
+								"color-mix(in srgb, var(--color-warning) 30%, transparent)",
+							backgroundColor:
+								"color-mix(in srgb, var(--color-warning) 10%, transparent)",
+							color: "var(--color-warning)",
+						}}
+					>
+						<p>
+							<strong className="font-semibold">Heads up:</strong> the endpoint above
+							points to{" "}
+							<code className="rounded border border-edge-dim bg-surface-800 px-1 font-mono text-[11px]">
+								localhost
+							</code>
+							, so this config will only work on your own machine. To collect telemetry
+							from teammates, this instance needs to be reachable at a shared hostname
+							(and that hostname needs to appear in the copied URL).
+						</p>
+					</div>
+				)}
 
 				<div className="relative mt-3">
 					<pre className="overflow-x-auto rounded-md border border-edge-dim bg-surface-950/60 p-3 font-mono text-xs text-text-2">
