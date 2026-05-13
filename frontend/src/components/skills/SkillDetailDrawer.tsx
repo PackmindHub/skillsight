@@ -4,10 +4,13 @@ import { Drawer } from "@/components/ui/Drawer";
 import { TrendSparkline } from "@/components/skills/TrendSparkline";
 import { api } from "@/lib/api";
 import { cn, formatRelativeTime } from "@/lib/utils";
-import type {
-	PeriodFilter,
-	SkillDetail,
-	SkillDetailPluginRef,
+import {
+	SKILL_SOURCE_LABELS,
+	isBundledSource,
+	isKnownSkillSource,
+	type PeriodFilter,
+	type SkillDetail,
+	type SkillDetailPluginRef,
 } from "@/types/api";
 
 interface SkillDetailDrawerProps {
@@ -140,12 +143,14 @@ export function SkillDetailDrawer({ skillName, period, onClose }: SkillDetailDra
 					<div className="space-y-2">
 						<p className="text-xs uppercase tracking-wide text-text-4">Source</p>
 						<p className="text-sm text-text-1">
-							{detail.skillSource === "bundled" ? (
+							{isBundledSource(detail.skillSource) ? (
 								<span className="inline-flex items-center rounded border border-accent-soft/30 bg-accent-soft/15 px-1.5 py-0.5 text-xs font-medium text-accent-soft">
-									Bundled
+									{SKILL_SOURCE_LABELS.bundled}
 								</span>
+							) : isKnownSkillSource(detail.skillSource) ? (
+								<span className="text-text-3">{SKILL_SOURCE_LABELS[detail.skillSource]}</span>
 							) : (
-								<span className="text-text-3">External</span>
+								<span className="text-text-4">—</span>
 							)}
 							{detail.status === "removed" && (
 								<span className="ml-2 inline-flex items-center rounded border border-red-500/30 bg-red-500/10 px-1.5 py-0.5 text-xs font-medium text-red-400">

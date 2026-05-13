@@ -7,6 +7,25 @@ export const SKILL_STATUSES: readonly SkillStatus[] = [
 	"ignored",
 ] as const;
 
+/**
+ * Wire values for the `skill.source` OTLP attribute emitted by Claude Code.
+ * See https://docs.claude.com/en/docs/claude-code/monitoring-usage (event `claude_code.skill_activated`).
+ * Treat as the single source of truth — UI labels live in
+ * frontend `SKILL_SOURCE_LABELS`, behavior helpers below.
+ */
+export type SkillSource = "bundled" | "userSettings" | "projectSettings" | "plugin";
+
+export const SKILL_SOURCES: readonly SkillSource[] = [
+	"bundled",
+	"userSettings",
+	"projectSettings",
+	"plugin",
+] as const;
+
+export function isBundledSource(skillSource: string | null): boolean {
+	return skillSource === "bundled";
+}
+
 export interface Skill {
 	skillName: string;
 	pluginName: string;
@@ -46,7 +65,7 @@ export function defaultBundledStatus(
 	status: SkillStatus,
 	skillSource: string | null,
 ): SkillStatus {
-	return status === "to_review" && skillSource === "bundled" ? "approved" : status;
+	return status === "to_review" && isBundledSource(skillSource) ? "approved" : status;
 }
 
 export interface SkillDetailRow {

@@ -80,6 +80,32 @@ export const SKILL_STATUSES: readonly SkillStatus[] = [
 	"ignored",
 ] as const;
 
+// Wire values from the `skill.source` OTLP attribute. Kept in sync with
+// backend `domain/skill.ts`. Display strings live in SKILL_SOURCE_LABELS.
+export type SkillSource = "bundled" | "userSettings" | "projectSettings" | "plugin";
+
+export const SKILL_SOURCES: readonly SkillSource[] = [
+	"bundled",
+	"userSettings",
+	"projectSettings",
+	"plugin",
+] as const;
+
+export const SKILL_SOURCE_LABELS: Record<SkillSource, string> = {
+	bundled: "Bundled",
+	userSettings: "User settings",
+	projectSettings: "Project settings",
+	plugin: "Plugin",
+};
+
+export function isBundledSource(skillSource: string | null): boolean {
+	return skillSource === "bundled";
+}
+
+export function isKnownSkillSource(value: string | null): value is SkillSource {
+	return value !== null && (SKILL_SOURCES as readonly string[]).includes(value);
+}
+
 export const PLUGIN_STATUSES: readonly PluginStatus[] = [
 	"to_review",
 	"approved",

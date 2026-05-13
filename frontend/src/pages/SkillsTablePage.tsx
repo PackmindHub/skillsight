@@ -27,9 +27,14 @@ import { useIncludeIgnored } from "@/lib/use-include-ignored";
 import { useStatusFilter } from "@/lib/use-status-filter";
 import { cn } from "@/lib/utils";
 import {
+	SKILL_SOURCE_LABELS,
+	SKILL_SOURCES,
 	SKILL_STATUSES,
+	isBundledSource,
+	isKnownSkillSource,
 	type DashboardPeriod,
 	type PeriodFilter,
+	type SkillSource,
 	type SkillStatus,
 	type SkillTableRow,
 } from "@/types/api";
@@ -217,7 +222,8 @@ function computeDeltaPct(dailyCounts: number[]): number {
 	return Math.round(((second - first) / first) * 100);
 }
 
-type SourceFilter = "all" | "bundled" | "external";
+const NO_SOURCE_FILTER = "__none__";
+type SourceFilter = "all" | SkillSource | typeof NO_SOURCE_FILTER;
 type UsageFilter = "all" | "activated" | "never_used";
 type SortKey =
 	| "skillName"
@@ -230,7 +236,7 @@ type SortKey =
 	| "lastSeenAt";
 type SortDir = "asc" | "desc";
 
-const SOURCE_VALUES: SourceFilter[] = ["all", "bundled", "external"];
+const SOURCE_VALUES: SourceFilter[] = ["all", ...SKILL_SOURCES, NO_SOURCE_FILTER];
 const USAGE_VALUES: UsageFilter[] = ["all", "activated", "never_used"];
 const SORT_KEYS: SortKey[] = [
 	"skillName",
@@ -557,8 +563,11 @@ export default function SkillsTablePage() {
 				const matchesNamed = !!row.pluginName && wantedNames.includes(row.pluginName);
 				if (!((wantsNone && hasNone) || matchesNamed)) continue;
 			}
-			if (sourceFilter === "bundled" && row.skillSource !== "bundled") continue;
-			if (sourceFilter === "external" && row.skillSource === "bundled") continue;
+			if (sourceFilter !== "all") {
+				if (sourceFilter === NO_SOURCE_FILTER) {
+					if (row.skillSource !== null) continue;
+				} else if (row.skillSource !== sourceFilter) continue;
+			}
 			if (statusFilter !== "all" && (row.status ?? "to_review") !== statusFilter) continue;
 			if (marketplaces.length > 0) {
 				const wantsNone = marketplaces.includes(NO_MARKETPLACE);
@@ -884,8 +893,8 @@ export default function SkillsTablePage() {
 					onChange={(v) => updateParam("source", v, "all")}
 					options={[
 						{ value: "all", label: "All" },
-						{ value: "bundled", label: "Bundled" },
-						{ value: "external", label: "External" },
+						...SKILL_SOURCES.map((s) => ({ value: s, label: SKILL_SOURCE_LABELS[s] })),
+						{ value: NO_SOURCE_FILTER, label: "(none)" },
 					]}
 				/>
 				<SingleSelect<UsageFilter>
@@ -940,7 +949,11 @@ export default function SkillsTablePage() {
 					))}
 					{sourceFilter !== "all" && (
 						<FilterPill
-							label={`Source: ${sourceFilter}`}
+							label={`Source: ${
+								sourceFilter === NO_SOURCE_FILTER
+									? "(none)"
+									: SKILL_SOURCE_LABELS[sourceFilter]
+							}`}
 							onRemove={() => updateParam("source", "", "all")}
 						/>
 					)}
@@ -1257,15 +1270,19 @@ export default function SkillsTablePage() {
 									)}
 								</td>
 								<td className="px-4 py-3">
-									{row.skillSource === "bundled" ? (
+									{isBundledSource(row.skillSource) ? (
 										<span
 											className="inline-flex cursor-help items-center rounded border border-accent-soft/30 bg-accent-bright/15 px-1.5 py-0.5 font-mono text-[11px] text-accent-soft"
 											title="Bundled skills ship inside Claude Code itself, so they are approved by default. You can still override their status manually."
 										>
-											bundled
+											{SKILL_SOURCE_LABELS.bundled.toLowerCase()}
+										</span>
+									) : isKnownSkillSource(row.skillSource) ? (
+										<span className="font-mono text-[11px] text-text-4">
+											{SKILL_SOURCE_LABELS[row.skillSource]}
 										</span>
 									) : (
-										<span className="font-mono text-[11px] text-text-4">external</span>
+										<span className="font-mono text-[11px] text-text-4">—</span>
 									)}
 								</td>
 								<td

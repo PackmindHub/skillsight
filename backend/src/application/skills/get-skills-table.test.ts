@@ -184,7 +184,7 @@ describe("getSkillsTable", () => {
 				{
 					skillName: "active-skill",
 					pluginName: "acme/lint",
-					skillSource: "external",
+					skillSource: "userSettings",
 					total: 12,
 					uniqueUsers: 4,
 					userSlash: 5,
@@ -204,7 +204,7 @@ describe("getSkillsTable", () => {
 		expect(result[0]).toEqual({
 			skillName: "active-skill",
 			pluginName: "acme/lint",
-			skillSource: "external",
+			skillSource: "userSettings",
 			total: 12,
 			uniqueUsers: 4,
 			userSlash: 5,
