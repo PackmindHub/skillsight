@@ -568,8 +568,12 @@ export default function SkillsTablePage() {
 				if (!((wantsNone && hasNone) || matchesNamed)) continue;
 			}
 			if (triggers.length > 0 && !triggers.some((t) => (row[t as keyof SkillTableRow] as number) > 0)) continue;
-			if (usageFilter === "activated" && row.total === 0) continue;
-			if (usageFilter === "never_used" && row.total !== 0) continue;
+			// "Activated" / "Never used" are lifetime semantics — gated on
+			// lastSeenAt (which the backend now computes without a time filter),
+			// not on the windowed `total`. Otherwise a heavily-used skill with no
+			// events in the selected period would be miscategorized as "never used".
+			if (usageFilter === "activated" && row.lastSeenAt === null) continue;
+			if (usageFilter === "never_used" && row.lastSeenAt !== null) continue;
 			if (q) {
 				const candidates = [
 					row.skillName,
@@ -1203,7 +1207,7 @@ export default function SkillsTablePage() {
 								<td className="px-4 py-3 font-mono text-text-1">
 									<span className="flex items-center gap-2">
 										{row.skillName}
-										{row.total === 0 && (
+										{row.lastSeenAt === null && (
 											<span className="inline-flex items-center rounded border border-edge bg-surface-800 px-1.5 py-0.5 text-xs text-text-3">
 												Never used
 											</span>
@@ -1224,6 +1228,13 @@ export default function SkillsTablePage() {
 								</td>
 								<td className="px-4 py-3">
 									{(() => {
+										// dailyCounts is capped at 90 days, so for the "All" preset the
+										// Δ would silently mean "last 45d vs preceding 45d" — misleading.
+										// Suppress it until we have lifetime daily aggregates.
+										const isAllPreset =
+											periodFilter.kind === "preset" && periodFilter.days === "all";
+										if (isAllPreset)
+											return <span className="font-mono text-[11px] text-text-4">·</span>;
 										const pct = computeDeltaPct(row.dailyCounts);
 										if (pct === 0) return <span className="font-mono text-[11px] text-text-4">·</span>;
 										return (
