@@ -1025,14 +1025,11 @@ export default function MarketplacesPage() {
 													<button
 														type="button"
 														onClick={() => openCreateSource(mp.name)}
-														className="mt-2 inline-flex w-fit max-w-full items-center gap-1.5 rounded-md border border-dashed border-edge bg-transparent px-2 py-[3px] font-mono text-[11px] text-text-4 transition-colors hover:border-accent-bright/40 hover:bg-accent-bright/[0.04] hover:text-text-2"
-														title="Connect a git repository to this marketplace"
+														className="mt-2 inline-flex w-fit items-center gap-1.5 rounded-md border border-dashed border-edge bg-transparent px-2 py-[3px] font-mono text-[11px] text-text-4 transition-colors hover:border-accent-bright/40 hover:bg-accent-bright/[0.06] hover:text-accent-bright"
+														title="Not connected to a repo — click to connect"
 													>
-														<Link2Off className="h-3 w-3" aria-hidden="true" />
-														<span>Not connected to a repo</span>
-														<span className="ml-1 inline-flex items-center rounded border border-accent-bright/35 bg-accent-bright/[0.18] px-1.5 py-px text-[10px] text-accent-bright">
-															Connect repo
-														</span>
+														<Link2Off className="h-3 w-3 shrink-0" aria-hidden="true" />
+														<span className="whitespace-nowrap">Connect repo</span>
 													</button>
 												)}
 											</div>
