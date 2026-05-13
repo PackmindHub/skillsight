@@ -178,10 +178,15 @@ export const api = {
 			const qs = opts.includeIgnored ? "?includeIgnored=1" : "";
 			return apiFetch<{ plugins: Plugin[] }>(`/api/plugins${qs}`);
 		},
-		skills: (pluginName: string) =>
-			apiFetch<PluginSkillsResponse>(
-				`/api/plugins/${encodeURIComponent(pluginName)}/skills`,
-			),
+		skills: (pluginName: string, marketplaceName: string | null = null) => {
+			const qs =
+				marketplaceName == null
+					? ""
+					: `?marketplace=${encodeURIComponent(marketplaceName)}`;
+			return apiFetch<PluginSkillsResponse>(
+				`/api/plugins/${encodeURIComponent(pluginName)}/skills${qs}`,
+			);
+		},
 		update: (pluginName: string, body: { status?: string }) =>
 			apiFetch<Plugin>(`/api/plugins/${encodeURIComponent(pluginName)}`, {
 				method: "PATCH",

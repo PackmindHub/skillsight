@@ -153,7 +153,12 @@ export default function PluginsPage() {
 	);
 	const { includeIgnored, setIncludeIgnored } = useIncludeIgnored();
 	const { includeWithoutSkills, setIncludeWithoutSkills } = useIncludeWithoutSkills();
-	const [selectedPlugin, setSelectedPlugin] = useState<string | null>(null);
+	// Identity is the (plugin.name, marketplace.name) pair — see CLAUDE.md notes
+	// and the plugin_versions schema. Carry both through the drawer state.
+	const [selectedPlugin, setSelectedPlugin] = useState<{
+		pluginName: string;
+		marketplaceName: string | null;
+	} | null>(null);
 	const [selected, setSelected] = useState<Set<string>>(new Set());
 	const selectAllRef = useRef<HTMLInputElement>(null);
 	const [bulkBusy, setBulkBusy] = useState(false);
@@ -721,7 +726,11 @@ export default function PluginsPage() {
 								const status = (plugin.status ?? "to_review") as PluginStatus;
 								const isHighlighted = highlightName === plugin.pluginName;
 								const isSelected = selected.has(plugin.pluginName);
-								const openDrawer = () => setSelectedPlugin(plugin.pluginName);
+								const openDrawer = () =>
+									setSelectedPlugin({
+										pluginName: plugin.pluginName,
+										marketplaceName: plugin.marketplaceName,
+									});
 								const activations = plugin.skillActivationCount;
 								return (
 									<div
@@ -747,14 +756,28 @@ export default function PluginsPage() {
 										<div className="flex min-w-0 items-center gap-3">
 											<PluginLogo name={plugin.pluginName} />
 											<div className="min-w-0">
-												<button
-													type="button"
-													onClick={openDrawer}
-													className="truncate font-mono text-sm text-text-1 hover:underline"
-													title={plugin.pluginName}
-												>
-													{plugin.pluginName}
-												</button>
+												<div className="flex items-baseline gap-2 min-w-0">
+													<button
+														type="button"
+														onClick={openDrawer}
+														className="truncate font-mono text-sm text-text-1 hover:underline"
+														title={plugin.pluginName}
+													>
+														{plugin.pluginName}
+													</button>
+													{plugin.latestVersion && (
+														<span
+															className="font-mono text-[10px] text-text-4 shrink-0"
+															title={
+																plugin.versionCount > 1
+																	? `Latest of ${plugin.versionCount} versions seen`
+																	: "Only version seen"
+															}
+														>
+															{plugin.latestVersion}
+														</span>
+													)}
+												</div>
 												<div className="mt-0.5 truncate text-xs text-text-3">
 													{plugin.skillCount} skill{plugin.skillCount === 1 ? "" : "s"}
 													{plugin.skillCount > 0 && (
@@ -763,6 +786,19 @@ export default function PluginsPage() {
 															{plugin.lastSkillActivationAt
 																? formatRelativeTime(plugin.lastSkillActivationAt)
 																: "never"}
+														</>
+													)}
+													{plugin.versionCount > 1 && (
+														<>
+															{" · "}
+															<button
+																type="button"
+																onClick={openDrawer}
+																className="underline decoration-dotted hover:text-text-2"
+																title="Open drawer to view version history"
+															>
+																{plugin.versionCount} versions
+															</button>
 														</>
 													)}
 												</div>
@@ -826,7 +862,11 @@ export default function PluginsPage() {
 				</>
 			)}
 
-			<PluginSkillsDrawer pluginName={selectedPlugin} onClose={() => setSelectedPlugin(null)} />
+			<PluginSkillsDrawer
+				pluginName={selectedPlugin?.pluginName ?? null}
+				marketplaceName={selectedPlugin?.marketplaceName ?? null}
+				onClose={() => setSelectedPlugin(null)}
+			/>
 		</div>
 	);
 }

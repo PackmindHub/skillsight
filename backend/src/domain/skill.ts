@@ -61,6 +61,7 @@ export interface SkillDetailPluginRef {
 	skillRepoUrl: string | null;
 	loadCount: number;
 	uniqueLoaderCount: number;
+	latestVersion: string | null;
 }
 
 /**

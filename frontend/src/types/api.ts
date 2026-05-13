@@ -142,6 +142,16 @@ export interface Plugin {
 	lastSkillActivationAt: string | null;
 	loadCount: number;
 	uniqueLoaderCount: number;
+	versionCount: number;
+	latestVersion: string | null;
+}
+
+export interface PluginVersionRow {
+	version: string;
+	firstSeenAt: string;
+	lastSeenAt: string;
+	loadCount: number;
+	uniqueLoaderCount: number;
 }
 
 export interface PluginSkillRow {
@@ -157,6 +167,8 @@ export interface PluginUserRow {
 export interface PluginSkillsResponse {
 	skills: PluginSkillRow[];
 	topUsers: PluginUserRow[];
+	versions: PluginVersionRow[];
+	latestVersion: string | null;
 }
 
 export interface MarketplaceRef {
@@ -229,6 +241,7 @@ export interface SkillDetailPluginRef {
 	skillRepoUrl: string | null;
 	loadCount: number;
 	uniqueLoaderCount: number;
+	latestVersion: string | null;
 }
 
 export interface SkillDetail {

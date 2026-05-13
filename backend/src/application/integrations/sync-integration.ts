@@ -2,7 +2,11 @@ import { recordAudit } from "@/application/audit/record-audit";
 import { publishIntegrationUpdate } from "@/application/integrations/publish-integration-update";
 import { EVENT_NAMES, type NewEvent } from "@/domain/event";
 import type { IntegrationWithSecret } from "@/domain/integration";
-import { computePluginStatus, normalizeMarketplaceName } from "@/domain/plugin";
+import {
+	computePluginStatus,
+	normalizeMarketplaceName,
+	type PluginVersionSeen,
+} from "@/domain/plugin";
 import type { IAuditRepository } from "@/domain/ports/audit-repository";
 import type { IEventRepository } from "@/domain/ports/event-repository";
 import type { IIntegrationRepository } from "@/domain/ports/integration-repository";
@@ -10,6 +14,7 @@ import type { ILokiGateway, LokiStreamResult } from "@/domain/ports/loki-gateway
 import type { IMarketplaceRepository } from "@/domain/ports/marketplace-repository";
 import type { IPluginRepository } from "@/domain/ports/plugin-repository";
 import type { IPluginSkillRepository } from "@/domain/ports/plugin-skill-repository";
+import type { IPluginVersionRepository } from "@/domain/ports/plugin-version-repository";
 import type { ISkillRepository } from "@/domain/ports/skill-repository";
 import { decrypt } from "@/infrastructure/crypto/encrypt";
 import { eventBus } from "@/lib/event-bus";
@@ -24,6 +29,7 @@ interface SyncDeps {
 	skills: ISkillRepository;
 	plugins: IPluginRepository;
 	pluginSkills: IPluginSkillRepository;
+	pluginVersions: IPluginVersionRepository;
 	marketplaces: IMarketplaceRepository;
 	loki: ILokiGateway;
 	audit: IAuditRepository;
@@ -180,6 +186,33 @@ export async function syncIntegration(
 			await deps.pluginSkills.upsertMany(pluginSkillPairs);
 		}
 
+		// Track version sightings from plugin_installed + plugin_loaded events.
+		// Same logic as the OTLP push path (ingest-events.ts) — keeps the two
+		// ingress paths consistent.
+		const versionSightings: PluginVersionSeen[] = [];
+		for (const e of parsedEvents) {
+			if (
+				e.eventName !== EVENT_NAMES.PLUGIN_INSTALLED &&
+				e.eventName !== EVENT_NAMES.PLUGIN_LOADED
+			) continue;
+			const pluginName = e.attributes["plugin.name"];
+			const version = e.attributes["plugin.version"];
+			if (typeof pluginName !== "string" || pluginName === "third-party") continue;
+			if (typeof version !== "string" || version.length === 0) continue;
+			versionSightings.push({
+				pluginName,
+				marketplaceName: normalizeMarketplaceName(
+					typeof e.attributes["marketplace.name"] === "string"
+						? (e.attributes["marketplace.name"] as string)
+						: null,
+				),
+				version,
+			});
+		}
+		if (versionSightings.length > 0) {
+			await deps.pluginVersions.upsertSeen(versionSightings);
+		}
+
 		// If we hit the page limit there may be more data behind us; advance to the
 		// last received event's timestamp (+1 ms) so the next scheduled run picks up
 		// where we left off instead of jumping to now and leaving a gap.
@@ -256,7 +289,8 @@ function parseStreams(streams: LokiStreamResult[], integrationId: string): NewEv
 		.filter(
 			(e) =>
 				e.eventName === EVENT_NAMES.SKILL_ACTIVATED ||
-				e.eventName === EVENT_NAMES.PLUGIN_INSTALLED,
+				e.eventName === EVENT_NAMES.PLUGIN_INSTALLED ||
+				e.eventName === EVENT_NAMES.PLUGIN_LOADED,
 		)
 		.map((e) => ({
 			...e,

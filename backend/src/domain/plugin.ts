@@ -21,6 +21,11 @@ export interface PluginWithStats extends Plugin {
 	lastSkillActivationAt: Date | null;
 	loadCount: number;
 	uniqueLoaderCount: number;
+	versionCount: number;
+	// Semver-max across all observed versions for this (plugin, marketplace)
+	// pair. Falls back to the catalog's `pluginVersion` if no plugin_versions
+	// rows exist (legacy state). Null when neither is known.
+	latestVersion: string | null;
 }
 
 export interface PluginSkillActivation {
@@ -37,6 +42,20 @@ export interface PluginLoadStats {
 	totalLoads: number;
 	uniqueLoadedPlugins: number;
 	uniqueLoaders: number;
+}
+
+export interface PluginVersionRow {
+	version: string;
+	firstSeenAt: Date;
+	lastSeenAt: Date;
+	loadCount: number;
+	uniqueLoaderCount: number;
+}
+
+export interface PluginVersionSeen {
+	pluginName: string;
+	marketplaceName: string | null;
+	version: string;
 }
 
 export interface NewPlugin {

@@ -1,12 +1,13 @@
 import { recordAudit } from "@/application/audit/record-audit";
 import type { MarketplaceSourceWithSecret } from "@/domain/marketplace-source";
-import { computePluginStatus } from "@/domain/plugin";
+import { computePluginStatus, type PluginVersionSeen } from "@/domain/plugin";
 import type { IAuditRepository } from "@/domain/ports/audit-repository";
 import type { IGitMarketplaceGateway } from "@/domain/ports/git-marketplace-gateway";
 import type { IMarketplaceRepository } from "@/domain/ports/marketplace-repository";
 import type { IMarketplaceSourceRepository } from "@/domain/ports/marketplace-source-repository";
 import type { IPluginRepository } from "@/domain/ports/plugin-repository";
 import type { IPluginSkillRepository } from "@/domain/ports/plugin-skill-repository";
+import type { IPluginVersionRepository } from "@/domain/ports/plugin-version-repository";
 import type { ISkillRepository } from "@/domain/ports/skill-repository";
 import { decrypt } from "@/infrastructure/crypto/encrypt";
 
@@ -15,6 +16,7 @@ interface SyncDeps {
 	marketplaces: IMarketplaceRepository;
 	plugins: IPluginRepository;
 	pluginSkills: IPluginSkillRepository;
+	pluginVersions: IPluginVersionRepository;
 	skills: ISkillRepository;
 	gitMarketplace: IGitMarketplaceGateway;
 	audit: IAuditRepository;
@@ -67,6 +69,7 @@ export async function syncMarketplaceSource(
 			const marketplaceStatus = marketplace?.status ?? "approved";
 			const pluginStatus = computePluginStatus(data.name, marketplaceStatus);
 
+			const versionSightings: PluginVersionSeen[] = [];
 			for (const plugin of data.plugins) {
 				await deps.plugins.upsert({
 					pluginName: plugin.name,
@@ -77,6 +80,16 @@ export async function syncMarketplaceSource(
 					source: plugin.source ?? null,
 					status: pluginStatus,
 				});
+				if (plugin.version) {
+					versionSightings.push({
+						pluginName: plugin.name,
+						marketplaceName: data.name,
+						version: plugin.version,
+					});
+				}
+			}
+			if (versionSightings.length > 0) {
+				await deps.pluginVersions.upsertSeen(versionSightings);
 			}
 
 			const presentPluginNames = data.plugins.map((p) => p.name);

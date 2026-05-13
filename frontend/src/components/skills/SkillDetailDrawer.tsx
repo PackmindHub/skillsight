@@ -37,11 +37,16 @@ function PluginBadge({ plugin }: { plugin: SkillDetailPluginRef }) {
 					? `Open plugin ${plugin.pluginName} (${plugin.marketplaceName}) in a new tab`
 					: `Open plugin ${plugin.pluginName} (local) in a new tab`
 			}
-			className={`inline-flex items-center rounded border px-1.5 py-0.5 text-xs font-mono hover:underline ${style}`}
+			className={`inline-flex items-center gap-1.5 rounded border px-1.5 py-0.5 text-xs font-mono hover:underline ${style}`}
 		>
-			{plugin.pluginName}
+			<span>{plugin.pluginName}</span>
+			{plugin.latestVersion && (
+				<span className="text-[10px] opacity-70" title="Latest version observed (semver)">
+					{plugin.latestVersion}
+				</span>
+			)}
 			{!plugin.marketplaceName && (
-				<span className="ml-1 text-[10px] text-text-4">(local)</span>
+				<span className="text-[10px] text-text-4">(local)</span>
 			)}
 		</a>
 	);

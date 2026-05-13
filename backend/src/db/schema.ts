@@ -177,3 +177,27 @@ export const skills = pgTable(
 		index("skills_plugin_name_idx").on(t.pluginName),
 	],
 );
+
+// Tracks every distinct plugin version observed via plugin_installed /
+// plugin_loaded events. The composite PK enforces that version strings are
+// namespaced by the owning (plugin_name, marketplace_name) pair — `1.2.3` of
+// plugin-a in marketplace alpha is unrelated to `1.2.3` of plugin-a in
+// marketplace beta or of plugin-b. `marketplace_name` uses '' (not NULL) as the
+// no-marketplace bucket so the PK can stay non-null without NULLS NOT DISTINCT.
+// No FK to `plugins` on purpose: real plugin identity is the (name, marketplace)
+// pair while the catalog PK is just `name`, so an FK would lie. Versions are
+// recorded from event stream alone.
+export const pluginVersions = pgTable(
+	"plugin_versions",
+	{
+		pluginName: varchar("plugin_name", { length: 255 }).notNull(),
+		marketplaceName: varchar("marketplace_name", { length: 255 }).notNull().default(""),
+		version: varchar("version", { length: 100 }).notNull(),
+		firstSeenAt: timestamp("first_seen_at").defaultNow().notNull(),
+		lastSeenAt: timestamp("last_seen_at").defaultNow().notNull(),
+	},
+	(t) => [
+		primaryKey({ columns: [t.pluginName, t.marketplaceName, t.version] }),
+		index("plugin_versions_plugin_idx").on(t.pluginName, t.marketplaceName),
+	],
+);

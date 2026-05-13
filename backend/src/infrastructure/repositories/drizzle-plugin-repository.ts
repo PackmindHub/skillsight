@@ -2,6 +2,7 @@ import { and, eq, inArray, notInArray, sql } from "drizzle-orm";
 import type { AppDb } from "@/db/client";
 import { plugins } from "@/db/schema";
 import { EVENT_NAMES } from "@/domain/event";
+import { maxSemver } from "@/lib/semver";
 import type { IPluginRepository } from "@/domain/ports/plugin-repository";
 import type { TimeWindow } from "@/domain/ports/skill-repository";
 import type {
@@ -52,7 +53,8 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			  COALESCE(sa.activation_count, 0)::int AS "skillActivationCount",
 			  sa.last_activation_at             AS "lastSkillActivationAt",
 			  COALESCE(l.load_count, 0)::int    AS "loadCount",
-			  COALESCE(l.unique_loaders, 0)::int AS "uniqueLoaderCount"
+			  COALESCE(l.unique_loaders, 0)::int AS "uniqueLoaderCount",
+			  COALESCE(v.versions, ARRAY[]::text[]) AS "versionStrings"
 			FROM plugins p
 			LEFT JOIN marketplaces m ON m.name = p.marketplace_name
 			LEFT JOIN (
@@ -96,6 +98,16 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			) l
 			  ON l.plugin_name = p.plugin_name
 			 AND COALESCE(l.marketplace_name, '') = COALESCE(p.marketplace_name, '')
+			LEFT JOIN (
+			  SELECT
+			    plugin_name,
+			    marketplace_name,
+			    array_agg(version ORDER BY last_seen_at DESC) AS versions
+			  FROM plugin_versions
+			  GROUP BY plugin_name, marketplace_name
+			) v
+			  ON v.plugin_name = p.plugin_name
+			 AND v.marketplace_name = COALESCE(p.marketplace_name, '')
 			${
 				includeIgnored
 					? sql``
@@ -103,7 +115,19 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			}
 			ORDER BY s.install_count DESC NULLS LAST, p.plugin_name
 		`);
-		return rows as unknown as PluginWithStats[];
+
+		return (rows as unknown as Array<PluginWithStats & { versionStrings: string[] }>).map(
+			(r) => {
+				const { versionStrings, ...rest } = r;
+				const versions = versionStrings ?? [];
+				return {
+					...rest,
+					versionCount: versions.length,
+					// Prefer semver-max over the catalog's last-written value.
+					latestVersion: maxSemver(versions) ?? r.pluginVersion,
+				};
+			},
+		);
 	}
 
 	async listSkillsWithActivations(pluginName: string): Promise<PluginSkillActivation[]> {

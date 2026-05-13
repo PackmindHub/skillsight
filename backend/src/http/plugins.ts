@@ -11,7 +11,9 @@ const updateSchema = z.object({
 	status: z.enum(["to_review", "approved", "removed", "denied", "ignored"]).optional(),
 });
 
-export function createPluginsRoute(deps: Pick<AppDeps, "plugins" | "skills" | "audit">) {
+export function createPluginsRoute(
+	deps: Pick<AppDeps, "plugins" | "pluginVersions" | "skills" | "audit">,
+) {
 	const route = new Hono<{ Variables: AppVariables }>();
 	route.use("*", sessionAuth);
 
@@ -22,7 +24,14 @@ export function createPluginsRoute(deps: Pick<AppDeps, "plugins" | "skills" | "a
 
 	route.get("/:pluginName/skills", async (c) => {
 		const pluginName = decodeURIComponent(c.req.param("pluginName"));
-		const data = await listPluginSkills(deps, pluginName);
+		// `marketplace` is optional; absent / empty string both mean the
+		// no-marketplace bucket, which is also valid plugin identity.
+		const rawMarketplace = c.req.query("marketplace");
+		const marketplaceName =
+			rawMarketplace === undefined || rawMarketplace === ""
+				? null
+				: decodeURIComponent(rawMarketplace);
+		const data = await listPluginSkills(deps, pluginName, marketplaceName);
 		return c.json(data);
 	});
 

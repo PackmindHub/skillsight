@@ -7,6 +7,7 @@ import { DrizzleIntegrationRepository } from "@/infrastructure/repositories/driz
 import { DrizzleMarketplaceRepository } from "@/infrastructure/repositories/drizzle-marketplace-repository";
 import { DrizzlePluginRepository } from "@/infrastructure/repositories/drizzle-plugin-repository";
 import { DrizzlePluginSkillRepository } from "@/infrastructure/repositories/drizzle-plugin-skill-repository";
+import { DrizzlePluginVersionRepository } from "@/infrastructure/repositories/drizzle-plugin-version-repository";
 import { DrizzleSkillRepository } from "@/infrastructure/repositories/drizzle-skill-repository";
 import { LokiHttpGateway } from "@/infrastructure/gateways/loki-http-gateway";
 import { GitMarketplaceHttpGateway } from "@/infrastructure/gateways/git-marketplace-http-gateway";
@@ -23,6 +24,7 @@ export function buildDeps() {
 		marketplaceSources: new DrizzleMarketplaceSourceRepository(db),
 		plugins: new DrizzlePluginRepository(db),
 		pluginSkills: new DrizzlePluginSkillRepository(db),
+		pluginVersions: new DrizzlePluginVersionRepository(db),
 		skills: new DrizzleSkillRepository(db),
 		loki: new LokiHttpGateway(),
 		gitMarketplace: new GitMarketplaceHttpGateway(),

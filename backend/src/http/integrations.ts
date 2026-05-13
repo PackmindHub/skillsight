@@ -59,6 +59,7 @@ export function createIntegrationsRoute(
 		| "skills"
 		| "plugins"
 		| "pluginSkills"
+		| "pluginVersions"
 		| "marketplaces"
 		| "loki"
 		| "audit"
@@ -70,6 +71,7 @@ export function createIntegrationsRoute(
 		skills: deps.skills,
 		plugins: deps.plugins,
 		pluginSkills: deps.pluginSkills,
+		pluginVersions: deps.pluginVersions,
 		marketplaces: deps.marketplaces,
 		loki: deps.loki,
 		audit: deps.audit,

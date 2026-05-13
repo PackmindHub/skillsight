@@ -4,6 +4,7 @@ import type { IEventRepository } from "@/domain/ports/event-repository";
 import type { IMarketplaceRepository } from "@/domain/ports/marketplace-repository";
 import type { IPluginRepository } from "@/domain/ports/plugin-repository";
 import type { IPluginSkillRepository } from "@/domain/ports/plugin-skill-repository";
+import type { IPluginVersionRepository } from "@/domain/ports/plugin-version-repository";
 import type {
 	ISkillRepository,
 	SkillUpsertEntry,
@@ -84,6 +85,20 @@ function makePluginSkills() {
 	return { repo, upsertManyCalls };
 }
 
+function makePluginVersions() {
+	const upsertSeenCalls: Array<
+		Array<{ pluginName: string; marketplaceName: string | null; version: string }>
+	> = [];
+	const repo: IPluginVersionRepository = {
+		upsertSeen: async (entries) => {
+			upsertSeenCalls.push(entries.map((e) => ({ ...e })));
+		},
+		listForPlugin: async () => [],
+		listVersionStrings: async () => [],
+	};
+	return { repo, upsertSeenCalls };
+}
+
 function makeSkills() {
 	const upsertManyCalls: SkillUpsertEntry[][] = [];
 	const repo: ISkillRepository = {
@@ -146,6 +161,7 @@ describe("ingestEvents — skills upsert", () => {
 				marketplaces: makeMarketplaces(),
 				plugins,
 				pluginSkills,
+				pluginVersions: makePluginVersions().repo,
 				skills,
 			},
 			otlpBody([
@@ -178,6 +194,7 @@ describe("ingestEvents — skills upsert", () => {
 				marketplaces: makeMarketplaces(),
 				plugins,
 				pluginSkills,
+				pluginVersions: makePluginVersions().repo,
 				skills,
 			},
 			otlpBody([
@@ -203,6 +220,7 @@ describe("ingestEvents — skills upsert", () => {
 				marketplaces: makeMarketplaces(),
 				plugins,
 				pluginSkills,
+				pluginVersions: makePluginVersions().repo,
 				skills,
 			},
 			otlpBody([
@@ -226,6 +244,7 @@ describe("ingestEvents — skills upsert", () => {
 				marketplaces: makeMarketplaces(),
 				plugins,
 				pluginSkills,
+				pluginVersions: makePluginVersions().repo,
 				skills,
 			},
 			otlpBody([
@@ -249,6 +268,7 @@ describe("ingestEvents — plugin auto-creation from skill_activated", () => {
 				marketplaces: makeMarketplaces(),
 				plugins,
 				pluginSkills,
+				pluginVersions: makePluginVersions().repo,
 				skills,
 			},
 			otlpBody([
@@ -276,6 +296,7 @@ describe("ingestEvents — plugin auto-creation from skill_activated", () => {
 				marketplaces: makeMarketplaces(),
 				plugins,
 				pluginSkills,
+				pluginVersions: makePluginVersions().repo,
 				skills,
 			},
 			otlpBody([
@@ -302,6 +323,7 @@ describe("ingestEvents — plugin auto-creation from skill_activated", () => {
 				marketplaces: makeMarketplaces(),
 				plugins,
 				pluginSkills,
+				pluginVersions: makePluginVersions().repo,
 				skills,
 			},
 			otlpBody([
@@ -336,6 +358,7 @@ describe("ingestEvents — plugin auto-creation from skill_activated", () => {
 				marketplaces: makeMarketplaces(),
 				plugins,
 				pluginSkills,
+				pluginVersions: makePluginVersions().repo,
 				skills,
 			},
 			otlpBody([
@@ -368,6 +391,7 @@ describe("ingestEvents — 'inline' marketplace normalization", () => {
 				marketplaces,
 				plugins,
 				pluginSkills,
+				pluginVersions: makePluginVersions().repo,
 				skills,
 			},
 			otlpBody([
@@ -400,6 +424,7 @@ describe("ingestEvents — 'inline' marketplace normalization", () => {
 				marketplaces,
 				plugins,
 				pluginSkills,
+				pluginVersions: makePluginVersions().repo,
 				skills,
 			},
 			otlpBody([
@@ -432,6 +457,7 @@ describe("ingestEvents — 'inline' marketplace normalization", () => {
 				marketplaces,
 				plugins,
 				pluginSkills,
+				pluginVersions: makePluginVersions().repo,
 				skills,
 			},
 			otlpBody([
@@ -471,6 +497,7 @@ describe("ingestEvents — plugin_loaded", () => {
 				marketplaces: makeMarketplaces(),
 				plugins,
 				pluginSkills,
+				pluginVersions: makePluginVersions().repo,
 				skills,
 			},
 			otlpBody([
@@ -502,6 +529,7 @@ describe("ingestEvents — plugin_loaded", () => {
 				marketplaces: makeMarketplaces(),
 				plugins,
 				pluginSkills,
+				pluginVersions: makePluginVersions().repo,
 				skills,
 			},
 			otlpBody([
@@ -536,6 +564,7 @@ describe("ingestEvents — plugin_loaded", () => {
 				marketplaces: makeMarketplaces(),
 				plugins,
 				pluginSkills,
+				pluginVersions: makePluginVersions().repo,
 				skills,
 			},
 			otlpBody([
@@ -556,6 +585,148 @@ describe("ingestEvents — plugin_loaded", () => {
 		]);
 	});
 
+	it("upserts plugin_versions on plugin_loaded with a version", async () => {
+		const { repo: skills } = makeSkills();
+		const { repo: plugins } = makePlugins();
+		const { repo: pluginSkills } = makePluginSkills();
+		const { repo: pluginVersions, upsertSeenCalls } = makePluginVersions();
+
+		await ingestEvents(
+			{
+				events: makeEvents(),
+				marketplaces: makeMarketplaces(),
+				plugins,
+				pluginSkills,
+				pluginVersions,
+				skills,
+			},
+			otlpBody([
+				{
+					eventName: EVENT_NAMES.PLUGIN_LOADED,
+					attrs: {
+						"plugin.name": "lint-plugin",
+						"marketplace.name": "acme",
+						"plugin.version": "1.2.3",
+					},
+				},
+			]),
+		);
+
+		expect(upsertSeenCalls).toHaveLength(1);
+		expect(upsertSeenCalls[0]).toEqual([
+			{ pluginName: "lint-plugin", marketplaceName: "acme", version: "1.2.3" },
+		]);
+	});
+
+	it("upserts plugin_versions on plugin_installed with a version", async () => {
+		const { repo: skills } = makeSkills();
+		const { repo: plugins } = makePlugins();
+		const { repo: pluginSkills } = makePluginSkills();
+		const { repo: pluginVersions, upsertSeenCalls } = makePluginVersions();
+
+		await ingestEvents(
+			{
+				events: makeEvents(),
+				marketplaces: makeMarketplaces(),
+				plugins,
+				pluginSkills,
+				pluginVersions,
+				skills,
+			},
+			otlpBody([
+				{
+					eventName: EVENT_NAMES.PLUGIN_INSTALLED,
+					attrs: {
+						"plugin.name": "lint-plugin",
+						"marketplace.name": "acme",
+						"plugin.version": "1.2.3",
+					},
+				},
+			]),
+		);
+
+		expect(upsertSeenCalls).toHaveLength(1);
+		expect(upsertSeenCalls[0]).toEqual([
+			{ pluginName: "lint-plugin", marketplaceName: "acme", version: "1.2.3" },
+		]);
+	});
+
+	it("treats same version under different marketplaces as distinct version rows", async () => {
+		// The reminder from the user: plugin-a v1.2.3 from marketplace alpha is
+		// unrelated to plugin-a v1.2.3 from marketplace beta. Each must emit its
+		// own row — the composite PK (plugin_name, marketplace_name, version) at
+		// the storage layer is what ultimately keeps them apart, but the ingest
+		// path must also emit both sightings instead of collapsing them.
+		const { repo: skills } = makeSkills();
+		const { repo: plugins } = makePlugins();
+		const { repo: pluginSkills } = makePluginSkills();
+		const { repo: pluginVersions, upsertSeenCalls } = makePluginVersions();
+
+		await ingestEvents(
+			{
+				events: makeEvents(),
+				marketplaces: makeMarketplaces(),
+				plugins,
+				pluginSkills,
+				pluginVersions,
+				skills,
+			},
+			otlpBody([
+				{
+					eventName: EVENT_NAMES.PLUGIN_LOADED,
+					attrs: {
+						"plugin.name": "shared",
+						"marketplace.name": "alpha",
+						"plugin.version": "1.2.3",
+					},
+				},
+				{
+					eventName: EVENT_NAMES.PLUGIN_LOADED,
+					attrs: {
+						"plugin.name": "shared",
+						"marketplace.name": "beta",
+						"plugin.version": "1.2.3",
+					},
+				},
+			]),
+		);
+
+		expect(upsertSeenCalls).toHaveLength(1);
+		expect(upsertSeenCalls[0]).toEqual([
+			{ pluginName: "shared", marketplaceName: "alpha", version: "1.2.3" },
+			{ pluginName: "shared", marketplaceName: "beta", version: "1.2.3" },
+		]);
+	});
+
+	it("skips redacted plugin.name='third-party' even with a version present", async () => {
+		const { repo: skills } = makeSkills();
+		const { repo: plugins } = makePlugins();
+		const { repo: pluginSkills } = makePluginSkills();
+		const { repo: pluginVersions, upsertSeenCalls } = makePluginVersions();
+
+		await ingestEvents(
+			{
+				events: makeEvents(),
+				marketplaces: makeMarketplaces(),
+				plugins,
+				pluginSkills,
+				pluginVersions,
+				skills,
+			},
+			otlpBody([
+				{
+					eventName: EVENT_NAMES.PLUGIN_LOADED,
+					attrs: {
+						"plugin.name": "third-party",
+						"plugin.version": "9.9.9",
+					},
+				},
+			]),
+		);
+
+		expect(upsertSeenCalls).toEqual([]);
+	});
+
 	it("dedupes within a single ingest batch by (plugin.name, marketplace.name) pair", async () => {
 		const { repo: skills } = makeSkills();
 		const { repo: plugins, upsertIfAbsentCalls } = makePlugins();
@@ -567,6 +738,7 @@ describe("ingestEvents — plugin_loaded", () => {
 				marketplaces: makeMarketplaces(),
 				plugins,
 				pluginSkills,
+				pluginVersions: makePluginVersions().repo,
 				skills,
 			},
 			otlpBody([

@@ -47,6 +47,7 @@ export function createMarketplaceSourcesRoute(
 		| "marketplaces"
 		| "plugins"
 		| "pluginSkills"
+		| "pluginVersions"
 		| "skills"
 		| "gitMarketplace"
 		| "audit"
@@ -57,6 +58,7 @@ export function createMarketplaceSourcesRoute(
 		marketplaces: deps.marketplaces,
 		plugins: deps.plugins,
 		pluginSkills: deps.pluginSkills,
+		pluginVersions: deps.pluginVersions,
 		skills: deps.skills,
 		gitMarketplace: deps.gitMarketplace,
 		audit: deps.audit,
