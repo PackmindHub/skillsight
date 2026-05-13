@@ -406,7 +406,7 @@ describe("GitMarketplaceHttpGateway.fetchMarketplaceJson", () => {
 			.catch((e) => e as Error);
 		expect(err.message).toContain("API rate limit exceeded");
 		expect(err.message).toContain("api.github.com/repos/acme/marketplace/contents/plugins/a/skills");
-		expect(err.message).toContain("1700000000" /* reset time gets formatted as ISO */ ? "resets at" : "");
+		expect(err.message).toContain("resets at");
 	});
 
 	test("403 with a configured token tells the operator to check token scopes (not anonymous-limit copy)", async () => {
