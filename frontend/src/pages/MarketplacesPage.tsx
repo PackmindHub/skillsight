@@ -55,7 +55,7 @@ const MP_FILTER_OPTIONS: {
 ];
 
 const MP_GRID_COLS =
-	"grid-cols-[minmax(300px,2.4fr)_60px_60px_110px_70px_70px_80px_100px_120px_104px]";
+	"grid-cols-[40px_minmax(300px,2.4fr)_60px_60px_110px_70px_70px_80px_100px_120px_104px]";
 
 const LOGO_GRADIENTS = [
 	"linear-gradient(135deg, var(--color-accent-bright), color-mix(in srgb, var(--color-accent-bright) 50%, var(--color-surface-700)))",
@@ -402,13 +402,22 @@ export default function MarketplacesPage() {
 		| null
 	>(null);
 	const [submitError, setSubmitError] = useState<string | null>(null);
-	const [deleteConfirm, setDeleteConfirm] = useState<{
-		name: string;
-		cascade: boolean;
-		withSources: boolean;
-	} | null>(null);
+	type DeleteConfirm =
+		| { kind: "single"; name: string; cascade: boolean; withSources: boolean }
+		| { kind: "bulk"; names: string[]; cascade: boolean; withSources: boolean };
+	const [deleteConfirm, setDeleteConfirm] = useState<DeleteConfirm | null>(null);
 	const [deletingMarketplace, setDeletingMarketplace] = useState(false);
 	const [deleteError, setDeleteError] = useState<string | null>(null);
+
+	const [selectedNames, setSelectedNames] = useState<Set<string>>(new Set());
+	const [bulkBusy, setBulkBusy] = useState(false);
+	const [bulkStatusResult, setBulkStatusResult] = useState<{
+		updated: number;
+		notFound: number;
+		unchanged: number;
+	} | null>(null);
+	const [bulkError, setBulkError] = useState<string | null>(null);
+	const selectAllRef = useRef<HTMLInputElement>(null);
 
 	useEffect(() => {
 		Promise.all([
@@ -513,7 +522,18 @@ export default function MarketplacesPage() {
 
 	function openDeleteMarketplace(name: string) {
 		setDeleteError(null);
-		setDeleteConfirm({ name, cascade: false, withSources: false });
+		setDeleteConfirm({ kind: "single", name, cascade: false, withSources: false });
+	}
+
+	function openBulkDeleteMarketplaces() {
+		if (selectedNames.size === 0) return;
+		setDeleteError(null);
+		setDeleteConfirm({
+			kind: "bulk",
+			names: Array.from(selectedNames),
+			cascade: false,
+			withSources: false,
+		});
 	}
 
 	function closeDeleteMarketplace() {
@@ -524,26 +544,81 @@ export default function MarketplacesPage() {
 
 	async function confirmDeleteMarketplace() {
 		if (!deleteConfirm) return;
-		const { name, cascade, withSources } = deleteConfirm;
+		const { cascade, withSources } = deleteConfirm;
+		const mode = cascade ? "cascade" : "orphan";
 		setDeletingMarketplace(true);
 		setDeleteError(null);
 		try {
-			await api.marketplaces.remove(name, {
-				mode: cascade ? "cascade" : "orphan",
-				withSources,
-			});
-			const [mpRes, srcRes] = await Promise.all([
-				api.marketplaces.list({ includeIgnored }),
-				api.marketplaceSources.list(),
-			]);
-			setItems(mpRes.marketplaces);
-			setSources(srcRes);
-			refreshSourcesHealth();
+			if (deleteConfirm.kind === "single") {
+				await api.marketplaces.remove(deleteConfirm.name, { mode, withSources });
+			} else {
+				const result = await api.marketplaces.removeMany(deleteConfirm.names, {
+					mode,
+					withSources,
+				});
+				if (result.blocked > 0) {
+					const blockedNames = result.items
+						.filter((i) => i.outcome === "linked_sources")
+						.map((i) => i.name);
+					setDeleteError(
+						`${result.blocked} marketplace${result.blocked === 1 ? "" : "s"} still linked to git sources: ${blockedNames.join(", ")}. Enable "Also delete linked git source(s)" to proceed.`,
+					);
+					await refreshMarketplaceData();
+					setSelectedNames((prev) => {
+						const next = new Set(prev);
+						for (const item of result.items) {
+							if (item.outcome === "deleted" || item.outcome === "not_found") {
+								next.delete(item.name);
+							}
+						}
+						return next;
+					});
+					return;
+				}
+			}
+			await refreshMarketplaceData();
 			setDeleteConfirm(null);
+			if (deleteConfirm.kind === "bulk") setSelectedNames(new Set());
 		} catch (e) {
 			setDeleteError(extractErrorMessage(e));
 		} finally {
 			setDeletingMarketplace(false);
+		}
+	}
+
+	function toggleRow(name: string) {
+		setSelectedNames((prev) => {
+			const next = new Set(prev);
+			if (next.has(name)) next.delete(name);
+			else next.add(name);
+			return next;
+		});
+	}
+
+	function clearSelection() {
+		setSelectedNames(new Set());
+	}
+
+	async function handleBulkStatus(status: MarketplaceStatus) {
+		const names = Array.from(selectedNames);
+		if (names.length === 0 || bulkBusy) return;
+		setBulkError(null);
+		setBulkStatusResult(null);
+		setBulkBusy(true);
+
+		setItems((prev) =>
+			prev.map((m) => (selectedNames.has(m.name) ? { ...m, status } : m)),
+		);
+
+		try {
+			const result = await api.marketplaces.updateStatusBulk({ names, status });
+			setBulkStatusResult(result);
+			setSelectedNames(new Set());
+		} catch (e) {
+			setBulkError(extractErrorMessage(e));
+			await refreshMarketplaceData();
+		} finally {
+			setBulkBusy(false);
 		}
 	}
 
@@ -633,6 +708,55 @@ export default function MarketplacesPage() {
 			return true;
 		});
 	}, [items, statusFilter, search]);
+
+	const filteredNames = useMemo(() => filteredItems.map((m) => m.name), [filteredItems]);
+	const visibleSelectedCount = useMemo(
+		() => filteredNames.reduce((n, name) => n + (selectedNames.has(name) ? 1 : 0), 0),
+		[filteredNames, selectedNames],
+	);
+	const allVisibleSelected =
+		filteredNames.length > 0 && visibleSelectedCount === filteredNames.length;
+	const someVisibleSelected = visibleSelectedCount > 0 && !allVisibleSelected;
+
+	useEffect(() => {
+		if (selectAllRef.current) selectAllRef.current.indeterminate = someVisibleSelected;
+	}, [someVisibleSelected]);
+
+	useEffect(() => {
+		setSelectedNames((prev) => {
+			if (prev.size === 0) return prev;
+			const visible = new Set(filteredNames);
+			let changed = false;
+			const next = new Set<string>();
+			for (const n of prev) {
+				if (visible.has(n)) next.add(n);
+				else changed = true;
+			}
+			return changed ? next : prev;
+		});
+	}, [filteredNames]);
+
+	useEffect(() => {
+		if (!bulkStatusResult && !bulkError) return;
+		const id = setTimeout(() => {
+			setBulkStatusResult(null);
+			setBulkError(null);
+		}, 5000);
+		return () => clearTimeout(id);
+	}, [bulkStatusResult, bulkError]);
+
+	function toggleSelectAll() {
+		setSelectedNames((prev) => {
+			if (allVisibleSelected) {
+				const next = new Set(prev);
+				for (const n of filteredNames) next.delete(n);
+				return next;
+			}
+			const next = new Set(prev);
+			for (const n of filteredNames) next.add(n);
+			return next;
+		});
+	}
 
 	const marketplacesWithImportingSource = useMemo(() => {
 		const names = new Set<string>();
@@ -942,6 +1066,81 @@ export default function MarketplacesPage() {
 						</div>
 					</Card>
 				) : (
+					<>
+					{selectedNames.size > 0 && (
+						<div className="flex flex-wrap items-center gap-3 rounded-md border border-accent-bright/30 bg-accent-bright/10 px-3 py-2 text-sm text-text-1">
+							<span className="flex items-center gap-2">
+								<span>
+									<span className="font-medium">{selectedNames.size}</span> selected
+								</span>
+								<button
+									type="button"
+									onClick={clearSelection}
+									className="text-xs text-text-3 hover:text-text-1 hover:underline"
+								>
+									Clear
+								</button>
+							</span>
+							<span className="h-5 border-l border-edge" aria-hidden />
+							<div className="flex items-center gap-2">
+								<StatusChip<MarketplaceStatus>
+									value={"" as MarketplaceStatus}
+									options={MARKETPLACE_STATUS_CHIP_OPTIONS}
+									placeholderLabel="Set status…"
+									onChange={(v) => handleBulkStatus(v)}
+									disabled={bulkBusy}
+									ariaLabel="Set status for selected marketplaces"
+									align="right"
+									size="md"
+								/>
+								<Button
+									variant="ghost"
+									size="sm"
+									onClick={openBulkDeleteMarketplaces}
+									disabled={bulkBusy}
+									className="text-danger hover:text-danger"
+								>
+									Delete…
+								</Button>
+							</div>
+						</div>
+					)}
+
+					{(bulkStatusResult || bulkError) && (
+						<output
+							className={cn(
+								"block rounded-md border px-3 py-2 text-sm",
+								bulkError
+									? "border-danger/30 bg-danger/10 text-danger"
+									: "border-accent-bright/30 bg-accent-bright/10 text-text-1",
+							)}
+						>
+							{bulkError ? (
+								<>{bulkError}</>
+							) : bulkStatusResult ? (
+								<>
+									Updated <span className="font-medium">{bulkStatusResult.updated}</span>
+									{bulkStatusResult.unchanged > 0 && (
+										<>
+											{" · "}
+											<span className="text-text-3">
+												{bulkStatusResult.unchanged} unchanged
+											</span>
+										</>
+									)}
+									{bulkStatusResult.notFound > 0 && (
+										<>
+											{" · "}
+											<span className="text-text-3">
+												{bulkStatusResult.notFound} not found
+											</span>
+										</>
+									)}
+								</>
+							) : null}
+						</output>
+					)}
+
 					<div className="overflow-x-auto">
 						<div className="min-w-[1120px] rounded-lg border border-edge bg-surface-900">
 							<div
@@ -951,6 +1150,21 @@ export default function MarketplacesPage() {
 									MP_GRID_COLS,
 								)}
 							>
+								<div className="flex items-center justify-center">
+									<input
+										ref={selectAllRef}
+										type="checkbox"
+										aria-label={
+											allVisibleSelected
+												? "Deselect all filtered marketplaces"
+												: "Select all filtered marketplaces"
+										}
+										checked={allVisibleSelected}
+										onChange={toggleSelectAll}
+										disabled={filteredItems.length === 0}
+										className="h-4 w-4 cursor-pointer accent-accent-bright disabled:cursor-not-allowed disabled:opacity-40"
+									/>
+								</div>
 								<div>Source</div>
 								<div className="text-right">Plugins</div>
 								<div className="text-right">Skills</div>
@@ -979,6 +1193,7 @@ export default function MarketplacesPage() {
 								const anySyncing = mpSources.some((s) => syncingSourceIds.has(s.id));
 								const anyResuming = mpSources.some((s) => resumingSourceIds.has(s.id));
 								const errorSource = mpSources.find((s) => s.lastSyncError !== null);
+								const checked = selectedNames.has(mp.name);
 								return (
 									<div
 										key={mp.name}
@@ -987,9 +1202,19 @@ export default function MarketplacesPage() {
 											"grid items-start gap-3 border-t border-edge-dim px-4 py-3.5 transition-colors first:border-t-0 hover:bg-accent-bright/[0.03]",
 											isHighlighted &&
 												"bg-accent-bright/[0.06] ring-1 ring-inset ring-accent-bright/40",
+											checked && "bg-accent-bright/[0.05]",
 											MP_GRID_COLS,
 										)}
 									>
+										<div className="flex items-start justify-center pt-1">
+											<input
+												type="checkbox"
+												aria-label={`Select marketplace ${mp.name}`}
+												checked={checked}
+												onChange={() => toggleRow(mp.name)}
+												className="h-4 w-4 cursor-pointer accent-accent-bright"
+											/>
+										</div>
 										<div className="flex min-w-0 items-start gap-3">
 											<MarketplaceLogo name={mp.name} size="lg" />
 											<div className="min-w-0 flex-1">
@@ -1160,6 +1385,7 @@ export default function MarketplacesPage() {
 							})}
 						</div>
 					</div>
+				</>
 				)}
 			</div>
 
@@ -1180,7 +1406,28 @@ export default function MarketplacesPage() {
 
 			{deleteConfirm &&
 				(() => {
-					const linkedSources = sources.filter((s) => s.marketplaceName === deleteConfirm.name);
+					const targetNameSet =
+						deleteConfirm.kind === "single"
+							? new Set([deleteConfirm.name])
+							: new Set(deleteConfirm.names);
+					const linkedSources = sources.filter(
+						(s) => s.marketplaceName && targetNameSet.has(s.marketplaceName),
+					);
+					const titleNode =
+						deleteConfirm.kind === "single" ? (
+							<>
+								Delete <span className="font-mono">{deleteConfirm.name}</span>?
+							</>
+						) : (
+							<>
+								Delete {deleteConfirm.names.length} marketplace
+								{deleteConfirm.names.length === 1 ? "" : "s"}?
+							</>
+						);
+					const ariaTitle =
+						deleteConfirm.kind === "single"
+							? `Delete marketplace ${deleteConfirm.name}`
+							: `Delete ${deleteConfirm.names.length} marketplaces`;
 					return (
 						<div className="fixed inset-0 z-50 flex items-center justify-center">
 							<button
@@ -1192,13 +1439,26 @@ export default function MarketplacesPage() {
 							<dialog
 								open
 								aria-modal="true"
-								aria-label={`Delete marketplace ${deleteConfirm.name}`}
+								aria-label={ariaTitle}
 								className="relative m-0 w-[440px] max-w-[92vw] rounded-md border border-edge bg-surface-900 p-5 text-text-1 shadow-2xl"
 							>
-								<h2 className="text-sm font-semibold text-text-1">
-									Delete <span className="font-mono">{deleteConfirm.name}</span>?
-								</h2>
-								<p className="mt-2 text-xs text-text-3">This marketplace will be removed.</p>
+								<h2 className="text-sm font-semibold text-text-1">{titleNode}</h2>
+								<p className="mt-2 text-xs text-text-3">
+									{deleteConfirm.kind === "single"
+										? "This marketplace will be removed."
+										: "These marketplaces will be removed."}
+								</p>
+								{deleteConfirm.kind === "bulk" && (
+									<div className="mt-3 max-h-32 overflow-y-auto rounded border border-edge-dim bg-surface-800 px-3 py-2">
+										<ul className="space-y-0.5 font-mono text-[11px] text-text-2">
+											{deleteConfirm.names.map((n) => (
+												<li key={n} className="truncate" title={n}>
+													{n}
+												</li>
+											))}
+										</ul>
+									</div>
+								)}
 								<label className="mt-4 flex items-start gap-2 text-sm text-text-2 cursor-pointer">
 									<input
 										type="checkbox"
@@ -1214,7 +1474,7 @@ export default function MarketplacesPage() {
 									<span>
 										Also delete linked plugins and skills
 										<span className="block mt-1 text-xs text-text-4">
-											Off: plugins from this marketplace are kept as orphaned “removed” entries;
+											Off: plugins from these marketplaces are kept as orphaned “removed” entries;
 											their history stays intact. On: plugins, plugin-skill links, and skill records
 											tied to those plugins are permanently deleted.
 										</span>
@@ -1250,8 +1510,10 @@ export default function MarketplacesPage() {
 													</>
 												) : (
 													<>
-														If left off, the marketplace cannot be deleted while these sources still
-														reference it.
+														If left off,{" "}
+														{deleteConfirm.kind === "single"
+															? "the marketplace cannot be deleted while these sources still reference it."
+															: "marketplaces linked to these sources will be skipped."}
 													</>
 												)}
 											</span>

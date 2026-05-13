@@ -18,6 +18,8 @@ export type AuditAction =
 	| "marketplace_status_changed"
 	| "marketplace_updated"
 	| "marketplace_deleted"
+	| "marketplaces_status_changed"
+	| "marketplaces_deleted"
 	| "marketplace_source_created"
 	| "marketplace_source_updated"
 	| "marketplace_source_deleted"
@@ -50,6 +52,8 @@ export const ALL_AUDIT_ACTIONS: readonly AuditAction[] = [
 	"marketplace_status_changed",
 	"marketplace_updated",
 	"marketplace_deleted",
+	"marketplaces_status_changed",
+	"marketplaces_deleted",
 	"marketplace_source_created",
 	"marketplace_source_updated",
 	"marketplace_source_deleted",

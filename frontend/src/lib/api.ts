@@ -10,6 +10,7 @@ import type {
 	Marketplace,
 	MarketplaceDetailResponse,
 	MarketplaceSource,
+	MarketplaceStatus,
 	MonthlyTrendsResponse,
 	PeriodFilter,
 	Plugin,
@@ -215,6 +216,34 @@ export const api = {
 				{ method: "DELETE" },
 			);
 		},
+		removeMany: (
+			names: string[],
+			opts: { mode: "orphan" | "cascade"; withSources: boolean },
+		) =>
+			apiFetch<{
+				deleted: number;
+				notFound: number;
+				blocked: number;
+				deletedSourceIds: string[];
+				items: Array<
+					| {
+							name: string;
+							outcome: "deleted";
+							affectedPluginNames: string[];
+							deletedSourceIds: string[];
+					  }
+					| { name: string; outcome: "not_found" }
+					| { name: string; outcome: "linked_sources"; sourceIds: string[] }
+				>;
+			}>("/api/marketplaces/bulk-delete", {
+				method: "POST",
+				body: JSON.stringify({ names, mode: opts.mode, withSources: opts.withSources }),
+			}),
+		updateStatusBulk: (body: { names: string[]; status: MarketplaceStatus }) =>
+			apiFetch<{ updated: number; notFound: number; unchanged: number }>(
+				"/api/marketplaces/bulk-status",
+				{ method: "PATCH", body: JSON.stringify(body) },
+			),
 	},
 	integrations: {
 		list: () => apiFetch<Integration[]>("/api/integrations"),

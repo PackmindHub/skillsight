@@ -4,9 +4,17 @@ import type { AppVariables } from "@/types";
 import type { AppDeps } from "@/bootstrap/compose";
 import { sessionAuth } from "@/middleware/session-auth";
 import { deleteMarketplace } from "@/application/marketplaces/delete-marketplace";
+import {
+	DELETE_MARKETPLACES_MAX_BATCH,
+	deleteMarketplaces,
+} from "@/application/marketplaces/delete-marketplaces";
 import { listMarketplaceDetail } from "@/application/marketplaces/list-marketplace-detail";
 import { listMarketplaces } from "@/application/marketplaces/list-marketplaces";
 import { updateMarketplace } from "@/application/marketplaces/update-marketplace";
+import {
+	UPDATE_MARKETPLACES_STATUS_MAX_BATCH,
+	updateMarketplacesStatus,
+} from "@/application/marketplaces/update-marketplaces-status";
 import { cancelMarketplaceSource } from "@/infrastructure/scheduler/marketplace-source-scheduler";
 
 const updateSchema = z.object({
@@ -16,6 +24,20 @@ const updateSchema = z.object({
 });
 
 const deleteModeSchema = z.enum(["orphan", "cascade"]).default("orphan");
+
+const bulkDeleteSchema = z.object({
+	names: z.array(z.string().min(1).max(255)).min(1).max(DELETE_MARKETPLACES_MAX_BATCH),
+	mode: z.enum(["orphan", "cascade"]).default("orphan"),
+	withSources: z.boolean().default(false),
+});
+
+const bulkStatusSchema = z.object({
+	names: z
+		.array(z.string().min(1).max(255))
+		.min(1)
+		.max(UPDATE_MARKETPLACES_STATUS_MAX_BATCH),
+	status: z.enum(["to_review", "approved", "denied", "ignored"]),
+});
 
 export function createMarketplacesRoute(
 	deps: Pick<
@@ -29,6 +51,40 @@ export function createMarketplacesRoute(
 	route.get("/", async (c) => {
 		const includeIgnored = c.req.query("includeIgnored") === "1";
 		return c.json({ marketplaces: await listMarketplaces(deps, { includeIgnored }) });
+	});
+
+	route.post("/bulk-delete", async (c) => {
+		const body = bulkDeleteSchema.parse(await c.req.json());
+		const result = await deleteMarketplaces(deps, {
+			names: body.names,
+			mode: body.mode,
+			withSources: body.withSources,
+			actorEmail: c.get("user").email,
+		});
+		if ("error" in result) {
+			const message =
+				result.error === "empty" ? "No marketplaces provided" : "Too many marketplaces";
+			return c.json({ error: message }, 400);
+		}
+		for (const sourceId of result.deletedSourceIds) {
+			cancelMarketplaceSource(sourceId);
+		}
+		return c.json(result);
+	});
+
+	route.patch("/bulk-status", async (c) => {
+		const body = bulkStatusSchema.parse(await c.req.json());
+		const result = await updateMarketplacesStatus(deps, {
+			names: body.names,
+			status: body.status,
+			actorEmail: c.get("user").email,
+		});
+		if ("error" in result) {
+			const message =
+				result.error === "empty" ? "No marketplaces provided" : "Too many marketplaces";
+			return c.json({ error: message }, 400);
+		}
+		return c.json(result);
 	});
 
 	route.get("/:name/detail", async (c) => {
