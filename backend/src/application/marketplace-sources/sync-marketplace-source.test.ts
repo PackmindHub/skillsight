@@ -263,6 +263,95 @@ describe("syncMarketplaceSource", () => {
 
 			expect(markRemovedCalls).toHaveLength(0);
 		});
+
+		it("upserts plugins listed in marketplace.json even when they have no skills", async () => {
+			const { repo: plugins, upsertCalls } = makePlugins();
+			const { repo: skills } = makeSkills();
+
+			await syncMarketplaceSource(
+				{
+					marketplaceSources: makeMarketplaceSources(),
+					marketplaces: makeMarketplaces(),
+					plugins,
+					pluginSkills: makePluginSkills(),
+					skills,
+					gitMarketplace: makeGateway(),
+					audit: makeAudit(),
+				},
+				BASE_SOURCE,
+			);
+
+			expect(upsertCalls.map((c) => c.pluginName).sort()).toEqual(["plugin-a", "plugin-b"]);
+		});
+	});
+
+	describe("reactivateRemovedByMarketplace", () => {
+		it("is called with all present plugin names and the marketplace-computed status", async () => {
+			const { repo: plugins, reactivateCalls } = makePlugins();
+			const { repo: skills } = makeSkills();
+
+			await syncMarketplaceSource(
+				{
+					marketplaceSources: makeMarketplaceSources(),
+					marketplaces: makeMarketplaces("approved"),
+					plugins,
+					pluginSkills: makePluginSkills(),
+					skills,
+					gitMarketplace: makeGateway(),
+					audit: makeAudit(),
+				},
+				BASE_SOURCE,
+			);
+
+			expect(reactivateCalls).toHaveLength(1);
+			expect(reactivateCalls[0].marketplaceName).toBe("acme-marketplace");
+			expect(reactivateCalls[0].presentPluginNames).toEqual(["plugin-a", "plugin-b"]);
+			expect(reactivateCalls[0].newStatus).toBe("approved");
+		});
+
+		it("is NOT called when the gateway fetch fails (connection error → no status mutations)", async () => {
+			const { repo: plugins, upsertCalls, markRemovedCalls, reactivateCalls } = makePlugins();
+			const { repo: skills, propagateCalls } = makeSkills();
+
+			const result = await syncMarketplaceSource(
+				{
+					marketplaceSources: makeMarketplaceSources(),
+					marketplaces: makeMarketplaces(),
+					plugins,
+					pluginSkills: makePluginSkills(),
+					skills,
+					gitMarketplace: makeGateway("throw"),
+					audit: makeAudit(),
+				},
+				BASE_SOURCE,
+			);
+
+			expect(result.error).toBe("network error");
+			expect(upsertCalls).toHaveLength(0);
+			expect(markRemovedCalls).toHaveLength(0);
+			expect(reactivateCalls).toHaveLength(0);
+			expect(propagateCalls).toHaveLength(0);
+		});
+
+		it("is NOT called when importPluginsAndSkills is false", async () => {
+			const { repo: plugins, reactivateCalls } = makePlugins();
+			const { repo: skills } = makeSkills();
+
+			await syncMarketplaceSource(
+				{
+					marketplaceSources: makeMarketplaceSources(),
+					marketplaces: makeMarketplaces(),
+					plugins,
+					pluginSkills: makePluginSkills(),
+					skills,
+					gitMarketplace: makeGateway(),
+					audit: makeAudit(),
+				},
+				{ ...BASE_SOURCE, importPluginsAndSkills: false },
+			);
+
+			expect(reactivateCalls).toHaveLength(0);
+		});
 	});
 
 	describe("skills propagation", () => {

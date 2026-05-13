@@ -179,7 +179,7 @@ describe("GitMarketplaceHttpGateway.fetchMarketplaceJson", () => {
 		).rejects.toThrow(/HTTP 403 fetching skills/);
 	});
 
-	test("404 on a plugin's /skills directory: treated as legitimately empty (plugin dropped)", async () => {
+	test("404 on a plugin's /skills directory: returned with empty skills (not dropped)", async () => {
 		responder = ({ url }) => {
 			if (url.includes("raw.githubusercontent.com")) {
 				return {
@@ -203,11 +203,13 @@ describe("GitMarketplaceHttpGateway.fetchMarketplaceJson", () => {
 		const data = await new GitMarketplaceHttpGateway().fetchMarketplaceJson({
 			gitUrl: "https://github.com/acme/marketplace",
 		});
-		expect(data.plugins).toHaveLength(1);
-		expect(data.plugins[0].name).toBe("with-skills");
+		expect(data.plugins).toHaveLength(2);
+		const byName = Object.fromEntries(data.plugins.map((p) => [p.name, p]));
+		expect(byName["with-skills"].skills).toEqual(["lint"]);
+		expect(byName["no-skills-dir"].skills).toEqual([]);
 	});
 
-	test("unrecognized source shape: plugin dropped (no skills)", async () => {
+	test("unrecognized source shape: plugin returned without skills (not dropped)", async () => {
 		responder = ({ url }) => {
 			if (url.includes("raw.githubusercontent.com")) {
 				return {
@@ -224,11 +226,13 @@ describe("GitMarketplaceHttpGateway.fetchMarketplaceJson", () => {
 		const data = await new GitMarketplaceHttpGateway().fetchMarketplaceJson({
 			gitUrl: "https://github.com/acme/marketplace",
 		});
-		expect(data.plugins).toEqual([]);
+		expect(data.plugins).toHaveLength(1);
+		expect(data.plugins[0].name).toBe("mystery");
+		expect(data.plugins[0].skills).toBeUndefined();
 		expect(calls.some((c) => c.url.includes("api.github.com"))).toBe(false);
 	});
 
-	test("local source with empty /skills directory: plugin dropped", async () => {
+	test("local source with empty /skills directory: returned with empty skills (not dropped)", async () => {
 		responder = ({ url }) => {
 			if (url.includes("raw.githubusercontent.com")) {
 				return {
@@ -252,8 +256,10 @@ describe("GitMarketplaceHttpGateway.fetchMarketplaceJson", () => {
 		const data = await new GitMarketplaceHttpGateway().fetchMarketplaceJson({
 			gitUrl: "https://github.com/acme/marketplace",
 		});
-		expect(data.plugins).toHaveLength(1);
-		expect(data.plugins[0].name).toBe("with-skills");
+		expect(data.plugins).toHaveLength(2);
+		const byName = Object.fromEntries(data.plugins.map((p) => [p.name, p]));
+		expect(byName["with-skills"].skills).toEqual(["lint"]);
+		expect(byName["no-skills"].skills).toEqual([]);
 	});
 
 	test("concurrency cap: in-flight cross-repo fetches never exceed 8", async () => {
