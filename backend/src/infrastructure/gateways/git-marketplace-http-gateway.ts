@@ -249,12 +249,18 @@ export class GitMarketplaceHttpGateway implements IGitMarketplaceGateway {
 				if (ext.host === "other" || !ext.owner || !ext.repo) {
 					return { name, description, version };
 				}
+				// Forward the marketplace's access token only when the external plugin lives on the
+				// same provider as the marketplace itself — a GitHub PAT cannot auth to GitLab and
+				// we must not leak the token by sending it to an unrelated host that a (potentially
+				// malicious) marketplace.json points to.
+				const forwardToken = ext.host === host ? params.accessToken : undefined;
 				const skills = await fetchPluginSkills({
 					host: ext.host,
 					owner: ext.owner,
 					repo: ext.repo,
 					pluginPath: external.path,
 					branch: external.ref ?? "HEAD",
+					accessToken: forwardToken,
 				});
 				// Intentionally no `source` value: `plugins.source` is consumed downstream by
 				// buildSkillRepoUrl as a path inside the *marketplace's* own repo, which doesn't

@@ -284,6 +284,80 @@ describe("GitMarketplaceHttpGateway.fetchMarketplaceJson", () => {
 		expect(peak).toBeLessThanOrEqual(8);
 	});
 
+	test("same-host external plugin: forwards the marketplace access token to the skills fetch", async () => {
+		let skillCallAuth: string | null | undefined;
+		responder = ({ url, init }) => {
+			if (url.includes("raw.githubusercontent.com")) {
+				return {
+					body: {
+						name: "mp",
+						plugins: [
+							{
+								name: "private-external",
+								source: {
+									source: "git-subdir",
+									url: "https://github.com/acme/private-plugins",
+									path: "plugins/x",
+									ref: "main",
+								},
+							},
+						],
+					},
+				};
+			}
+			if (url.includes("api.github.com/repos/acme/private-plugins/contents/plugins/x/skills")) {
+				const headers = new Headers(init?.headers);
+				skillCallAuth = headers.get("authorization");
+				return { body: [{ type: "dir", name: "alpha" }] };
+			}
+			return { status: 404 };
+		};
+		await new GitMarketplaceHttpGateway().fetchMarketplaceJson({
+			gitUrl: "https://github.com/acme/marketplace",
+			accessToken: "ghp_secret",
+		});
+		expect(skillCallAuth).toBe("Bearer ghp_secret");
+	});
+
+	test("cross-host external plugin: token is NOT forwarded (avoids leaking PAT)", async () => {
+		let skillCallAuth: string | null | undefined;
+		let skillCallPrivateToken: string | null | undefined;
+		responder = ({ url, init }) => {
+			// Marketplace lives on gitlab.com — should authenticate marketplace.json with PRIVATE-TOKEN.
+			if (url.includes("gitlab.com") && url.includes("marketplace.json")) {
+				return {
+					body: {
+						name: "mp",
+						plugins: [
+							{
+								name: "github-plugin",
+								source: {
+									source: "git-subdir",
+									url: "https://github.com/foo/bar",
+									path: "plugins/x",
+									ref: "main",
+								},
+							},
+						],
+					},
+				};
+			}
+			if (url.includes("api.github.com/repos/foo/bar/contents/plugins/x/skills")) {
+				const headers = new Headers(init?.headers);
+				skillCallAuth = headers.get("authorization");
+				skillCallPrivateToken = headers.get("private-token");
+				return { body: [{ type: "dir", name: "alpha" }] };
+			}
+			return { status: 404 };
+		};
+		await new GitMarketplaceHttpGateway().fetchMarketplaceJson({
+			gitUrl: "https://gitlab.com/acme/marketplace",
+			accessToken: "glpat-secret",
+		});
+		expect(skillCallAuth).toBeNull();
+		expect(skillCallPrivateToken).toBeNull();
+	});
+
 	test("marketplace.json 404 throws a descriptive error", async () => {
 		responder = () => ({ status: 404 });
 		await expect(
