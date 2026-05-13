@@ -5,8 +5,8 @@ import {
 	Card,
 	IncludeIgnoredToggle,
 	Input,
+	MultiSelect,
 	PageHeader,
-	SingleSelect,
 	StatusChip,
 	type StatusChipOption,
 } from "@/components/ui";
@@ -18,18 +18,13 @@ import { PLUGIN_STATUSES, type Plugin, type PluginStatus } from "@/types/api";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
-type MarketplaceAssociation = "all" | "with" | "without";
-const MARKETPLACE_ASSOCIATIONS: readonly MarketplaceAssociation[] = ["all", "with", "without"] as const;
+const NO_MARKETPLACE = "__none__";
+const NO_MARKETPLACE_LABEL = "(none)";
 
-function isMarketplaceAssociation(v: string | null): v is MarketplaceAssociation {
-	return v === "all" || v === "with" || v === "without";
+function pickList(raw: string | null, allowed: readonly string[]): string[] {
+	if (!raw) return [];
+	return raw.split(",").filter((v) => v && allowed.includes(v));
 }
-
-const ASSOC_LABELS: Record<MarketplaceAssociation, string> = {
-	all: "All",
-	with: "With marketplace",
-	without: "Without marketplace",
-};
 
 const PLUGIN_STATUS_CHIP_OPTIONS: readonly StatusChipOption<PluginStatus>[] = [
 	{ value: "approved", label: "Approved", tone: "success" },
@@ -146,10 +141,21 @@ export default function PluginsPage() {
 
 	const search = searchParams.get("search") ?? "";
 	const highlightName = searchParams.get("name") ?? "";
-	const marketplaceFilter = searchParams.get("marketplace") ?? "";
-	const mpAssocParam = searchParams.get("mpAssoc");
-	const mpAssoc: MarketplaceAssociation = isMarketplaceAssociation(mpAssocParam) ? mpAssocParam : "all";
 	const highlightedRowRef = useRef<HTMLDivElement | null>(null);
+
+	const allMarketplaceNames = useMemo(() => {
+		const names = new Set<string>();
+		for (const p of items) if (p.marketplaceName) names.add(p.marketplaceName);
+		return Array.from(names).sort();
+	}, [items]);
+	const marketplaceFilterValues = useMemo(
+		() => [...allMarketplaceNames, NO_MARKETPLACE],
+		[allMarketplaceNames],
+	);
+	const marketplaces = pickList(
+		searchParams.get("marketplace"),
+		marketplaceFilterValues,
+	);
 
 	function updateSearch(value: string) {
 		setSearchParams(
@@ -163,12 +169,12 @@ export default function PluginsPage() {
 		);
 	}
 
-	function updateMpAssoc(value: MarketplaceAssociation) {
+	function setMarketplaces(values: string[]) {
 		setSearchParams(
 			(prev) => {
 				const next = new URLSearchParams(prev);
-				if (value === "all") next.delete("mpAssoc");
-				else next.set("mpAssoc", value);
+				if (values.length === 0) next.delete("marketplace");
+				else next.set("marketplace", values.join(","));
 				return next;
 			},
 			{ replace: true },
@@ -226,13 +232,18 @@ export default function PluginsPage() {
 	const filteredItems = useMemo(() => {
 		return items.filter((p) => {
 			if (statusFilter !== "all" && (p.status ?? "to_review") !== statusFilter) return false;
-			if (marketplaceFilter && p.marketplaceName !== marketplaceFilter) return false;
-			if (mpAssoc === "with" && !p.marketplaceName) return false;
-			if (mpAssoc === "without" && p.marketplaceName) return false;
+			if (marketplaces.length > 0) {
+				const wantsNone = marketplaces.includes(NO_MARKETPLACE);
+				const wantedNames = marketplaces.filter((m) => m !== NO_MARKETPLACE);
+				const hasNone = !p.marketplaceName;
+				const matchesNamed =
+					!!p.marketplaceName && wantedNames.includes(p.marketplaceName);
+				if (!((wantsNone && hasNone) || matchesNamed)) return false;
+			}
 			if (search && !p.pluginName.toLowerCase().includes(search.toLowerCase())) return false;
 			return true;
 		});
-	}, [items, statusFilter, search, marketplaceFilter, mpAssoc]);
+	}, [items, statusFilter, search, marketplaces]);
 
 	const filteredNames = useMemo(() => filteredItems.map((p) => p.pluginName), [filteredItems]);
 	const visibleSelectedCount = useMemo(
@@ -438,29 +449,16 @@ export default function PluginsPage() {
 								);
 							})}
 						</div>
-						<SingleSelect<MarketplaceAssociation>
+						<MultiSelect
 							label="Marketplace"
-							value={mpAssoc}
-							onChange={updateMpAssoc}
-							options={MARKETPLACE_ASSOCIATIONS.map((value) => ({
-								value,
-								label: ASSOC_LABELS[value],
-							}))}
+							options={[
+								...allMarketplaceNames.map((n) => ({ value: n, label: n })),
+								{ value: NO_MARKETPLACE, label: NO_MARKETPLACE_LABEL },
+							]}
+							values={marketplaces}
+							onChange={setMarketplaces}
 						/>
 						<IncludeIgnoredToggle value={includeIgnored} onChange={setIncludeIgnored} />
-						{marketplaceFilter && (
-							<span className="inline-flex items-center gap-1 rounded-full border border-edge bg-surface-800 px-2 py-0.5 text-xs text-text-2">
-								Marketplace: {marketplaceFilter}
-								<button
-									type="button"
-									aria-label="Clear marketplace filter"
-									onClick={() => clearParam("marketplace")}
-									className="text-text-4 hover:text-text-1"
-								>
-									×
-								</button>
-							</span>
-						)}
 						{highlightName && (
 							<span className="inline-flex items-center gap-1 rounded-full border border-edge bg-surface-800 px-2 py-0.5 text-xs text-text-2">
 								Highlighted: {highlightName}
