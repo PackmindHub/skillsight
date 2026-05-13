@@ -913,7 +913,6 @@ export default function MarketplacesPage() {
 								);
 							})}
 						</div>
-						<IncludeIgnoredToggle value={includeIgnored} onChange={setIncludeIgnored} />
 						{highlightName && (
 							<span className="inline-flex items-center gap-1 rounded-full border border-edge bg-surface-800 px-2 py-0.5 text-xs text-text-2">
 								Highlighted: {highlightName}
@@ -927,6 +926,7 @@ export default function MarketplacesPage() {
 								</button>
 							</span>
 						)}
+						<IncludeIgnoredToggle value={includeIgnored} onChange={setIncludeIgnored} />
 						<span className="ml-auto font-mono text-xs text-text-4">
 							{filteredItems.length} <span className="text-text-4">/ {items.length}</span>
 						</span>

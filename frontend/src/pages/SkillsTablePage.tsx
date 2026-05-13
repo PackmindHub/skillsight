@@ -878,7 +878,6 @@ export default function SkillsTablePage() {
 					onChange={setStatus}
 					options={SKILL_STATUSES}
 				/>
-				<IncludeIgnoredToggle value={includeIgnored} onChange={setIncludeIgnored} />
 				<SingleSelect<SourceFilter>
 					label="Source"
 					value={sourceFilter}
@@ -912,6 +911,7 @@ export default function SkillsTablePage() {
 				>
 					Least used
 				</Button>
+				<IncludeIgnoredToggle value={includeIgnored} onChange={setIncludeIgnored} />
 				<span className="text-xs text-text-4 ml-auto">
 					{loading ? "—" : `${filteredRows.length} / ${rows.length}`}
 				</span>
