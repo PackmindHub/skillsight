@@ -231,6 +231,7 @@ export function MarketplaceDetailsDrawer({
 	const skills = detail?.skills ?? [];
 	const totalActivations = skills.reduce((sum, s) => sum + s.activationCount, 0);
 	const activatedSkillCount = skills.filter((s) => s.activationCount > 0).length;
+	const pluginsWithSkillsCount = new Set(skills.map((s) => s.pluginName)).size;
 	const isEditing = mode === "edit";
 
 	const footer = marketplace ? (
@@ -488,8 +489,13 @@ export function MarketplaceDetailsDrawer({
 						/>
 					)}
 
-					<div className="grid grid-cols-4 gap-3">
+					<div className="grid grid-cols-5 gap-3">
 						<Stat label="Plugins" value={plugins.length} />
+						<Stat
+							label="With skills"
+							value={pluginsWithSkillsCount}
+							muted={pluginsWithSkillsCount === 0}
+						/>
 						<Stat label="Skills" value={skills.length} />
 						<Stat
 							label="Activated"
