@@ -1,4 +1,4 @@
-import { Pause, Play, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button, PageHeader } from "@/components/ui";
 import { api } from "@/lib/api";
@@ -45,11 +45,8 @@ export default function LiveEventsPage() {
 	);
 	const [limit, setLimit] = useState<number>(100);
 	const [search, setSearch] = useState("");
-	const [paused, setPaused] = useState(false);
 	const [streamReady, setStreamReady] = useState(false);
 	const newestIdRef = useRef<string | null>(null);
-	const pausedRef = useRef(false);
-	pausedRef.current = paused;
 
 	useEffect(() => {
 		let cancelled = false;
@@ -77,7 +74,6 @@ export default function LiveEventsPage() {
 		const close = api.events.openStream({
 			onEvent: (incoming) => {
 				setStreamReady(true);
-				if (pausedRef.current) return;
 				setEvents((prev) => {
 					if (prev.some((e) => e.id === incoming.id)) return prev;
 					const next = [incoming, ...prev];
@@ -145,7 +141,7 @@ export default function LiveEventsPage() {
 		setSearch("");
 	}
 
-	const live = streamReady && !paused;
+	const live = streamReady;
 
 	return (
 		<div className="space-y-4">
@@ -158,23 +154,13 @@ export default function LiveEventsPage() {
 						<code className="font-mono text-xs text-accent-soft bg-accent-bright/10 px-1.5 py-0.5 rounded">
 							skill_activated
 						</code>{" "}
-						events{paused ? " · stream paused" : live ? <> · <span className="ev-live-inline"><span className="ev-live-dot" />live</span></> : " · connecting…"}.
+						events{live ? <> · <span className="ev-live-inline"><span className="ev-live-dot" />live</span></> : " · connecting…"}.
 					</>
 				}
 				actions={
-					<>
-						<Button
-							variant={paused ? "primary" : "ghost"}
-							size="sm"
-							leftIcon={paused ? <Play size={14} /> : <Pause size={14} />}
-							onClick={() => setPaused((p) => !p)}
-						>
-							{paused ? "Resume" : "Pause"}
-						</Button>
-						<Button variant="ghost" size="sm" onClick={resetFilters}>
-							Reset filters
-						</Button>
-					</>
+					<Button variant="ghost" size="sm" onClick={resetFilters}>
+						Reset filters
+					</Button>
 				}
 			/>
 
@@ -289,7 +275,7 @@ export default function LiveEventsPage() {
 										e.trigger && (e.trigger as TriggerKey) in TRIGGER_META
 											? TRIGGER_META[e.trigger as TriggerKey]
 											: null;
-									const isNew = !paused && e.id === newestId;
+									const isNew = e.id === newestId;
 									const isClaude = e.userEmail === "claude" || !e.userEmail;
 									return (
 										<tr key={e.id} className={cn("ev-row", isNew && "ev-row-new")}>
