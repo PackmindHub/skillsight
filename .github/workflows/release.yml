@@ -6,7 +6,7 @@ on:
       - "release/*"
 
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 env:
@@ -39,6 +39,27 @@ jobs:
             echo "$f OK ($actual)"
           done
 
+      - name: Extract release notes from Changelog.md
+        run: |
+          if [[ ! -f Changelog.md ]]; then
+            echo "::error::Changelog.md is missing from the repo root"
+            exit 1
+          fi
+          NOTES=$(awk -v ver="$VERSION" '
+            $0 == "## " ver {flag=1; next}
+            /^## / && flag {exit}
+            flag {print}
+          ' Changelog.md | sed -e '/./,$!d' | sed -e ':a' -e '/^\n*$/{$d;N;ba' -e '}')
+          if [[ -z "$NOTES" ]]; then
+            echo "::error::No '## $VERSION' section found in Changelog.md"
+            exit 1
+          fi
+          {
+            echo "RELEASE_NOTES<<RELEASE_NOTES_EOF"
+            echo "$NOTES"
+            echo "RELEASE_NOTES_EOF"
+          } >> "$GITHUB_ENV"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -61,3 +82,13 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$VERSION" \
+            --notes "$RELEASE_NOTES" \
+            --verify-tag \
+            --latest

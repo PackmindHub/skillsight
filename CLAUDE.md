@@ -106,10 +106,10 @@ After changing the schema, always run `bun run migrate:generate` from `backend/`
 The shipped version is sourced from the **root `package.json`** `version` field. It is displayed in the frontend Sidebar (`v{version} · self-hosted`) and returned by the backend `/health` endpoint.
 
 To cut a release:
-1. Bump `version` in the **root** `package.json` (e.g. `0.1.0` → `1.2.3`).
+1. Bump `version` in the **root** `package.json` (e.g. `0.1.0` → `1.2.3`) **and add a `## 1.2.3` section to `Changelog.md`** describing the changes. `release.yml` fails if no matching section is found.
 2. Run `bun run version:sync` — this propagates the same version into `backend/package.json` and `frontend/package.json` (kept in sync so workspace tools and the frontend's Vite-bundled import stay consistent).
 3. Commit and tag: `git commit -am "release 1.2.3" && git tag release/1.2.3 && git push --follow-tags`.
-4. The `release.yml` workflow triggers on tags matching `release/*`. It verifies that all three `package.json` files match the tag's `x.y.z`, then builds and pushes `ghcr.io/packmindhub/skills-obs:1.2.3` + `:latest`.
+4. The `release.yml` workflow triggers on tags matching `release/*`. It verifies that all three `package.json` files match the tag's `x.y.z`, builds and pushes `ghcr.io/packmindhub/skills-obs:1.2.3` + `:latest`, then creates a GitHub Release titled `1.2.3` with the `Changelog.md` section as its body.
 
 **One-time GHCR setup**: GHCR packages are created **private** by default. After the very first successful push, go to GitHub → Packages → `skills-obs` → "Package settings" → "Change package visibility" → Public. Subsequent pushes inherit this visibility.
 
