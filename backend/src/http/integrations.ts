@@ -151,12 +151,19 @@ export function createIntegrationsRoute(
 
 	route.post("/", async (c) => {
 		const body = createSchema.parse(await c.req.json());
+		const actorEmail = c.get("user").email;
 		const result = await createIntegration(
 			{ integrations: deps.integrations, audit: deps.audit },
-			{ ...body, actorEmail: c.get("user").email },
+			{ ...body, actorEmail },
 		);
 		const integration = await deps.integrations.findById(result.id);
-		if (integration?.enabled) scheduleIntegration(integration, deps.integrations, scheduledSyncFn);
+		if (integration?.enabled) {
+			scheduleIntegration(integration, deps.integrations, scheduledSyncFn);
+			syncIntegration(syncDeps, integration, {
+				mode: "manual",
+				actorEmail,
+			}).catch(() => {});
+		}
 		await publishIntegrationUpdate(deps.integrations, result.id);
 		return c.json({ ...result, eventCount: 0 }, 201);
 	});
