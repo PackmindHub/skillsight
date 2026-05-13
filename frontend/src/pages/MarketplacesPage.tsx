@@ -984,7 +984,9 @@ export default function MarketplacesPage() {
 
 							{filteredItems.length === 0 && (
 								<div className="px-7 py-7 text-center font-mono text-xs text-text-4">
-									No marketplaces match the current filters.
+									{statusFilter === "ignored" && !includeIgnored
+										? "Ignored marketplaces are hidden. Enable 'Include ignored' to view them."
+										: "No marketplaces match the current filters."}
 								</div>
 							)}
 

@@ -1154,17 +1154,23 @@ export default function SkillsTablePage() {
 					) : filteredRows.length === 0 ? (
 						<tr>
 							<td colSpan={11} className="px-4 py-8 text-center text-text-4 text-sm">
-								No skills match the current filters.
-								{filtersActive && (
+								{statusFilter === "ignored" && !includeIgnored ? (
+									"Ignored skills are hidden. Enable 'Include ignored' to view them."
+								) : (
 									<>
-										{" "}
-										<button
-											type="button"
-											onClick={clearAllFilters}
-											className="text-accent-bright hover:underline"
-										>
-											Clear all
-										</button>
+										No skills match the current filters.
+										{filtersActive && (
+											<>
+												{" "}
+												<button
+													type="button"
+													onClick={clearAllFilters}
+													className="text-accent-bright hover:underline"
+												>
+													Clear all
+												</button>
+											</>
+										)}
 									</>
 								)}
 							</td>
