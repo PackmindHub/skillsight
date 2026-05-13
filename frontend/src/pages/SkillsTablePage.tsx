@@ -25,7 +25,7 @@ import { fuzzyScore } from "@/lib/fuzzy";
 import { useDebouncedValue } from "@/lib/use-debounced-value";
 import { useIncludeIgnored } from "@/lib/use-include-ignored";
 import { useStatusFilter } from "@/lib/use-status-filter";
-import { cn } from "@/lib/utils";
+import { cn, computeDeltaPct } from "@/lib/utils";
 import {
 	SKILL_SOURCE_LABELS,
 	SKILL_SOURCES,
@@ -211,15 +211,6 @@ function TriggerMixCell({ row }: { row: SkillTableRow }) {
 				)}
 		</td>
 	);
-}
-
-function computeDeltaPct(dailyCounts: number[]): number {
-	if (dailyCounts.length < 4) return 0;
-	const mid = Math.floor(dailyCounts.length / 2);
-	const first = dailyCounts.slice(0, mid).reduce((a, b) => a + b, 0);
-	const second = dailyCounts.slice(mid).reduce((a, b) => a + b, 0);
-	if (first === 0) return second > 0 ? 100 : 0;
-	return Math.round(((second - first) / first) * 100);
 }
 
 const NO_SOURCE_FILTER = "__none__";

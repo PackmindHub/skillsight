@@ -1,6 +1,6 @@
 import { TrendSparkline } from "@/components/skills/TrendSparkline";
 import { api } from "@/lib/api";
-import { cn, formatDate } from "@/lib/utils";
+import { cn, computeDeltaPct, formatDate, isCurrentUtcMonth, sumKnownTriggers } from "@/lib/utils";
 import type {
 	DashboardPeriod,
 	Marketplace,
@@ -36,15 +36,6 @@ function fmtFull(n: number): string {
 	return n.toLocaleString("en-US");
 }
 
-function computeDeltaPct(dailyCounts: number[]): number {
-	if (dailyCounts.length < 4) return 0;
-	const mid = Math.floor(dailyCounts.length / 2);
-	const first = dailyCounts.slice(0, mid).reduce((a, b) => a + b, 0);
-	const second = dailyCounts.slice(mid).reduce((a, b) => a + b, 0);
-	if (first === 0) return second > 0 ? 100 : 0;
-	return Math.round(((second - first) / first) * 100);
-}
-
 function deltaPill(pct: number) {
 	if (pct === 0) return { cls: "flat", label: "·" };
 	if (pct > 0) return { cls: "up", label: `+${pct}%` };
@@ -59,6 +50,10 @@ interface MonthlyPoint {
 const monthFormatter = new Intl.DateTimeFormat("en-US", { month: "short", timeZone: "UTC" });
 function formatMonth(iso: string): string {
 	return monthFormatter.format(new Date(iso));
+}
+
+function formatMonthLabel(iso: string, now?: Date): string {
+	return isCurrentUtcMonth(iso, now) ? `${formatMonth(iso)} (partial)` : formatMonth(iso);
 }
 
 type HeatCell = { date: string | null; count: number };
@@ -132,13 +127,19 @@ function Heatmap({ data }: { data: HeatCell[][] }) {
 				))}
 				<div className="mt-2 flex items-center gap-1.5 pl-[33px] font-mono text-[10px] text-text-4">
 					<span>{data.length} weeks</span>
-					<span className="ml-auto flex items-center gap-1.5">
-						less
-						<span className="h-2.5 w-3.5 rounded-sm" style={{ background: "rgba(139, 92, 246, 0.1)" }} />
-						<span className="h-2.5 w-3.5 rounded-sm" style={{ background: "rgba(139, 92, 246, 0.35)" }} />
-						<span className="h-2.5 w-3.5 rounded-sm" style={{ background: "rgba(139, 92, 246, 0.6)" }} />
-						<span className="h-2.5 w-3.5 rounded-sm" style={{ background: "rgba(139, 92, 246, 0.9)" }} />
-						more
+					<span className="ml-auto flex items-center gap-3">
+						<span className="flex items-center gap-1.5">
+							<span className="h-2.5 w-3.5 rounded-sm" style={{ background: "rgba(34, 211, 238, 0.9)" }} />
+							weekend
+						</span>
+						<span className="flex items-center gap-1.5">
+							less
+							<span className="h-2.5 w-3.5 rounded-sm" style={{ background: "rgba(139, 92, 246, 0.1)" }} />
+							<span className="h-2.5 w-3.5 rounded-sm" style={{ background: "rgba(139, 92, 246, 0.35)" }} />
+							<span className="h-2.5 w-3.5 rounded-sm" style={{ background: "rgba(139, 92, 246, 0.6)" }} />
+							<span className="h-2.5 w-3.5 rounded-sm" style={{ background: "rgba(139, 92, 246, 0.9)" }} />
+							more
+						</span>
 					</span>
 				</div>
 			</div>
@@ -271,6 +272,10 @@ export default function DashboardPage() {
 
 	useEffect(() => {
 		let cancelled = false;
+		// Drop prior-period data so the loading state shows instead of stale numbers
+		// under the newly selected chip.
+		setUsage(null);
+		setRows([]);
 		setLoading(true);
 		const periodFilter = { kind: "preset" as const, days: period };
 		Promise.all([api.skills.usage(periodFilter), api.skills.table(periodFilter)])
@@ -318,24 +323,29 @@ export default function DashboardPage() {
 	}, []);
 
 	const movers = useMemo(() => {
-		return rows
+		const decorated = rows
 			.filter((r) => r.total > 0)
-			.map((r) => ({ ...r, deltaPct: computeDeltaPct(r.dailyCounts) }))
-			.sort((a, b) => b.deltaPct - a.deltaPct)
-			.slice(0, 6);
-	}, [rows]);
+			.map((r) => ({ ...r, deltaPct: computeDeltaPct(r.dailyCounts) }));
+		if (period === "all") {
+			// "all time" Δ would be computed over the last 90d (sparkline cap),
+			// which doesn't match the label. Fall back to top-by-total instead.
+			return decorated.sort((a, b) => b.total - a.total).slice(0, 6);
+		}
+		return decorated.sort((a, b) => b.deltaPct - a.deltaPct).slice(0, 6);
+	}, [rows, period]);
 
 	const heatmapData = useMemo(() => buildHeatmap(usage?.dailyTrend ?? [], 12), [usage]);
 
-	const triggerTotals = useMemo(() => {
-		const totals = { user: 0, claude: 0, nested: 0 };
-		for (const r of rows) {
-			totals.user += r.userSlash;
-			totals.claude += r.claudeProactive;
-			totals.nested += r.nestedSkill;
-		}
-		return totals;
-	}, [rows]);
+	// Sum per-event tallies from usage.byTrigger (not from `rows`): rows are
+	// per-(skill, plugin) pairs and would double-count a skill registered under
+	// multiple plugins. `byTrigger` is grouped by trigger over the same filtered
+	// event set as totalActivations, so the segments add up to the total exactly.
+	const triggerTotals = useMemo(() => sumKnownTriggers(usage?.byTrigger ?? []), [usage]);
+
+	const uniqueKnownSkills = useMemo(
+		() => new Set(rows.map((r) => r.skillName)).size,
+		[rows],
+	);
 
 	const totalDaily = useMemo(() => (usage?.dailyTrend ?? []).map((d) => d.count), [usage]);
 
@@ -345,8 +355,13 @@ export default function DashboardPage() {
 	if (error) return <p className="text-danger text-sm">{error}</p>;
 	if (!usage) return null;
 
-	const triggerSum = Math.max(1, triggerTotals.user + triggerTotals.claude + triggerTotals.nested);
+	const triggerOther = Math.max(
+		0,
+		usage.stats.totalActivations - triggerTotals.user - triggerTotals.claude - triggerTotals.nested,
+	);
+	const triggerSum = Math.max(1, usage.stats.totalActivations);
 	const heroDelta = deltaPill(overallDelta);
+	const showDelta = period !== "all";
 
 	return (
 		<div className="space-y-[18px]">
@@ -394,30 +409,34 @@ export default function DashboardPage() {
 					</div>
 					<div className="mt-1.5 flex items-baseline gap-3.5 whitespace-nowrap text-[56px] font-semibold leading-none tracking-[-0.04em]">
 						{fmtFull(usage.stats.totalActivations)}
-						<span
-							className={cn(
-								"rounded-full px-2.5 py-[3px] text-[13px] font-medium tracking-normal tabular-nums ring-1",
-								heroDelta.cls === "up" && "bg-success/15 text-success ring-success/30",
-								heroDelta.cls === "down" && "bg-danger/15 text-danger ring-danger/30",
-								heroDelta.cls === "flat" && "bg-surface-700 text-text-2 ring-edge",
-							)}
-						>
-							{heroDelta.label} vs prev
-						</span>
+						{showDelta && (
+							<span
+								className={cn(
+									"rounded-full px-2.5 py-[3px] text-[13px] font-medium tracking-normal tabular-nums ring-1",
+									heroDelta.cls === "up" && "bg-success/15 text-success ring-success/30",
+									heroDelta.cls === "down" && "bg-danger/15 text-danger ring-danger/30",
+									heroDelta.cls === "flat" && "bg-surface-700 text-text-2 ring-edge",
+								)}
+							>
+								{heroDelta.label} vs prev
+							</span>
+						)}
 					</div>
 					<div className="mt-[18px] flex flex-wrap gap-[18px_28px]">
 						<MiniStat
 							label="Unique skills"
 							value={
 								<>
-									{usage.stats.uniqueSkills}
-									<span className="ml-1 text-[11px] text-text-4">/ {rows.length || "—"}</span>
+									{fmtFull(usage.stats.uniqueSkills)}
+									<span className="ml-1 text-[11px] text-text-4">
+										/ {uniqueKnownSkills > 0 ? fmtFull(uniqueKnownSkills) : "—"}
+									</span>
 								</>
 							}
 						/>
-						<MiniStat label="Active users" value={usage.stats.activeUsers} />
-						<MiniStat label="Marketplaces" value={totalMarketplaces ?? "—"} />
-						<MiniStat label="Plugins" value={totalPlugins ?? "—"} />
+						<MiniStat label="Active users" value={fmtFull(usage.stats.activeUsers)} />
+						<MiniStat label="Marketplaces" value={totalMarketplaces == null ? "—" : fmtFull(totalMarketplaces)} />
+						<MiniStat label="Plugins" value={totalPlugins == null ? "—" : fmtFull(totalPlugins)} />
 					</div>
 					<div className="absolute -bottom-2.5 -right-2.5 h-[110px] w-[55%] overflow-hidden">
 						{totalDaily.length > 0 && (
@@ -436,34 +455,42 @@ export default function DashboardPage() {
 				</div>
 
 				<Card className="flex flex-col">
-					<CardHead title="Top movers" dotColor="var(--color-accent-2)" meta={`${period === "all" ? "all time" : `${PERIOD_DAYS[period]}d`} Δ`} />
+					<CardHead
+						title={showDelta ? "Top movers" : "Top skills"}
+						dotColor="var(--color-accent-2)"
+						meta={showDelta ? `${PERIOD_DAYS[period as Exclude<DashboardPeriod, "all">]}d Δ` : "all time · by total"}
+					/>
 					<div className="px-4 pb-3.5">
 						{movers.length === 0 ? (
-							<p className="py-6 text-center text-[12px] text-text-4">No movers yet.</p>
+							<p className="py-6 text-center text-[12px] text-text-4">
+								{showDelta ? "No movers yet." : "No activations yet."}
+							</p>
 						) : (
 							movers.map((m, i) => {
-								const d = deltaPill(m.deltaPct);
+								const d = showDelta ? deltaPill(m.deltaPct) : null;
 								return (
 									<div
 										key={`${m.skillName}-${m.pluginName ?? "none"}`}
 										className="grid items-center gap-3.5 border-t border-edge-dim py-2 first:border-t-0"
-										style={{ gridTemplateColumns: "auto 1fr auto auto" }}
+										style={{ gridTemplateColumns: showDelta ? "auto 1fr auto auto" : "auto 1fr auto" }}
 									>
 										<span className="w-[18px] font-mono text-[11px] text-text-4">#{i + 1}</span>
 										<div className="min-w-0">
 											<div className="truncate font-mono text-[13px] text-text-1">{m.skillName}</div>
 										</div>
 										<span className="font-mono tabular-nums text-[13px] text-text-2">{fmtCompact(m.total)}</span>
-										<span
-											className={cn(
-												"rounded px-1.5 py-0.5 font-mono text-[11px]",
-												d.cls === "up" && "bg-success/15 text-success",
-												d.cls === "down" && "bg-danger/15 text-danger",
-												d.cls === "flat" && "text-text-4",
-											)}
-										>
-											{d.label}
-										</span>
+										{showDelta && d && (
+											<span
+												className={cn(
+													"rounded px-1.5 py-0.5 font-mono text-[11px]",
+													d.cls === "up" && "bg-success/15 text-success",
+													d.cls === "down" && "bg-danger/15 text-danger",
+													d.cls === "flat" && "text-text-4",
+												)}
+											>
+												{d.label}
+											</span>
+										)}
 									</div>
 								);
 							})
@@ -512,11 +539,13 @@ export default function DashboardPage() {
 							<div className="h-full" style={{ width: `${(triggerTotals.user / triggerSum) * 100}%`, background: "linear-gradient(90deg, var(--color-accent), var(--color-accent-bright))" }} />
 							<div className="h-full" style={{ width: `${(triggerTotals.claude / triggerSum) * 100}%`, background: "linear-gradient(90deg, var(--color-accent-2), var(--color-accent-2-soft))" }} />
 							<div className="h-full" style={{ width: `${(triggerTotals.nested / triggerSum) * 100}%`, background: "linear-gradient(90deg, var(--color-warning), var(--color-caution))" }} />
+							<div className="h-full" style={{ width: `${(triggerOther / triggerSum) * 100}%`, background: "linear-gradient(90deg, var(--color-text-4), var(--color-text-3))" }} />
 						</div>
-						<div className="mt-3.5 grid grid-cols-3 gap-3.5">
+						<div className="mt-3.5 grid grid-cols-2 gap-3.5 sm:grid-cols-4">
 							<TriggerStat label="user-slash" value={triggerTotals.user} pct={(triggerTotals.user / triggerSum) * 100} dotColor="var(--color-accent-bright)" />
 							<TriggerStat label="claude-proactive" value={triggerTotals.claude} pct={(triggerTotals.claude / triggerSum) * 100} dotColor="var(--color-accent-2)" />
 							<TriggerStat label="nested-skill" value={triggerTotals.nested} pct={(triggerTotals.nested / triggerSum) * 100} dotColor="var(--color-warning)" />
+							<TriggerStat label="other" value={triggerOther} pct={(triggerOther / triggerSum) * 100} dotColor="var(--color-text-4)" />
 						</div>
 					</div>
 				</Card>
@@ -640,7 +669,7 @@ function MonthlyCard({
 							{fmtFull(data[0].count)}
 						</div>
 						<div className="font-mono text-[10px] uppercase tracking-[0.08em] text-text-4">
-							{valueLabel} · {formatMonth(data[0].month)}
+							{valueLabel} · {formatMonthLabel(data[0].month)}
 						</div>
 					</div>
 				) : (
@@ -648,7 +677,7 @@ function MonthlyCard({
 						<InteractiveSparkline data={data} color={color} valueLabel={valueLabel} />
 						<div className="mt-1.5 flex justify-between font-mono text-[10px] text-text-4">
 							{data.map((d) => (
-								<span key={d.month}>{formatMonth(d.month)}</span>
+								<span key={d.month}>{formatMonthLabel(d.month)}</span>
 							))}
 						</div>
 					</>
@@ -736,7 +765,7 @@ function InteractiveSparkline({
 					}}
 				>
 					<div className="mb-1.5 flex justify-between gap-3 border-b border-edge-dim pb-1.5">
-						<span className="font-mono text-[12px] text-text-1">{formatMonth(data[hover.idx].month)}</span>
+						<span className="font-mono text-[12px] text-text-1">{formatMonthLabel(data[hover.idx].month)}</span>
 						<span className="font-mono text-[10px] text-text-4">{sharePct.toFixed(1)}% of total</span>
 					</div>
 					<div className="flex items-center gap-2 py-0.5 font-mono text-[12px]">

@@ -23,6 +23,44 @@ export function formatDateTime(iso: string): string {
 	});
 }
 
+// Compare the second half of a daily-counts series to the first half and return
+// the percent change rounded to an integer. Trims to even length from the front
+// (keeps today) so both halves span the same number of days — otherwise an
+// odd-length window (e.g. 7d) puts 3 vs 4 days on each side and mechanically
+// over-reports growth by ~33%.
+export function computeDeltaPct(dailyCounts: number[]): number {
+	const evenLen = dailyCounts.length - (dailyCounts.length % 2);
+	if (evenLen < 4) return 0;
+	const start = dailyCounts.length - evenLen;
+	const mid = start + evenLen / 2;
+	const first = dailyCounts.slice(start, mid).reduce((a, b) => a + b, 0);
+	const second = dailyCounts.slice(mid).reduce((a, b) => a + b, 0);
+	if (first === 0) return second > 0 ? 100 : 0;
+	return Math.round(((second - first) / first) * 100);
+}
+
+// True when `iso` (a YYYY-MM-DD month-start from DATE_TRUNC) falls in the
+// current UTC month — used to flag the trailing monthly bucket as partial
+// since its aggregation is still accruing.
+export function isCurrentUtcMonth(iso: string, now: Date = new Date()): boolean {
+	return iso.slice(0, 7) === `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+
+// Sum activation counts for the three known invocation triggers. Anything
+// outside this set (null, a future trigger value, etc.) is the caller's
+// responsibility — typically computed as `totalActivations - sum(known)`.
+export function sumKnownTriggers(
+	byTrigger: Array<{ trigger: string | null; count: number }>,
+): { user: number; claude: number; nested: number } {
+	const totals = { user: 0, claude: 0, nested: 0 };
+	for (const t of byTrigger) {
+		if (t.trigger === "user-slash") totals.user += t.count;
+		else if (t.trigger === "claude-proactive") totals.claude += t.count;
+		else if (t.trigger === "nested-skill") totals.nested += t.count;
+	}
+	return totals;
+}
+
 export function formatRelativeTime(iso: string, now: Date = new Date()): string {
 	const then = new Date(iso);
 	const diffMs = now.getTime() - then.getTime();
