@@ -210,6 +210,7 @@ Bug reports, feature ideas, and pull requests are welcome. See [CONTRIBUTING.md]
 Planned, no dates — direction, not commitment.
 
 - **Claude Code integration (exploratory)** — investigate ways to feed Skillsight's curation signal back into Claude Code's native marketplace controls. Intent is to enrich, not replace, the existing governance — scope and feasibility are open.
+- **Track agents, commands, MCP servers, and hooks** — extend ingestion and the UI beyond skills to cover the other Claude Code primitives (subagent invocations, slash commands, MCP tool calls, hook executions), with the same status / plugin / marketplace correlation model.
 - **Cohort segmentation** — tag users into teams and slice every metric by cohort.
 - **New-skill / new-marketplace alerts** — get notified the first time an unknown skill, plugin, or marketplace appears.
 - **Marketplace recommendations** — surface third-party skills gaining traction or duplicating official ones.
