@@ -246,6 +246,8 @@ export default function PluginsPage() {
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: reloadToken is a manual refetch trigger
 	useEffect(() => {
+		setLoading(true);
+		setError(null);
 		api.plugins
 			.list({ includeIgnored })
 			.then((res) => setItems(res.plugins))
@@ -394,16 +396,26 @@ export default function PluginsPage() {
 		setBulkError(null);
 		setBulkStatusResult(null);
 
-		setItems((prev) =>
-			prev.map((p) => (selected.has(p.pluginName) ? { ...p, status } : p)),
-		);
-
 		const results = await Promise.allSettled(
 			names.map((name) => api.plugins.update(name, { status })),
 		);
 		const updated = results.filter((r) => r.status === "fulfilled").length;
 		const failed = results.length - updated;
 		setBulkStatusResult({ updated, failed });
+		if (failed > 0) {
+			const firstReason = results.find(
+				(r): r is PromiseRejectedResult => r.status === "rejected",
+			)?.reason;
+			const reasonText =
+				firstReason instanceof Error
+					? firstReason.message
+					: firstReason !== undefined
+						? String(firstReason)
+						: "unknown error";
+			setBulkError(
+				`${failed} of ${names.length} updates failed: ${reasonText}`,
+			);
+		}
 		setSelected(new Set());
 		setReloadToken((t) => t + 1);
 		setBulkBusy(false);
@@ -415,23 +427,35 @@ export default function PluginsPage() {
 		setBulkBusy(true);
 		setBulkError(null);
 		try {
-			const responses = await Promise.all(
+			const results = await Promise.allSettled(
 				names.map((name) => api.plugins.skills(name)),
 			);
 			const skillNames = new Set<string>();
-			for (const res of responses) {
-				for (const s of res.skills) {
-					if (s.skillName) skillNames.add(s.skillName);
+			let failedCount = 0;
+			for (const r of results) {
+				if (r.status === "fulfilled") {
+					for (const s of r.value.skills) {
+						if (s.skillName) skillNames.add(s.skillName);
+					}
+				} else {
+					failedCount += 1;
 				}
 			}
 			if (skillNames.size === 0) {
-				setBulkError("Selected plugins have no skills yet.");
+				setBulkError(
+					failedCount === names.length
+						? "Couldn't load skills for the selected plugins."
+						: "Selected plugins have no skills yet.",
+				);
 				return;
+			}
+			if (failedCount > 0) {
+				setBulkError(
+					`Could not load skills for ${failedCount} plugin${failedCount === 1 ? "" : "s"}; cohort built from the rest.`,
+				);
 			}
 			const skills = [...skillNames].sort().join(",");
 			navigate(`/cohorts?skills=${encodeURIComponent(skills)}`);
-		} catch (e) {
-			setBulkError(e instanceof Error ? e.message : String(e));
 		} finally {
 			setBulkBusy(false);
 		}

@@ -59,6 +59,7 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			  LEFT JOIN events e
 			    ON e.event_name = ${EVENT_NAMES.SKILL_ACTIVATED}
 			   AND e.attributes->>'skill.name' = ps.skill_name
+			   AND e.attributes->>'plugin.name' = ps.plugin_name
 			  GROUP BY ps.plugin_name
 			) sa ON sa.plugin_name = p.plugin_name
 			${
@@ -80,6 +81,7 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			LEFT JOIN events e
 			  ON e.event_name = ${EVENT_NAMES.SKILL_ACTIVATED}
 			 AND e.attributes->>'skill.name' = ps.skill_name
+			 AND e.attributes->>'plugin.name' = ps.plugin_name
 			WHERE ps.plugin_name = ${pluginName}
 			GROUP BY ps.skill_name
 			ORDER BY "activationCount" DESC, ps.skill_name ASC
@@ -95,6 +97,7 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			FROM events e
 			JOIN plugin_skills ps
 			  ON ps.skill_name = e.attributes->>'skill.name'
+			 AND ps.plugin_name = e.attributes->>'plugin.name'
 			WHERE e.event_name = ${EVENT_NAMES.SKILL_ACTIVATED}
 			  AND ps.plugin_name = ${pluginName}
 			  AND e.user_email IS NOT NULL
@@ -177,7 +180,9 @@ export class DrizzlePluginRepository implements IPluginRepository {
 					installTrigger: plugin.installTrigger,
 					marketplaceIsOfficial: plugin.marketplaceIsOfficial,
 					source: sourceValue,
-					status: plugin.status,
+					// status intentionally omitted: a re-ingested plugin_installed event
+					// must not clobber a manual admin override (set via PATCH /plugins/:name).
+					// Marketplace-wide status changes still cascade through syncPluginStatuses.
 					lastSeenAt: now,
 				},
 			});
