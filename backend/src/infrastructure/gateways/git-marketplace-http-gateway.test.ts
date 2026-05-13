@@ -143,7 +143,7 @@ describe("GitMarketplaceHttpGateway.fetchMarketplaceJson", () => {
 		});
 	});
 
-	test("external 403: plugin included with empty skills, no thrown error", async () => {
+	test("external 403 on skills fetch: throws so the sync is marked errored (not silently emptied)", async () => {
 		responder = ({ url }) => {
 			if (url.includes("raw.githubusercontent.com")) {
 				return {
@@ -166,14 +166,42 @@ describe("GitMarketplaceHttpGateway.fetchMarketplaceJson", () => {
 			if (url.includes("api.github.com")) return { status: 403 };
 			return { status: 404 };
 		};
+		await expect(
+			new GitMarketplaceHttpGateway().fetchMarketplaceJson({
+				gitUrl: "https://github.com/acme/marketplace",
+			}),
+		).rejects.toThrow(/HTTP 403 fetching skills/);
+	});
+
+	test("404 on a plugin's /skills directory: treated as legitimately empty (plugin dropped)", async () => {
+		responder = ({ url }) => {
+			if (url.includes("raw.githubusercontent.com")) {
+				return {
+					body: {
+						name: "acme",
+						plugins: [
+							{ name: "with-skills", source: "./plugins/a" },
+							{ name: "no-skills-dir", source: "./plugins/b" },
+						],
+					},
+				};
+			}
+			if (url.includes("/contents/plugins/a/skills")) {
+				return { body: [{ type: "dir", name: "lint" }] };
+			}
+			if (url.includes("/contents/plugins/b/skills")) {
+				return { status: 404 };
+			}
+			return { status: 404 };
+		};
 		const data = await new GitMarketplaceHttpGateway().fetchMarketplaceJson({
 			gitUrl: "https://github.com/acme/marketplace",
 		});
 		expect(data.plugins).toHaveLength(1);
-		expect(data.plugins[0].skills).toEqual([]);
+		expect(data.plugins[0].name).toBe("with-skills");
 	});
 
-	test("unrecognized source shape: plugin included without skills", async () => {
+	test("unrecognized source shape: plugin dropped (no skills)", async () => {
 		responder = ({ url }) => {
 			if (url.includes("raw.githubusercontent.com")) {
 				return {
@@ -190,8 +218,36 @@ describe("GitMarketplaceHttpGateway.fetchMarketplaceJson", () => {
 		const data = await new GitMarketplaceHttpGateway().fetchMarketplaceJson({
 			gitUrl: "https://github.com/acme/marketplace",
 		});
-		expect(data.plugins).toEqual([{ name: "mystery", description: undefined, version: undefined }]);
+		expect(data.plugins).toEqual([]);
 		expect(calls.some((c) => c.url.includes("api.github.com"))).toBe(false);
+	});
+
+	test("local source with empty /skills directory: plugin dropped", async () => {
+		responder = ({ url }) => {
+			if (url.includes("raw.githubusercontent.com")) {
+				return {
+					body: {
+						name: "acme",
+						plugins: [
+							{ name: "with-skills", source: "./plugins/a" },
+							{ name: "no-skills", source: "./plugins/b" },
+						],
+					},
+				};
+			}
+			if (url.includes("/contents/plugins/a/skills")) {
+				return { body: [{ type: "dir", name: "lint" }] };
+			}
+			if (url.includes("/contents/plugins/b/skills")) {
+				return { body: [{ type: "file", name: "README.md" }] };
+			}
+			return { status: 404 };
+		};
+		const data = await new GitMarketplaceHttpGateway().fetchMarketplaceJson({
+			gitUrl: "https://github.com/acme/marketplace",
+		});
+		expect(data.plugins).toHaveLength(1);
+		expect(data.plugins[0].name).toBe("with-skills");
 	});
 
 	test("concurrency cap: in-flight cross-repo fetches never exceed 8", async () => {

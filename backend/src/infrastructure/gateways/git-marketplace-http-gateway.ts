@@ -102,18 +102,30 @@ async function mapWithConcurrency<T, R>(
 ): Promise<R[]> {
 	const results: R[] = new Array(items.length);
 	let cursor = 0;
+	let firstError: unknown = null;
 	const workerCount = Math.max(1, Math.min(limit, items.length));
 	const workers = Array.from({ length: workerCount }, async () => {
-		while (true) {
+		while (firstError === null) {
 			const idx = cursor++;
 			if (idx >= items.length) return;
-			results[idx] = await fn(items[idx], idx);
+			try {
+				results[idx] = await fn(items[idx], idx);
+			} catch (err) {
+				if (firstError === null) firstError = err;
+				return;
+			}
 		}
 	});
 	await Promise.all(workers);
+	if (firstError !== null) throw firstError;
 	return results;
 }
 
+// Returns the list of skill subdirectory names under <pluginPath>/skills.
+// A 404 means the plugin legitimately has no /skills directory → return [].
+// Any other non-OK response, JSON-parse error, or network/timeout error is
+// surfaced to the caller so the whole sync is marked as failed rather than
+// silently dropping plugins as if they had no skills.
 async function fetchPluginSkills(params: {
 	host: "github" | "gitlab" | "bitbucket" | "other";
 	owner: string;
@@ -125,43 +137,49 @@ async function fetchPluginSkills(params: {
 	const { host, owner, repo, pluginPath, branch, accessToken } = params;
 	const headers = buildHeaders(host, accessToken);
 	const subPath = pluginPath ? `${pluginPath}/skills` : "skills";
-	try {
-		if (host === "github") {
-			const url = `https://api.github.com/repos/${owner}/${repo}/contents/${subPath}?ref=${encodeURIComponent(branch)}`;
-			const res = await fetch(url, {
-				headers: {
-					...headers,
-					Accept: "application/vnd.github+json",
-					"X-GitHub-Api-Version": "2022-11-28",
-				},
-				signal: AbortSignal.timeout(10_000),
-			});
-			if (!res.ok) return [];
-			const items = (await res.json()) as Array<{ type: string; name: string }>;
-			return items.filter((i) => i.type === "dir").map((i) => i.name);
-		}
-		if (host === "gitlab") {
-			const encoded = encodeURIComponent(`${owner}/${repo}`);
-			const path = encodeURIComponent(subPath);
-			const url = `https://gitlab.com/api/v4/projects/${encoded}/repository/tree?path=${path}&ref=${encodeURIComponent(branch)}`;
-			const res = await fetch(url, { headers, signal: AbortSignal.timeout(10_000) });
-			if (!res.ok) return [];
-			const items = (await res.json()) as Array<{ type: string; name: string }>;
-			return items.filter((i) => i.type === "tree").map((i) => i.name);
-		}
-		if (host === "bitbucket") {
-			const url = `https://api.bitbucket.org/2.0/repositories/${owner}/${repo}/src/${encodeURIComponent(branch)}/${subPath}/`;
-			const res = await fetch(url, { headers, signal: AbortSignal.timeout(10_000) });
-			if (!res.ok) return [];
-			const data = (await res.json()) as { values?: Array<{ type: string; path: string }> };
-			return (data.values ?? [])
-				.filter((i) => i.type === "commit_directory")
-				.map((i) => i.path.split("/").pop() ?? i.path);
-		}
-		return [];
-	} catch {
-		return [];
+
+	const fail = (status: number) => {
+		throw new Error(
+			`HTTP ${status} fetching skills for ${owner}/${repo}/${subPath} at ${branch}`,
+		);
+	};
+
+	if (host === "github") {
+		const url = `https://api.github.com/repos/${owner}/${repo}/contents/${subPath}?ref=${encodeURIComponent(branch)}`;
+		const res = await fetch(url, {
+			headers: {
+				...headers,
+				Accept: "application/vnd.github+json",
+				"X-GitHub-Api-Version": "2022-11-28",
+			},
+			signal: AbortSignal.timeout(10_000),
+		});
+		if (res.status === 404) return [];
+		if (!res.ok) fail(res.status);
+		const items = (await res.json()) as Array<{ type: string; name: string }>;
+		return items.filter((i) => i.type === "dir").map((i) => i.name);
 	}
+	if (host === "gitlab") {
+		const encoded = encodeURIComponent(`${owner}/${repo}`);
+		const path = encodeURIComponent(subPath);
+		const url = `https://gitlab.com/api/v4/projects/${encoded}/repository/tree?path=${path}&ref=${encodeURIComponent(branch)}`;
+		const res = await fetch(url, { headers, signal: AbortSignal.timeout(10_000) });
+		if (res.status === 404) return [];
+		if (!res.ok) fail(res.status);
+		const items = (await res.json()) as Array<{ type: string; name: string }>;
+		return items.filter((i) => i.type === "tree").map((i) => i.name);
+	}
+	if (host === "bitbucket") {
+		const url = `https://api.bitbucket.org/2.0/repositories/${owner}/${repo}/src/${encodeURIComponent(branch)}/${subPath}/`;
+		const res = await fetch(url, { headers, signal: AbortSignal.timeout(10_000) });
+		if (res.status === 404) return [];
+		if (!res.ok) fail(res.status);
+		const data = (await res.json()) as { values?: Array<{ type: string; path: string }> };
+		return (data.values ?? [])
+			.filter((i) => i.type === "commit_directory")
+			.map((i) => i.path.split("/").pop() ?? i.path);
+	}
+	return [];
 }
 
 export class GitMarketplaceHttpGateway implements IGitMarketplaceGateway {
@@ -209,7 +227,7 @@ export class GitMarketplaceHttpGateway implements IGitMarketplaceGateway {
 			.filter((p): p is Record<string, unknown> => typeof p === "object" && p !== null)
 			.filter((p) => typeof p.name === "string" && p.name);
 
-		const plugins = await mapWithConcurrency(rawPlugins, 8, async (p) => {
+		const fetchedPlugins = await mapWithConcurrency(rawPlugins, 8, async (p) => {
 			const name = p.name as string;
 			const description = typeof p.description === "string" ? p.description : undefined;
 			const version = typeof p.version === "string" ? p.version : undefined;
@@ -246,6 +264,13 @@ export class GitMarketplaceHttpGateway implements IGitMarketplaceGateway {
 			}
 			return { name, description, version };
 		});
+
+		// Plugins with no skills carry no observability signal for us, so they
+		// are dropped here. Transient fetch failures already throw out of
+		// fetchPluginSkills (so the sync is marked errored) — by the time we
+		// reach this filter, "no skills" means we confirmed the plugin has none
+		// (404 on /skills) or its source shape isn't introspectable.
+		const plugins = fetchedPlugins.filter((p) => (p.skills?.length ?? 0) > 0);
 
 		return {
 			name: obj.name,
