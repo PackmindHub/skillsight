@@ -85,25 +85,41 @@ function makeMarketplaces(status = "approved"): IMarketplaceRepository {
 	};
 }
 
-function makePlugins(removedNames: string[] = []) {
+function makePlugins(
+	options: { removedNames?: string[]; reactivatedNames?: string[] } = {},
+) {
+	const removedNames = options.removedNames ?? [];
+	const reactivatedNames = options.reactivatedNames ?? [];
+	const upsertCalls: Array<{ pluginName: string; status: string }> = [];
 	const markRemovedCalls: Array<{ marketplaceName: string; activePluginNames: string[] }> = [];
+	const reactivateCalls: Array<{
+		marketplaceName: string;
+		presentPluginNames: string[];
+		newStatus: string;
+	}> = [];
 	const listNamesCalls: string[] = [];
 	const repo: IPluginRepository = {
 		listWithStats: async () => [],
 		listSkillsWithActivations: async () => [],
 		listTopUsers: async () => [],
-		upsert: async () => {},
+		upsert: async (plugin) => {
+			upsertCalls.push({ pluginName: plugin.pluginName, status: plugin.status });
+		},
 		updateStatusByMarketplace: async () => {},
 		markRemovedByMarketplace: async (marketplaceName, activePluginNames) => {
 			markRemovedCalls.push({ marketplaceName, activePluginNames });
 			return removedNames;
+		},
+		reactivateRemovedByMarketplace: async (marketplaceName, presentPluginNames, newStatus) => {
+			reactivateCalls.push({ marketplaceName, presentPluginNames, newStatus });
+			return reactivatedNames;
 		},
 		listNamesByMarketplace: async (marketplaceName) => {
 			listNamesCalls.push(marketplaceName);
 			return [];
 		},
 	};
-	return { repo, markRemovedCalls, listNamesCalls };
+	return { repo, upsertCalls, markRemovedCalls, reactivateCalls, listNamesCalls };
 }
 
 function makePluginSkills(): IPluginSkillRepository {
@@ -304,7 +320,7 @@ describe("syncMarketplaceSource", () => {
 		});
 
 		it("propagates 'removed' to skills exclusively linked to plugins removed by the sync", async () => {
-			const { repo: plugins } = makePlugins(["plugin-c"]);
+			const { repo: plugins } = makePlugins({ removedNames: ["plugin-c"] });
 			const { repo: skills, propagateCalls } = makeSkills();
 
 			await syncMarketplaceSource(
@@ -326,7 +342,7 @@ describe("syncMarketplaceSource", () => {
 		});
 
 		it("does NOT propagate when no plugins are removed", async () => {
-			const { repo: plugins } = makePlugins([]);
+			const { repo: plugins } = makePlugins({ removedNames: [] });
 			const { repo: skills, propagateCalls } = makeSkills();
 
 			await syncMarketplaceSource(
