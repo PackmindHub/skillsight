@@ -47,6 +47,7 @@ interface IntegrationFormDrawerProps {
 export function IntegrationFormDrawer({ open, editing, onClose, onSaved }: IntegrationFormDrawerProps) {
 	const [form, setForm] = useState<FormState>(defaultForm);
 	const [saving, setSaving] = useState(false);
+	const [saveError, setSaveError] = useState<string | null>(null);
 	const [previewEvents, setPreviewEvents] = useState<IntegrationPreviewEvent[] | null>(null);
 	const [previewing, setPreviewing] = useState(false);
 	const [previewError, setPreviewError] = useState<string | null>(null);
@@ -69,7 +70,11 @@ export function IntegrationFormDrawer({ open, editing, onClose, onSaved }: Integ
 		}
 		setPreviewEvents(null);
 		setPreviewError(null);
+		setSaveError(null);
 	}, [open, editing]);
+
+	const intervalSecs = Number(form.syncIntervalSecs);
+	const intervalValid = Number.isInteger(intervalSecs) && intervalSecs >= 5;
 
 	function resetPreview() {
 		setPreviewEvents(null);
@@ -99,6 +104,7 @@ export function IntegrationFormDrawer({ open, editing, onClose, onSaved }: Integ
 
 	async function handleSubmit(e: FormEvent) {
 		e.preventDefault();
+		setSaveError(null);
 		setSaving(true);
 		try {
 			const payload = {
@@ -109,7 +115,7 @@ export function IntegrationFormDrawer({ open, editing, onClose, onSaved }: Integ
 				authPassword:
 					form.authType === "basic" && form.authPassword ? form.authPassword : null,
 				lokiQuery: form.lokiQuery,
-				syncIntervalMs: Number(form.syncIntervalSecs) * 1000,
+				syncIntervalMs: intervalSecs * 1000,
 				enabled: form.enabled,
 			};
 
@@ -120,6 +126,8 @@ export function IntegrationFormDrawer({ open, editing, onClose, onSaved }: Integ
 				const created = await api.integrations.create(payload);
 				onSaved(created, "create");
 			}
+		} catch (err) {
+			setSaveError(extractErrorMessage(err));
 		} finally {
 			setSaving(false);
 		}
@@ -133,13 +141,26 @@ export function IntegrationFormDrawer({ open, editing, onClose, onSaved }: Integ
 			onClose={onClose}
 			title={editing ? "Edit integration" : "New integration"}
 			footer={
-				<div className="flex items-center justify-end gap-2">
-					<Button variant="secondary" size="sm" onClick={onClose}>
-						Cancel
-					</Button>
-					<Button type="submit" form={formId} size="sm" loading={saving}>
-						{editing ? "Update" : "Create"}
-					</Button>
+				<div className="flex items-center justify-between gap-2">
+					{saveError ? (
+						<p className="text-xs text-danger truncate">{saveError}</p>
+					) : (
+						<span />
+					)}
+					<div className="flex items-center gap-2">
+						<Button variant="secondary" size="sm" onClick={onClose} disabled={saving}>
+							Cancel
+						</Button>
+						<Button
+							type="submit"
+							form={formId}
+							size="sm"
+							loading={saving}
+							disabled={!intervalValid}
+						>
+							{editing ? "Update" : "Create"}
+						</Button>
+					</div>
 				</div>
 			}
 		>
@@ -166,7 +187,10 @@ export function IntegrationFormDrawer({ open, editing, onClose, onSaved }: Integ
 								type="url"
 								size="sm"
 								value={form.url}
-								onChange={(e) => setForm((f) => ({ ...f, url: e.target.value }))}
+								onChange={(e) => {
+									setForm((f) => ({ ...f, url: e.target.value }));
+									resetPreview();
+								}}
 								placeholder="https://loki.example.com"
 							/>
 						</FormField>
@@ -188,7 +212,10 @@ export function IntegrationFormDrawer({ open, editing, onClose, onSaved }: Integ
 									name="authType"
 									value={val}
 									checked={form.authType === val}
-									onChange={() => setForm((f) => ({ ...f, authType: val }))}
+									onChange={() => {
+										setForm((f) => ({ ...f, authType: val }));
+										resetPreview();
+									}}
 								/>
 								{val === "none" ? "No authentication" : "Basic authentication"}
 							</label>
@@ -201,7 +228,10 @@ export function IntegrationFormDrawer({ open, editing, onClose, onSaved }: Integ
 									id="int-user"
 									size="sm"
 									value={form.authUsername}
-									onChange={(e) => setForm((f) => ({ ...f, authUsername: e.target.value }))}
+									onChange={(e) => {
+										setForm((f) => ({ ...f, authUsername: e.target.value }));
+										resetPreview();
+									}}
 									autoComplete="off"
 								/>
 							</FormField>
@@ -214,7 +244,10 @@ export function IntegrationFormDrawer({ open, editing, onClose, onSaved }: Integ
 									type="password"
 									size="sm"
 									value={form.authPassword}
-									onChange={(e) => setForm((f) => ({ ...f, authPassword: e.target.value }))}
+									onChange={(e) => {
+										setForm((f) => ({ ...f, authPassword: e.target.value }));
+										resetPreview();
+									}}
 									placeholder={editing ? "••••••" : ""}
 									autoComplete="new-password"
 								/>
@@ -240,7 +273,7 @@ export function IntegrationFormDrawer({ open, editing, onClose, onSaved }: Integ
 							<Button
 								variant="secondary"
 								size="sm"
-								disabled={!form.url}
+								disabled={!form.url || !form.lokiQuery.trim()}
 								loading={previewing}
 								onClick={handlePreview}
 							>
@@ -286,7 +319,15 @@ export function IntegrationFormDrawer({ open, editing, onClose, onSaved }: Integ
 				<section className="space-y-3">
 					<h3 className="text-xs font-semibold uppercase tracking-wider text-text-4">Schedule</h3>
 					<div className="grid grid-cols-2 gap-3">
-						<FormField label="Sync interval (seconds)" htmlFor="int-interval">
+						<FormField
+							label="Sync interval (seconds)"
+							htmlFor="int-interval"
+							error={
+								form.syncIntervalSecs && !intervalValid
+									? "Must be an integer ≥ 5 seconds"
+									: undefined
+							}
+						>
 							<Input
 								id="int-interval"
 								type="number"

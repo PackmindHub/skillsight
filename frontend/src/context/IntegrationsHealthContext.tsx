@@ -24,6 +24,7 @@ export function IntegrationsHealthProvider({ children }: { children: ReactNode }
 	const [integrations, setIntegrations] = useState<Integration[]>([]);
 	const [loading, setLoading] = useState(true);
 	const closeStreamRef = useRef<(() => void) | null>(null);
+	const retryTimerRef = useRef<number | null>(null);
 
 	const refresh = useCallback(async () => {
 		try {
@@ -51,17 +52,36 @@ export function IntegrationsHealthProvider({ children }: { children: ReactNode }
 			setIntegrations((prev) => prev.filter((i) => i.id !== id));
 		}
 
+		function clearRetry() {
+			if (retryTimerRef.current !== null) {
+				window.clearTimeout(retryTimerRef.current);
+				retryTimerRef.current = null;
+			}
+		}
+
 		function openStream() {
 			if (closeStreamRef.current) return;
 			closeStreamRef.current = api.integrations.openStream({
 				onUpdate: applyUpdate,
 				onDelete: applyDelete,
+				onError: () => {
+					// EventSource is CLOSED (terminal). Drop the ref and schedule one reconnect;
+					// EventSource itself already handled transient drops before reaching here.
+					closeStreamRef.current = null;
+					clearRetry();
+					retryTimerRef.current = window.setTimeout(() => {
+						retryTimerRef.current = null;
+						if (document.visibilityState !== "visible") return;
+						refresh().then(openStream);
+					}, 5000);
+				},
 			});
 		}
 
 		function closeStream() {
 			closeStreamRef.current?.();
 			closeStreamRef.current = null;
+			clearRetry();
 		}
 
 		refresh().then(() => {

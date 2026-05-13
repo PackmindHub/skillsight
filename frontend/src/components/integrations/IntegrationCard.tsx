@@ -7,8 +7,12 @@ import type { Integration } from "@/types/api";
 import { type CardStatus, Metric, STATUS_META, StatusPill } from "./_parts";
 
 function statusOf(integration: Integration): CardStatus {
-	if (integration.lastSyncError) return "error";
+	// Paused wins over error: a disabled integration shouldn't surface
+	// a "Retry now" affordance — the user must explicitly resume first.
+	// The error banner below renders independently when lastSyncError is set,
+	// so the message stays visible on a paused-and-errored card.
 	if (!integration.enabled) return "paused";
+	if (integration.lastSyncError) return "error";
 	return "active";
 }
 
@@ -173,7 +177,7 @@ export function IntegrationCard({
 							</div>
 						)}
 
-						{status === "error" && integration.lastSyncError && (
+						{integration.lastSyncError && (
 							<div
 								role="alert"
 								className="mt-3 flex items-start gap-2 rounded-md border border-danger/30 bg-danger/10 px-3 py-2 text-xs text-danger"

@@ -156,7 +156,7 @@ export function createIntegrationsRoute(
 			{ ...body, actorEmail: c.get("user").email },
 		);
 		const integration = await deps.integrations.findById(result.id);
-		if (integration) scheduleIntegration(integration, deps.integrations, scheduledSyncFn);
+		if (integration?.enabled) scheduleIntegration(integration, deps.integrations, scheduledSyncFn);
 		await publishIntegrationUpdate(deps.integrations, result.id);
 		return c.json({ ...result, eventCount: 0 }, 201);
 	});
@@ -164,6 +164,8 @@ export function createIntegrationsRoute(
 	route.put("/:id", async (c) => {
 		const id = c.req.param("id");
 		const body = updateSchema.parse(await c.req.json());
+		const previous = await deps.integrations.findById(id);
+		const wasEnabled = previous?.enabled ?? false;
 		const result = await updateIntegration(
 			{ integrations: deps.integrations, audit: deps.audit },
 			{ id, data: body, actorEmail: c.get("user").email },
@@ -171,6 +173,18 @@ export function createIntegrationsRoute(
 		if ("error" in result) return c.json({ error: "Not found" }, 404);
 		await rescheduleIntegration(id, deps.integrations, scheduledSyncFn);
 		await publishIntegrationUpdate(deps.integrations, id);
+		// Match the Resume affordance: if the edit re-enabled a paused integration,
+		// kick an immediate sync so the user sees fresh data without waiting for the
+		// next interval tick.
+		if (!wasEnabled && result.enabled) {
+			const fresh = await deps.integrations.findById(id);
+			if (fresh?.enabled) {
+				await syncIntegration(syncDeps, fresh, {
+					mode: "manual",
+					actorEmail: c.get("user").email,
+				}).catch(() => {});
+			}
+		}
 		return c.json({ ...result, eventCount: 0 });
 	});
 
@@ -223,6 +237,12 @@ export function createIntegrationsRoute(
 		const id = c.req.param("id");
 		const integration = await deps.integrations.findById(id);
 		if (!integration) return c.json({ error: "Not found" }, 404);
+		if (!integration.enabled) {
+			return c.json(
+				{ error: "Integration is paused — resume it before syncing." },
+				409,
+			);
+		}
 		const { syncedAt, error } = await syncIntegration(syncDeps, integration, {
 			mode: "manual",
 			actorEmail: c.get("user").email,

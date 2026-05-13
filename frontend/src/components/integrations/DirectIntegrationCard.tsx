@@ -41,7 +41,7 @@ export function DirectIntegrationCard() {
 	const [eventCount, setEventCount] = useState<number | null>(null);
 	const [lastEventAt, setLastEventAt] = useState<string | null>(null);
 	const [clearing, setClearing] = useState(false);
-	const [origin, setOrigin] = useState<string>(() =>
+	const [origin] = useState<string>(() =>
 		typeof window !== "undefined" ? window.location.origin : "",
 	);
 
@@ -58,13 +58,16 @@ export function DirectIntegrationCard() {
 
 	useEffect(() => {
 		refresh();
-	}, [refresh]);
-
-	useEffect(() => {
-		if (typeof window !== "undefined") {
-			setOrigin(window.location.origin);
+		const interval = window.setInterval(refresh, 15_000);
+		function onVisibility() {
+			if (document.visibilityState === "visible") refresh();
 		}
-	}, []);
+		document.addEventListener("visibilitychange", onVisibility);
+		return () => {
+			window.clearInterval(interval);
+			document.removeEventListener("visibilitychange", onVisibility);
+		};
+	}, [refresh]);
 
 	async function handleClearData() {
 		setClearing(true);

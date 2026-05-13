@@ -99,8 +99,6 @@ export default function IntegrationsPage() {
 		}
 	}
 
-	if (loading) return <p className="text-sm text-text-3">Loading…</p>;
-
 	return (
 		<div className="space-y-5">
 			<PageHeader
@@ -111,7 +109,9 @@ export default function IntegrationsPage() {
 
 			<div className="space-y-3">
 				<DirectIntegrationCard />
-				{integrations.length === 0 ? (
+				{loading ? (
+					<p className="text-sm text-text-3">Loading integrations…</p>
+				) : integrations.length === 0 ? (
 					<div className="rounded-lg border border-dashed border-edge bg-surface-900/50 px-6 py-12 text-center">
 						<p className="text-sm text-text-2">No external integrations yet.</p>
 						<p className="mt-1 text-xs text-text-4">
