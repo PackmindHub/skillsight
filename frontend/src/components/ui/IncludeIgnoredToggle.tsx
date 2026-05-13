@@ -4,9 +4,15 @@ interface IncludeIgnoredToggleProps {
 	value: boolean;
 	onChange: (next: boolean) => void;
 	className?: string;
+	label?: string;
 }
 
-export function IncludeIgnoredToggle({ value, onChange, className }: IncludeIgnoredToggleProps) {
+export function IncludeIgnoredToggle({
+	value,
+	onChange,
+	className,
+	label = "Include ignored",
+}: IncludeIgnoredToggleProps) {
 	return (
 		<button
 			type="button"
@@ -37,7 +43,7 @@ export function IncludeIgnoredToggle({ value, onChange, className }: IncludeIgno
 					</svg>
 				)}
 			</span>
-			<span>Include ignored</span>
+			<span>{label}</span>
 		</button>
 	);
 }

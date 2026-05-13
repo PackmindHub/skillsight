@@ -12,6 +12,7 @@ import {
 } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useIncludeIgnored } from "@/lib/use-include-ignored";
+import { useIncludeWithoutSkills } from "@/lib/use-include-without-skills";
 import { useStatusFilter } from "@/lib/use-status-filter";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import { PLUGIN_STATUSES, type Plugin, type PluginStatus } from "@/types/api";
@@ -152,6 +153,7 @@ export default function PluginsPage() {
 		PLUGIN_STATUSES,
 	);
 	const { includeIgnored, setIncludeIgnored } = useIncludeIgnored();
+	const { includeWithoutSkills, setIncludeWithoutSkills } = useIncludeWithoutSkills();
 	const [selectedPlugin, setSelectedPlugin] = useState<string | null>(null);
 	const [selected, setSelected] = useState<Set<string>>(new Set());
 	const selectAllRef = useRef<HTMLInputElement>(null);
@@ -284,6 +286,7 @@ export default function PluginsPage() {
 	const filteredItems = useMemo(() => {
 		return items.filter((p) => {
 			if (statusFilter !== "all" && (p.status ?? "to_review") !== statusFilter) return false;
+			if (!includeWithoutSkills && p.skillCount === 0) return false;
 			if (marketplaces.length > 0) {
 				const wantsNone = marketplaces.includes(NO_MARKETPLACE);
 				const wantedNames = marketplaces.filter((m) => m !== NO_MARKETPLACE);
@@ -295,7 +298,7 @@ export default function PluginsPage() {
 			if (search && !p.pluginName.toLowerCase().includes(search.toLowerCase())) return false;
 			return true;
 		});
-	}, [items, statusFilter, search, marketplaces]);
+	}, [items, statusFilter, search, marketplaces, includeWithoutSkills]);
 
 	const sortedItems = useMemo(() => {
 		const arr = [...filteredItems];
@@ -512,10 +515,13 @@ export default function PluginsPage() {
 							className="inline-flex h-8 items-center gap-0.5 rounded-lg border border-edge-dim bg-surface-800 p-[2px]"
 						>
 							{STATUS_FILTER_OPTIONS.map((opt) => {
+								const countSource = includeWithoutSkills
+									? items
+									: items.filter((p) => p.skillCount > 0);
 								const count =
 									opt.key === "all"
-										? items.length
-										: items.filter((p) => (p.status ?? "to_review") === opt.key).length;
+										? countSource.length
+										: countSource.filter((p) => (p.status ?? "to_review") === opt.key).length;
 								const active = statusFilter === opt.key;
 								return (
 									<button
@@ -574,6 +580,11 @@ export default function PluginsPage() {
 							</span>
 						)}
 						<IncludeIgnoredToggle value={includeIgnored} onChange={setIncludeIgnored} />
+						<IncludeIgnoredToggle
+							value={includeWithoutSkills}
+							onChange={setIncludeWithoutSkills}
+							label="Show plugins without skills"
+						/>
 						<span className="ml-auto font-mono text-xs text-text-4">
 							{sortedItems.length}{" "}
 							<span className="text-text-4">/ {items.length}</span>
