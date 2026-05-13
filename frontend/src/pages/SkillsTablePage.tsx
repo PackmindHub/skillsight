@@ -814,7 +814,7 @@ export default function SkillsTablePage() {
 	return (
 		<div className="space-y-4">
 			<PageHeader
-				title="Skills"
+				title={loading ? "Skills" : `Skills (${rows.length})`}
 				subtitle={`All known skills, with activations in ${describePeriodFilter(periodFilter)}.`}
 				actions={
 					<div className="flex flex-wrap items-center gap-2">

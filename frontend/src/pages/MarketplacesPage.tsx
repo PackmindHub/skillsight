@@ -9,12 +9,19 @@ import {
 	PageHeader,
 	StatusChip,
 	type StatusChipOption,
+	StatusFilter,
 } from "@/components/ui";
 import { useMarketplaceSourcesHealth } from "@/context/MarketplaceSourcesHealthContext";
 import { api } from "@/lib/api";
 import { useIncludeIgnored } from "@/lib/use-include-ignored";
+import { useStatusFilter } from "@/lib/use-status-filter";
 import { cn, formatRelativeShort, repoSlugFromGitUrl } from "@/lib/utils";
-import type { Marketplace, MarketplaceSource, MarketplaceStatus } from "@/types/api";
+import {
+	MARKETPLACE_STATUSES,
+	type Marketplace,
+	type MarketplaceSource,
+	type MarketplaceStatus,
+} from "@/types/api";
 import {
 	ExternalLink,
 	GitBranch,
@@ -33,18 +40,6 @@ const MARKETPLACE_STATUS_CHIP_OPTIONS: readonly StatusChipOption<MarketplaceStat
 	{ value: "to_review", label: "To review", tone: "warning" },
 	{ value: "denied", label: "Denied", tone: "danger" },
 	{ value: "ignored", label: "Ignored", tone: "neutral" },
-];
-
-const MP_FILTER_OPTIONS: {
-	key: "all" | MarketplaceStatus;
-	label: string;
-	dot?: string;
-}[] = [
-	{ key: "all", label: "All" },
-	{ key: "to_review", label: "To review", dot: "var(--color-warning)" },
-	{ key: "approved", label: "Approved", dot: "var(--color-success)" },
-	{ key: "denied", label: "Denied", dot: "var(--color-danger)" },
-	{ key: "ignored", label: "Ignored", dot: "var(--color-text-3)" },
 ];
 
 const MP_GRID_COLS =
@@ -359,26 +354,11 @@ export default function MarketplacesPage() {
 
 	const { refresh: refreshSourcesHealth } = useMarketplaceSourcesHealth();
 
-	const statusFilterParam = searchParams.get("status");
-	const statusFilter: "all" | MarketplaceStatus =
-		statusFilterParam === "to_review" ||
-		statusFilterParam === "approved" ||
-		statusFilterParam === "denied" ||
-		statusFilterParam === "ignored"
-			? statusFilterParam
-			: "all";
+	const { status: statusFilter, setStatus: setStatusFilter } = useStatusFilter<MarketplaceStatus>(
+		"status",
+		MARKETPLACE_STATUSES,
+	);
 	const { includeIgnored, setIncludeIgnored } = useIncludeIgnored();
-	function setStatusFilter(next: "all" | MarketplaceStatus) {
-		setSearchParams(
-			(prev) => {
-				const params = new URLSearchParams(prev);
-				if (next === "all") params.delete("status");
-				else params.set("status", next);
-				return params;
-			},
-			{ replace: true },
-		);
-	}
 	const search = searchParams.get("search") ?? "";
 	const highlightName = searchParams.get("name") ?? "";
 	const highlightedRowRef = useRef<HTMLDivElement | null>(null);
@@ -888,7 +868,7 @@ export default function MarketplacesPage() {
 	return (
 		<div className="space-y-6">
 			<PageHeader
-				title="Marketplaces"
+				title={`Marketplaces (${items.length})`}
 				subtitle="Discovered marketplaces and imported git sources. Review and approve each source."
 				actions={<Button onClick={() => openCreateSource()}>Import from git</Button>}
 			/>
@@ -1068,51 +1048,11 @@ export default function MarketplacesPage() {
 							onChange={(e) => updateSearch(e.target.value)}
 							className="min-w-64 max-w-md flex-1"
 						/>
-						<div
-							role="tablist"
-							aria-label="Filter by status"
-							className="inline-flex gap-0.5 rounded-lg border border-edge-dim bg-surface-800 p-[2px]"
-						>
-							{MP_FILTER_OPTIONS.map((opt) => {
-								const count =
-									opt.key === "all"
-										? items.length
-										: items.filter((m) => m.status === opt.key).length;
-								const active = statusFilter === opt.key;
-								return (
-									<button
-										key={opt.key}
-										type="button"
-										role="tab"
-										aria-selected={active}
-										onClick={() => setStatusFilter(opt.key)}
-										className={cn(
-											"inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 font-mono text-[11px] transition-colors",
-											active
-												? "bg-surface-700 text-text-1 shadow-[inset_0_0_0_1px_var(--color-edge)]"
-												: "text-text-3 hover:text-text-1",
-										)}
-									>
-										{opt.dot && (
-											<span
-												aria-hidden="true"
-												className="h-1.5 w-1.5 rounded-full"
-												style={{ background: opt.dot, boxShadow: `0 0 4px ${opt.dot}` }}
-											/>
-										)}
-										{opt.label}
-										<span
-											className={cn(
-												"font-mono text-[10px]",
-												active ? "text-text-2" : "text-text-4",
-											)}
-										>
-											{count}
-										</span>
-									</button>
-								);
-							})}
-						</div>
+						<StatusFilter<MarketplaceStatus>
+							value={statusFilter}
+							onChange={setStatusFilter}
+							options={MARKETPLACE_STATUSES}
+						/>
 						{highlightName && (
 							<span className="inline-flex items-center gap-1 rounded-full border border-edge bg-surface-800 px-2 py-0.5 text-xs text-text-2">
 								Highlighted: {highlightName}

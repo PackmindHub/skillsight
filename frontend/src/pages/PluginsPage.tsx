@@ -9,6 +9,7 @@ import {
 	PageHeader,
 	StatusChip,
 	type StatusChipOption,
+	StatusFilter,
 } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useIncludeIgnored } from "@/lib/use-include-ignored";
@@ -32,18 +33,6 @@ const PLUGIN_STATUS_CHIP_OPTIONS: readonly StatusChipOption<PluginStatus>[] = [
 	{ value: "to_review", label: "To review", tone: "warning" },
 	{ value: "removed", label: "Removed", tone: "danger" },
 	{ value: "ignored", label: "Ignored", tone: "neutral" },
-];
-
-const STATUS_FILTER_OPTIONS: {
-	key: "all" | PluginStatus;
-	label: string;
-	dot?: string;
-}[] = [
-	{ key: "all", label: "All" },
-	{ key: "to_review", label: "To review", dot: "var(--color-warning)" },
-	{ key: "approved", label: "Approved", dot: "var(--color-success)" },
-	{ key: "removed", label: "Removed", dot: "var(--color-danger)" },
-	{ key: "ignored", label: "Ignored", dot: "var(--color-text-3)" },
 ];
 
 const PL_GRID_COLS =
@@ -127,7 +116,12 @@ function PluginNumCell({
 	if (onClick && !isZero) {
 		return (
 			<div className="text-right">
-				<button type="button" onClick={onClick} title={title} className={cn(cls, "hover:underline")}>
+				<button
+					type="button"
+					onClick={onClick}
+					title={title}
+					className={cn(cls, "hover:underline")}
+				>
 					{text}
 				</button>
 			</div>
@@ -177,10 +171,7 @@ export default function PluginsPage() {
 		() => [...allMarketplaceNames, NO_MARKETPLACE],
 		[allMarketplaceNames],
 	);
-	const marketplaces = pickList(
-		searchParams.get("marketplace"),
-		marketplaceFilterValues,
-	);
+	const marketplaces = pickList(searchParams.get("marketplace"), marketplaceFilterValues);
 
 	const sortParam = searchParams.get("sort") as PluginSortKey | null;
 	const sortKey: PluginSortKey =
@@ -270,9 +261,7 @@ export default function PluginsPage() {
 	}, []);
 
 	async function handleStatusChange(pluginName: string, status: PluginStatus) {
-		setItems((prev) =>
-			prev.map((p) => (p.pluginName === pluginName ? { ...p, status } : p)),
-		);
+		setItems((prev) => prev.map((p) => (p.pluginName === pluginName ? { ...p, status } : p)));
 		try {
 			await api.plugins.update(pluginName, { status });
 		} catch {
@@ -291,8 +280,7 @@ export default function PluginsPage() {
 				const wantsNone = marketplaces.includes(NO_MARKETPLACE);
 				const wantedNames = marketplaces.filter((m) => m !== NO_MARKETPLACE);
 				const hasNone = !p.marketplaceName;
-				const matchesNamed =
-					!!p.marketplaceName && wantedNames.includes(p.marketplaceName);
+				const matchesNamed = !!p.marketplaceName && wantedNames.includes(p.marketplaceName);
 				if (!((wantsNone && hasNone) || matchesNamed)) return false;
 			}
 			if (search && !p.pluginName.toLowerCase().includes(search.toLowerCase())) return false;
@@ -415,9 +403,7 @@ export default function PluginsPage() {
 					: firstReason !== undefined
 						? String(firstReason)
 						: "unknown error";
-			setBulkError(
-				`${failed} of ${names.length} updates failed: ${reasonText}`,
-			);
+			setBulkError(`${failed} of ${names.length} updates failed: ${reasonText}`);
 		}
 		setSelected(new Set());
 		setReloadToken((t) => t + 1);
@@ -430,9 +416,7 @@ export default function PluginsPage() {
 		setBulkBusy(true);
 		setBulkError(null);
 		try {
-			const results = await Promise.allSettled(
-				names.map((name) => api.plugins.skills(name)),
-			);
+			const results = await Promise.allSettled(names.map((name) => api.plugins.skills(name)));
 			const skillNames = new Set<string>();
 			let failedCount = 0;
 			for (const r of results) {
@@ -475,7 +459,7 @@ export default function PluginsPage() {
 	return (
 		<div className="space-y-4">
 			<PageHeader
-				title="Plugins"
+				title={loading ? "Plugins" : `Plugins (${items.length})`}
 				subtitle="Plugins discovered from installation events. Status reflects the approval state of the associated marketplace."
 			/>
 
@@ -484,8 +468,20 @@ export default function PluginsPage() {
 			{items.length === 0 ? (
 				<Card padding="lg" className="flex flex-col items-center gap-3 text-center py-12">
 					<div className="w-12 h-12 rounded-full bg-surface-800 border border-edge flex items-center justify-center">
-						<svg className="w-6 h-6 text-text-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} role="img" aria-label="No plugins">
-							<path strokeLinecap="round" strokeLinejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.401.604-.401.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.036 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.369 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z" />
+						<svg
+							className="w-6 h-6 text-text-3"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+							strokeWidth={1.5}
+							role="img"
+							aria-label="No plugins"
+						>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.401.604-.401.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.036 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.369 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z"
+							/>
 						</svg>
 					</div>
 					<div>
@@ -509,54 +505,11 @@ export default function PluginsPage() {
 							onChange={(e) => updateSearch(e.target.value)}
 							className="min-w-64 max-w-md flex-1"
 						/>
-						<div
-							role="tablist"
-							aria-label="Filter by status"
-							className="inline-flex h-8 items-center gap-0.5 rounded-lg border border-edge-dim bg-surface-800 p-[2px]"
-						>
-							{STATUS_FILTER_OPTIONS.map((opt) => {
-								const countSource = includeWithoutSkills
-									? items
-									: items.filter((p) => p.skillCount > 0);
-								const count =
-									opt.key === "all"
-										? countSource.length
-										: countSource.filter((p) => (p.status ?? "to_review") === opt.key).length;
-								const active = statusFilter === opt.key;
-								return (
-									<button
-										key={opt.key}
-										type="button"
-										role="tab"
-										aria-selected={active}
-										onClick={() => setStatus(opt.key)}
-										className={cn(
-											"inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 font-mono text-[11px] transition-colors",
-											active
-												? "bg-surface-700 text-text-1 shadow-[inset_0_0_0_1px_var(--color-edge)]"
-												: "text-text-3 hover:text-text-1",
-										)}
-									>
-										{opt.dot && (
-											<span
-												aria-hidden="true"
-												className="h-1.5 w-1.5 rounded-full"
-												style={{ background: opt.dot, boxShadow: `0 0 4px ${opt.dot}` }}
-											/>
-										)}
-										{opt.label}
-										<span
-											className={cn(
-												"font-mono text-[10px]",
-												active ? "text-text-2" : "text-text-4",
-											)}
-										>
-											{count}
-										</span>
-									</button>
-								);
-							})}
-						</div>
+						<StatusFilter<PluginStatus>
+							value={statusFilter}
+							onChange={setStatus}
+							options={PLUGIN_STATUSES}
+						/>
 						<MultiSelect
 							label="Marketplace"
 							options={[
@@ -586,8 +539,7 @@ export default function PluginsPage() {
 							label="Show plugins without skills"
 						/>
 						<span className="ml-auto font-mono text-xs text-text-4">
-							{sortedItems.length}{" "}
-							<span className="text-text-4">/ {items.length}</span>
+							{sortedItems.length} <span className="text-text-4">/ {items.length}</span>
 						</span>
 					</div>
 
@@ -647,9 +599,7 @@ export default function PluginsPage() {
 									{bulkStatusResult.failed > 0 && (
 										<>
 											{" · "}
-											<span className="text-text-3">
-												{bulkStatusResult.failed} failed
-											</span>
+											<span className="text-text-3">{bulkStatusResult.failed} failed</span>
 										</>
 									)}
 								</>
@@ -803,10 +753,7 @@ export default function PluginsPage() {
 													status={plugin.marketplaceStatus}
 												/>
 											) : (
-												<span
-													className="text-text-4"
-													title="Locally installed (no marketplace)"
-												>
+												<span className="text-text-4" title="Locally installed (no marketplace)">
 													—
 												</span>
 											)}
@@ -854,10 +801,7 @@ export default function PluginsPage() {
 				</>
 			)}
 
-			<PluginSkillsDrawer
-				pluginName={selectedPlugin}
-				onClose={() => setSelectedPlugin(null)}
-			/>
+			<PluginSkillsDrawer pluginName={selectedPlugin} onClose={() => setSelectedPlugin(null)} />
 		</div>
 	);
 }
