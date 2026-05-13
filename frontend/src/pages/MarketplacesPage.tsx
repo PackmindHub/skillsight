@@ -50,6 +50,33 @@ const MP_FILTER_OPTIONS: {
 const MP_GRID_COLS =
 	"grid-cols-[40px_minmax(300px,2.4fr)_60px_60px_110px_70px_70px_80px_100px_120px_104px]";
 
+type MarketplaceSortKey =
+	| "name"
+	| "pluginCount"
+	| "knownSkillCount"
+	| "adoption"
+	| "pluginInstallCount"
+	| "skillActivatedLinkedCount"
+	| "totalActivationCount"
+	| "activationCount"
+	| "status";
+
+type SortDir = "asc" | "desc";
+
+const MARKETPLACE_SORT_KEYS: readonly MarketplaceSortKey[] = [
+	"name",
+	"pluginCount",
+	"knownSkillCount",
+	"adoption",
+	"pluginInstallCount",
+	"skillActivatedLinkedCount",
+	"totalActivationCount",
+	"activationCount",
+	"status",
+];
+
+const DEFAULT_MARKETPLACE_SORT_KEY: MarketplaceSortKey = "activationCount";
+
 const LOGO_GRADIENTS = [
 	"linear-gradient(135deg, var(--color-accent-bright), color-mix(in srgb, var(--color-accent-bright) 50%, var(--color-surface-700)))",
 	"linear-gradient(135deg, var(--color-accent-2), color-mix(in srgb, var(--color-accent-2) 50%, var(--color-surface-700)))",
@@ -317,7 +344,7 @@ const defaultSourceForm: SourceForm = {
 	branch: "",
 	syncIntervalSecs: "3600",
 	enabled: true,
-	importPluginsAndSkills: false,
+	importPluginsAndSkills: true,
 };
 
 export default function MarketplacesPage() {
@@ -356,6 +383,35 @@ export default function MarketplacesPage() {
 	const highlightName = searchParams.get("name") ?? "";
 	const highlightedRowRef = useRef<HTMLDivElement | null>(null);
 	const sourceFormRef = useRef<HTMLDivElement | null>(null);
+
+	const sortParam = searchParams.get("sort") as MarketplaceSortKey | null;
+	const sortKey: MarketplaceSortKey =
+		sortParam && MARKETPLACE_SORT_KEYS.includes(sortParam)
+			? sortParam
+			: DEFAULT_MARKETPLACE_SORT_KEY;
+	const sortDir: SortDir = searchParams.get("dir") === "asc" ? "asc" : "desc";
+
+	function toggleSort(key: MarketplaceSortKey) {
+		setSearchParams(
+			(prev) => {
+				const next = new URLSearchParams(prev);
+				if (sortKey === key) {
+					if (sortDir === "desc") {
+						next.set("sort", key);
+						next.set("dir", "asc");
+					} else {
+						next.delete("sort");
+						next.delete("dir");
+					}
+				} else {
+					next.set("sort", key);
+					next.delete("dir");
+				}
+				return next;
+			},
+			{ replace: true },
+		);
+	}
 
 	function clearParam(key: string) {
 		setSearchParams(
@@ -768,6 +824,51 @@ export default function MarketplacesPage() {
 		return map;
 	}, [sources]);
 
+	const sortedItems = useMemo(() => {
+		const arr = [...filteredItems];
+		const dir = sortDir === "asc" ? 1 : -1;
+		const adoptionAvailable = (m: Marketplace) =>
+			marketplacesWithImportingSource.has(m.name) && m.knownSkillCount > 0;
+		arr.sort((a, b) => {
+			let cmp = 0;
+			switch (sortKey) {
+				case "name":
+					cmp = a.name.localeCompare(b.name);
+					break;
+				case "status":
+					cmp = a.status.localeCompare(b.status);
+					break;
+				case "adoption": {
+					const aAvail = adoptionAvailable(a);
+					const bAvail = adoptionAvailable(b);
+					if (!aAvail && !bAvail) {
+						cmp = 0;
+					} else if (!aAvail) {
+						return 1;
+					} else if (!bAvail) {
+						return -1;
+					} else {
+						const aRatio = a.activatedSkillCount / a.knownSkillCount;
+						const bRatio = b.activatedSkillCount / b.knownSkillCount;
+						cmp = aRatio - bRatio;
+					}
+					break;
+				}
+				case "pluginCount":
+				case "knownSkillCount":
+				case "pluginInstallCount":
+				case "skillActivatedLinkedCount":
+				case "totalActivationCount":
+				case "activationCount":
+					cmp = (a[sortKey] ?? 0) - (b[sortKey] ?? 0);
+					break;
+			}
+			if (cmp === 0) cmp = a.name.localeCompare(b.name);
+			return cmp * dir;
+		});
+		return arr;
+	}, [filteredItems, sortKey, sortDir, marketplacesWithImportingSource]);
+
 	const orphanedSources = useMemo(() => sources.filter((s) => !s.marketplaceName), [sources]);
 
 	useLayoutEffect(() => {
@@ -1155,15 +1256,76 @@ export default function MarketplacesPage() {
 											className="h-4 w-4 cursor-pointer accent-accent-bright disabled:cursor-not-allowed disabled:opacity-40"
 										/>
 									</div>
-									<div>Source</div>
-									<div className="text-right">Plugins</div>
-									<div className="text-right">Skills</div>
-									<div>Adoption</div>
-									<div className="text-right">Installs</div>
-									<div className="text-right">Linked</div>
-									<div className="text-right">Acts</div>
-									<div className="text-right">Acts · 30d</div>
-									<div className="text-right">Status</div>
+									<SortableHeaderCell
+										label="Source"
+										sortKey="name"
+										currentKey={sortKey}
+										currentDir={sortDir}
+										onSort={toggleSort}
+									/>
+									<SortableHeaderCell
+										label="Plugins"
+										sortKey="pluginCount"
+										currentKey={sortKey}
+										currentDir={sortDir}
+										onSort={toggleSort}
+										align="right"
+									/>
+									<SortableHeaderCell
+										label="Skills"
+										sortKey="knownSkillCount"
+										currentKey={sortKey}
+										currentDir={sortDir}
+										onSort={toggleSort}
+										align="right"
+									/>
+									<SortableHeaderCell
+										label="Adoption"
+										sortKey="adoption"
+										currentKey={sortKey}
+										currentDir={sortDir}
+										onSort={toggleSort}
+									/>
+									<SortableHeaderCell
+										label="Installs"
+										sortKey="pluginInstallCount"
+										currentKey={sortKey}
+										currentDir={sortDir}
+										onSort={toggleSort}
+										align="right"
+									/>
+									<SortableHeaderCell
+										label="Linked"
+										sortKey="skillActivatedLinkedCount"
+										currentKey={sortKey}
+										currentDir={sortDir}
+										onSort={toggleSort}
+										align="right"
+									/>
+									<SortableHeaderCell
+										label="Acts"
+										sortKey="totalActivationCount"
+										currentKey={sortKey}
+										currentDir={sortDir}
+										onSort={toggleSort}
+										align="right"
+									/>
+									<SortableHeaderCell
+										label="Acts · 30d"
+										sortKey="activationCount"
+										currentKey={sortKey}
+										currentDir={sortDir}
+										onSort={toggleSort}
+										align="right"
+									/>
+									<SortableHeaderCell
+										label="Status"
+										sortKey="status"
+										currentKey={sortKey}
+										currentDir={sortDir}
+										onSort={toggleSort}
+										align="right"
+									/>
 									<div />
 								</div>
 
@@ -1175,7 +1337,7 @@ export default function MarketplacesPage() {
 									</div>
 								)}
 
-								{filteredItems.map((mp) => {
+								{sortedItems.map((mp) => {
 									const isHighlighted = highlightName === mp.name;
 									const mpSources = sourcesByMarketplace.get(mp.name) ?? [];
 									const hasGit = mpSources.length > 0;
@@ -1535,6 +1697,41 @@ export default function MarketplacesPage() {
 						</div>
 					);
 				})()}
+		</div>
+	);
+}
+
+function SortableHeaderCell({
+	label,
+	sortKey,
+	currentKey,
+	currentDir,
+	onSort,
+	align = "left",
+}: {
+	label: string;
+	sortKey: MarketplaceSortKey;
+	currentKey: MarketplaceSortKey;
+	currentDir: SortDir;
+	onSort: (k: MarketplaceSortKey) => void;
+	align?: "left" | "right";
+}) {
+	const active = sortKey === currentKey;
+	return (
+		<div className={cn(align === "right" && "text-right")}>
+			<button
+				type="button"
+				onClick={() => onSort(sortKey)}
+				className={cn(
+					"inline-flex items-center gap-1 uppercase tracking-wider transition-colors hover:text-text-1",
+					active && "text-text-1",
+				)}
+			>
+				{label}
+				<span aria-hidden="true" className="text-[10px]">
+					{active ? (currentDir === "asc" ? "▲" : "▼") : "↕"}
+				</span>
+			</button>
 		</div>
 	);
 }
