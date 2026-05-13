@@ -19,6 +19,8 @@ export interface PluginWithStats extends Plugin {
 	skillCount: number;
 	skillActivationCount: number;
 	lastSkillActivationAt: Date | null;
+	loadCount: number;
+	uniqueLoaderCount: number;
 }
 
 export interface PluginSkillActivation {
@@ -29,6 +31,12 @@ export interface PluginSkillActivation {
 export interface PluginUserActivation {
 	userEmail: string;
 	activationCount: number;
+}
+
+export interface PluginLoadStats {
+	totalLoads: number;
+	uniqueLoadedPlugins: number;
+	uniqueLoaders: number;
 }
 
 export interface NewPlugin {

@@ -3,6 +3,7 @@ import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { serve } from "@hono/node-server";
 import { db } from "@/db/client";
 import { seedAdmin } from "@/bootstrap/seed-admin";
+import { backfillLokiQueries } from "@/bootstrap/backfill-loki-queries";
 import { buildDeps } from "@/bootstrap/compose";
 import { createApp } from "@/app";
 import { config } from "@/config/env";
@@ -24,6 +25,7 @@ async function main() {
 	console.log("[startup] Migrations complete.");
 
 	await seedAdmin();
+	await backfillLokiQueries();
 
 	const app = createApp();
 	serve({ fetch: app.fetch, port: config.PORT, hostname: "0.0.0.0" }, async (info) => {

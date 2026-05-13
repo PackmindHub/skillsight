@@ -178,11 +178,25 @@ export function SkillDetailDrawer({ skillName, period, onClose }: SkillDetailDra
 						{detail.plugins.length === 0 ? (
 							<p className="text-sm text-text-4">—</p>
 						) : (
-							<div className="flex flex-wrap gap-1.5">
-								{detail.plugins.map((p) => (
-									<PluginBadge key={p.pluginName} plugin={p} />
-								))}
-							</div>
+							<ul className="space-y-1.5">
+								{detail.plugins.map((p) => {
+									const loaders = p.uniqueLoaderCount ?? 0;
+									return (
+										<li
+											key={`${p.pluginName}::${p.marketplaceName ?? ""}`}
+											className="flex flex-wrap items-center gap-2"
+										>
+											<PluginBadge plugin={p} />
+											<span
+												className="font-mono text-[11px] text-text-4"
+												title="Distinct users who emitted a plugin_loaded event for this plugin / marketplace pair"
+											>
+												{loaders.toLocaleString("en-US")} loader{loaders === 1 ? "" : "s"}
+											</span>
+										</li>
+									);
+								})}
+							</ul>
 						)}
 					</div>
 

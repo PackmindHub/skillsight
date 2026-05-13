@@ -48,7 +48,7 @@ export function parseTimeWindow(
 	return { kind: "preset", days: Math.min(365, Math.max(1, parsed)) };
 }
 
-export function createUsageRoute(deps: Pick<AppDeps, "skills" | "marketplaces">) {
+export function createUsageRoute(deps: Pick<AppDeps, "skills" | "marketplaces" | "plugins">) {
 	const route = new Hono<{ Variables: AppVariables }>();
 	route.use("*", sessionAuth);
 

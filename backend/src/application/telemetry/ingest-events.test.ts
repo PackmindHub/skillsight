@@ -458,3 +458,129 @@ describe("ingestEvents — 'inline' marketplace normalization", () => {
 		expect(upsertSeenCalls[0]).toEqual(["official"]);
 	});
 });
+
+describe("ingestEvents — plugin_loaded", () => {
+	it("upsertIfAbsent on plugin_loaded with a real plugin.name", async () => {
+		const { repo: skills } = makeSkills();
+		const { repo: plugins, upsertIfAbsentCalls, upsertCalls } = makePlugins();
+		const { repo: pluginSkills } = makePluginSkills();
+
+		await ingestEvents(
+			{
+				events: makeEvents(),
+				marketplaces: makeMarketplaces(),
+				plugins,
+				pluginSkills,
+				skills,
+			},
+			otlpBody([
+				{
+					eventName: EVENT_NAMES.PLUGIN_LOADED,
+					attrs: {
+						"plugin.name": "lint-plugin",
+						"marketplace.name": "acme",
+					},
+				},
+			]),
+		);
+
+		expect(upsertIfAbsentCalls).toEqual([
+			{ pluginName: "lint-plugin", marketplaceName: "acme" },
+		]);
+		// load events must not clobber admin-set status — never go through upsert().
+		expect(upsertCalls).toEqual([]);
+	});
+
+	it("skips redacted plugin.name='third-party' for the plugins catalog", async () => {
+		const { repo: skills } = makeSkills();
+		const { repo: plugins, upsertIfAbsentCalls, upsertCalls } = makePlugins();
+		const { repo: pluginSkills } = makePluginSkills();
+
+		await ingestEvents(
+			{
+				events: makeEvents(),
+				marketplaces: makeMarketplaces(),
+				plugins,
+				pluginSkills,
+				skills,
+			},
+			otlpBody([
+				{
+					eventName: EVENT_NAMES.PLUGIN_LOADED,
+					attrs: {
+						"plugin.name": "third-party",
+						"marketplace.name": "third-party",
+						plugin_id_hash: "abc123",
+					},
+				},
+			]),
+		);
+
+		expect(upsertIfAbsentCalls).toEqual([]);
+		expect(upsertCalls).toEqual([]);
+	});
+
+	it("treats (plugin=X, marketplace=A) and (plugin=X, marketplace=B) as distinct catalog entries", async () => {
+		// The current `plugins` PK is just pluginName, so the second upsertIfAbsent
+		// will be a no-op at the DB layer — but the application code must still
+		// emit both calls so the day the schema gains a composite key, behavior
+		// flips on automatically. Catalog limitation is noted in CLAUDE.md
+		// follow-up; ingest path stays composite-key-correct.
+		const { repo: skills } = makeSkills();
+		const { repo: plugins, upsertIfAbsentCalls } = makePlugins();
+		const { repo: pluginSkills } = makePluginSkills();
+
+		await ingestEvents(
+			{
+				events: makeEvents(),
+				marketplaces: makeMarketplaces(),
+				plugins,
+				pluginSkills,
+				skills,
+			},
+			otlpBody([
+				{
+					eventName: EVENT_NAMES.PLUGIN_LOADED,
+					attrs: { "plugin.name": "shared", "marketplace.name": "alpha" },
+				},
+				{
+					eventName: EVENT_NAMES.PLUGIN_LOADED,
+					attrs: { "plugin.name": "shared", "marketplace.name": "beta" },
+				},
+			]),
+		);
+
+		expect(upsertIfAbsentCalls).toEqual([
+			{ pluginName: "shared", marketplaceName: "alpha" },
+			{ pluginName: "shared", marketplaceName: "beta" },
+		]);
+	});
+
+	it("dedupes within a single ingest batch by (plugin.name, marketplace.name) pair", async () => {
+		const { repo: skills } = makeSkills();
+		const { repo: plugins, upsertIfAbsentCalls } = makePlugins();
+		const { repo: pluginSkills } = makePluginSkills();
+
+		await ingestEvents(
+			{
+				events: makeEvents(),
+				marketplaces: makeMarketplaces(),
+				plugins,
+				pluginSkills,
+				skills,
+			},
+			otlpBody([
+				{
+					eventName: EVENT_NAMES.PLUGIN_LOADED,
+					attrs: { "plugin.name": "p", "marketplace.name": "m" },
+				},
+				{
+					eventName: EVENT_NAMES.PLUGIN_LOADED,
+					attrs: { "plugin.name": "p", "marketplace.name": "m" },
+				},
+			]),
+		);
+
+		expect(upsertIfAbsentCalls).toHaveLength(1);
+	});
+});

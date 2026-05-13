@@ -3,19 +3,37 @@ import type { AppDb } from "@/db/client";
 import { plugins } from "@/db/schema";
 import { EVENT_NAMES } from "@/domain/event";
 import type { IPluginRepository } from "@/domain/ports/plugin-repository";
+import type { TimeWindow } from "@/domain/ports/skill-repository";
 import type {
 	NewPlugin,
 	Plugin,
+	PluginLoadStats,
 	PluginSkillActivation,
 	PluginStatus,
 	PluginUserActivation,
 	PluginWithStats,
 } from "@/domain/plugin";
 
+// Mirrors the helper in drizzle-skill-repository — kept inline to avoid
+// coupling the two repos through a shared util.
+function timeFilter(window: TimeWindow) {
+	if (window.kind === "range") {
+		return sql`AND timestamp >= ${window.from.toISOString()}::timestamp AND timestamp < ${window.to.toISOString()}::timestamp`;
+	}
+	if (window.days === "all") return sql``;
+	return sql`AND timestamp >= NOW() - (${window.days} || ' days')::interval`;
+}
+
 export class DrizzlePluginRepository implements IPluginRepository {
 	constructor(private readonly db: AppDb) {}
 
 	async listWithStats(includeIgnored = false): Promise<PluginWithStats[]> {
+		// loadCount / uniqueLoaderCount come from `claude_code.plugin_loaded`.
+		// The join keys on (plugin.name, marketplace.name) — `NULLIF(..., 'inline')`
+		// mirrors `normalizeMarketplaceName` so events tagged with the synthetic
+		// "inline" marketplace bucket join the NULL-marketplace plugin row.
+		// Redacted rows (`plugin.name = 'third-party'`) are excluded because they
+		// can't be attributed to a specific catalog entry.
 		const rows = await this.db.execute(sql`
 			SELECT
 			  p.plugin_name             AS "pluginName",
@@ -32,7 +50,9 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			  COALESCE(s.unique_users, 0)::int  AS "uniqueUserCount",
 			  COALESCE(ps.skill_count, 0)::int  AS "skillCount",
 			  COALESCE(sa.activation_count, 0)::int AS "skillActivationCount",
-			  sa.last_activation_at             AS "lastSkillActivationAt"
+			  sa.last_activation_at             AS "lastSkillActivationAt",
+			  COALESCE(l.load_count, 0)::int    AS "loadCount",
+			  COALESCE(l.unique_loaders, 0)::int AS "uniqueLoaderCount"
 			FROM plugins p
 			LEFT JOIN marketplaces m ON m.name = p.marketplace_name
 			LEFT JOIN (
@@ -62,6 +82,20 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			   AND e.attributes->>'plugin.name' = ps.plugin_name
 			  GROUP BY ps.plugin_name
 			) sa ON sa.plugin_name = p.plugin_name
+			LEFT JOIN (
+			  SELECT
+			    attributes->>'plugin.name'                   AS plugin_name,
+			    NULLIF(attributes->>'marketplace.name', 'inline') AS marketplace_name,
+			    COUNT(*)::int                                AS load_count,
+			    COUNT(DISTINCT user_email)::int              AS unique_loaders
+			  FROM events
+			  WHERE event_name = ${EVENT_NAMES.PLUGIN_LOADED}
+			    AND attributes->>'plugin.name' IS NOT NULL
+			    AND attributes->>'plugin.name' <> 'third-party'
+			  GROUP BY 1, 2
+			) l
+			  ON l.plugin_name = p.plugin_name
+			 AND COALESCE(l.marketplace_name, '') = COALESCE(p.marketplace_name, '')
 			${
 				includeIgnored
 					? sql``
@@ -272,6 +306,49 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			.where(eq(plugins.marketplaceName, marketplaceName))
 			.returning({ pluginName: plugins.pluginName });
 		return updated.map((r) => r.pluginName);
+	}
+
+	async getLoadStats(window: TimeWindow): Promise<PluginLoadStats> {
+		// uniqueLoadedPlugins counts distinct (plugin.name, marketplace.name) pairs
+		// for non-redacted rows, plus distinct plugin_id_hash for redacted rows.
+		// The two sets cannot overlap (a single load event is either redacted or
+		// not), so a plain sum is correct.
+		const [row] = (await this.db.execute(sql`
+			WITH loads AS (
+			  SELECT
+			    attributes->>'plugin.name'        AS plugin_name,
+			    NULLIF(attributes->>'marketplace.name', 'inline') AS marketplace_name,
+			    attributes->>'plugin_id_hash'     AS plugin_id_hash,
+			    user_email
+			  FROM events
+			  WHERE event_name = ${EVENT_NAMES.PLUGIN_LOADED}
+			    ${timeFilter(window)}
+			)
+			SELECT
+			  COUNT(*)::int AS total_loads,
+			  COUNT(DISTINCT user_email)::int AS unique_loaders,
+			  (
+			    SELECT COUNT(*)::int FROM (
+			      SELECT DISTINCT plugin_name, COALESCE(marketplace_name, '')
+			      FROM loads
+			      WHERE plugin_name IS NOT NULL AND plugin_name <> 'third-party'
+			    ) named
+			  ) + (
+			    SELECT COUNT(DISTINCT plugin_id_hash)::int
+			    FROM loads
+			    WHERE plugin_name = 'third-party' AND plugin_id_hash IS NOT NULL
+			  ) AS unique_loaded_plugins
+			FROM loads
+		`)) as unknown as Array<{
+			total_loads: number | null;
+			unique_loaders: number | null;
+			unique_loaded_plugins: number | null;
+		}>;
+		return {
+			totalLoads: row?.total_loads ?? 0,
+			uniqueLoadedPlugins: row?.unique_loaded_plugins ?? 0,
+			uniqueLoaders: row?.unique_loaders ?? 0,
+		};
 	}
 
 	async deleteByMarketplace(marketplaceName: string): Promise<string[]> {

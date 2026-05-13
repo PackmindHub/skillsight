@@ -39,6 +39,9 @@ export interface UsageStats {
 	totalActivations: number;
 	uniqueSkills: number;
 	activeUsers: number;
+	totalPluginLoads: number;
+	uniqueLoadedPlugins: number;
+	uniquePluginLoaders: number;
 }
 
 export interface UsageResponse {
@@ -137,6 +140,8 @@ export interface Plugin {
 	skillCount: number;
 	skillActivationCount: number;
 	lastSkillActivationAt: string | null;
+	loadCount: number;
+	uniqueLoaderCount: number;
 }
 
 export interface PluginSkillRow {
@@ -205,6 +210,7 @@ export interface SkillTableRow {
 	marketplaces: MarketplaceRef[];
 	status: SkillStatus;
 	lastSeenAt: string | null;
+	pluginUniqueLoaders: number | null;
 }
 
 export interface SkillsTableResponse {
@@ -221,6 +227,8 @@ export interface SkillDetailPluginRef {
 	marketplaceName: string | null;
 	status: string;
 	skillRepoUrl: string | null;
+	loadCount: number;
+	uniqueLoaderCount: number;
 }
 
 export interface SkillDetail {

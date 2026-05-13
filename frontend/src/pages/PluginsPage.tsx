@@ -37,7 +37,7 @@ const PLUGIN_STATUS_CHIP_OPTIONS: readonly StatusChipOption<PluginStatus>[] = [
 ];
 
 const PL_GRID_COLS =
-	"grid-cols-[40px_minmax(220px,1.6fr)_minmax(150px,1.1fr)_72px_104px_80px_72px_136px]";
+	"grid-cols-[40px_minmax(220px,1.6fr)_minmax(150px,1.1fr)_72px_104px_80px_72px_84px_84px_136px]";
 
 type PluginSortKey =
 	| "pluginName"
@@ -46,6 +46,8 @@ type PluginSortKey =
 	| "skillActivationCount"
 	| "installationCount"
 	| "uniqueUserCount"
+	| "loadCount"
+	| "uniqueLoaderCount"
 	| "status";
 
 type SortDir = "asc" | "desc";
@@ -57,6 +59,8 @@ const PLUGIN_SORT_KEYS: readonly PluginSortKey[] = [
 	"skillActivationCount",
 	"installationCount",
 	"uniqueUserCount",
+	"loadCount",
+	"uniqueLoaderCount",
 	"status",
 ];
 
@@ -308,6 +312,8 @@ export default function PluginsPage() {
 				case "skillActivationCount":
 				case "installationCount":
 				case "uniqueUserCount":
+				case "loadCount":
+				case "uniqueLoaderCount":
 					cmp = (a[sortKey] ?? 0) - (b[sortKey] ?? 0);
 					break;
 			}
@@ -609,7 +615,7 @@ export default function PluginsPage() {
 					)}
 
 					<div className="overflow-x-auto">
-						<div className="min-w-[1100px] rounded-lg border border-edge bg-surface-900">
+						<div className="min-w-[1280px] rounded-lg border border-edge bg-surface-900">
 							<div
 								className={cn(
 									"grid items-center gap-3 border-b border-edge px-4 h-9 font-mono text-[10px] uppercase tracking-wider text-text-4",
@@ -673,6 +679,22 @@ export default function PluginsPage() {
 								<SortableHeaderCell
 									label="Users"
 									sortKey="uniqueUserCount"
+									currentKey={sortKey}
+									currentDir={sortDir}
+									onSort={toggleSort}
+									align="right"
+								/>
+								<SortableHeaderCell
+									label="Loaded"
+									sortKey="loadCount"
+									currentKey={sortKey}
+									currentDir={sortDir}
+									onSort={toggleSort}
+									align="right"
+								/>
+								<SortableHeaderCell
+									label="Loaders"
+									sortKey="uniqueLoaderCount"
 									currentKey={sortKey}
 									currentDir={sortDir}
 									onSort={toggleSort}
@@ -785,6 +807,8 @@ export default function PluginsPage() {
 										/>
 										<PluginNumCell value={plugin.installationCount} />
 										<PluginNumCell value={plugin.uniqueUserCount} />
+										<PluginNumCell value={plugin.loadCount} />
+										<PluginNumCell value={plugin.uniqueLoaderCount} />
 
 										<div>
 											<StatusChip

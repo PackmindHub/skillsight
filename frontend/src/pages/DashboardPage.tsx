@@ -437,6 +437,14 @@ export default function DashboardPage() {
 						<MiniStat label="Active users" value={fmtFull(usage.stats.activeUsers)} />
 						<MiniStat label="Marketplaces" value={totalMarketplaces == null ? "—" : fmtFull(totalMarketplaces)} />
 						<MiniStat label="Plugins" value={totalPlugins == null ? "—" : fmtFull(totalPlugins)} />
+						<MiniStat
+							label="Plugins loaded"
+							value={fmtFull(usage.stats.uniqueLoadedPlugins ?? 0)}
+						/>
+						<MiniStat
+							label="Plugin loaders"
+							value={fmtFull(usage.stats.uniquePluginLoaders ?? 0)}
+						/>
 					</div>
 					<div className="absolute -bottom-2.5 -right-2.5 h-[110px] w-[55%] overflow-hidden">
 						{totalDaily.length > 0 && (

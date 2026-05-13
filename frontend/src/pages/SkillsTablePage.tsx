@@ -221,6 +221,7 @@ type SortKey =
 	| "skillName"
 	| "total"
 	| "uniqueUsers"
+	| "pluginUniqueLoaders"
 	| "status"
 	| "userSlash"
 	| "claudeProactive"
@@ -234,6 +235,7 @@ const SORT_KEYS: SortKey[] = [
 	"skillName",
 	"total",
 	"uniqueUsers",
+	"pluginUniqueLoaders",
 	"status",
 	"userSlash",
 	"claudeProactive",
@@ -608,13 +610,15 @@ export default function SkillsTablePage() {
 			});
 		} else {
 			sorted.sort((a, b) => {
-				const av = a.row[sortKey] as string | number;
-				const bv = b.row[sortKey] as string | number;
+				const av = a.row[sortKey] as string | number | null;
+				const bv = b.row[sortKey] as string | number | null;
 				if (typeof av === "string" && typeof bv === "string") {
 					return sortDir === "asc" ? av.localeCompare(bv) : bv.localeCompare(av);
 				}
-				const an = av as number;
-				const bn = bv as number;
+				// Treat nulls (e.g. pluginUniqueLoaders on bundled rows) as -1 so
+				// they cluster at one end consistently.
+				const an = av == null ? -1 : (av as number);
+				const bn = bv == null ? -1 : (bv as number);
 				return sortDir === "asc" ? an - bn : bn - an;
 			});
 		}
@@ -1109,6 +1113,14 @@ export default function SkillsTablePage() {
 							onSort={toggleSort}
 							className="text-right"
 						/>
+						<SortableHeader
+							label="Loaders"
+							sortKey="pluginUniqueLoaders"
+							currentKey={sortKey}
+							currentDir={sortDir}
+							onSort={toggleSort}
+							className="text-right"
+						/>
 						<th className="text-left px-4 py-3 font-medium text-text-3">Δ</th>
 						<th className="text-left px-4 py-3 font-medium text-text-3">Trend</th>
 						<th className="text-left px-4 py-3 font-medium text-text-3">Marketplaces</th>
@@ -1225,6 +1237,24 @@ export default function SkillsTablePage() {
 										</span>
 									) : (
 										<span className="text-text-4">—</span>
+									)}
+								</td>
+								<td
+									className="px-4 py-3 text-right font-mono tabular-nums"
+									title={
+										row.pluginUniqueLoaders == null
+											? "Loader counts only apply to plugin-owned skills"
+											: "Distinct users who loaded the plugin that ships this skill"
+									}
+								>
+									{row.pluginUniqueLoaders == null ? (
+										<span className="text-text-4">—</span>
+									) : row.pluginUniqueLoaders > 0 ? (
+										<span className="text-text-1">
+											{row.pluginUniqueLoaders.toLocaleString("en-US")}
+										</span>
+									) : (
+										<span className="text-text-4">0</span>
 									)}
 								</td>
 								<td className="px-4 py-3">

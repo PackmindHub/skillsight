@@ -1,11 +1,13 @@
 import type {
 	NewPlugin,
 	Plugin,
+	PluginLoadStats,
 	PluginSkillActivation,
 	PluginStatus,
 	PluginUserActivation,
 	PluginWithStats,
 } from "@/domain/plugin";
+import type { TimeWindow } from "@/domain/ports/skill-repository";
 
 export interface IPluginRepository {
 	listWithStats(includeIgnored?: boolean): Promise<PluginWithStats[]>;
@@ -28,4 +30,5 @@ export interface IPluginRepository {
 	listNamesByMarketplace(marketplaceName: string): Promise<string[]>;
 	orphanByMarketplace(marketplaceName: string): Promise<string[]>;
 	deleteByMarketplace(marketplaceName: string): Promise<string[]>;
+	getLoadStats(window: TimeWindow): Promise<PluginLoadStats>;
 }

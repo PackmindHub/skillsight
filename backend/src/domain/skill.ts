@@ -48,6 +48,10 @@ export interface SkillTableRow {
 	marketplaceNames: string[];
 	status: SkillStatus;
 	lastSeenAt: string | null;
+	// Distinct users who emitted a `plugin_loaded` event for this row's plugin
+	// (joined by plugin.name only — same granularity as the rest of the table).
+	// Null for bundled / orphan rows where `pluginName` is null.
+	pluginUniqueLoaders: number | null;
 }
 
 export interface SkillDetailPluginRef {
@@ -55,6 +59,8 @@ export interface SkillDetailPluginRef {
 	marketplaceName: string | null;
 	status: string;
 	skillRepoUrl: string | null;
+	loadCount: number;
+	uniqueLoaderCount: number;
 }
 
 /**
