@@ -9,22 +9,24 @@ import {
 	PageHeader,
 	StatusChip,
 	type StatusChipOption,
-	TBody,
-	TD,
-	TH,
-	THead,
-	TR,
-	Table,
 } from "@/components/ui";
 import { useMarketplaceSourcesHealth } from "@/context/MarketplaceSourcesHealthContext";
 import { api } from "@/lib/api";
 import { useIncludeIgnored } from "@/lib/use-include-ignored";
-import { cn, formatDateTime } from "@/lib/utils";
+import { cn, formatRelativeShort, repoSlugFromGitUrl } from "@/lib/utils";
 import type { Marketplace, MarketplaceSource, MarketplaceStatus } from "@/types/api";
-import { ExternalLink, Pencil, Trash2 } from "lucide-react";
+import {
+	ExternalLink,
+	GitBranch,
+	Link2Off,
+	Loader2,
+	Pencil,
+	Play,
+	RefreshCw,
+	Trash2,
+} from "lucide-react";
 import {
 	type FormEvent,
-	Fragment,
 	useEffect,
 	useLayoutEffect,
 	useMemo,
@@ -53,13 +55,7 @@ const MP_FILTER_OPTIONS: {
 ];
 
 const MP_GRID_COLS =
-	"grid-cols-[minmax(260px,2fr)_70px_70px_120px_80px_80px_96px_110px_140px_64px]";
-
-function hostnameFromUrl(url: string): string {
-	const stripped = url.replace(/^https?:\/\//, "").replace(/^git@/, "");
-	const host = stripped.split("/")[0] ?? stripped;
-	return host || url;
-}
+	"grid-cols-[minmax(300px,2.4fr)_60px_60px_110px_70px_70px_80px_100px_120px_104px]";
 
 const LOGO_GRADIENTS = [
 	"linear-gradient(135deg, var(--color-accent-bright), color-mix(in srgb, var(--color-accent-bright) 50%, var(--color-surface-700)))",
@@ -151,6 +147,122 @@ function MarketplaceNumCell({
 		<div className="text-right">
 			<span className={cls} title={title}>
 				{display}
+			</span>
+		</div>
+	);
+}
+
+function MarketplaceGitSourceLine({
+	source,
+	syncing,
+}: {
+	source: MarketplaceSource;
+	syncing: boolean;
+}) {
+	const repoSlug = repoSlugFromGitUrl(source.gitUrl);
+	const hasError = source.lastSyncError !== null;
+	const paused = !source.enabled;
+	const syncState: "syncing" | "error" | "paused" | "ok" | "never" = syncing
+		? "syncing"
+		: hasError
+			? "error"
+			: paused
+				? "paused"
+				: source.lastSyncAt
+					? "ok"
+					: "never";
+	const lastSync = source.lastSyncAt ? formatRelativeShort(source.lastSyncAt) : null;
+	const statusText =
+		syncState === "syncing"
+			? "Syncing now"
+			: syncState === "error"
+				? "Sync failed"
+				: syncState === "paused"
+					? lastSync
+						? `Paused · last sync ${lastSync}`
+						: "Paused"
+					: syncState === "ok" && lastSync
+						? `Synced ${lastSync}`
+						: "Never synced";
+	const dotStyle: Record<typeof syncState, { className: string; style?: React.CSSProperties }> = {
+		syncing: {
+			className: "animate-pulse",
+			style: {
+				background: "var(--color-accent-2)",
+				boxShadow: "0 0 6px color-mix(in srgb, var(--color-accent-2) 70%, transparent)",
+			},
+		},
+		error: {
+			className: "",
+			style: { background: "var(--color-danger)" },
+		},
+		paused: {
+			className: "",
+			style: { background: "var(--color-text-4)" },
+		},
+		ok: {
+			className: "",
+			style: {
+				background: "var(--color-success)",
+				boxShadow: "0 0 4px color-mix(in srgb, var(--color-success) 60%, transparent)",
+			},
+		},
+		never: {
+			className: "",
+			style: { background: "var(--color-text-4)" },
+		},
+	};
+	const statusTextColor =
+		syncState === "error"
+			? "text-danger"
+			: syncState === "syncing"
+				? "text-accent-2"
+				: syncState === "paused" || syncState === "never"
+					? "text-text-4"
+					: "text-text-3";
+	return (
+		<div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+			<a
+				href={source.gitUrl}
+				target="_blank"
+				rel="noreferrer"
+				title={source.gitUrl}
+				className="inline-flex min-w-0 max-w-full items-center gap-1.5 truncate rounded-md border border-edge-dim bg-surface-700/50 px-2 py-[3px] font-mono text-[11px] text-text-2 transition-colors hover:border-accent-2/40 hover:bg-accent-2/[0.08] hover:text-text-1"
+			>
+				<svg
+					width="11"
+					height="11"
+					viewBox="0 0 16 16"
+					aria-hidden="true"
+					className="shrink-0 text-text-3"
+				>
+					<path
+						fill="currentColor"
+						d="M8 0C3.58 0 0 3.58 0 8a8 8 0 005.47 7.59c.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"
+					/>
+				</svg>
+				<span className="truncate">{repoSlug}</span>
+				<ExternalLink className="h-2.5 w-2.5 shrink-0 opacity-60" aria-hidden="true" />
+			</a>
+			<span
+				className="inline-flex items-center gap-1 rounded border border-edge-dim bg-surface-800 px-1.5 py-[1px] font-mono text-[10px] text-text-3"
+				title={`Branch · ${source.branch || "main"}`}
+			>
+				<GitBranch className="h-2.5 w-2.5" aria-hidden="true" />
+				{source.branch || "main"}
+			</span>
+			<span
+				className={cn(
+					"inline-flex items-center gap-1.5 font-mono text-[10.5px]",
+					statusTextColor,
+				)}
+			>
+				<span
+					aria-hidden="true"
+					className={cn("inline-block h-1.5 w-1.5 rounded-full", dotStyle[syncState].className)}
+					style={dotStyle[syncState].style}
+				/>
+				{statusText}
 			</span>
 		</div>
 	);
@@ -281,16 +393,8 @@ export default function MarketplacesPage() {
 	const [editingSourceId, setEditingSourceId] = useState<string | null>(null);
 	const [sourceForm, setSourceForm] = useState<SourceForm>(defaultSourceForm);
 	const [savingSource, setSavingSource] = useState(false);
-	const [deletingSourceId, setDeletingSourceId] = useState<string | null>(null);
-	const [syncingSourceId, setSyncingSourceId] = useState<string | null>(null);
-	const [pausingSourceId, setPausingSourceId] = useState<string | null>(null);
-	const [resumingSourceId, setResumingSourceId] = useState<string | null>(null);
-	const [sourceSyncResult, setSourceSyncResult] = useState<
-		Record<
-			string,
-			{ syncedAt: string | null; pluginCount: number; skillCount: number; error: string | null }
-		>
-	>({});
+	const [syncingSourceIds, setSyncingSourceIds] = useState<Set<string>>(() => new Set());
+	const [resumingSourceIds, setResumingSourceIds] = useState<Set<string>>(() => new Set());
 	const [testingConnection, setTestingConnection] = useState(false);
 	const [connectionTestResult, setConnectionTestResult] = useState<
 		| { ok: true; name: string; pluginCount: number; skillCount: number }
@@ -359,21 +463,6 @@ export default function MarketplacesPage() {
 	function handleRequestImport(marketplaceName: string) {
 		setSelectedMarketplace(null);
 		openCreateSource(marketplaceName);
-	}
-
-	function openEditSource(source: MarketplaceSource) {
-		setEditingSourceId(source.id);
-		setSourceForm({
-			gitUrl: source.gitUrl,
-			accessToken: "",
-			branch: source.branch ?? "",
-			syncIntervalSecs: String(Math.round(source.syncIntervalMs / 1000)),
-			enabled: source.enabled,
-			importPluginsAndSkills: source.importPluginsAndSkills,
-		});
-		setConnectionTestResult(null);
-		setSubmitError(null);
-		setShowSourceForm(true);
 	}
 
 	function closeSourceForm() {
@@ -477,25 +566,14 @@ export default function MarketplacesPage() {
 			} else {
 				const { firstSync, ...created } = await api.marketplaceSources.create(payload);
 				setSources((prev) => [created, ...prev]);
-				if (firstSync) {
-					setSourceSyncResult((prev) => ({
-						...prev,
-						[created.id]: {
-							syncedAt: created.lastSyncAt,
-							pluginCount: firstSync.pluginCount,
-							skillCount: firstSync.skillCount,
-							error: firstSync.error,
-						},
-					}));
-					if (firstSync.error) {
-						setSubmitError(firstSync.error);
-						setSavingSource(false);
-						return;
-					}
+				if (firstSync?.error) {
+					setSubmitError(firstSync.error);
+					setSavingSource(false);
+					return;
 				}
 			}
 			closeSourceForm();
-			refreshSourcesHealth();
+			await refreshMarketplaceData();
 		} catch (e) {
 			setSubmitError(extractErrorMessage(e));
 		} finally {
@@ -503,52 +581,49 @@ export default function MarketplacesPage() {
 		}
 	}
 
-	async function handleDeleteSource(id: string) {
-		setDeletingSourceId(id);
-		try {
-			await api.marketplaceSources.remove(id);
-			setSources((prev) => prev.filter((s) => s.id !== id));
-			refreshSourcesHealth();
-		} finally {
-			setDeletingSourceId(null);
-		}
-	}
-
 	async function handleSyncSource(id: string) {
-		setSyncingSourceId(id);
+		setSyncingSourceIds((prev) => new Set(prev).add(id));
 		try {
-			const result = await api.marketplaceSources.syncNow(id);
-			setSourceSyncResult((prev) => ({ ...prev, [id]: result }));
+			await api.marketplaceSources.syncNow(id);
 			await Promise.all([
 				api.marketplaces.list({ includeIgnored }).then((res) => setItems(res.marketplaces)),
 				api.marketplaceSources.list().then(setSources),
 			]);
 			refreshSourcesHealth();
 		} finally {
-			setSyncingSourceId(null);
-		}
-	}
-
-	async function handlePauseSource(id: string) {
-		setPausingSourceId(id);
-		try {
-			const updated = await api.marketplaceSources.pause(id);
-			setSources((prev) => prev.map((s) => (s.id === id ? updated : s)));
-			refreshSourcesHealth();
-		} finally {
-			setPausingSourceId(null);
+			setSyncingSourceIds((prev) => {
+				const next = new Set(prev);
+				next.delete(id);
+				return next;
+			});
 		}
 	}
 
 	async function handleResumeSource(id: string) {
-		setResumingSourceId(id);
+		setResumingSourceIds((prev) => new Set(prev).add(id));
 		try {
 			const updated = await api.marketplaceSources.resume(id);
 			setSources((prev) => prev.map((s) => (s.id === id ? updated : s)));
 			refreshSourcesHealth();
 		} finally {
-			setResumingSourceId(null);
+			setResumingSourceIds((prev) => {
+				const next = new Set(prev);
+				next.delete(id);
+				return next;
+			});
 		}
+	}
+
+	async function handleSyncMarketplace(marketplaceSources: MarketplaceSource[]) {
+		await Promise.allSettled(
+			marketplaceSources.filter((s) => s.enabled).map((s) => handleSyncSource(s.id)),
+		);
+	}
+
+	async function handleResumeMarketplace(marketplaceSources: MarketplaceSource[]) {
+		await Promise.allSettled(
+			marketplaceSources.filter((s) => !s.enabled).map((s) => handleResumeSource(s.id)),
+		);
 	}
 
 	const filteredItems = useMemo(() => {
@@ -569,6 +644,22 @@ export default function MarketplacesPage() {
 		return names;
 	}, [sources]);
 
+	const sourcesByMarketplace = useMemo(() => {
+		const map = new Map<string, MarketplaceSource[]>();
+		for (const s of sources) {
+			if (!s.marketplaceName) continue;
+			const arr = map.get(s.marketplaceName) ?? [];
+			arr.push(s);
+			map.set(s.marketplaceName, arr);
+		}
+		return map;
+	}, [sources]);
+
+	const orphanedSources = useMemo(
+		() => sources.filter((s) => !s.marketplaceName),
+		[sources],
+	);
+
 	useLayoutEffect(() => {
 		if (!highlightName || loading) return;
 		const node = highlightedRowRef.current;
@@ -587,278 +678,168 @@ export default function MarketplacesPage() {
 
 			{error && <p className="text-sm text-danger">{error}</p>}
 
-			{(sources.length > 0 || showSourceForm) && (
-				<div className="space-y-3">
-					<h2 className="text-sm font-medium text-text-2">Git sources</h2>
+			{showSourceForm && (
+				<Card surface="raised">
+					<h3 className="text-sm font-medium text-text-1 mb-3">
+						{editingSourceId ? "Edit git source" : "Import marketplace from git"}
+					</h3>
+					{!editingSourceId && importForMarketplace && (
+						<p className="mb-3 text-xs text-text-3">
+							This source will link to{" "}
+							<span className="font-mono text-text-2">{importForMarketplace}</span> if its{" "}
+							<span className="font-mono">marketplace.json</span> declares this name.
+						</p>
+					)}
+					<form onSubmit={handleSourceSubmit} className="space-y-5">
+						<FormField
+							label="Repository URL"
+							htmlFor="ms-url"
+							required
+							helper="Accepts GitHub shorthand (owner/repo) or full GitHub / GitLab / Bitbucket HTTPS URLs."
+						>
+							<Input
+								id="ms-url"
+								required
+								size="sm"
+								value={sourceForm.gitUrl}
+								onChange={(e) => updateSourceField("gitUrl", e.target.value)}
+								placeholder="owner/repo  or  https://github.com/owner/repo"
+							/>
+						</FormField>
 
-					{showSourceForm && (
-						<Card surface="raised">
-							<h3 className="text-sm font-medium text-text-1 mb-3">
-								{editingSourceId ? "Edit git source" : "Import marketplace from git"}
-							</h3>
-							{!editingSourceId && importForMarketplace && (
-								<p className="mb-3 text-xs text-text-3">
-									This source will link to{" "}
-									<span className="font-mono text-text-2">{importForMarketplace}</span> if its{" "}
-									<span className="font-mono">marketplace.json</span> declares this name.
+						<div className="grid grid-cols-2 gap-3">
+							<FormField label="Branch" htmlFor="ms-branch">
+								<Input
+									id="ms-branch"
+									size="sm"
+									value={sourceForm.branch}
+									onChange={(e) => updateSourceField("branch", e.target.value)}
+									placeholder="main"
+								/>
+							</FormField>
+							<FormField label="Sync interval (seconds, min 60)" htmlFor="ms-interval">
+								<Input
+									id="ms-interval"
+									type="number"
+									min="60"
+									size="sm"
+									value={sourceForm.syncIntervalSecs}
+									onChange={(e) =>
+										setSourceForm((f) => ({ ...f, syncIntervalSecs: e.target.value }))
+									}
+								/>
+							</FormField>
+						</div>
+
+						<FormField
+							label={`Access token${editingSourceId ? " (blank = keep existing)" : ""}`}
+							htmlFor="ms-token"
+							helper="Leave blank for public repositories."
+						>
+							<Input
+								id="ms-token"
+								type="password"
+								size="sm"
+								value={sourceForm.accessToken}
+								onChange={(e) => updateSourceField("accessToken", e.target.value)}
+								placeholder={editingSourceId ? "••••••" : ""}
+								autoComplete="new-password"
+							/>
+						</FormField>
+
+						<div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-1">
+							<label className="flex items-center gap-2 text-sm text-text-2 cursor-pointer">
+								<input
+									type="checkbox"
+									className="h-4 w-4 rounded border-edge bg-surface-800 accent-accent-bright"
+									checked={sourceForm.enabled}
+									onChange={(e) => setSourceForm((f) => ({ ...f, enabled: e.target.checked }))}
+								/>
+								Enable periodic sync
+							</label>
+							<label className="flex items-center gap-2 text-sm text-text-2 cursor-pointer">
+								<input
+									type="checkbox"
+									className="h-4 w-4 rounded border-edge bg-surface-800 accent-accent-bright"
+									checked={sourceForm.importPluginsAndSkills}
+									onChange={(e) =>
+										setSourceForm((f) => ({ ...f, importPluginsAndSkills: e.target.checked }))
+									}
+								/>
+								Import plugins and skills into registry
+							</label>
+						</div>
+
+						{connectionTestResult &&
+							(connectionTestResult.ok ? (
+								<p className="text-xs text-success">
+									Connected — found {connectionTestResult.pluginCount} plugin
+									{connectionTestResult.pluginCount === 1 ? "" : "s"} and{" "}
+									{connectionTestResult.skillCount} skill
+									{connectionTestResult.skillCount === 1 ? "" : "s"} in “
+									{connectionTestResult.name}”.
 								</p>
-							)}
-							<form onSubmit={handleSourceSubmit} className="space-y-5">
-								<FormField
-									label="Repository URL"
-									htmlFor="ms-url"
-									required
-									helper="Accepts GitHub shorthand (owner/repo) or full GitHub / GitLab / Bitbucket HTTPS URLs."
-								>
-									<Input
-										id="ms-url"
-										required
-										size="sm"
-										value={sourceForm.gitUrl}
-										onChange={(e) => updateSourceField("gitUrl", e.target.value)}
-										placeholder="owner/repo  or  https://github.com/owner/repo"
-									/>
-								</FormField>
+							) : (
+								<p className="text-xs text-danger">{connectionTestResult.error}</p>
+							))}
 
-								<div className="grid grid-cols-2 gap-3">
-									<FormField label="Branch" htmlFor="ms-branch">
-										<Input
-											id="ms-branch"
-											size="sm"
-											value={sourceForm.branch}
-											onChange={(e) => updateSourceField("branch", e.target.value)}
-											placeholder="main"
-										/>
-									</FormField>
-									<FormField label="Sync interval (seconds, min 60)" htmlFor="ms-interval">
-										<Input
-											id="ms-interval"
-											type="number"
-											min="60"
-											size="sm"
-											value={sourceForm.syncIntervalSecs}
-											onChange={(e) =>
-												setSourceForm((f) => ({ ...f, syncIntervalSecs: e.target.value }))
-											}
-										/>
-									</FormField>
-								</div>
+						{submitError && <p className="text-xs text-danger">{submitError}</p>}
 
-								<FormField
-									label={`Access token${editingSourceId ? " (blank = keep existing)" : ""}`}
-									htmlFor="ms-token"
-									helper="Leave blank for public repositories."
-								>
-									<Input
-										id="ms-token"
-										type="password"
-										size="sm"
-										value={sourceForm.accessToken}
-										onChange={(e) => updateSourceField("accessToken", e.target.value)}
-										placeholder={editingSourceId ? "••••••" : ""}
-										autoComplete="new-password"
-									/>
-								</FormField>
+						<div className="flex items-center justify-between gap-2 border-t border-edge-dim pt-4">
+							<Button
+								variant="secondary"
+								size="sm"
+								onClick={handleTestConnection}
+								disabled={!sourceForm.gitUrl.trim()}
+								loading={testingConnection}
+							>
+								Test connection
+							</Button>
+							<div className="flex items-center gap-2">
+								<Button variant="secondary" size="sm" onClick={closeSourceForm}>
+									Cancel
+								</Button>
+								<Button type="submit" size="sm" loading={savingSource}>
+									{editingSourceId ? "Update" : "Import"}
+								</Button>
+							</div>
+						</div>
+					</form>
+				</Card>
+			)}
 
-								<div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-1">
-									<label className="flex items-center gap-2 text-sm text-text-2 cursor-pointer">
-										<input
-											type="checkbox"
-											className="h-4 w-4 rounded border-edge bg-surface-800 accent-accent-bright"
-											checked={sourceForm.enabled}
-											onChange={(e) => setSourceForm((f) => ({ ...f, enabled: e.target.checked }))}
-										/>
-										Enable periodic sync
-									</label>
-									<label className="flex items-center gap-2 text-sm text-text-2 cursor-pointer">
-										<input
-											type="checkbox"
-											className="h-4 w-4 rounded border-edge bg-surface-800 accent-accent-bright"
-											checked={sourceForm.importPluginsAndSkills}
-											onChange={(e) =>
-												setSourceForm((f) => ({ ...f, importPluginsAndSkills: e.target.checked }))
-											}
-										/>
-										Import plugins and skills into registry
-									</label>
-								</div>
-
-								{connectionTestResult &&
-									(connectionTestResult.ok ? (
-										<p className="text-xs text-success">
-											Connected — found {connectionTestResult.pluginCount} plugin
-											{connectionTestResult.pluginCount === 1 ? "" : "s"} and{" "}
-											{connectionTestResult.skillCount} skill
-											{connectionTestResult.skillCount === 1 ? "" : "s"} in “
-											{connectionTestResult.name}”.
-										</p>
-									) : (
-										<p className="text-xs text-danger">{connectionTestResult.error}</p>
-									))}
-
-								{submitError && <p className="text-xs text-danger">{submitError}</p>}
-
-								<div className="flex items-center justify-between gap-2 border-t border-edge-dim pt-4">
-									<Button
-										variant="secondary"
-										size="sm"
-										onClick={handleTestConnection}
-										disabled={!sourceForm.gitUrl.trim()}
-										loading={testingConnection}
-									>
-										Test connection
-									</Button>
-									<div className="flex items-center gap-2">
-										<Button variant="secondary" size="sm" onClick={closeSourceForm}>
-											Cancel
-										</Button>
-										<Button type="submit" size="sm" loading={savingSource}>
-											{editingSourceId ? "Update" : "Import"}
-										</Button>
-									</div>
-								</div>
-							</form>
-						</Card>
-					)}
-
-					{sources.length > 0 && (
-						<Table>
-							<THead>
-								<TR>
-									<TH>Repository</TH>
-									<TH>Marketplace</TH>
-									<TH>Branch</TH>
-									<TH>Last sync</TH>
-									<TH align="right">{""}</TH>
-								</TR>
-							</THead>
-							<TBody>
-								{sources.map((source) => {
-									const sr = sourceSyncResult[source.id];
-									const hasError = source.lastSyncError !== null;
-									return (
-										<Fragment key={source.id}>
-											<TR className={!source.enabled ? "opacity-40" : undefined}>
-												<TD>
-													<div className="flex items-center gap-2">
-														<a
-															href={source.gitUrl}
-															target="_blank"
-															rel="noopener noreferrer"
-															title={source.gitUrl}
-															className="inline-flex items-center gap-1 font-mono text-xs truncate max-w-64 text-accent-soft hover:text-accent-bright hover:underline"
-														>
-															<span className="truncate">{source.gitUrl}</span>
-															<ExternalLink className="h-3 w-3 shrink-0" aria-hidden="true" />
-														</a>
-														{source.hasToken && (
-															<span className="badge badge-neutral shrink-0">token</span>
-														)}
-													</div>
-												</TD>
-												<TD className="text-xs">
-													{source.marketplaceName ? (
-														<span className="font-medium text-text-2">
-															{source.marketplaceName}
-														</span>
-													) : (
-														<span className="text-text-4">—</span>
-													)}
-												</TD>
-												<TD className="text-xs font-mono text-text-3">
-													{source.branch || <span className="text-text-4">main</span>}
-												</TD>
-												<TD>
-													{hasError ? (
-														<span className="badge badge-danger" title={source.lastSyncError ?? ""}>
-															Error
-														</span>
-													) : source.lastSyncAt ? (
-														<span className="text-text-3 text-xs">
-															{formatDateTime(source.lastSyncAt)}
-														</span>
-													) : (
-														<span className="text-text-4 text-xs">Never</span>
-													)}
-													{sr && !sr.error && (
-														<span className="ml-2 text-xs text-success">
-															{source.importPluginsAndSkills
-																? `${sr.pluginCount} plugin${sr.pluginCount !== 1 ? "s" : ""}, ${sr.skillCount} skill${sr.skillCount !== 1 ? "s" : ""} imported`
-																: `${sr.pluginCount} plugin${sr.pluginCount !== 1 ? "s" : ""}, ${sr.skillCount} skill${sr.skillCount !== 1 ? "s" : ""} available (not imported)`}
-														</span>
-													)}
-												</TD>
-												<TD align="right">
-													<div className="flex items-center justify-end gap-3">
-														<Button
-															variant="ghost"
-															size="sm"
-															loading={syncingSourceId === source.id}
-															onClick={() => handleSyncSource(source.id)}
-															className="text-accent-soft hover:text-accent-bright"
-														>
-															Sync now
-														</Button>
-														{source.enabled ? (
-															<Button
-																variant="ghost"
-																size="sm"
-																loading={pausingSourceId === source.id}
-																onClick={() => handlePauseSource(source.id)}
-															>
-																Pause
-															</Button>
-														) : (
-															<Button
-																variant="ghost"
-																size="sm"
-																loading={resumingSourceId === source.id}
-																onClick={() => handleResumeSource(source.id)}
-																className="text-accent-soft hover:text-accent-bright"
-															>
-																Resume
-															</Button>
-														)}
-														<Button
-															variant="ghost"
-															size="sm"
-															onClick={() => openEditSource(source)}
-														>
-															Edit
-														</Button>
-														<Button
-															variant="ghost"
-															size="sm"
-															loading={deletingSourceId === source.id}
-															onClick={() => handleDeleteSource(source.id)}
-															className="text-danger hover:text-danger"
-														>
-															Delete
-														</Button>
-													</div>
-												</TD>
-											</TR>
-											{hasError && (
-												<tr>
-													<td colSpan={5} className="px-0 pb-3">
-														<SourceErrorBanner message={source.lastSyncError ?? ""} />
-													</td>
-												</tr>
-											)}
-										</Fragment>
-									);
-								})}
-							</TBody>
-						</Table>
-					)}
-				</div>
+			{orphanedSources.length > 0 && (
+				<Card className="border-warning/30 bg-warning/[0.04]" padding="sm">
+					<div className="flex items-start gap-2">
+						<span
+							aria-hidden="true"
+							className="mt-1 inline-block h-2 w-2 shrink-0 rounded-full"
+							style={{
+								background: "var(--color-warning)",
+								boxShadow: "0 0 6px var(--color-warning)",
+							}}
+						/>
+						<div className="min-w-0 text-xs text-text-2">
+							<p className="font-medium text-text-1">
+								{orphanedSources.length} git source
+								{orphanedSources.length === 1 ? "" : "s"} not yet linked to a marketplace
+							</p>
+							<ul className="mt-1 space-y-0.5">
+								{orphanedSources.map((s) => (
+									<li key={s.id} className="font-mono text-text-3 truncate" title={s.gitUrl}>
+										{s.gitUrl}
+										{s.lastSyncError && (
+											<span className="ml-2 text-danger">— {s.lastSyncError}</span>
+										)}
+									</li>
+								))}
+							</ul>
+						</div>
+					</div>
+				</Card>
 			)}
 
 			<div className="space-y-3">
-				{sources.length > 0 && (
-					<h2 className="text-sm font-medium text-text-2">Discovered marketplaces</h2>
-				)}
-
 				{items.length > 0 && (
 					<div className="flex flex-wrap items-center gap-3">
 						<Input
@@ -978,7 +959,7 @@ export default function MarketplacesPage() {
 								<div className="text-right">Linked</div>
 								<div className="text-right">Acts</div>
 								<div className="text-right">Acts · 30d</div>
-								<div>Status</div>
+								<div className="text-right">Status</div>
 								<div />
 							</div>
 
@@ -992,20 +973,26 @@ export default function MarketplacesPage() {
 
 							{filteredItems.map((mp) => {
 								const isHighlighted = highlightName === mp.name;
+								const mpSources = sourcesByMarketplace.get(mp.name) ?? [];
+								const hasGit = mpSources.length > 0;
+								const anyEnabled = mpSources.some((s) => s.enabled);
+								const anySyncing = mpSources.some((s) => syncingSourceIds.has(s.id));
+								const anyResuming = mpSources.some((s) => resumingSourceIds.has(s.id));
+								const errorSource = mpSources.find((s) => s.lastSyncError !== null);
 								return (
 									<div
 										key={mp.name}
 										ref={isHighlighted ? highlightedRowRef : undefined}
 										className={cn(
-											"grid items-center gap-3 border-t border-edge-dim px-4 py-3.5 transition-colors first:border-t-0 hover:bg-accent-bright/[0.03]",
+											"grid items-start gap-3 border-t border-edge-dim px-4 py-3.5 transition-colors first:border-t-0 hover:bg-accent-bright/[0.03]",
 											isHighlighted &&
 												"bg-accent-bright/[0.06] ring-1 ring-inset ring-accent-bright/40",
 											MP_GRID_COLS,
 										)}
 									>
-										<div className="flex min-w-0 items-center gap-3">
+										<div className="flex min-w-0 items-start gap-3">
 											<MarketplaceLogo name={mp.name} size="lg" />
-											<div className="min-w-0">
+											<div className="min-w-0 flex-1">
 												<div className="flex min-w-0 items-center gap-2">
 													<button
 														type="button"
@@ -1015,18 +1002,6 @@ export default function MarketplacesPage() {
 													>
 														{mp.name}
 													</button>
-													{mp.url && (
-														<a
-															href={mp.url}
-															target="_blank"
-															rel="noreferrer"
-															title={mp.url}
-															className="inline-flex max-w-[200px] shrink-0 items-center gap-1 overflow-hidden rounded border border-accent-2/30 bg-accent-2/[0.06] px-1.5 py-[1px] font-mono text-[10px] text-accent-2-soft hover:bg-accent-2/[0.12] hover:text-accent-2"
-														>
-															<ExternalLink className="h-2.5 w-2.5 shrink-0" aria-hidden="true" />
-															<span className="truncate">{hostnameFromUrl(mp.url)}</span>
-														</a>
-													)}
 												</div>
 												{mp.description && (
 													<div
@@ -1035,6 +1010,30 @@ export default function MarketplacesPage() {
 													>
 														{mp.description}
 													</div>
+												)}
+												{hasGit ? (
+													<div className="mt-2 flex flex-col gap-1.5">
+														{mpSources.map((source) => (
+															<MarketplaceGitSourceLine
+																key={source.id}
+																source={source}
+																syncing={syncingSourceIds.has(source.id)}
+															/>
+														))}
+													</div>
+												) : (
+													<button
+														type="button"
+														onClick={() => openCreateSource(mp.name)}
+														className="mt-2 inline-flex w-fit max-w-full items-center gap-1.5 rounded-md border border-dashed border-edge bg-transparent px-2 py-[3px] font-mono text-[11px] text-text-4 transition-colors hover:border-accent-bright/40 hover:bg-accent-bright/[0.04] hover:text-text-2"
+														title="Connect a git repository to this marketplace"
+													>
+														<Link2Off className="h-3 w-3" aria-hidden="true" />
+														<span>Not connected to a repo</span>
+														<span className="ml-1 inline-flex items-center rounded border border-accent-bright/35 bg-accent-bright/[0.18] px-1.5 py-px text-[10px] text-accent-bright">
+															Connect repo
+														</span>
+													</button>
 												)}
 											</div>
 										</div>
@@ -1094,7 +1093,7 @@ export default function MarketplacesPage() {
 										<MarketplaceNumCell value={mp.totalActivationCount} />
 										<MarketplaceNumCell value={mp.activationCount} />
 
-										<div>
+										<div className="flex justify-end pt-0.5">
 											<StatusChip
 												value={mp.status}
 												options={MARKETPLACE_STATUS_CHIP_OPTIONS}
@@ -1103,7 +1102,38 @@ export default function MarketplacesPage() {
 											/>
 										</div>
 
-										<div className="flex items-center justify-end gap-1">
+										<div className="flex items-center justify-end gap-1 pt-0.5">
+											{hasGit && (anyEnabled ? (
+												<button
+													type="button"
+													aria-label={`Sync ${mp.name}`}
+													title={anySyncing ? "Syncing…" : "Sync now"}
+													disabled={anySyncing}
+													onClick={() => handleSyncMarketplace(mpSources)}
+													className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-transparent text-text-3 transition-colors hover:border-accent-bright/40 hover:bg-accent-bright/[0.08] hover:text-accent-bright disabled:cursor-not-allowed disabled:opacity-60"
+												>
+													{anySyncing ? (
+														<Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+													) : (
+														<RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
+													)}
+												</button>
+											) : (
+												<button
+													type="button"
+													aria-label={`Resume sync for ${mp.name}`}
+													title={anyResuming ? "Resuming…" : "Resume sync"}
+													disabled={anyResuming}
+													onClick={() => handleResumeMarketplace(mpSources)}
+													className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-success/30 bg-success/10 text-success transition-colors hover:bg-success/20 disabled:cursor-not-allowed disabled:opacity-60"
+												>
+													{anyResuming ? (
+														<Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+													) : (
+														<Play className="h-3.5 w-3.5" aria-hidden="true" />
+													)}
+												</button>
+											))}
 											<button
 												type="button"
 												aria-label={`Edit ${mp.name}`}
@@ -1123,6 +1153,11 @@ export default function MarketplacesPage() {
 												<Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
 											</button>
 										</div>
+										{errorSource?.lastSyncError && (
+											<div className="col-span-full -mx-4 -mb-3.5 pb-3 pt-1">
+												<SourceErrorBanner message={errorSource.lastSyncError} />
+											</div>
+										)}
 									</div>
 								);
 							})}

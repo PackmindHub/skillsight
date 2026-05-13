@@ -82,3 +82,28 @@ export function formatRelativeTime(iso: string, now: Date = new Date()): string 
 
 	return formatDateTime(iso);
 }
+
+// Compact "Nm ago / Nh ago / Nd ago" — for inline status lines where the
+// long-form `formatRelativeTime` would dominate the row.
+export function formatRelativeShort(iso: string, now: Date = new Date()): string {
+	const diffSec = Math.round((now.getTime() - new Date(iso).getTime()) / 1000);
+	if (diffSec < 60) return "just now";
+	const min = Math.round(diffSec / 60);
+	if (min < 60) return `${min}m ago`;
+	const hr = Math.round(min / 60);
+	if (hr < 24) return `${hr}h ago`;
+	const day = Math.round(hr / 24);
+	if (day < 30) return `${day}d ago`;
+	const mo = Math.round(day / 30);
+	return `${mo}mo ago`;
+}
+
+// Extract "owner/repo" from any common git URL form. Returns the trimmed URL
+// if no recognizable host prefix can be peeled off.
+export function repoSlugFromGitUrl(url: string): string {
+	return url
+		.replace(/^https?:\/\/[^/]+\//, "")
+		.replace(/^git@[^:]+:/, "")
+		.replace(/\.git$/, "")
+		.replace(/\/$/, "");
+}

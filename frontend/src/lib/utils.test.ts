@@ -4,7 +4,9 @@ import {
 	computeDeltaPct,
 	formatDate,
 	formatDateTime,
+	formatRelativeShort,
 	isCurrentUtcMonth,
+	repoSlugFromGitUrl,
 	sumKnownTriggers,
 } from "./utils";
 
@@ -91,6 +93,38 @@ describe("isCurrentUtcMonth", () => {
 		const now = new Date(Date.UTC(2026, 0, 5)); // January
 		expect(isCurrentUtcMonth("2026-01-01", now)).toBe(true);
 		expect(isCurrentUtcMonth("2026-11-01", now)).toBe(false);
+	});
+});
+
+describe("formatRelativeShort", () => {
+	const now = new Date("2026-05-13T12:00:00.000Z");
+
+	it("returns 'just now' under a minute", () => {
+		expect(formatRelativeShort("2026-05-13T11:59:30.000Z", now)).toBe("just now");
+	});
+
+	it("formats minutes / hours / days / months compactly", () => {
+		expect(formatRelativeShort("2026-05-13T11:55:00.000Z", now)).toBe("5m ago");
+		expect(formatRelativeShort("2026-05-13T09:00:00.000Z", now)).toBe("3h ago");
+		expect(formatRelativeShort("2026-05-10T12:00:00.000Z", now)).toBe("3d ago");
+		expect(formatRelativeShort("2026-02-13T12:00:00.000Z", now)).toBe("3mo ago");
+	});
+});
+
+describe("repoSlugFromGitUrl", () => {
+	it("strips https origins", () => {
+		expect(repoSlugFromGitUrl("https://github.com/anthropics/skills")).toBe("anthropics/skills");
+		expect(repoSlugFromGitUrl("https://github.com/anthropics/skills.git")).toBe(
+			"anthropics/skills",
+		);
+	});
+
+	it("strips git@ ssh form", () => {
+		expect(repoSlugFromGitUrl("git@github.com:anthropics/skills.git")).toBe("anthropics/skills");
+	});
+
+	it("returns the input untouched when no prefix matches", () => {
+		expect(repoSlugFromGitUrl("owner/repo")).toBe("owner/repo");
 	});
 });
 

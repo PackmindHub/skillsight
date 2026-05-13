@@ -61,6 +61,65 @@ function buildHeaders(host: string, accessToken?: string): Record<string, string
 	return headers;
 }
 
+// Builds a human-readable diagnostic from a failed git-provider fetch. We swallow
+// body/header parse errors silently — we are *already* throwing, and a malformed
+// response body must not mask the original HTTP status the caller cares about.
+async function describeFetchFailure(
+	res: Response,
+	context: { what: string; hadToken: boolean; url: string },
+): Promise<string> {
+	const status = res.status;
+	let providerMessage: string | null = null;
+	try {
+		const text = await res.text();
+		if (text) {
+			try {
+				const parsed = JSON.parse(text) as unknown;
+				if (parsed && typeof parsed === "object") {
+					const obj = parsed as Record<string, unknown>;
+					const candidate =
+						(typeof obj.message === "string" && obj.message) ||
+						(typeof obj.error === "string" && obj.error) ||
+						(typeof obj.error_description === "string" && obj.error_description) ||
+						null;
+					if (candidate) providerMessage = candidate;
+				}
+			} catch {
+				const trimmed = text.trim();
+				if (trimmed && trimmed.length < 200) providerMessage = trimmed;
+			}
+		}
+	} catch {}
+
+	const remaining = res.headers.get("x-ratelimit-remaining");
+	const reset = res.headers.get("x-ratelimit-reset");
+	const isRateLimited = status === 403 && remaining === "0";
+
+	const parts: string[] = [`HTTP ${status} ${context.what}`];
+	parts.push(`URL: ${context.url}`);
+	if (providerMessage) parts.push(`Response: ${providerMessage}`);
+	if (isRateLimited) {
+		const resetAt = reset ? new Date(Number(reset) * 1000) : null;
+		const when = resetAt ? ` (resets at ${resetAt.toISOString()})` : "";
+		parts.push(
+			context.hadToken
+				? `Rate limit reached for the configured access token${when}. Wait for the window to reset or rotate the token.`
+				: `Anonymous rate limit reached${when}. GitHub allows only 60 requests/hour without authentication — add an access token in the source's Edit panel to raise the limit to 5000/hour.`,
+		);
+	} else if (status === 401 || status === 403) {
+		parts.push(
+			context.hadToken
+				? "Access denied for the configured token. Verify it has not expired and that its scopes allow reading this repository (GitHub: 'public_repo' for public repos, 'repo' for private; GitLab: 'read_api')."
+				: "No access token configured. If the repository is private, add a personal access token in the source's Edit panel. If it is public, GitHub may be rate-limiting anonymous requests — adding a token also raises the rate-limit ceiling.",
+		);
+	} else if (status === 404) {
+		parts.push(
+			"The path may not exist on this branch, or the repository is private and the configured credentials cannot see it.",
+		);
+	}
+	return parts.join("\n");
+}
+
 function isLocalPlugin(source: unknown): source is string {
 	if (typeof source !== "string") return false;
 	if (source.startsWith("http") || source.startsWith("git@")) return false;
@@ -137,12 +196,8 @@ async function fetchPluginSkills(params: {
 	const { host, owner, repo, pluginPath, branch, accessToken } = params;
 	const headers = buildHeaders(host, accessToken);
 	const subPath = pluginPath ? `${pluginPath}/skills` : "skills";
-
-	const fail = (status: number) => {
-		throw new Error(
-			`HTTP ${status} fetching skills for ${owner}/${repo}/${subPath} at ${branch}`,
-		);
-	};
+	const what = `fetching skills for ${owner}/${repo}/${subPath} at ${branch}`;
+	const hadToken = !!accessToken;
 
 	if (host === "github") {
 		const url = `https://api.github.com/repos/${owner}/${repo}/contents/${subPath}?ref=${encodeURIComponent(branch)}`;
@@ -155,7 +210,7 @@ async function fetchPluginSkills(params: {
 			signal: AbortSignal.timeout(10_000),
 		});
 		if (res.status === 404) return [];
-		if (!res.ok) fail(res.status);
+		if (!res.ok) throw new Error(await describeFetchFailure(res, { what, hadToken, url }));
 		const items = (await res.json()) as Array<{ type: string; name: string }>;
 		return items.filter((i) => i.type === "dir").map((i) => i.name);
 	}
@@ -165,7 +220,7 @@ async function fetchPluginSkills(params: {
 		const url = `https://gitlab.com/api/v4/projects/${encoded}/repository/tree?path=${path}&ref=${encodeURIComponent(branch)}`;
 		const res = await fetch(url, { headers, signal: AbortSignal.timeout(10_000) });
 		if (res.status === 404) return [];
-		if (!res.ok) fail(res.status);
+		if (!res.ok) throw new Error(await describeFetchFailure(res, { what, hadToken, url }));
 		const items = (await res.json()) as Array<{ type: string; name: string }>;
 		return items.filter((i) => i.type === "tree").map((i) => i.name);
 	}
@@ -173,7 +228,7 @@ async function fetchPluginSkills(params: {
 		const url = `https://api.bitbucket.org/2.0/repositories/${owner}/${repo}/src/${encodeURIComponent(branch)}/${subPath}/`;
 		const res = await fetch(url, { headers, signal: AbortSignal.timeout(10_000) });
 		if (res.status === 404) return [];
-		if (!res.ok) fail(res.status);
+		if (!res.ok) throw new Error(await describeFetchFailure(res, { what, hadToken, url }));
 		const data = (await res.json()) as { values?: Array<{ type: string; path: string }> };
 		return (data.values ?? [])
 			.filter((i) => i.type === "commit_directory")
@@ -195,14 +250,14 @@ export class GitMarketplaceHttpGateway implements IGitMarketplaceGateway {
 
 		const res = await fetch(url, { headers, signal: AbortSignal.timeout(15_000) });
 
-		if (res.status === 401 || res.status === 403) {
-			throw new Error(`Authentication failed (HTTP ${res.status}). Check the access token.`);
-		}
-		if (res.status === 404) {
-			throw new Error(`marketplace.json not found (HTTP 404). Check the git URL and branch ("${branch}").`);
-		}
 		if (!res.ok) {
-			throw new Error(`HTTP ${res.status} fetching marketplace.json from ${url}`);
+			throw new Error(
+				await describeFetchFailure(res, {
+					what: `fetching marketplace.json (branch "${branch}")`,
+					hadToken: !!params.accessToken,
+					url,
+				}),
+			);
 		}
 
 		let data: unknown;

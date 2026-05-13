@@ -3,16 +3,22 @@ import { GitMarketplaceHttpGateway } from "./git-marketplace-http-gateway";
 
 type FetchCall = { url: string; init?: RequestInit };
 
-type Responder = (call: FetchCall) => { status?: number; body?: unknown } | Promise<{ status?: number; body?: unknown }>;
+type ResponderResult = {
+	status?: number;
+	body?: unknown;
+	headers?: Record<string, string>;
+};
+
+type Responder = (call: FetchCall) => ResponderResult | Promise<ResponderResult>;
 
 const realFetch = globalThis.fetch;
 let calls: FetchCall[] = [];
 let responder: Responder = () => ({ status: 404 });
 
-function jsonResponse(status: number, body: unknown): Response {
+function jsonResponse(status: number, body: unknown, extraHeaders?: Record<string, string>): Response {
 	return new Response(JSON.stringify(body), {
 		status,
-		headers: { "content-type": "application/json" },
+		headers: { "content-type": "application/json", ...(extraHeaders ?? {}) },
 	});
 }
 
@@ -23,7 +29,7 @@ beforeEach(() => {
 		const url = typeof input === "string" ? input : input.toString();
 		calls.push({ url, init });
 		const result = await responder({ url, init });
-		return jsonResponse(result.status ?? 200, result.body ?? {});
+		return jsonResponse(result.status ?? 200, result.body ?? {}, result.headers);
 	}) as typeof fetch;
 });
 
@@ -364,6 +370,68 @@ describe("GitMarketplaceHttpGateway.fetchMarketplaceJson", () => {
 			new GitMarketplaceHttpGateway().fetchMarketplaceJson({
 				gitUrl: "https://github.com/acme/marketplace",
 			}),
-		).rejects.toThrow(/marketplace\.json not found/);
+		).rejects.toThrow(/HTTP 404 fetching marketplace\.json/);
+	});
+
+	test("403 anonymous rate-limit surfaces provider message, reset time, and a token hint", async () => {
+		responder = ({ url }) => {
+			if (url.includes("raw.githubusercontent.com")) {
+				return {
+					body: {
+						name: "acme",
+						plugins: [{ name: "plugin-a", source: "./plugins/a" }],
+					},
+				};
+			}
+			return {
+				status: 403,
+				body: { message: "API rate limit exceeded for 1.2.3.4." },
+				headers: {
+					"x-ratelimit-remaining": "0",
+					"x-ratelimit-reset": "1700000000",
+				},
+			};
+		};
+		await expect(
+			new GitMarketplaceHttpGateway().fetchMarketplaceJson({
+				gitUrl: "https://github.com/acme/marketplace",
+			}),
+		).rejects.toMatchObject({
+			message: expect.stringContaining("Anonymous rate limit reached"),
+		});
+		// The provider's body message and the upstream URL must also appear so an
+		// operator can debug without needing server logs.
+		const err = await new GitMarketplaceHttpGateway()
+			.fetchMarketplaceJson({ gitUrl: "https://github.com/acme/marketplace" })
+			.catch((e) => e as Error);
+		expect(err.message).toContain("API rate limit exceeded");
+		expect(err.message).toContain("api.github.com/repos/acme/marketplace/contents/plugins/a/skills");
+		expect(err.message).toContain("1700000000" /* reset time gets formatted as ISO */ ? "resets at" : "");
+	});
+
+	test("403 with a configured token tells the operator to check token scopes (not anonymous-limit copy)", async () => {
+		responder = ({ url }) => {
+			if (url.includes("raw.githubusercontent.com")) {
+				return {
+					body: {
+						name: "acme",
+						plugins: [{ name: "plugin-a", source: "./plugins/a" }],
+					},
+				};
+			}
+			return {
+				status: 403,
+				body: { message: "Resource not accessible by personal access token" },
+			};
+		};
+		const err = await new GitMarketplaceHttpGateway()
+			.fetchMarketplaceJson({
+				gitUrl: "https://github.com/acme/marketplace",
+				accessToken: "ghp_xxx",
+			})
+			.catch((e) => e as Error);
+		expect(err.message).toContain("Access denied for the configured token");
+		expect(err.message).toContain("Resource not accessible");
+		expect(err.message).not.toContain("Anonymous rate limit");
 	});
 });
