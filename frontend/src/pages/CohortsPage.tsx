@@ -16,7 +16,19 @@ const PERIOD_OPTIONS: Array<{ value: DashboardPeriod; label: string }> = [
   { value: "all", label: "All" },
 ];
 
-const MIN_SKILLS_OPTIONS = [1, 2, 3, 4, 5, 6] as const;
+const MIN_SKILLS_OPTIONS: Array<{ value: number; label: string }> = [
+  { value: 1, label: "≥1" },
+  { value: 2, label: "≥2" },
+  { value: 3, label: "≥3" },
+  { value: 4, label: "≥4" },
+  { value: 5, label: "≥5" },
+  { value: 6, label: "≥6" },
+];
+
+const GROUP_BY_OPTIONS: Array<{ value: GroupBy; label: string }> = [
+  { value: "none", label: "Flat" },
+  { value: "anchor", label: "Grouped" },
+];
 
 export default function CohortsPage() {
   const [period, setPeriod] = useState<DashboardPeriod>("all");
@@ -193,7 +205,7 @@ export default function CohortsPage() {
 
       {error && <p className="text-sm text-danger">{error}</p>}
 
-      <div className="cohort-toolbar">
+      <div className="flex flex-wrap items-center gap-2">
         <div className="max-w-[360px] flex-1">
           <SearchBar
             value={search}
@@ -209,50 +221,60 @@ export default function CohortsPage() {
           onChange={setSkillFilter}
         />
 
-        <div className="cohort-seg">
-          <button
-            type="button"
-            className={cn(groupBy === "none" && "on")}
-            onClick={() => setGroupBy("none")}
-          >
-            Flat
-          </button>
-          <button
-            type="button"
-            className={cn(groupBy === "anchor" && "on")}
-            onClick={() => setGroupBy("anchor")}
-          >
-            Grouped
-          </button>
-        </div>
+        <SegmentedControl<GroupBy>
+          ariaLabel="Group by"
+          value={groupBy}
+          onChange={setGroupBy}
+          options={GROUP_BY_OPTIONS}
+        />
 
-        <div className="cohort-seg" aria-label="Minimum skills">
-          {MIN_SKILLS_OPTIONS.map((n) => (
-            <button
-              key={n}
-              type="button"
-              className={cn(minSkills === n && "on")}
-              onClick={() => setMinSkills(n)}
-              title={`Min ${n} skills`}
-            >
-              ≥{n}
-            </button>
-          ))}
-        </div>
+        <SegmentedControl<number>
+          ariaLabel="Minimum skills"
+          value={minSkills}
+          onChange={setMinSkills}
+          options={MIN_SKILLS_OPTIONS}
+        />
 
         <button
           type="button"
-          className={cn("cohort-solo-toggle", hideSolo && "on")}
+          aria-pressed={hideSolo}
           onClick={() => setHideSolo((v) => !v)}
+          className={cn(
+            "inline-flex h-8 items-center gap-2 rounded-md border border-edge bg-surface-800 px-3 text-sm text-text-1 hover:bg-surface-700 focus:outline-none focus:ring-1 focus:ring-accent-bright",
+            hideSolo && "border-accent-bright/40 bg-accent-bright/5",
+          )}
         >
-          <span className="cohort-solo-tick">{hideSolo ? "✓" : "○"}</span>
+          <span
+            aria-hidden="true"
+            className={cn(
+              "flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-sm border",
+              hideSolo
+                ? "border-accent-bright bg-accent-bright/20"
+                : "border-edge bg-surface-900",
+            )}
+          >
+            {hideSolo && (
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                <title>Hide solo enabled</title>
+                <path
+                  d="M2 5l2 2 4-4"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            )}
+          </span>
           <span>Hide solo</span>
-          <span className="cohort-solo-n">{soloCount}</span>
+          <span className="border-l border-edge-dim pl-2 font-mono text-xs text-text-4 tabular-nums">
+            {soloCount}
+          </span>
         </button>
 
-        <div className="cohort-results-meta">
+        <span className="ml-auto text-xs text-text-4">
           {sorted.length} of {baseCohorts.length} cohorts
-        </div>
+        </span>
       </div>
 
       {loading ? (
