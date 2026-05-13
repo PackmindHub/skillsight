@@ -79,9 +79,15 @@ export async function syncMarketplaceSource(
 				});
 			}
 
+			const presentPluginNames = data.plugins.map((p) => p.name);
 			const removedPluginNames = await deps.plugins.markRemovedByMarketplace(
 				data.name,
-				data.plugins.map((p) => p.name),
+				presentPluginNames,
+			);
+			const reactivatedPluginNames = await deps.plugins.reactivateRemovedByMarketplace(
+				data.name,
+				presentPluginNames,
+				pluginStatus,
 			);
 
 			const allSkills = data.plugins.flatMap((plugin) =>
@@ -95,12 +101,17 @@ export async function syncMarketplaceSource(
 				await deps.skills.upsertMany(allSkills);
 			}
 
-			const activePluginNames = data.plugins.map((p) => p.name);
-			if (activePluginNames.length > 0) {
-				await deps.skills.propagateStatusFromPlugins(activePluginNames, pluginStatus);
+			if (presentPluginNames.length > 0) {
+				await deps.skills.propagateStatusFromPlugins(presentPluginNames, pluginStatus);
 			}
 			if (removedPluginNames.length > 0) {
 				await deps.skills.propagateStatusFromPlugins(removedPluginNames, "removed");
+			}
+
+			if (removedPluginNames.length > 0 || reactivatedPluginNames.length > 0) {
+				console.log(
+					`[marketplace-sync] source ${source.id}: upserted=${pluginCount} removed=${removedPluginNames.length} reactivated=${reactivatedPluginNames.length}`,
+				);
 			}
 		}
 

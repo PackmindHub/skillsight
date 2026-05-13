@@ -326,17 +326,18 @@ export class GitMarketplaceHttpGateway implements IGitMarketplaceGateway {
 			return { name, description, version };
 		});
 
-		// Plugins with no skills carry no observability signal for us, so they
-		// are dropped here. Transient fetch failures already throw out of
-		// fetchPluginSkills (so the sync is marked errored) — by the time we
-		// reach this filter, "no skills" means we confirmed the plugin has none
-		// (404 on /skills) or its source shape isn't introspectable.
-		const plugins = fetchedPlugins.filter((p) => (p.skills?.length ?? 0) > 0);
-
+		// Return every plugin from marketplace.json, including ones with `skills: []`.
+		// We used to filter those out here, but the downstream sync use case then treated
+		// the filtered list as the ground truth for `markRemovedByMarketplace`, which
+		// silently flipped plugins-without-skills to `status='removed'` even though they
+		// were still listed in marketplace.json. Transient per-plugin fetch errors still
+		// throw out of fetchPluginSkills (so the whole sync is marked errored before we
+		// get here), meaning anything in `fetchedPlugins` reflects what the marketplace
+		// actually publishes.
 		return {
 			name: obj.name,
 			description: typeof obj.description === "string" ? obj.description : undefined,
-			plugins,
+			plugins: fetchedPlugins,
 		};
 	}
 }

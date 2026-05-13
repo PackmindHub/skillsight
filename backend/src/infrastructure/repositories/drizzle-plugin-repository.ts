@@ -1,4 +1,4 @@
-import { and, eq, notInArray, sql } from "drizzle-orm";
+import { and, eq, inArray, notInArray, sql } from "drizzle-orm";
 import type { AppDb } from "@/db/client";
 import { plugins } from "@/db/schema";
 import { EVENT_NAMES } from "@/domain/event";
@@ -228,6 +228,31 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			.update(plugins)
 			.set({ status: "removed" })
 			.where(where)
+			.returning({ pluginName: plugins.pluginName });
+		return updated.map((row) => row.pluginName);
+	}
+
+	// Carve-out to the "upsert never clobbers status" rule (see upsert() above):
+	// when a plugin sits at status='removed' but the latest marketplace sync sees it
+	// listed again, flip it back to the marketplace-computed status. This only
+	// touches `removed` rows (a sync-driven state per the upsert comment), so manual
+	// admin overrides to other statuses (approved, to_review) are preserved.
+	async reactivateRemovedByMarketplace(
+		marketplaceName: string,
+		presentPluginNames: string[],
+		newStatus: PluginStatus,
+	): Promise<string[]> {
+		if (presentPluginNames.length === 0) return [];
+		const updated = await this.db
+			.update(plugins)
+			.set({ status: newStatus })
+			.where(
+				and(
+					eq(plugins.marketplaceName, marketplaceName),
+					eq(plugins.status, "removed"),
+					inArray(plugins.pluginName, presentPluginNames),
+				),
+			)
 			.returning({ pluginName: plugins.pluginName });
 		return updated.map((row) => row.pluginName);
 	}
