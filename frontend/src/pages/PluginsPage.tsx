@@ -48,6 +48,29 @@ const STATUS_FILTER_OPTIONS: {
 const PL_GRID_COLS =
 	"grid-cols-[40px_minmax(220px,1.6fr)_minmax(150px,1.1fr)_72px_104px_80px_72px_136px]";
 
+type PluginSortKey =
+	| "pluginName"
+	| "marketplace"
+	| "skillCount"
+	| "skillActivationCount"
+	| "installationCount"
+	| "uniqueUserCount"
+	| "status";
+
+type SortDir = "asc" | "desc";
+
+const PLUGIN_SORT_KEYS: readonly PluginSortKey[] = [
+	"pluginName",
+	"marketplace",
+	"skillCount",
+	"skillActivationCount",
+	"installationCount",
+	"uniqueUserCount",
+	"status",
+];
+
+const DEFAULT_SORT_KEY: PluginSortKey = "installationCount";
+
 const LOGO_GRADIENTS = [
 	"linear-gradient(135deg, var(--color-accent-bright), color-mix(in srgb, var(--color-accent-bright) 50%, var(--color-surface-700)))",
 	"linear-gradient(135deg, var(--color-accent-2), color-mix(in srgb, var(--color-accent-2) 50%, var(--color-surface-700)))",
@@ -157,6 +180,11 @@ export default function PluginsPage() {
 		marketplaceFilterValues,
 	);
 
+	const sortParam = searchParams.get("sort") as PluginSortKey | null;
+	const sortKey: PluginSortKey =
+		sortParam && PLUGIN_SORT_KEYS.includes(sortParam) ? sortParam : DEFAULT_SORT_KEY;
+	const sortDir: SortDir = searchParams.get("dir") === "asc" ? "asc" : "desc";
+
 	function updateSearch(value: string) {
 		setSearchParams(
 			(prev) => {
@@ -175,6 +203,28 @@ export default function PluginsPage() {
 				const next = new URLSearchParams(prev);
 				if (values.length === 0) next.delete("marketplace");
 				else next.set("marketplace", values.join(","));
+				return next;
+			},
+			{ replace: true },
+		);
+	}
+
+	function toggleSort(key: PluginSortKey) {
+		setSearchParams(
+			(prev) => {
+				const next = new URLSearchParams(prev);
+				if (sortKey === key) {
+					if (sortDir === "desc") {
+						next.set("sort", key);
+						next.set("dir", "asc");
+					} else {
+						next.delete("sort");
+						next.delete("dir");
+					}
+				} else {
+					next.set("sort", key);
+					next.delete("dir");
+				}
 				return next;
 			},
 			{ replace: true },
@@ -245,7 +295,35 @@ export default function PluginsPage() {
 		});
 	}, [items, statusFilter, search, marketplaces]);
 
-	const filteredNames = useMemo(() => filteredItems.map((p) => p.pluginName), [filteredItems]);
+	const sortedItems = useMemo(() => {
+		const arr = [...filteredItems];
+		const dir = sortDir === "asc" ? 1 : -1;
+		arr.sort((a, b) => {
+			let cmp = 0;
+			switch (sortKey) {
+				case "pluginName":
+					cmp = a.pluginName.localeCompare(b.pluginName);
+					break;
+				case "marketplace":
+					cmp = (a.marketplaceName ?? "").localeCompare(b.marketplaceName ?? "");
+					break;
+				case "status":
+					cmp = (a.status ?? "to_review").localeCompare(b.status ?? "to_review");
+					break;
+				case "skillCount":
+				case "skillActivationCount":
+				case "installationCount":
+				case "uniqueUserCount":
+					cmp = (a[sortKey] ?? 0) - (b[sortKey] ?? 0);
+					break;
+			}
+			if (cmp === 0) cmp = a.pluginName.localeCompare(b.pluginName);
+			return cmp * dir;
+		});
+		return arr;
+	}, [filteredItems, sortKey, sortDir]);
+
+	const filteredNames = useMemo(() => sortedItems.map((p) => p.pluginName), [sortedItems]);
 	const visibleSelectedCount = useMemo(
 		() => filteredNames.reduce((n, name) => n + (selected.has(name) ? 1 : 0), 0),
 		[filteredNames, selected],
@@ -473,7 +551,7 @@ export default function PluginsPage() {
 							</span>
 						)}
 						<span className="ml-auto font-mono text-xs text-text-4">
-							{filteredItems.length}{" "}
+							{sortedItems.length}{" "}
 							<span className="text-text-4">/ {items.length}</span>
 						</span>
 					</div>
@@ -564,26 +642,72 @@ export default function PluginsPage() {
 										}
 										checked={allVisibleSelected}
 										onChange={toggleSelectAll}
-										disabled={filteredItems.length === 0}
+										disabled={sortedItems.length === 0}
 										className="h-4 w-4 cursor-pointer accent-accent-bright disabled:cursor-not-allowed disabled:opacity-40"
 									/>
 								</div>
-								<div>Plugin</div>
-								<div>Marketplace</div>
-								<div className="text-right">Skills</div>
-								<div className="text-right">Activations</div>
-								<div className="text-right">Installs</div>
-								<div className="text-right">Users</div>
-								<div>Status</div>
+								<SortableHeaderCell
+									label="Plugin"
+									sortKey="pluginName"
+									currentKey={sortKey}
+									currentDir={sortDir}
+									onSort={toggleSort}
+								/>
+								<SortableHeaderCell
+									label="Marketplace"
+									sortKey="marketplace"
+									currentKey={sortKey}
+									currentDir={sortDir}
+									onSort={toggleSort}
+								/>
+								<SortableHeaderCell
+									label="Skills"
+									sortKey="skillCount"
+									currentKey={sortKey}
+									currentDir={sortDir}
+									onSort={toggleSort}
+									align="right"
+								/>
+								<SortableHeaderCell
+									label="Activations"
+									sortKey="skillActivationCount"
+									currentKey={sortKey}
+									currentDir={sortDir}
+									onSort={toggleSort}
+									align="right"
+								/>
+								<SortableHeaderCell
+									label="Installs"
+									sortKey="installationCount"
+									currentKey={sortKey}
+									currentDir={sortDir}
+									onSort={toggleSort}
+									align="right"
+								/>
+								<SortableHeaderCell
+									label="Users"
+									sortKey="uniqueUserCount"
+									currentKey={sortKey}
+									currentDir={sortDir}
+									onSort={toggleSort}
+									align="right"
+								/>
+								<SortableHeaderCell
+									label="Status"
+									sortKey="status"
+									currentKey={sortKey}
+									currentDir={sortDir}
+									onSort={toggleSort}
+								/>
 							</div>
 
-							{filteredItems.length === 0 && (
+							{sortedItems.length === 0 && (
 								<div className="px-7 py-7 text-center font-mono text-xs text-text-4">
 									No plugins match the current filters.
 								</div>
 							)}
 
-							{filteredItems.map((plugin) => {
+							{sortedItems.map((plugin) => {
 								const status = (plugin.status ?? "to_review") as PluginStatus;
 								const isHighlighted = highlightName === plugin.pluginName;
 								const isSelected = selected.has(plugin.pluginName);
@@ -697,6 +821,41 @@ export default function PluginsPage() {
 				pluginName={selectedPlugin}
 				onClose={() => setSelectedPlugin(null)}
 			/>
+		</div>
+	);
+}
+
+function SortableHeaderCell({
+	label,
+	sortKey,
+	currentKey,
+	currentDir,
+	onSort,
+	align = "left",
+}: {
+	label: string;
+	sortKey: PluginSortKey;
+	currentKey: PluginSortKey;
+	currentDir: SortDir;
+	onSort: (k: PluginSortKey) => void;
+	align?: "left" | "right";
+}) {
+	const active = sortKey === currentKey;
+	return (
+		<div className={cn(align === "right" && "text-right")}>
+			<button
+				type="button"
+				onClick={() => onSort(sortKey)}
+				className={cn(
+					"inline-flex items-center gap-1 uppercase tracking-wider transition-colors hover:text-text-1",
+					active && "text-text-1",
+				)}
+			>
+				{label}
+				<span aria-hidden="true" className="text-[10px]">
+					{active ? (currentDir === "asc" ? "▲" : "▼") : "↕"}
+				</span>
+			</button>
 		</div>
 	);
 }
