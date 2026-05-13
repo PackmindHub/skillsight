@@ -2,7 +2,7 @@
 
 **A self-hosted dashboard for understanding how your team uses Claude Code skills.**
 
-*[Screenshot: Dashboard hero — top movers and weekly trend]*
+![Dashboard](res/dashboard.png)
 
 Skillsight is small, open-source, and runs entirely on your own infrastructure with one `docker compose up`. No SaaS, no outbound telemetry — Claude Code activity stays on your servers, period.
 
@@ -54,7 +54,7 @@ The two layers are complementary: Claude Code decides *what is allowed*; Skillsi
 
 ## What you get
 
-*[Screenshot: Skills table with status badges and last-used column]*
+![Skills](res/skills.png)
 
 - **Dashboard** — top-moving skills, week-over-week trends, activation counts split by trigger (user slash, Claude-proactive, nested).
 - **Skills** — every skill ever activated, with status (`to_review` / `approved` / `removed`), last-used timestamp, drill-down for triggers and users.
@@ -66,7 +66,7 @@ The two layers are complementary: Claude Code decides *what is allowed*; Skillsi
 
 ## The Skills / Plugins / Marketplaces model
 
-*[Screenshot: Marketplace detail showing nested plugins and skills]*
+![Marketplaces](res/marketplaces.png)
 
 The relationships are loose on purpose, because Claude Code is loose about them:
 
@@ -125,6 +125,8 @@ Every variable below has a sensible default baked into `docker-compose.yml`. Ove
 ## Connecting Claude Code
 
 *[Screenshot: Onboarding page showing the auto-generated env block]*
+
+The variables below are Claude Code's standard OpenTelemetry monitoring settings — see the [official monitoring docs](https://code.claude.com/docs/en/monitoring-usage) for the full reference.
 
 Point Claude Code at Skillsight's OTLP endpoint:
 
