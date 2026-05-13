@@ -4,7 +4,8 @@ const schema = z.object({
 	DATABASE_URL: z.string().url(),
 	JWT_SECRET: z.string().min(32),
 	JWT_SECRET_PREVIOUS: z.string().optional(),
-	PUBLIC_BASE_URL: z.string().url().optional(),
+	PUBLIC_BASE_URL: z
+		.preprocess((v) => (v === "" ? undefined : v), z.string().url().optional()),
 	ADMIN_EMAIL: z.string().email(),
 	ADMIN_PASSWORD_INITIAL: z.string().min(1),
 	PORT: z.coerce.number().optional().default(4200),
