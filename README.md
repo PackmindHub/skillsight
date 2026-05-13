@@ -4,12 +4,11 @@
 
 ![Dashboard](res/dashboard.png)
 
-Skillsight is small, open-source, and runs entirely on your own infrastructure with one `docker compose up`. No SaaS, no outbound telemetry — Claude Code activity stays on your servers, period.
-
 ## Table of contents
 
-- [What it does](#what-it-does)
-- [Why Skillsight exists](#why-skillsight-exists)
+- [The problem](#the-problem)
+- [How Skillsight solves it](#how-skillsight-solves-it)
+- [Who it's for](#who-its-for)
 - [What you get](#what-you-get)
 - [The Skills / Plugins / Marketplaces model](#the-skills--plugins--marketplaces-model)
 - [Use cases](#use-cases)
@@ -17,40 +16,41 @@ Skillsight is small, open-source, and runs entirely on your own infrastructure w
 - [Connecting Claude Code](#connecting-claude-code)
 - [Ingesting from Loki instead](#ingesting-from-loki-instead)
 - [Marketplace sources](#marketplace-sources)
+- [How this relates to Claude Code's native controls](#how-this-relates-to-claude-codes-native-controls)
 - [Contributing](#contributing)
 - [Roadmap](#roadmap)
 - [Architecture](#architecture)
 
-## What it does
+## The problem
 
-Skillsight does **three** things:
+You've rolled Claude Code out across your org. You've published an internal marketplace with curated skills, plugins, and agents. Now you're flying blind:
+
+- Which skills are developers **actually activating** — and which are gathering dust?
+- Is anyone using the security-review skill you spent two weeks polishing?
+- Which third-party plugins did your team install on their own, and should you officially adopt them or steer the team elsewhere?
+- When you deprecate a skill, who needs a heads-up?
+
+Claude Code emits an OpenTelemetry event for every skill activation, but it ships **no dashboard for the team rolling skills out**. Generic observability stacks (Grafana, Datadog, …) ingest those events fine — but they don't understand the **skill → plugin → marketplace** model, so turning raw logs into a curated catalog is painful, manual work.
+
+## How Skillsight solves it
+
+Skillsight is the missing thin layer. It does **three** things:
 
 1. **Collects** Claude Code skill-activation events — directly via OTLP, or pulled from an existing Loki stack.
 2. **Correlates** them against your plugins and marketplaces (including private, git-backed ones).
-3. **Shows you** which skills, plugins, and marketplaces are actually being used.
+3. **Shows you** which skills, plugins, and marketplaces are actually being used — and lets you triage them (`to_review` → `approved` / `removed`).
 
-That's it. No agents, no auto-remediation, no LLM-on-top — a clean, focused view of skill usage with the right relationships to make sense of it.
+No agents, no auto-remediation, no LLM-on-top. Just a clean, focused view of skill usage with the right relationships to make sense of it.
 
-## Why Skillsight exists
+**Self-hosted, by design.** One `docker compose up` and you're running. No SaaS, no outbound telemetry — Claude Code activity stays on your servers, period.
 
-Claude Code emits OpenTelemetry events for every skill activation, but it ships no dashboard for the team rolling skills out. Generic observability stacks (Grafana, Datadog, …) accept the events fine, but they don't understand the **skill / plugin / marketplace** model — so curating an internal skills catalog from raw logs is painful.
+## Who it's for
 
-Skillsight is the missing thin layer: small enough to deploy in an afternoon, opinionated enough to be useful out of the box.
+- **Developer-experience teams** rolling Claude Code out internally.
+- **AI-enablement teams** curating an internal skills/plugins marketplace.
+- **Platform engineering** measuring the ROI of skills they build or import.
 
-### How this relates to Claude Code's native controls
-
-Claude Code Enterprise/Team already lets an organization admin register marketplaces centrally and govern each plugin with one of four statuses:
-
-- `available` — installable on demand
-- `pre-installed` — installed by default for everyone
-- `required` — must be installed (cannot be removed)
-- `hidden` — not surfaced in the catalog
-
-Skillsight does **not** replace, mirror, or write to those controls. It works the other way around: it watches what your developers actually activate and gives you a curation view on top of that signal. Its own statuses (`to_review` / `approved` / `removed`) are just labels inside Skillsight to organize the review queue — they never reach a developer's machine.
-
-The two layers are complementary: Claude Code decides *what is allowed*; Skillsight tells you *what is actually used*, so the decisions in the first layer can be grounded in field data instead of intuition.
-
-**Who it's for:** developer-experience teams, AI-enablement teams, and anyone curating a skills marketplace for an organization. It's built to support adoption and curation, not to surveil developers.
+Built to support **adoption and curation**, not to surveil developers.
 
 ## What you get
 
@@ -68,13 +68,18 @@ The two layers are complementary: Claude Code decides *what is allowed*; Skillsi
 
 ![Marketplaces](res/marketplaces.png)
 
-The relationships are loose on purpose, because Claude Code is loose about them:
+Skillsight mirrors Claude Code's own data model. The relationships are intentionally loose, because Claude Code is loose about them:
 
-- A **skill** may belong to a **plugin**, or be standalone — the bundled built-ins aren't owned by any plugin.
-- A **plugin** may belong to a **marketplace**, or be inline / local.
-- **Status flows downward**: marketplace → plugin → skill. Approve a marketplace, and its plugins and skills inherit the approval.
-- **Bundled skills (shipped with Claude Code) auto-display as `approved`** so the built-ins don't sit in your review queue forever.
-- **Status is informational only.** It organizes your view inside Skillsight; it does **not** gate or allow-list anything on the developer's machine.
+- A **marketplace** is a git-backed catalog of plugins (e.g. `your-org/internal-marketplace`).
+- A **plugin** belongs to a marketplace — or is inline / local with no marketplace at all.
+- A **skill** belongs to a plugin — or is standalone (Claude Code's bundled built-ins, for example, aren't owned by any plugin).
+
+Two rules make this practical to curate:
+
+- **Status flows downward**: `marketplace → plugin → skill`. Approve a marketplace, and its plugins and skills inherit the approval.
+- **Bundled skills auto-display as `approved`**, so the built-ins don't sit in your review queue forever.
+
+> **Status is informational only.** It organizes your view inside Skillsight; it does **not** gate or allow-list anything on the developer's machine. See [How this relates to Claude Code's native controls](#how-this-relates-to-claude-codes-native-controls) for the full picture.
 
 ## Use cases
 
@@ -124,7 +129,7 @@ Every variable below has a sensible default baked into `docker-compose.yml`. Ove
 
 ## Connecting Claude Code
 
-*[Screenshot: Onboarding page showing the auto-generated env block]*
+> On first login, Skillsight's onboarding page auto-mints an ingestion token and renders the exact env block below, pre-filled with your hostname and token. You can copy-paste straight from there — the snippets below are for reference.
 
 The variables below are Claude Code's standard OpenTelemetry monitoring settings — see the [official monitoring docs](https://code.claude.com/docs/en/monitoring-usage) for the full reference.
 
@@ -202,6 +207,19 @@ Configurable fields per source:
 - `importPluginsAndSkills` — auto-import discovered plugins and skills.
 
 > Marketplace sources are managed via the API today (`/api/marketplace-sources`); the `Marketplaces` page is a read-only view of the synced results.
+
+## How this relates to Claude Code's native controls
+
+Claude Code Enterprise/Team already lets an organization admin register marketplaces centrally and govern each plugin with one of four statuses:
+
+- `available` — installable on demand
+- `pre-installed` — installed by default for everyone
+- `required` — must be installed (cannot be removed)
+- `hidden` — not surfaced in the catalog
+
+Skillsight does **not** replace, mirror, or write to those controls. It works the other way around: it watches what your developers actually activate and gives you a curation view on top of that signal. Its own statuses (`to_review` / `approved` / `removed`) are just labels inside Skillsight to organize the review queue — they never reach a developer's machine.
+
+The two layers are complementary: Claude Code decides *what is allowed*; Skillsight tells you *what is actually used*, so the decisions in the first layer can be grounded in field data instead of intuition.
 
 ## Contributing
 
