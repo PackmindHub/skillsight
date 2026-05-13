@@ -29,6 +29,7 @@ services:
       NODE_ENV: production
     networks:
       - internal
+      - external
     ports:
       - "${HOST_BIND:-0.0.0.0}:${HOST_PORT:-5173}:4200"
     depends_on:
@@ -40,6 +41,8 @@ networks:
   internal:
     driver: bridge
     internal: true
+  external:
+    driver: bridge
 
 volumes:
   pgdata:
