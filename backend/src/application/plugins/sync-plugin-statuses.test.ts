@@ -73,13 +73,14 @@ describe("syncPluginStatuses", () => {
 		expect(propagateCalls[0].status).toBe("approved");
 	});
 
-	it("propagates 'to_review' when marketplace becomes denied (matches computePluginStatus)", async () => {
-		const { repo: plugins } = makePlugins({ "acme-mp": ["plugin-a"] });
+	it("propagates 'denied' to plugins and skills when marketplace becomes denied", async () => {
+		const { repo: plugins, updateCalls } = makePlugins({ "acme-mp": ["plugin-a"] });
 		const { repo: skills, propagateCalls } = makeSkills();
 
 		await syncPluginStatuses({ plugins, skills, audit: makeAudit() }, "acme-mp", "denied" as MarketplaceStatus);
 
-		expect(propagateCalls[0].status).toBe("to_review");
+		expect(updateCalls[0].status).toBe("denied");
+		expect(propagateCalls[0].status).toBe("denied");
 		expect(propagateCalls[0].pluginNames).toEqual(["plugin-a"]);
 	});
 

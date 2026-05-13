@@ -38,7 +38,7 @@ Skillsight is the missing thin layer. It does **three** things:
 
 1. **Collects** Claude Code skill-activation events — directly via OTLP, or pulled from an existing Loki stack.
 2. **Correlates** them against your plugins and marketplaces (including private, git-backed ones).
-3. **Shows you** which skills, plugins, and marketplaces are actually being used — and lets you triage them (`to_review` → `approved` / `removed`).
+3. **Shows you** which skills, plugins, and marketplaces are actually being used — and lets you triage them (`to_review` → `approved` / `removed` / `denied`).
 
 No agents, no auto-remediation, no LLM-on-top. Just a clean, focused view of skill usage with the right relationships to make sense of it.
 
@@ -57,7 +57,7 @@ Built to support **adoption and curation**, not to surveil developers.
 ![Skills](res/skills.png)
 
 - **Dashboard** — top-moving skills, week-over-week trends, activation counts split by trigger (user slash, Claude-proactive, nested).
-- **Skills** — every skill ever activated, with status (`to_review` / `approved` / `removed`), last-used timestamp, drill-down for triggers and users.
+- **Skills** — every skill ever activated, with status (`to_review` / `approved` / `removed` / `denied`), last-used timestamp, drill-down for triggers and users.
 - **Plugins** — read-only list of plugins that own activated skills.
 - **Marketplaces** — list of marketplaces, synced from git sources or implicit from inline plugins.
 - **Tokens** — manage bearer tokens used for OTLP ingestion.
@@ -76,7 +76,7 @@ Skillsight mirrors Claude Code's own data model. The relationships are intention
 
 Two rules make this practical to curate:
 
-- **Status flows downward**: `marketplace → plugin → skill`. Approve a marketplace, and its plugins and skills inherit the approval.
+- **Status flows downward**: `marketplace → plugin → skill`. Approve a marketplace, and its plugins and skills inherit the approval. The same cascade applies when you mark a marketplace `denied` — its plugins and skills inherit `denied` too.
 - **Bundled skills auto-display as `approved`**, so the built-ins don't sit in your review queue forever.
 
 > **Status is informational only.** It organizes your view inside Skillsight; it does **not** gate or allow-list anything on the developer's machine. See [How this relates to Claude Code's native controls](#how-this-relates-to-claude-codes-native-controls) for the full picture.
@@ -217,7 +217,7 @@ Claude Code Enterprise/Team already lets an organization admin register marketpl
 - `required` — must be installed (cannot be removed)
 - `hidden` — not surfaced in the catalog
 
-Skillsight does **not** replace, mirror, or write to those controls. It works the other way around: it watches what your developers actually activate and gives you a curation view on top of that signal. Its own statuses (`to_review` / `approved` / `removed`) are just labels inside Skillsight to organize the review queue — they never reach a developer's machine.
+Skillsight does **not** replace, mirror, or write to those controls. It works the other way around: it watches what your developers actually activate and gives you a curation view on top of that signal. Its own statuses (`to_review` / `approved` / `removed` / `denied`) are just labels inside Skillsight to organize the review queue — they never reach a developer's machine.
 
 The two layers are complementary: Claude Code decides *what is allowed*; Skillsight tells you *what is actually used*, so the decisions in the first layer can be grounded in field data instead of intuition.
 

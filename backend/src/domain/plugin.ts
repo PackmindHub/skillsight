@@ -1,4 +1,4 @@
-export type PluginStatus = "to_review" | "approved" | "removed" | "ignored";
+export type PluginStatus = "to_review" | "approved" | "removed" | "denied" | "ignored";
 
 export interface Plugin {
 	pluginName: string;
@@ -47,6 +47,7 @@ export function computePluginStatus(
 ): PluginStatus {
 	if (!marketplaceName) return "to_review";
 	if (marketplaceStatus === "ignored") return "ignored";
+	if (marketplaceStatus === "denied") return "denied";
 	if (marketplaceStatus === "approved") return "approved";
 	return "to_review";
 }

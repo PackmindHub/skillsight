@@ -8,7 +8,7 @@ import { sessionAuth } from "@/middleware/session-auth";
 import type { AppVariables } from "@/types";
 
 const updateSchema = z.object({
-	status: z.enum(["to_review", "approved", "removed", "ignored"]).optional(),
+	status: z.enum(["to_review", "approved", "removed", "denied", "ignored"]).optional(),
 });
 
 export function createPluginsRoute(deps: Pick<AppDeps, "plugins" | "skills" | "audit">) {

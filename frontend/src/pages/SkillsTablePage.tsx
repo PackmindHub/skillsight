@@ -43,6 +43,7 @@ const SKILL_STATUS_CHIP_OPTIONS: readonly StatusChipOption<SkillStatus>[] = [
 	{ value: "approved", label: "Approved", tone: "success" },
 	{ value: "to_review", label: "To review", tone: "warning" },
 	{ value: "removed", label: "Removed", tone: "danger" },
+	{ value: "denied", label: "Denied", tone: "danger" },
 	{ value: "ignored", label: "Ignored", tone: "neutral" },
 ];
 

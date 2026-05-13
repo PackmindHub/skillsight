@@ -18,7 +18,7 @@ const bulkSchema = z.object({
 		)
 		.min(1)
 		.max(UPDATE_SKILLS_STATUS_MAX_BATCH),
-	status: z.enum(["to_review", "approved", "removed", "ignored"]),
+	status: z.enum(["to_review", "approved", "removed", "denied", "ignored"]),
 });
 
 export function createUpdateStatusBulkRoute(deps: Pick<AppDeps, "skills" | "audit">) {

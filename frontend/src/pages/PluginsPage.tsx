@@ -32,6 +32,7 @@ const PLUGIN_STATUS_CHIP_OPTIONS: readonly StatusChipOption<PluginStatus>[] = [
 	{ value: "approved", label: "Approved", tone: "success" },
 	{ value: "to_review", label: "To review", tone: "warning" },
 	{ value: "removed", label: "Removed", tone: "danger" },
+	{ value: "denied", label: "Denied", tone: "danger" },
 	{ value: "ignored", label: "Ignored", tone: "neutral" },
 ];
 

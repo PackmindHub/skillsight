@@ -1,9 +1,10 @@
-export type SkillStatus = "to_review" | "approved" | "removed" | "ignored";
+export type SkillStatus = "to_review" | "approved" | "removed" | "denied" | "ignored";
 
 export const SKILL_STATUSES: readonly SkillStatus[] = [
 	"to_review",
 	"approved",
 	"removed",
+	"denied",
 	"ignored",
 ] as const;
 

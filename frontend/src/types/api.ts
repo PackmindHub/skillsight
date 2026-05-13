@@ -69,14 +69,15 @@ export interface MonthlyTrendsResponse {
 
 export type MarketplaceStatus = "to_review" | "approved" | "denied" | "ignored";
 
-export type PluginStatus = "to_review" | "approved" | "removed" | "ignored";
+export type PluginStatus = "to_review" | "approved" | "removed" | "denied" | "ignored";
 
-export type SkillStatus = "to_review" | "approved" | "removed" | "ignored";
+export type SkillStatus = "to_review" | "approved" | "removed" | "denied" | "ignored";
 
 export const SKILL_STATUSES: readonly SkillStatus[] = [
 	"to_review",
 	"approved",
 	"removed",
+	"denied",
 	"ignored",
 ] as const;
 
@@ -110,6 +111,7 @@ export const PLUGIN_STATUSES: readonly PluginStatus[] = [
 	"to_review",
 	"approved",
 	"removed",
+	"denied",
 	"ignored",
 ] as const;
 
