@@ -1104,6 +1104,7 @@ export default function SkillsTablePage() {
 							currentDir={sortDir}
 							onSort={toggleSort}
 							className="text-right"
+							title="Total activations of this skill over the selected period"
 						/>
 						<SortableHeader
 							label="Users"
@@ -1112,6 +1113,7 @@ export default function SkillsTablePage() {
 							currentDir={sortDir}
 							onSort={toggleSort}
 							className="text-right"
+							title="Distinct users who activated this skill"
 						/>
 						<SortableHeader
 							label="Loaders"
@@ -1120,11 +1122,27 @@ export default function SkillsTablePage() {
 							currentDir={sortDir}
 							onSort={toggleSort}
 							className="text-right"
+							title="Distinct users who loaded the plugin that ships this skill"
 						/>
-						<th className="text-left px-4 py-3 font-medium text-text-3">Δ</th>
-						<th className="text-left px-4 py-3 font-medium text-text-3">Trend</th>
+						<th
+							className="text-left px-4 py-3 font-medium text-text-3"
+							title="Change in activations vs the preceding equal-length period"
+						>
+							Δ
+						</th>
+						<th
+							className="text-left px-4 py-3 font-medium text-text-3"
+							title="Daily activations over the selected period"
+						>
+							Trend
+						</th>
 						<th className="text-left px-4 py-3 font-medium text-text-3">Marketplaces</th>
-						<th className="text-left px-4 py-3 font-medium text-text-3">Source</th>
+						<th
+							className="text-left px-4 py-3 font-medium text-text-3"
+							title="Where this skill comes from (bundled, plugin marketplace, or unknown)"
+						>
+							Source
+						</th>
 						<SortableHeader
 							label="Status"
 							sortKey="status"
@@ -1141,7 +1159,12 @@ export default function SkillsTablePage() {
 							onSort={toggleSort}
 							className="text-left"
 						/>
-						<th className="min-w-44 text-left px-4 py-3 font-medium text-text-3">Trigger mix</th>
+						<th
+							className="min-w-44 text-left px-4 py-3 font-medium text-text-3"
+							title="Share of activations by trigger type"
+						>
+							Trigger mix
+						</th>
 					</tr>
 				</THead>
 				<TBody>
@@ -1428,6 +1451,7 @@ function SortableHeader({
 	currentDir,
 	onSort,
 	className,
+	title,
 }: {
 	label: React.ReactNode;
 	sortKey: SortKey;
@@ -1435,10 +1459,11 @@ function SortableHeader({
 	currentDir: SortDir;
 	onSort: (key: SortKey) => void;
 	className?: string;
+	title?: string;
 }) {
 	const active = sortKey === currentKey;
 	return (
-		<th className={cn("px-4 py-3 font-medium text-text-3", className)}>
+		<th className={cn("px-4 py-3 font-medium text-text-3", className)} title={title}>
 			<button
 				type="button"
 				onClick={() => onSort(sortKey)}

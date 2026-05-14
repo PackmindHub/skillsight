@@ -1210,6 +1210,7 @@ export default function MarketplacesPage() {
 										currentDir={sortDir}
 										onSort={toggleSort}
 										align="right"
+										title="Plugins synced from this marketplace"
 									/>
 									<SortableHeaderCell
 										label="Skills"
@@ -1218,6 +1219,7 @@ export default function MarketplacesPage() {
 										currentDir={sortDir}
 										onSort={toggleSort}
 										align="right"
+										title="Skills declared across this marketplace's plugins"
 									/>
 									<SortableHeaderCell
 										label="Adoption"
@@ -1225,6 +1227,7 @@ export default function MarketplacesPage() {
 										currentKey={sortKey}
 										currentDir={sortDir}
 										onSort={toggleSort}
+										title="Share of declared skills that have been activated at least once"
 									/>
 									<SortableHeaderCell
 										label="Installs"
@@ -1233,6 +1236,7 @@ export default function MarketplacesPage() {
 										currentDir={sortDir}
 										onSort={toggleSort}
 										align="right"
+										title="Total plugin_installed events for this marketplace"
 									/>
 									<SortableHeaderCell
 										label="Linked"
@@ -1241,6 +1245,7 @@ export default function MarketplacesPage() {
 										currentDir={sortDir}
 										onSort={toggleSort}
 										align="right"
+										title="Activations of skills known to belong to a plugin from this marketplace"
 									/>
 									<SortableHeaderCell
 										label="Acts"
@@ -1249,6 +1254,7 @@ export default function MarketplacesPage() {
 										currentDir={sortDir}
 										onSort={toggleSort}
 										align="right"
+										title="All-time activations of skills declared by this marketplace's plugins"
 									/>
 									<SortableHeaderCell
 										label="Acts · 30d"
@@ -1257,6 +1263,7 @@ export default function MarketplacesPage() {
 										currentDir={sortDir}
 										onSort={toggleSort}
 										align="right"
+										title="Activations attributed to this marketplace via marketplace.name on the event, last 30 days"
 									/>
 									<SortableHeaderCell
 										label="Status"
@@ -1648,6 +1655,7 @@ function SortableHeaderCell({
 	currentDir,
 	onSort,
 	align = "left",
+	title,
 }: {
 	label: string;
 	sortKey: MarketplaceSortKey;
@@ -1655,10 +1663,11 @@ function SortableHeaderCell({
 	currentDir: SortDir;
 	onSort: (k: MarketplaceSortKey) => void;
 	align?: "left" | "right";
+	title?: string;
 }) {
 	const active = sortKey === currentKey;
 	return (
-		<div className={cn(align === "right" && "text-right")}>
+		<div className={cn(align === "right" && "text-right")} title={title}>
 			<button
 				type="button"
 				onClick={() => onSort(sortKey)}

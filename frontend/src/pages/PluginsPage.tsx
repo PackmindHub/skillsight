@@ -664,6 +664,7 @@ export default function PluginsPage() {
 									currentDir={sortDir}
 									onSort={toggleSort}
 									align="right"
+									title="Number of skills declared by this plugin"
 								/>
 								<SortableHeaderCell
 									label="Activations"
@@ -672,6 +673,7 @@ export default function PluginsPage() {
 									currentDir={sortDir}
 									onSort={toggleSort}
 									align="right"
+									title="Total activations of skills shipped by this plugin"
 								/>
 								<SortableHeaderCell
 									label="Installs"
@@ -680,6 +682,7 @@ export default function PluginsPage() {
 									currentDir={sortDir}
 									onSort={toggleSort}
 									align="right"
+									title="plugin_installed events for this plugin"
 								/>
 								<SortableHeaderCell
 									label="Users"
@@ -688,6 +691,7 @@ export default function PluginsPage() {
 									currentDir={sortDir}
 									onSort={toggleSort}
 									align="right"
+									title="Distinct users who activated a skill from this plugin"
 								/>
 								<SortableHeaderCell
 									label="Loaded"
@@ -696,6 +700,7 @@ export default function PluginsPage() {
 									currentDir={sortDir}
 									onSort={toggleSort}
 									align="right"
+									title="plugin_loaded events for this plugin"
 								/>
 								<SortableHeaderCell
 									label="Loaders"
@@ -704,6 +709,7 @@ export default function PluginsPage() {
 									currentDir={sortDir}
 									onSort={toggleSort}
 									align="right"
+									title="Distinct users who loaded this plugin"
 								/>
 								<SortableHeaderCell
 									label="Status"
@@ -878,6 +884,7 @@ function SortableHeaderCell({
 	currentDir,
 	onSort,
 	align = "left",
+	title,
 }: {
 	label: string;
 	sortKey: PluginSortKey;
@@ -885,10 +892,11 @@ function SortableHeaderCell({
 	currentDir: SortDir;
 	onSort: (k: PluginSortKey) => void;
 	align?: "left" | "right";
+	title?: string;
 }) {
 	const active = sortKey === currentKey;
 	return (
-		<div className={cn(align === "right" && "text-right")}>
+		<div className={cn(align === "right" && "text-right")} title={title}>
 			<button
 				type="button"
 				onClick={() => onSort(sortKey)}
