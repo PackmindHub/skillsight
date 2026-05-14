@@ -58,6 +58,17 @@ export interface PluginVersionSeen {
 	version: string;
 }
 
+export interface PluginWeeklyLoadersBucket {
+	weekStart: string;
+	total: number;
+	perVersion: Record<string, number>;
+}
+
+export interface PluginWeeklyLoaders {
+	weeks: PluginWeeklyLoadersBucket[];
+	versions: string[];
+}
+
 export interface NewPlugin {
 	pluginName: string;
 	marketplaceName: string | null;

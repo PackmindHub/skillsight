@@ -1,8 +1,14 @@
-import { useEffect, useState } from "react";
+import { PluginLoadersChart } from "@/components/plugins/PluginLoadersChart";
 import { Drawer } from "@/components/ui/Drawer";
 import { api } from "@/lib/api";
 import { formatRelativeTime } from "@/lib/utils";
-import type { PluginSkillRow, PluginUserRow, PluginVersionRow } from "@/types/api";
+import type {
+	PluginSkillRow,
+	PluginUserRow,
+	PluginVersionRow,
+	PluginWeeklyLoaders,
+} from "@/types/api";
+import { useEffect, useState } from "react";
 
 interface PluginSkillsDrawerProps {
 	pluginName: string | null;
@@ -19,6 +25,7 @@ export function PluginSkillsDrawer({
 	const [topUsers, setTopUsers] = useState<PluginUserRow[] | null>(null);
 	const [versions, setVersions] = useState<PluginVersionRow[] | null>(null);
 	const [latestVersion, setLatestVersion] = useState<string | null>(null);
+	const [weeklyLoaders, setWeeklyLoaders] = useState<PluginWeeklyLoaders | null>(null);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
@@ -28,6 +35,7 @@ export function PluginSkillsDrawer({
 			setTopUsers(null);
 			setVersions(null);
 			setLatestVersion(null);
+			setWeeklyLoaders(null);
 			setError(null);
 			return;
 		}
@@ -42,6 +50,7 @@ export function PluginSkillsDrawer({
 				setTopUsers(res.topUsers);
 				setVersions(res.versions);
 				setLatestVersion(res.latestVersion);
+				setWeeklyLoaders(res.weeklyLoaders);
 			})
 			.catch((e) => {
 				if (!cancelled) setError(String(e));
@@ -76,7 +85,8 @@ export function PluginSkillsDrawer({
 
 					<div className="space-y-2">
 						<p className="text-xs uppercase tracking-wide text-text-4">
-							Versions {latestVersion && <span className="text-text-3">· latest {latestVersion}</span>}
+							Versions{" "}
+							{latestVersion && <span className="text-text-3">· latest {latestVersion}</span>}
 						</p>
 						{!versions || versions.length === 0 ? (
 							<p className="text-sm text-text-4">No versions recorded yet.</p>
@@ -92,11 +102,7 @@ export function PluginSkillsDrawer({
 											<span className="flex items-baseline gap-2 min-w-0">
 												<span
 													className={`font-mono ${isLatest ? "text-text-1" : "text-text-2"}`}
-													title={
-														isLatest
-															? "Highest semver — current 'latest'"
-															: v.version
-													}
+													title={isLatest ? "Highest semver — current 'latest'" : v.version}
 												>
 													{v.version}
 												</span>
@@ -125,6 +131,15 @@ export function PluginSkillsDrawer({
 							</ul>
 						)}
 					</div>
+
+					{weeklyLoaders?.weeks.some((w) => w.total > 0) && (
+						<div className="space-y-2">
+							<p className="text-xs uppercase tracking-wide text-text-4">
+								Unique loaders · last 60 days (per week)
+							</p>
+							<PluginLoadersChart data={weeklyLoaders} />
+						</div>
+					)}
 
 					<div className="space-y-2">
 						<p className="text-xs uppercase tracking-wide text-text-4">

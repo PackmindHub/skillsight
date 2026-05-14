@@ -12,6 +12,8 @@ import type {
 	PluginSkillActivation,
 	PluginStatus,
 	PluginUserActivation,
+	PluginWeeklyLoaders,
+	PluginWeeklyLoadersBucket,
 	PluginWithStats,
 } from "@/domain/plugin";
 
@@ -373,6 +375,86 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			uniqueLoadedPlugins: row?.unique_loaded_plugins ?? 0,
 			uniqueLoaders: row?.unique_loaders ?? 0,
 		};
+	}
+
+	async getWeeklyLoadersByVersion(
+		pluginName: string,
+		marketplaceName: string | null,
+	): Promise<PluginWeeklyLoaders> {
+		// Marketplace matching mirrors listWithStats: events tagged with the
+		// synthetic "inline" marketplace bucket are normalized to empty so they
+		// join the null-marketplace plugin row.
+		const marketplaceKey = marketplaceName ?? "";
+		const rows = (await this.db.execute(sql`
+			WITH spine AS (
+			  SELECT generate_series(
+			    date_trunc('week', NOW()) - INTERVAL '8 weeks',
+			    date_trunc('week', NOW()),
+			    INTERVAL '1 week'
+			  )::date AS week_start
+			),
+			loads AS (
+			  SELECT
+			    date_trunc('week', timestamp)::date AS week_start,
+			    attributes->>'plugin.version'       AS version,
+			    user_email
+			  FROM events
+			  WHERE event_name = ${EVENT_NAMES.PLUGIN_LOADED}
+			    AND attributes->>'plugin.name' = ${pluginName}
+			    AND attributes->>'plugin.name' <> 'third-party'
+			    AND COALESCE(NULLIF(attributes->>'marketplace.name', 'inline'), '') = ${marketplaceKey}
+			    AND user_email IS NOT NULL
+			    AND timestamp >= NOW() - INTERVAL '60 days'
+			),
+			per_version AS (
+			  SELECT week_start, version, COUNT(DISTINCT user_email)::int AS loaders
+			  FROM loads
+			  WHERE version IS NOT NULL
+			  GROUP BY 1, 2
+			),
+			totals AS (
+			  SELECT week_start, COUNT(DISTINCT user_email)::int AS total
+			  FROM loads
+			  GROUP BY 1
+			)
+			SELECT
+			  to_char(s.week_start, 'YYYY-MM-DD')   AS "weekStart",
+			  COALESCE(t.total, 0)::int             AS "total",
+			  pv.version                            AS "version",
+			  pv.loaders                            AS "loaders"
+			FROM spine s
+			LEFT JOIN totals t       ON t.week_start = s.week_start
+			LEFT JOIN per_version pv ON pv.week_start = s.week_start
+			ORDER BY s.week_start ASC, pv.version ASC
+		`)) as unknown as Array<{
+			weekStart: string;
+			total: number;
+			version: string | null;
+			loaders: number | null;
+		}>;
+
+		const bucketsByWeek = new Map<string, PluginWeeklyLoadersBucket>();
+		const versionTotals = new Map<string, number>();
+		for (const r of rows) {
+			let bucket = bucketsByWeek.get(r.weekStart);
+			if (!bucket) {
+				bucket = { weekStart: r.weekStart, total: r.total, perVersion: {} };
+				bucketsByWeek.set(r.weekStart, bucket);
+			}
+			if (r.version !== null && r.loaders !== null) {
+				bucket.perVersion[r.version] = r.loaders;
+				versionTotals.set(r.version, (versionTotals.get(r.version) ?? 0) + r.loaders);
+			}
+		}
+
+		const weeks = Array.from(bucketsByWeek.values()).sort((a, b) =>
+			a.weekStart.localeCompare(b.weekStart),
+		);
+		const versions = Array.from(versionTotals.entries())
+			.sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+			.map(([v]) => v);
+
+		return { weeks, versions };
 	}
 
 	async deleteByMarketplace(marketplaceName: string): Promise<string[]> {
