@@ -69,7 +69,6 @@ export interface MonthlyTrendsResponse {
 	uniqueUsers: MonthlyPoint[];
 }
 
-
 export type MarketplaceStatus = "to_review" | "approved" | "denied" | "ignored";
 
 export type PluginStatus = "to_review" | "approved" | "removed" | "denied" | "ignored";
@@ -164,11 +163,23 @@ export interface PluginUserRow {
 	activationCount: number;
 }
 
+export interface PluginWeeklyLoadersBucket {
+	weekStart: string;
+	total: number;
+	perVersion: Record<string, number>;
+}
+
+export interface PluginWeeklyLoaders {
+	weeks: PluginWeeklyLoadersBucket[];
+	versions: string[];
+}
+
 export interface PluginSkillsResponse {
 	skills: PluginSkillRow[];
 	topUsers: PluginUserRow[];
 	versions: PluginVersionRow[];
 	latestVersion: string | null;
+	weeklyLoaders: PluginWeeklyLoaders;
 }
 
 export interface MarketplaceRef {

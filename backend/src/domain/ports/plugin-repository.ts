@@ -5,6 +5,7 @@ import type {
 	PluginSkillActivation,
 	PluginStatus,
 	PluginUserActivation,
+	PluginWeeklyLoaders,
 	PluginWithStats,
 } from "@/domain/plugin";
 import type { TimeWindow } from "@/domain/ports/skill-repository";
@@ -31,4 +32,8 @@ export interface IPluginRepository {
 	orphanByMarketplace(marketplaceName: string): Promise<string[]>;
 	deleteByMarketplace(marketplaceName: string): Promise<string[]>;
 	getLoadStats(window: TimeWindow): Promise<PluginLoadStats>;
+	getWeeklyLoadersByVersion(
+		pluginName: string,
+		marketplaceName: string | null,
+	): Promise<PluginWeeklyLoaders>;
 }
