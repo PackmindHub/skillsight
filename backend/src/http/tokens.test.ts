@@ -5,7 +5,11 @@ import { createTokensRoute } from "./tokens";
 import type { Token } from "@/domain/token";
 import type { ITokenRepository } from "@/domain/ports/token-repository";
 import type { IAuditRepository } from "@/domain/ports/audit-repository";
-import { signToken } from "@/infrastructure/crypto/jwt";
+import {
+	createIngestionToken,
+	signSessionToken,
+	signToken,
+} from "@/infrastructure/crypto/jwt";
 
 function makeDeps() {
 	const created: Array<{ jti: string; expiresAt?: Date | null }> = [];
@@ -46,7 +50,7 @@ function makeApp(deps: { tokens: ITokenRepository; audit: IAuditRepository }) {
 }
 
 async function authenticatedRequest(app: Hono, body: unknown) {
-	const sessionJwt = await signToken(
+	const sessionJwt = await signSessionToken(
 		{ sub: "user-1", email: "alice@example.com", role: "admin" },
 		"1h",
 	);
@@ -113,6 +117,57 @@ describe("POST /api/tokens", () => {
 			body: JSON.stringify({ name: "ingest", expiresAt: FUTURE_ISO }),
 		});
 		expect(res.status).toBe(401);
+	});
+
+	it("returns 401 when an ingestion token is passed as the session cookie", async () => {
+		const deps = makeDeps();
+		const app = makeApp(deps);
+		const ingestionJwt = await createIngestionToken("evil", undefined, null);
+		const res = await app.request("/api/tokens", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Cookie: `session=${ingestionJwt}`,
+			},
+			body: JSON.stringify({ name: "ingest", expiresAt: FUTURE_ISO }),
+		});
+		expect(res.status).toBe(401);
+	});
+
+	it("returns 401 when the session JWT is missing the type=session claim", async () => {
+		const deps = makeDeps();
+		const app = makeApp(deps);
+		const legacyJwt = await signToken(
+			{ sub: "user-1", email: "alice@example.com", role: "admin" },
+			"1h",
+		);
+		const res = await app.request("/api/tokens", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Cookie: `session=${legacyJwt}`,
+			},
+			body: JSON.stringify({ name: "ingest", expiresAt: FUTURE_ISO }),
+		});
+		expect(res.status).toBe(401);
+	});
+
+	it("returns 403 for a non-admin session", async () => {
+		const deps = makeDeps();
+		const app = makeApp(deps);
+		const sessionJwt = await signSessionToken(
+			{ sub: "user-2", email: "bob@example.com", role: "user" },
+			"1h",
+		);
+		const res = await app.request("/api/tokens", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Cookie: `session=${sessionJwt}`,
+			},
+			body: JSON.stringify({ name: "ingest", expiresAt: FUTURE_ISO }),
+		});
+		expect(res.status).toBe(403);
 	});
 
 	it("creates a token with an exp claim on valid input", async () => {

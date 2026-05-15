@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { AppDeps } from "@/bootstrap/compose";
 import { deleteSkills, DELETE_SKILLS_MAX_BATCH } from "@/application/skills/delete-skills";
 import { sessionAuth } from "@/middleware/session-auth";
+import { requireAdmin } from "@/middleware/require-admin";
 import type { AppVariables } from "@/types";
 
 const deleteSchema = z.object({
@@ -20,6 +21,7 @@ const deleteSchema = z.object({
 export function createDeleteRoute(deps: Pick<AppDeps, "skills" | "events" | "audit">) {
 	const route = new Hono<{ Variables: AppVariables }>();
 	route.use("*", sessionAuth);
+	route.use("*", requireAdmin);
 
 	route.post("/delete", async (c) => {
 		const { skills } = deleteSchema.parse(await c.req.json());

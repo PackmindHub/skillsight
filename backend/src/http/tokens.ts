@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { AppVariables } from "@/types";
 import type { AppDeps } from "@/bootstrap/compose";
 import { sessionAuth } from "@/middleware/session-auth";
+import { requireAdmin } from "@/middleware/require-admin";
 import { listTokens } from "@/application/tokens/list-tokens";
 import { createToken } from "@/application/tokens/create-token";
 import { revokeToken } from "@/application/tokens/revoke-token";
@@ -21,6 +22,7 @@ const createTokenSchema = z.object({
 export function createTokensRoute(deps: Pick<AppDeps, "tokens" | "audit">) {
 	const route = new Hono<{ Variables: AppVariables }>();
 	route.use("*", sessionAuth);
+	route.use("*", requireAdmin);
 
 	route.get("/", async (c) => {
 		return c.json(await listTokens(deps));

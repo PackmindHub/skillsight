@@ -5,6 +5,7 @@ import { listPlugins } from "@/application/plugins/list-plugins";
 import { updatePlugin } from "@/application/plugins/update-plugin";
 import type { AppDeps } from "@/bootstrap/compose";
 import { sessionAuth } from "@/middleware/session-auth";
+import { requireAdmin } from "@/middleware/require-admin";
 import type { AppVariables } from "@/types";
 
 const updateSchema = z.object({
@@ -35,7 +36,7 @@ export function createPluginsRoute(
 		return c.json(data);
 	});
 
-	route.patch("/:pluginName", async (c) => {
+	route.patch("/:pluginName", requireAdmin, async (c) => {
 		const pluginName = decodeURIComponent(c.req.param("pluginName"));
 		const body = updateSchema.parse(await c.req.json());
 		const result = await updatePlugin(

@@ -6,6 +6,7 @@ import {
 } from "@/application/skills/update-skills-status";
 import type { AppDeps } from "@/bootstrap/compose";
 import { sessionAuth } from "@/middleware/session-auth";
+import { requireAdmin } from "@/middleware/require-admin";
 import type { AppVariables } from "@/types";
 
 const bulkSchema = z.object({
@@ -24,6 +25,7 @@ const bulkSchema = z.object({
 export function createUpdateStatusBulkRoute(deps: Pick<AppDeps, "skills" | "audit">) {
 	const route = new Hono<{ Variables: AppVariables }>();
 	route.use("*", sessionAuth);
+	route.use("*", requireAdmin);
 
 	route.patch("/status/bulk", async (c) => {
 		const body = bulkSchema.parse(await c.req.json());
