@@ -63,7 +63,7 @@ Sync-status fan-out uses dedicated context providers in `frontend/src/context/` 
 - **Runtime & package manager**: Bun (not Node/npm). Use `bun` for all commands.
 - **Backend framework**: Hono (lightweight, edge-compatible)
 - **ORM**: Drizzle — schema is the source of truth in `backend/src/db/schema.ts`. Run `migrate:generate` after any schema change.
-- **Linter/formatter**: Biome (not ESLint/Prettier). Config in `biome.json` per package.
+- **Linter/formatter**: Biome (not ESLint/Prettier). Config in `biome.json` per package. Always run via `bun run lint` (root) or `bun run check` (frontend) — never `npx biome` or `bunx biome`, which fail to resolve the executable in this workspace.
 - **CSS**: Tailwind CSS v4 via Vite plugin
 - **Tests**: Bun test runner. Frontend uses happy-dom (configured in `test-setup.ts`).
 - **Auth**: JWT sessions (cookie `session`), separate Bearer tokens for OTLP ingestion
