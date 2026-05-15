@@ -32,7 +32,7 @@ const defaultForm: FormState = {
 	authType: "none",
 	authUsername: "",
 	authPassword: "",
-	lokiQuery: '{service_name="claude-code"} | event_name=~`skill_activated|plugin_installed`',
+	lokiQuery: '{service_name="claude-code"} | event_name=~`skill_activated|plugin_installed|plugin_loaded`',
 	syncIntervalSecs: "30",
 	enabled: true,
 };
