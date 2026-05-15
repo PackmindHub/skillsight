@@ -4,6 +4,7 @@ import {
 	Button,
 	Card,
 	FormField,
+	IconButton,
 	IncludeIgnoredToggle,
 	Input,
 	PageHeader,
@@ -26,7 +27,6 @@ import {
 	ExternalLink,
 	GitBranch,
 	Link2Off,
-	Loader2,
 	Pencil,
 	Play,
 	RefreshCw,
@@ -1426,54 +1426,42 @@ export default function MarketplacesPage() {
 											<div className="flex items-center justify-end gap-1 pt-0.5">
 												{hasGit &&
 													(anyEnabled ? (
-														<button
-															type="button"
-															aria-label={`Sync ${mp.name}`}
-															title={anySyncing ? "Syncing…" : "Sync now"}
-															disabled={anySyncing}
+														<IconButton
+															size="xs"
+															variant="ghost"
+															loading={anySyncing}
 															onClick={() => handleSyncMarketplace(mpSources)}
-															className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-transparent text-text-3 transition-colors hover:border-accent-bright/40 hover:bg-accent-bright/[0.08] hover:text-accent-bright disabled:cursor-not-allowed disabled:opacity-60"
-														>
-															{anySyncing ? (
-																<Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
-															) : (
-																<RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
-															)}
-														</button>
+															title={anySyncing ? "Syncing…" : "Sync now"}
+															aria-label={`Sync ${mp.name}`}
+															icon={<RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />}
+														/>
 													) : (
-														<button
-															type="button"
-															aria-label={`Resume sync for ${mp.name}`}
-															title={anyResuming ? "Resuming…" : "Resume sync"}
-															disabled={anyResuming}
+														<IconButton
+															size="xs"
+															variant="success"
+															loading={anyResuming}
 															onClick={() => handleResumeMarketplace(mpSources)}
-															className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-success/30 bg-success/10 text-success transition-colors hover:bg-success/20 disabled:cursor-not-allowed disabled:opacity-60"
-														>
-															{anyResuming ? (
-																<Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
-															) : (
-																<Play className="h-3.5 w-3.5" aria-hidden="true" />
-															)}
-														</button>
+															title={anyResuming ? "Resuming…" : "Resume sync"}
+															aria-label={`Resume sync for ${mp.name}`}
+															icon={<Play className="h-3.5 w-3.5" aria-hidden="true" />}
+														/>
 													))}
-												<button
-													type="button"
-													aria-label={`Edit ${mp.name}`}
-													title="Edit"
+												<IconButton
+													size="xs"
+													variant="ghost"
 													onClick={() => openMarketplaceDrawer(mp.name, "edit")}
-													className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-transparent text-text-3 transition-colors hover:border-edge hover:bg-surface-700 hover:text-text-1"
-												>
-													<Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-												</button>
-												<button
-													type="button"
-													aria-label={`Delete ${mp.name}`}
-													title="Delete"
+													title="Edit"
+													aria-label={`Edit ${mp.name}`}
+													icon={<Pencil className="h-3.5 w-3.5" aria-hidden="true" />}
+												/>
+												<IconButton
+													size="xs"
+													variant="danger"
 													onClick={() => openDeleteMarketplace(mp.name)}
-													className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-transparent text-text-3 transition-colors hover:border-danger/35 hover:bg-surface-700 hover:text-danger"
-												>
-													<Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-												</button>
+													title="Delete"
+													aria-label={`Delete ${mp.name}`}
+													icon={<Trash2 className="h-3.5 w-3.5" aria-hidden="true" />}
+												/>
 											</div>
 											{errorSource?.lastSyncError && (
 												<div className="col-span-full -mx-4 -mb-3.5 pb-3 pt-1">

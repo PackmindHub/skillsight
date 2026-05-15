@@ -120,6 +120,24 @@
   }
 }
 
+@utility btn-success {
+  background-image: linear-gradient(135deg, color-mix(in srgb, var(--color-success) 75%, black), var(--color-success));
+  color: var(--color-surface-950);
+  transition: box-shadow 0.15s ease;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-success) 50%, transparent),
+              0 6px 16px -6px var(--color-success);
+
+  &:hover:not(:disabled) {
+    box-shadow: 0 0 0 1px var(--color-success),
+                0 0 20px color-mix(in srgb, var(--color-success) 40%, transparent);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
 /* Active nav item (sidebar + settings sub-nav) */
 @utility nav-active {
   position: relative;
@@ -293,46 +311,6 @@
   color: inherit;
   opacity: 0.7;
   border-left-color: color-mix(in srgb, currentColor 25%, transparent);
-}
-
-.ev-limit {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px;
-  border: 1px solid var(--color-edge-dim);
-  border-radius: 6px;
-  background: var(--color-surface-900);
-}
-
-.ev-limit-lab {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--color-text-4);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 0 6px;
-}
-
-.ev-limit-btn {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  padding: 3px 9px;
-  border-radius: 4px;
-  background: transparent;
-  border: 0;
-  color: var(--color-text-3);
-  cursor: pointer;
-}
-
-.ev-limit-btn:hover {
-  color: var(--color-text-1);
-  background: var(--color-surface-800);
-}
-
-.ev-limit-btn.on {
-  background: color-mix(in srgb, var(--color-accent-bright) 18%, transparent);
-  color: var(--color-accent-soft);
 }
 
 .ev-trigger-pill {

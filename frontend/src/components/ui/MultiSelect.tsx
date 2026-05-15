@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { DROPDOWN_PANEL } from "./_styles";
+import { DROPDOWN_PANEL, TRIGGER_BASE } from "./_styles";
 
 interface MultiSelectOption {
 	value: string;
@@ -78,7 +78,7 @@ export function MultiSelect({ label, options, values, onChange, className }: Mul
 				type="button"
 				onClick={() => setOpen((o) => !o)}
 				className={cn(
-					"inline-flex h-8 items-center gap-1.5 rounded-md border border-edge bg-surface-800 px-3 text-sm text-text-1 hover:bg-surface-700 focus:outline-none focus:ring-1 focus:ring-accent-bright",
+					TRIGGER_BASE,
 					values.length > 0 && "border-accent-bright/40 bg-accent-bright/5",
 				)}
 			>

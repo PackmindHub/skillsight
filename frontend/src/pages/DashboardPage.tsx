@@ -1,4 +1,5 @@
 import { TrendSparkline } from "@/components/skills/TrendSparkline";
+import { PageHeader } from "@/components/ui";
 import { api } from "@/lib/api";
 import { cn, computeDeltaPct, formatDate, isCurrentUtcMonth, sumKnownTriggers } from "@/lib/utils";
 import type {
@@ -365,10 +366,10 @@ export default function DashboardPage() {
 
 	return (
 		<div className="space-y-[18px]">
-			{/* Page head */}
-			<header className="mb-[18px] flex flex-wrap items-end justify-between gap-6">
-				<div className="min-w-0">
-					<h1 className="m-0 flex flex-wrap items-baseline gap-3 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-text-1">
+			<PageHeader
+				className="mb-[18px]"
+				title={
+					<span className="flex flex-wrap items-baseline gap-3">
 						Overview
 						<span
 							className="text-[30px]"
@@ -381,10 +382,10 @@ export default function DashboardPage() {
 						>
 							at a glance
 						</span>
-					</h1>
-					<p className="mt-1.5 text-[13px] text-text-3">{periodSubtitle(period)}</p>
-				</div>
-				<div className="flex items-center gap-2">
+					</span>
+				}
+				subtitle={periodSubtitle(period)}
+				actions={
 					<div className="inline-flex gap-[3px] rounded-lg border border-edge-dim bg-surface-800 p-[3px]">
 						{PERIOD_OPTIONS.map((opt) => (
 							<SegBtn key={String(opt.value)} on={opt.value === period} onClick={() => setPeriod(opt.value)}>
@@ -392,8 +393,8 @@ export default function DashboardPage() {
 							</SegBtn>
 						))}
 					</div>
-				</div>
-			</header>
+				}
+			/>
 
 			{/* Hero */}
 			<div className="grid gap-[18px]" style={{ gridTemplateColumns: "minmax(0,1.4fr) minmax(0,1fr)" }}>

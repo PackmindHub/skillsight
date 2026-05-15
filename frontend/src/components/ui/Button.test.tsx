@@ -14,10 +14,11 @@ describe("Button", () => {
 		expect(renderToString(<Button size="md">A</Button>)).toContain("h-9");
 	});
 
-	it("applies secondary, ghost, and danger variants", () => {
+	it("applies secondary, ghost, danger, and success variants", () => {
 		expect(renderToString(<Button variant="secondary">A</Button>)).toContain("bg-surface-700");
 		expect(renderToString(<Button variant="ghost">A</Button>)).toContain("hover:bg-surface-700");
 		expect(renderToString(<Button variant="danger">A</Button>)).toContain("text-danger");
+		expect(renderToString(<Button variant="success">A</Button>)).toContain("btn-success");
 	});
 
 	it("disables and shows a spinner while loading", () => {

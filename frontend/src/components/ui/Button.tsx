@@ -8,7 +8,7 @@ import {
 } from "react";
 import { cn } from "@/lib/utils";
 
-export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
+export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "success";
 export type ButtonSize = "sm" | "md";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -29,6 +29,7 @@ const VARIANT: Record<ButtonVariant, string> = {
 		"text-text-2 hover:bg-surface-700 hover:text-text-1 disabled:opacity-40 disabled:cursor-not-allowed",
 	danger:
 		"bg-danger/15 text-danger border border-danger/30 hover:bg-danger/25 disabled:opacity-40 disabled:cursor-not-allowed",
+	success: "btn-success font-semibold",
 };
 
 const SIZE: Record<ButtonSize, string> = {

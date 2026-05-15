@@ -24,3 +24,12 @@ export const DROPDOWN_PANEL =
 
 export const MENU_ITEM_BASE =
 	"flex w-full items-center px-3 py-1.5 text-left text-sm transition-colors hover:bg-surface-700 disabled:opacity-40 disabled:cursor-not-allowed";
+
+/**
+ * Trigger styling for h-8 button-shaped controls (filters, toggles, dropdown
+ * triggers). Used by StatusFilter, IncludeIgnoredToggle, SingleSelect,
+ * MultiSelect, and the CohortsPage Hide-solo toggle. Compose pressed/active
+ * state via cn().
+ */
+export const TRIGGER_BASE =
+	"inline-flex h-8 items-center gap-1.5 rounded-md border border-edge bg-surface-800 px-3 text-sm text-text-1 hover:bg-surface-700 focus:outline-none focus:ring-1 focus:ring-accent-bright";

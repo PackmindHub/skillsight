@@ -1,5 +1,7 @@
 export { Button } from "./Button";
 export type { ButtonSize, ButtonVariant } from "./Button";
+export { IconButton } from "./IconButton";
+export type { IconButtonSize, IconButtonVariant } from "./IconButton";
 export { Input } from "./Input";
 export { Select } from "./Select";
 export { FormField } from "./FormField";
@@ -21,3 +23,4 @@ export { ConfirmDialog } from "./ConfirmDialog";
 export { Menu, MenuDivider, MenuItem, useMenuClose } from "./Menu";
 export { ConfirmMenuItem } from "./ConfirmMenuItem";
 export { Sparkline } from "./Sparkline";
+export { TRIGGER_BASE } from "./_styles";

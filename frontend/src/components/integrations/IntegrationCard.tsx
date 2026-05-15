@@ -1,3 +1,4 @@
+import { Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { ConfirmMenuItem } from "@/components/ui/ConfirmMenuItem";
@@ -27,41 +28,6 @@ function LokiIcon() {
 			/>
 			<path d="M3 6l7 4 7-4M10 10v8" stroke="currentColor" strokeWidth="1.4" />
 		</svg>
-	);
-}
-
-function ResumeButton({ loading, onClick }: { loading: boolean; onClick: () => void }) {
-	return (
-		<button
-			type="button"
-			onClick={onClick}
-			disabled={loading}
-			className="inline-flex items-center gap-2 rounded-md border border-success/60 bg-gradient-to-b from-success/85 to-success px-4 py-2 text-sm font-semibold text-surface-950 shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-success)_30%,transparent),0_6px_16px_-4px_color-mix(in_srgb,var(--color-success)_45%,transparent)] transition-transform hover:-translate-y-px hover:shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-success)_45%,transparent),0_10px_22px_-4px_color-mix(in_srgb,var(--color-success)_55%,transparent)] disabled:cursor-not-allowed disabled:opacity-60"
-		>
-			{loading ? (
-				<svg
-					className="animate-spin"
-					width="14"
-					height="14"
-					viewBox="0 0 16 16"
-					fill="none"
-					aria-hidden="true"
-				>
-					<circle cx="8" cy="8" r="6" stroke="currentColor" strokeOpacity="0.25" strokeWidth="2" />
-					<path
-						d="M14 8a6 6 0 0 0-6-6"
-						stroke="currentColor"
-						strokeWidth="2"
-						strokeLinecap="round"
-					/>
-				</svg>
-			) : (
-				<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-					<path d="M4 2.5v11l9-5.5-9-5.5z" />
-				</svg>
-			)}
-			Resume sync
-		</button>
 	);
 }
 
@@ -289,7 +255,15 @@ export function IntegrationCard({
 				>
 					{status === "paused" ? (
 						<>
-							<ResumeButton loading={resuming} onClick={onResume} />
+							<Button
+								variant="success"
+								size="sm"
+								loading={resuming}
+								onClick={onResume}
+								leftIcon={<Play size={14} fill="currentColor" />}
+							>
+								Resume sync
+							</Button>
 							<Button variant="ghost" size="sm" disabled title="Sync is paused">
 								Sync now
 							</Button>

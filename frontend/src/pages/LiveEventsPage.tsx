@@ -1,6 +1,17 @@
-import { Search } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Button, PageHeader } from "@/components/ui";
+import {
+	Button,
+	EmptyRow,
+	PageHeader,
+	SearchBar,
+	SegmentedControl,
+	TBody,
+	TD,
+	TH,
+	THead,
+	TR,
+	Table,
+} from "@/components/ui";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { LiveSkillActivatedEvent } from "@/types/api";
@@ -20,6 +31,7 @@ const TRIGGER_META: Record<TriggerKey, TriggerMeta> = {
 
 const TRIGGER_KEYS: TriggerKey[] = ["user-slash", "claude-proactive", "nested-skill"];
 const LIMIT_OPTIONS = [50, 100, 250, 500] as const;
+const LIMIT_SEGMENTS = LIMIT_OPTIONS.map((n) => ({ value: n, label: String(n) }));
 const MAX_BUFFER = 1000;
 
 const TIMESTAMP_FORMAT = new Intl.DateTimeFormat(undefined, {
@@ -201,132 +213,102 @@ export default function LiveEventsPage() {
 			</div>
 
 			<div className="flex flex-wrap items-center gap-3">
-				<div className="relative max-w-[360px] flex-1">
-					<Search
-						size={14}
-						className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-4"
-					/>
-					<input
-						type="text"
-						placeholder="Filter by actor, skill, plugin, marketplace…"
+				<div className="max-w-[360px] flex-1">
+					<SearchBar
 						value={search}
-						onChange={(e) => setSearch(e.target.value)}
-						className="h-9 w-full rounded-md border border-edge bg-surface-800 pl-9 pr-3 text-sm text-text-1 placeholder:text-text-4 focus:outline-none focus:ring-1 focus:ring-accent-bright focus:border-accent-bright"
+						onChange={setSearch}
+						placeholder="Filter by actor, skill, plugin, marketplace…"
 					/>
 				</div>
-				<div className="ev-limit">
-					<span className="ev-limit-lab">Limit</span>
-					{LIMIT_OPTIONS.map((n) => (
-						<button
-							key={n}
-							type="button"
-							className={cn("ev-limit-btn", limit === n && "on")}
-							onClick={() => setLimit(n)}
-						>
-							{n}
-						</button>
-					))}
+				<div className="inline-flex items-center gap-2">
+					<span className="font-mono text-[10px] uppercase tracking-[0.06em] text-text-4">
+						Limit
+					</span>
+					<SegmentedControl<number>
+						ariaLabel="Row limit"
+						value={limit}
+						onChange={setLimit}
+						options={LIMIT_SEGMENTS}
+					/>
 				</div>
 			</div>
 
-			<div className="overflow-hidden rounded-lg border border-edge bg-surface-900">
-				<div className="overflow-x-auto">
-					<table className="ev-tbl min-w-full text-sm text-text-2">
-						<thead className="bg-surface-800/60 text-text-3">
-							<tr>
-								<th className="px-4 py-2.5 text-left font-medium" style={{ width: 180 }}>
-									Date time
-								</th>
-								<th className="px-4 py-2.5 text-left font-medium" style={{ width: "32%" }}>
-									Skill
-								</th>
-								<th className="px-4 py-2.5 text-left font-medium">Trigger</th>
-								<th className="px-4 py-2.5 text-left font-medium" style={{ width: 220 }}>
-									Actor
-								</th>
-								<th className="px-4 py-2.5 text-left font-medium" style={{ width: 200 }}>
-									Marketplace
-								</th>
-							</tr>
-						</thead>
-						<tbody className="divide-y divide-edge-dim">
-							{loading ? (
-								<tr>
-									<td colSpan={5} className="px-4 py-8 text-center text-sm text-text-3">
-										Loading recent events…
-									</td>
-								</tr>
-							) : filtered.length === 0 ? (
-								<tr>
-									<td colSpan={5} className="px-4 py-10 text-center text-sm text-text-3">
-										No events match.{" "}
-										<button
-											type="button"
-											className="text-accent-soft underline hover:text-accent-bright"
-											onClick={resetFilters}
-										>
-											Reset filters
-										</button>
-									</td>
-								</tr>
-							) : (
-								filtered.map((e) => {
-									const trig =
-										e.trigger && (e.trigger as TriggerKey) in TRIGGER_META
-											? TRIGGER_META[e.trigger as TriggerKey]
-											: null;
-									const isNew = e.id === newestId;
-									const isClaude = e.userEmail === "claude" || !e.userEmail;
-									return (
-										<tr key={e.id} className={cn("ev-row", isNew && "ev-row-new")}>
-											<td className="px-4 py-2 align-top font-mono text-xs text-text-3 tabular-nums">
-												{formatTimestamp(e.timestamp)}
-											</td>
-											<td className="px-4 py-2 align-top">
-												<span className="font-mono text-[13px] text-text-1">
-													{e.skillName}
-												</span>
-											</td>
-											<td className="px-4 py-2 align-top">
-												{trig ? (
-													<span
-														className="ev-trigger-pill"
-														style={{
-															color: trig.color,
-															borderColor: `color-mix(in srgb, ${trig.color} 35%, transparent)`,
-															background: `color-mix(in srgb, ${trig.color} 10%, transparent)`,
-														}}
-													>
-														<span
-															className="ev-type-dot"
-															style={{
-																background: trig.color,
-																boxShadow: `0 0 6px ${trig.color}`,
-															}}
-														/>
-														{trig.label}
-													</span>
-												) : (
-													<span className="text-text-4">—</span>
-												)}
-											</td>
-											<td
-												className="px-4 py-2 align-top font-mono text-xs"
-												style={{ color: isClaude ? "var(--color-accent-soft)" : "var(--color-text-2)" }}
+			<Table>
+				<THead>
+					<tr>
+						<TH style={{ width: 180 }}>Date time</TH>
+						<TH style={{ width: "32%" }}>Skill</TH>
+						<TH>Trigger</TH>
+						<TH style={{ width: 220 }}>Actor</TH>
+						<TH style={{ width: 200 }}>Marketplace</TH>
+					</tr>
+				</THead>
+				<TBody>
+					{loading ? (
+						<EmptyRow colSpan={5}>Loading recent events…</EmptyRow>
+					) : filtered.length === 0 ? (
+						<EmptyRow colSpan={5}>
+							<div className="flex flex-col items-center gap-2">
+								<span>No events match.</span>
+								<Button variant="ghost" size="sm" onClick={resetFilters}>
+									Reset filters
+								</Button>
+							</div>
+						</EmptyRow>
+					) : (
+						filtered.map((e) => {
+							const trig =
+								e.trigger && (e.trigger as TriggerKey) in TRIGGER_META
+									? TRIGGER_META[e.trigger as TriggerKey]
+									: null;
+							const isNew = e.id === newestId;
+							const isClaude = e.userEmail === "claude" || !e.userEmail;
+							return (
+								<TR key={e.id} className={cn("ev-row", isNew && "ev-row-new")}>
+									<TD className="py-2 align-top font-mono text-xs text-text-3 tabular-nums">
+										{formatTimestamp(e.timestamp)}
+									</TD>
+									<TD className="py-2 align-top">
+										<span className="font-mono text-[13px] text-text-1">{e.skillName}</span>
+									</TD>
+									<TD className="py-2 align-top">
+										{trig ? (
+											<span
+												className="ev-trigger-pill"
+												style={{
+													color: trig.color,
+													borderColor: `color-mix(in srgb, ${trig.color} 35%, transparent)`,
+													background: `color-mix(in srgb, ${trig.color} 10%, transparent)`,
+												}}
 											>
-												{e.userEmail ?? "claude"}
-											</td>
-											<td className="px-4 py-2 align-top font-mono text-xs text-text-3">
-												{e.marketplaceName ?? <span className="text-text-4">—</span>}
-											</td>
-										</tr>
-									);
-								})
-							)}
-						</tbody>
-					</table>
-				</div>
-			</div>
+												<span
+													className="ev-type-dot"
+													style={{
+														background: trig.color,
+														boxShadow: `0 0 6px ${trig.color}`,
+													}}
+												/>
+												{trig.label}
+											</span>
+										) : (
+											<span className="text-text-4">—</span>
+										)}
+									</TD>
+									<TD
+										className="py-2 align-top font-mono text-xs"
+										style={{ color: isClaude ? "var(--color-accent-soft)" : "var(--color-text-2)" }}
+									>
+										{e.userEmail ?? "claude"}
+									</TD>
+									<TD className="py-2 align-top font-mono text-xs text-text-3">
+										{e.marketplaceName ?? <span className="text-text-4">—</span>}
+									</TD>
+								</TR>
+							);
+						})
+					)}
+				</TBody>
+			</Table>
 		</div>
 	);
 }

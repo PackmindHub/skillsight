@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { MultiSelect, PageHeader, SearchBar, SegmentedControl } from "@/components/ui";
+import { MultiSelect, PageHeader, SearchBar, SegmentedControl, TRIGGER_BASE } from "@/components/ui";
 import { CohortCard } from "@/components/cohorts/CohortCard";
 import { CohortDrawer } from "@/components/cohorts/CohortDrawer";
 import { skillColor } from "@/components/cohorts/skill-color";
@@ -240,7 +240,8 @@ export default function CohortsPage() {
           aria-pressed={hideSolo}
           onClick={() => setHideSolo((v) => !v)}
           className={cn(
-            "inline-flex h-8 items-center gap-2 rounded-md border border-edge bg-surface-800 px-3 text-sm text-text-1 hover:bg-surface-700 focus:outline-none focus:ring-1 focus:ring-accent-bright",
+            TRIGGER_BASE,
+            "gap-2",
             hideSolo && "border-accent-bright/40 bg-accent-bright/5",
           )}
         >

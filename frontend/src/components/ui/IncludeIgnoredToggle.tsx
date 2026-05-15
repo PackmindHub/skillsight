@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { TRIGGER_BASE } from "./_styles";
 
 interface IncludeIgnoredToggleProps {
 	value: boolean;
@@ -19,7 +20,8 @@ export function IncludeIgnoredToggle({
 			aria-pressed={value}
 			onClick={() => onChange(!value)}
 			className={cn(
-				"inline-flex h-8 items-center gap-2 rounded-md border border-edge bg-surface-800 px-3 text-sm text-text-1 hover:bg-surface-700 focus:outline-none focus:ring-1 focus:ring-accent-bright",
+				TRIGGER_BASE,
+				"gap-2",
 				value && "border-accent-bright/40 bg-accent-bright/5",
 				className,
 			)}
