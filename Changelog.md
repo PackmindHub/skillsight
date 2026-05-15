@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0
 
 - Track `plugin_loaded` events to surface adoption-funnel metrics (loaders vs. activations), including a weekly unique-loaders chart in the plugin drawer.
 - Track plugin version history in a new `plugin_versions` table so version drift across loads is observable.
@@ -8,6 +8,7 @@
 - Harden the separation between session JWTs and OTLP ingestion tokens, and gate admin-only routes accordingly.
 - Speed up the Skills usage table with a `plugin_loaded` partial index, and stop refetching the Skills/Plugins tables on every window focus.
 - Converge Skills, Plugins, and Marketplaces pages onto the shared design system primitives, with consistent header styling, status indicator strips, and tooltips on non-obvious columns.
+- Surface stat-card explanations via a HelpTip popover on the Dashboard.
 - Drop `HH:MM` from the relative-time fallback for cleaner timestamps.
 
 ## 0.1.2
