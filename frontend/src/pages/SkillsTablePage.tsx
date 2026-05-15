@@ -530,14 +530,12 @@ export default function SkillsTablePage() {
 	}, [periodFilterKey, reloadToken, includeIgnored]);
 
 	useEffect(() => {
-		function onFocus() {
+		function onVisibilityChange() {
 			if (document.visibilityState === "visible") setReloadToken((n) => n + 1);
 		}
-		window.addEventListener("focus", onFocus);
-		document.addEventListener("visibilitychange", onFocus);
+		document.addEventListener("visibilitychange", onVisibilityChange);
 		return () => {
-			window.removeEventListener("focus", onFocus);
-			document.removeEventListener("visibilitychange", onFocus);
+			document.removeEventListener("visibilitychange", onVisibilityChange);
 		};
 	}, []);
 
