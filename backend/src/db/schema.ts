@@ -146,6 +146,13 @@ export const skillNamePartialIndexSql = sql`
   WHERE event_name = ${EVENT_NAMES.SKILL_ACTIVATED}
 `;
 
+// Partial functional index for plugin name lookups (created manually in migration)
+export const eventsPluginLoadedPartialIndexSql = sql`
+  CREATE INDEX IF NOT EXISTS events_plugin_loaded_partial_idx
+  ON events ((attributes->>'plugin.name'), timestamp)
+  WHERE event_name = ${EVENT_NAMES.PLUGIN_LOADED}
+`;
+
 export const pluginSkills = pgTable(
 	"plugin_skills",
 	{
