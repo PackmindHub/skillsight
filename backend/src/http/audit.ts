@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { AppVariables } from "@/types";
 import type { AppDeps } from "@/bootstrap/compose";
 import { sessionAuth } from "@/middleware/session-auth";
+import { requireAdmin } from "@/middleware/require-admin";
 import { listAuditEvents } from "@/application/audit/list-audit-events";
 import { exportAuditEventsCsv } from "@/application/audit/export-audit-events";
 import { ALL_AUDIT_ACTIONS, type AuditAction, type AuditFilters } from "@/domain/audit";
@@ -54,6 +55,7 @@ function readQueryRecord(c: { req: { queries: () => Record<string, string[] | un
 export function createAuditRoute(deps: Pick<AppDeps, "audit">) {
 	const route = new Hono<{ Variables: AppVariables }>();
 	route.use("*", sessionAuth);
+	route.use("*", requireAdmin);
 
 	route.get("/", async (c) => {
 		const queries = readQueryRecord(c);

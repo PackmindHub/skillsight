@@ -2,7 +2,7 @@ import type { IUserRepository } from "@/domain/ports/user-repository";
 import type { IAuditRepository } from "@/domain/ports/audit-repository";
 import type { User } from "@/domain/user";
 import { verifyPassword } from "@/infrastructure/crypto/password";
-import { signToken } from "@/infrastructure/crypto/jwt";
+import { signSessionToken } from "@/infrastructure/crypto/jwt";
 
 interface LoginDeps {
 	users: IUserRepository;
@@ -23,7 +23,7 @@ export async function login(
 	const valid = await verifyPassword(passwordHash, input.password);
 	if (!valid) return { error: "invalid_credentials" };
 
-	const sessionJwt = await signToken(
+	const sessionJwt = await signSessionToken(
 		{ sub: user.id, email: user.email, role: user.role },
 		"1d",
 	);

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { updateSkillStatus } from "@/application/skills/update-skill-status";
 import type { AppDeps } from "@/bootstrap/compose";
 import { sessionAuth } from "@/middleware/session-auth";
+import { requireAdmin } from "@/middleware/require-admin";
 import type { AppVariables } from "@/types";
 
 const updateSchema = z.object({
@@ -14,6 +15,7 @@ const updateSchema = z.object({
 export function createUpdateStatusRoute(deps: Pick<AppDeps, "skills" | "audit">) {
 	const route = new Hono<{ Variables: AppVariables }>();
 	route.use("*", sessionAuth);
+	route.use("*", requireAdmin);
 
 	route.patch("/status", async (c) => {
 		const body = updateSchema.parse(await c.req.json());

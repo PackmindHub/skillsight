@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { AppVariables } from "@/types";
 import type { AppDeps } from "@/bootstrap/compose";
 import { sessionAuth } from "@/middleware/session-auth";
+import { requireAdmin } from "@/middleware/require-admin";
 import { deleteMarketplace } from "@/application/marketplaces/delete-marketplace";
 import {
 	DELETE_MARKETPLACES_MAX_BATCH,
@@ -53,7 +54,7 @@ export function createMarketplacesRoute(
 		return c.json({ marketplaces: await listMarketplaces(deps, { includeIgnored }) });
 	});
 
-	route.post("/bulk-delete", async (c) => {
+	route.post("/bulk-delete", requireAdmin, async (c) => {
 		const body = bulkDeleteSchema.parse(await c.req.json());
 		const result = await deleteMarketplaces(deps, {
 			names: body.names,
@@ -72,7 +73,7 @@ export function createMarketplacesRoute(
 		return c.json(result);
 	});
 
-	route.patch("/bulk-status", async (c) => {
+	route.patch("/bulk-status", requireAdmin, async (c) => {
 		const body = bulkStatusSchema.parse(await c.req.json());
 		const result = await updateMarketplacesStatus(deps, {
 			names: body.names,
@@ -93,7 +94,7 @@ export function createMarketplacesRoute(
 		return c.json(detail);
 	});
 
-	route.patch("/:name", async (c) => {
+	route.patch("/:name", requireAdmin, async (c) => {
 		const name = decodeURIComponent(c.req.param("name"));
 		const body = updateSchema.parse(await c.req.json());
 		const result = await updateMarketplace(
@@ -104,7 +105,7 @@ export function createMarketplacesRoute(
 		return c.json(result);
 	});
 
-	route.delete("/:name", async (c) => {
+	route.delete("/:name", requireAdmin, async (c) => {
 		const name = decodeURIComponent(c.req.param("name"));
 		const mode = deleteModeSchema.parse(c.req.query("mode"));
 		const withSources = c.req.query("withSources") === "true";

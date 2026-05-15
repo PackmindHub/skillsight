@@ -5,6 +5,7 @@ import type { AppVariables } from "@/types";
 import type { AppDeps } from "@/bootstrap/compose";
 import { DEFAULT_LOKI_QUERY } from "@/domain/event";
 import { sessionAuth } from "@/middleware/session-auth";
+import { requireAdmin } from "@/middleware/require-admin";
 import { listIntegrations } from "@/application/integrations/list-integrations";
 import { createIntegration } from "@/application/integrations/create-integration";
 import { updateIntegration } from "@/application/integrations/update-integration";
@@ -81,6 +82,7 @@ export function createIntegrationsRoute(
 
 	const route = new Hono<{ Variables: AppVariables }>();
 	route.use("*", sessionAuth);
+	route.use("*", requireAdmin);
 
 	route.get("/", async (c) => {
 		return c.json(await listIntegrations(deps));

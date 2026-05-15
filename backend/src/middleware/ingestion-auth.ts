@@ -12,6 +12,9 @@ export function ingestionAuth(tokens: ITokenRepository) {
 		let jti: string;
 		try {
 			const payload = await verifyToken(token);
+			// Reject anything that isn't an ingestion token (notably: session
+			// JWTs, which are signed with the same secret).
+			if (payload.type !== "ingestion") return c.json({}, 401);
 			if (!payload.jti) return c.json({}, 401);
 			jti = payload.jti;
 		} catch {

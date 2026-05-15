@@ -16,6 +16,13 @@ export async function signToken(
 		.sign(encodeSecret(config.JWT_SECRET));
 }
 
+export async function signSessionToken(
+	payload: { sub: string; email: string; role: string },
+	expiresIn: string | number,
+): Promise<string> {
+	return signToken({ ...payload, type: "session" }, expiresIn);
+}
+
 export async function verifyToken(token: string): Promise<JWTPayload> {
 	const secrets = [config.JWT_SECRET, config.JWT_SECRET_PREVIOUS].filter(Boolean) as string[];
 	let lastError: unknown;

@@ -3,7 +3,7 @@ import { Hono } from "hono";
 import { createTelemetryRoute } from "./telemetry";
 import type { Token } from "@/domain/token";
 import type { ITokenRepository } from "@/domain/ports/token-repository";
-import { createIngestionToken } from "@/infrastructure/crypto/jwt";
+import { createIngestionToken, signSessionToken } from "@/infrastructure/crypto/jwt";
 
 function makeDeps() {
 	const tokens: ITokenRepository = {
@@ -54,6 +54,24 @@ describe("POST /api/v0/telemetry/v1/logs", () => {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: "{}",
+		});
+		expect(res.status).toBe(401);
+	});
+
+	it("returns 401 when a session JWT is presented as the Bearer token", async () => {
+		const deps = makeDeps();
+		const app = makeApp(deps);
+		const sessionJwt = await signSessionToken(
+			{ sub: "user-1", email: "alice@example.com", role: "admin" },
+			"1h",
+		);
+		const res = await app.request("/api/v0/telemetry/v1/logs", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${sessionJwt}`,
+			},
+			body: JSON.stringify({ resourceLogs: [] }),
 		});
 		expect(res.status).toBe(401);
 	});

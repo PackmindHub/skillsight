@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { AppVariables } from "@/types";
 import type { AppDeps } from "@/bootstrap/compose";
 import { sessionAuth } from "@/middleware/session-auth";
+import { requireAdmin } from "@/middleware/require-admin";
 import { listMarketplaceSources } from "@/application/marketplace-sources/list-marketplace-sources";
 import { createMarketplaceSource } from "@/application/marketplace-sources/create-marketplace-source";
 import { updateMarketplaceSource } from "@/application/marketplace-sources/update-marketplace-source";
@@ -66,6 +67,7 @@ export function createMarketplaceSourcesRoute(
 
 	const route = new Hono<{ Variables: AppVariables }>();
 	route.use("*", sessionAuth);
+	route.use("*", requireAdmin);
 
 	route.get("/", async (c) => {
 		return c.json(await listMarketplaceSources(deps));
