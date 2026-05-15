@@ -1,4 +1,5 @@
 import { MarketplaceDetailsDrawer } from "@/components/marketplaces/MarketplaceDetailsDrawer";
+import { MarketplaceStatStrip } from "@/components/marketplaces/MarketplaceStatStrip";
 import { SourceErrorBanner } from "@/components/marketplaces/SourceErrorBanner";
 import {
 	Button,
@@ -23,15 +24,7 @@ import {
 	type MarketplaceSource,
 	type MarketplaceStatus,
 } from "@/types/api";
-import {
-	ExternalLink,
-	GitBranch,
-	Link2Off,
-	Pencil,
-	Play,
-	RefreshCw,
-	Trash2,
-} from "lucide-react";
+import { ExternalLink, GitBranch, Link2Off, Pencil, Play, RefreshCw, Trash2 } from "lucide-react";
 import { type FormEvent, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -361,6 +354,8 @@ export default function MarketplacesPage() {
 	const { includeIgnored, setIncludeIgnored } = useIncludeIgnored();
 	const search = searchParams.get("search") ?? "";
 	const highlightName = searchParams.get("name") ?? "";
+	const yieldingOnly = searchParams.get("yielding") === "1";
+	const recentOnly = searchParams.get("recent") === "1";
 	const highlightedRowRef = useRef<HTMLDivElement | null>(null);
 	const sourceFormRef = useRef<HTMLDivElement | null>(null);
 
@@ -398,6 +393,18 @@ export default function MarketplacesPage() {
 			(prev) => {
 				const next = new URLSearchParams(prev);
 				next.delete(key);
+				return next;
+			},
+			{ replace: true },
+		);
+	}
+
+	function toggleParam(key: string, on: boolean) {
+		setSearchParams(
+			(prev) => {
+				const next = new URLSearchParams(prev);
+				if (on) next.set(key, "1");
+				else next.delete(key);
 				return next;
 			},
 			{ replace: true },
@@ -727,12 +734,33 @@ export default function MarketplacesPage() {
 	}
 
 	const filteredItems = useMemo(() => {
+		const recentCutoffMs = Date.now() - 7 * 24 * 60 * 60 * 1000;
 		return items.filter((m) => {
 			if (statusFilter !== "all" && m.status !== statusFilter) return false;
+			if (yieldingOnly && m.activatedSkillCount === 0) return false;
+			if (recentOnly && new Date(m.firstSeenAt).getTime() < recentCutoffMs) return false;
 			if (search && !m.name.toLowerCase().includes(search.toLowerCase())) return false;
 			return true;
 		});
-	}, [items, statusFilter, search]);
+	}, [items, statusFilter, search, yieldingOnly, recentOnly]);
+
+	const stats = useMemo(() => {
+		const recentCutoffMs = Date.now() - 7 * 24 * 60 * 60 * 1000;
+		const total = filteredItems.length;
+		let approved = 0;
+		let yielding = 0;
+		let yieldedSkills = 0;
+		let knownSkills = 0;
+		let recentlyAdded = 0;
+		for (const m of filteredItems) {
+			if (m.status === "approved") approved++;
+			if (m.activatedSkillCount > 0) yielding++;
+			yieldedSkills += m.activatedSkillCount;
+			knownSkills += m.knownSkillCount;
+			if (new Date(m.firstSeenAt).getTime() >= recentCutoffMs) recentlyAdded++;
+		}
+		return { total, approved, yielding, yieldedSkills, knownSkills, recentlyAdded };
+	}, [filteredItems]);
 
 	const filteredNames = useMemo(() => filteredItems.map((m) => m.name), [filteredItems]);
 	const visibleSelectedCount = useMemo(
@@ -872,6 +900,23 @@ export default function MarketplacesPage() {
 				subtitle="Discovered marketplaces and imported git sources. Review and approve each source."
 				actions={<Button onClick={() => openCreateSource()}>Import from git</Button>}
 			/>
+
+			{items.length > 0 && (
+				<MarketplaceStatStrip
+					total={stats.total}
+					approved={stats.approved}
+					yielding={stats.yielding}
+					yieldedSkills={stats.yieldedSkills}
+					knownSkills={stats.knownSkills}
+					recentlyAdded={stats.recentlyAdded}
+					approvedOnly={statusFilter === "approved"}
+					onToggleApproved={() => setStatusFilter(statusFilter === "approved" ? "all" : "approved")}
+					yieldingOnly={yieldingOnly}
+					onToggleYielding={() => toggleParam("yielding", !yieldingOnly)}
+					recentOnly={recentOnly}
+					onToggleRecent={() => toggleParam("recent", !recentOnly)}
+				/>
+			)}
 
 			{error && <p className="text-sm text-danger">{error}</p>}
 

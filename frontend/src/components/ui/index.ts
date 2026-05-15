@@ -23,4 +23,6 @@ export { ConfirmDialog } from "./ConfirmDialog";
 export { Menu, MenuDivider, MenuItem, useMenuClose } from "./Menu";
 export { ConfirmMenuItem } from "./ConfirmMenuItem";
 export { Sparkline } from "./Sparkline";
+export { StatCard } from "./StatCard";
+export type { StatCardProps, StatCardTone } from "./StatCard";
 export { TRIGGER_BASE } from "./_styles";

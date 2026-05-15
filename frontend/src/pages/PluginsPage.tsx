@@ -1,5 +1,6 @@
 import { MarketplaceBadge } from "@/components/marketplaces/MarketplaceBadge";
 import { PluginSkillsDrawer } from "@/components/plugins/PluginSkillsDrawer";
+import { PluginStatStrip } from "@/components/plugins/PluginStatStrip";
 import {
 	Button,
 	Card,
@@ -22,6 +23,16 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 
 const NO_MARKETPLACE = "__none__";
 const NO_MARKETPLACE_LABEL = "(none)";
+
+const STALE_THRESHOLD_MS = 30 * 24 * 60 * 60 * 1000;
+
+function isStale(p: Plugin): boolean {
+	return (
+		p.skillCount > 0 &&
+		(!p.lastSkillActivationAt ||
+			Date.now() - new Date(p.lastSkillActivationAt).getTime() > STALE_THRESHOLD_MS)
+	);
+}
 
 function pickList(raw: string | null, allowed: readonly string[]): string[] {
 	if (!raw) return [];
@@ -170,6 +181,11 @@ export default function PluginsPage() {
 
 	const search = searchParams.get("search") ?? "";
 	const highlightName = searchParams.get("name") ?? "";
+	const adoptedOnly = searchParams.get("adopted") === "1";
+	const activatedOnly = searchParams.get("activated") === "1";
+	const shelfwareOnly = searchParams.get("shelfware") === "1";
+	const approvedMpOnly = searchParams.get("approvedMp") === "1";
+	const staleOnly = searchParams.get("stale") === "1";
 	const highlightedRowRef = useRef<HTMLDivElement | null>(null);
 
 	const allMarketplaceNames = useMemo(() => {
@@ -245,6 +261,18 @@ export default function PluginsPage() {
 		);
 	}
 
+	function toggleParam(key: string, on: boolean) {
+		setSearchParams(
+			(prev) => {
+				const next = new URLSearchParams(prev);
+				if (on) next.set(key, "1");
+				else next.delete(key);
+				return next;
+			},
+			{ replace: true },
+		);
+	}
+
 	const [reloadToken, setReloadToken] = useState(0);
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: reloadToken is a manual refetch trigger
@@ -293,10 +321,43 @@ export default function PluginsPage() {
 				const matchesNamed = !!p.marketplaceName && wantedNames.includes(p.marketplaceName);
 				if (!((wantsNone && hasNone) || matchesNamed)) return false;
 			}
+			if (adoptedOnly && p.uniqueLoaderCount === 0) return false;
+			if (activatedOnly && p.skillActivationCount === 0) return false;
+			if (shelfwareOnly && !(p.uniqueLoaderCount > 0 && p.skillActivationCount === 0)) return false;
+			if (approvedMpOnly && p.marketplaceStatus !== "approved") return false;
+			if (staleOnly && !isStale(p)) return false;
 			if (search && !p.pluginName.toLowerCase().includes(search.toLowerCase())) return false;
 			return true;
 		});
-	}, [items, statusFilter, search, marketplaces, includeWithoutSkills]);
+	}, [
+		items,
+		statusFilter,
+		search,
+		marketplaces,
+		includeWithoutSkills,
+		adoptedOnly,
+		activatedOnly,
+		shelfwareOnly,
+		approvedMpOnly,
+		staleOnly,
+	]);
+
+	const stats = useMemo(() => {
+		const total = filteredItems.length;
+		let adopted = 0;
+		let activated = 0;
+		let shelfware = 0;
+		let approvedMp = 0;
+		let stale = 0;
+		for (const p of filteredItems) {
+			if (p.uniqueLoaderCount > 0) adopted++;
+			if (p.skillActivationCount > 0) activated++;
+			if (p.uniqueLoaderCount > 0 && p.skillActivationCount === 0) shelfware++;
+			if (p.marketplaceStatus === "approved") approvedMp++;
+			if (isStale(p)) stale++;
+		}
+		return { total, adopted, activated, shelfware, approvedMp, stale };
+	}, [filteredItems]);
 
 	const sortedItems = useMemo(() => {
 		const arr = [...filteredItems];
@@ -474,6 +535,27 @@ export default function PluginsPage() {
 				title={loading ? "Plugins" : `Plugins (${items.length})`}
 				subtitle="Plugins discovered from installation events. Status reflects the approval state of the associated marketplace."
 			/>
+
+			{items.length > 0 && (
+				<PluginStatStrip
+					total={stats.total}
+					adopted={stats.adopted}
+					activated={stats.activated}
+					shelfware={stats.shelfware}
+					approvedMp={stats.approvedMp}
+					stale={stats.stale}
+					adoptedOnly={adoptedOnly}
+					onToggleAdopted={() => toggleParam("adopted", !adoptedOnly)}
+					activatedOnly={activatedOnly}
+					onToggleActivated={() => toggleParam("activated", !activatedOnly)}
+					shelfwareOnly={shelfwareOnly}
+					onToggleShelfware={() => toggleParam("shelfware", !shelfwareOnly)}
+					approvedMpOnly={approvedMpOnly}
+					onToggleApprovedMp={() => toggleParam("approvedMp", !approvedMpOnly)}
+					staleOnly={staleOnly}
+					onToggleStale={() => toggleParam("stale", !staleOnly)}
+				/>
+			)}
 
 			{error && <p className="text-sm text-danger">{error}</p>}
 

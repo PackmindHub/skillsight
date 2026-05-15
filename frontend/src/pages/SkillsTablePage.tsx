@@ -1,8 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
-import { useNavigate, useSearchParams } from "react-router-dom";
 import { MarketplaceBadge } from "@/components/marketplaces/MarketplaceBadge";
 import { SkillDetailDrawer } from "@/components/skills/SkillDetailDrawer";
+import { SkillStatStrip } from "@/components/skills/SkillStatStrip";
 import { TrendSparkline } from "@/components/skills/TrendSparkline";
 import {
 	Button,
@@ -27,17 +25,20 @@ import { useIncludeIgnored } from "@/lib/use-include-ignored";
 import { useStatusFilter } from "@/lib/use-status-filter";
 import { cn, computeDeltaPct } from "@/lib/utils";
 import {
-	SKILL_SOURCE_LABELS,
-	SKILL_SOURCES,
-	SKILL_STATUSES,
-	isBundledSource,
-	isKnownSkillSource,
 	type DashboardPeriod,
 	type PeriodFilter,
+	SKILL_SOURCES,
+	SKILL_SOURCE_LABELS,
+	SKILL_STATUSES,
 	type SkillSource,
 	type SkillStatus,
 	type SkillTableRow,
+	isBundledSource,
+	isKnownSkillSource,
 } from "@/types/api";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const SKILL_STATUS_CHIP_OPTIONS: readonly StatusChipOption<SkillStatus>[] = [
 	{ value: "approved", label: "Approved", tone: "success" },
@@ -89,10 +90,7 @@ const TRIG_TIP_WIDTH = 460;
 const TRIG_TIP_MARGIN = 12;
 
 function TriggerMixCell({ row }: { row: SkillTableRow }) {
-	const unknown = Math.max(
-		0,
-		row.total - row.userSlash - row.claudeProactive - row.nestedSkill,
-	);
+	const unknown = Math.max(0, row.total - row.userSlash - row.claudeProactive - row.nestedSkill);
 	const segments: {
 		key: string;
 		label: string;
@@ -122,7 +120,8 @@ function TriggerMixCell({ row }: { row: SkillTableRow }) {
 		const belowTop = rect.bottom + 8;
 		const approxHeight = 220;
 		const top =
-			belowTop + approxHeight > vh - TRIG_TIP_MARGIN && rect.top - 8 - approxHeight > TRIG_TIP_MARGIN
+			belowTop + approxHeight > vh - TRIG_TIP_MARGIN &&
+			rect.top - 8 - approxHeight > TRIG_TIP_MARGIN
 				? rect.top - 8 - approxHeight
 				: belowTop;
 		setTipPos({ left, top });
@@ -192,14 +191,9 @@ function TriggerMixCell({ row }: { row: SkillTableRow }) {
 									)}
 									style={{ gridTemplateColumns: "12px 150px 1fr 64px 48px" }}
 								>
-									<span
-										className="h-3 w-3 rounded-[3px]"
-										style={{ background: s.gradient }}
-									/>
+									<span className="h-3 w-3 rounded-[3px]" style={{ background: s.gradient }} />
 									<span className="text-text-1">{s.label}</span>
-									<span className="font-sans text-[13px] leading-snug text-text-3">
-										{s.hint}
-									</span>
+									<span className="font-sans text-[13px] leading-snug text-text-3">{s.hint}</span>
 									<span className="text-right text-[14px] tabular-nums text-text-1">
 										{s.value.toLocaleString("en-US")}
 									</span>
@@ -217,6 +211,7 @@ function TriggerMixCell({ row }: { row: SkillTableRow }) {
 const NO_SOURCE_FILTER = "__none__";
 type SourceFilter = "all" | SkillSource | typeof NO_SOURCE_FILTER;
 type UsageFilter = "all" | "activated" | "never_used";
+type PluginLinkFilter = "all" | "linked" | "orphan";
 type SortKey =
 	| "skillName"
 	| "total"
@@ -231,6 +226,7 @@ type SortDir = "asc" | "desc";
 
 const SOURCE_VALUES: SourceFilter[] = ["all", ...SKILL_SOURCES, NO_SOURCE_FILTER];
 const USAGE_VALUES: UsageFilter[] = ["all", "activated", "never_used"];
+const PLUGIN_LINK_VALUES: PluginLinkFilter[] = ["all", "linked", "orphan"];
 const SORT_KEYS: SortKey[] = [
 	"skillName",
 	"total",
@@ -364,6 +360,14 @@ export default function SkillsTablePage() {
 	const search = searchParams.get("search") ?? "";
 	const sourceFilter = pick<SourceFilter>(searchParams.get("source"), SOURCE_VALUES, "all");
 	const usageFilter = pick<UsageFilter>(searchParams.get("usage"), USAGE_VALUES, "all");
+	const pluginLinkFilter = pick<PluginLinkFilter>(
+		searchParams.get("pluginLink"),
+		PLUGIN_LINK_VALUES,
+		"all",
+	);
+	const approvedOnly = searchParams.get("approvedMp") === "1";
+	const activeOnly = searchParams.get("activeWindow") === "1";
+	const soloOnly = searchParams.get("solo") === "1";
 	const sortKey = pick<SortKey>(searchParams.get("sort"), SORT_KEYS, "total");
 	const sortDir: SortDir = searchParams.get("dir") === "asc" ? "asc" : "desc";
 	const { status: statusFilter, setStatus } = useStatusFilter<SkillStatus>(
@@ -395,10 +399,7 @@ export default function SkillsTablePage() {
 		return Array.from(names).sort();
 	}, [rows]);
 
-	const pluginFilterValues = useMemo(
-		() => [...allPluginNames, NO_PLUGIN_FILTER],
-		[allPluginNames],
-	);
+	const pluginFilterValues = useMemo(() => [...allPluginNames, NO_PLUGIN_FILTER], [allPluginNames]);
 	const plugins = pickList(searchParams.get("plugin"), pluginFilterValues);
 
 	const debouncedSearch = useDebouncedValue(search, 150);
@@ -475,16 +476,10 @@ export default function SkillsTablePage() {
 		);
 	}
 
-	async function handleStatusChange(
-		skillName: string,
-		pluginName: string,
-		status: SkillStatus,
-	) {
+	async function handleStatusChange(skillName: string, pluginName: string, status: SkillStatus) {
 		setRows((prev) =>
 			prev.map((r) =>
-				r.skillName === skillName && (r.pluginName ?? "") === pluginName
-					? { ...r, status }
-					: r,
+				r.skillName === skillName && (r.pluginName ?? "") === pluginName ? { ...r, status } : r,
 			),
 		);
 		try {
@@ -550,6 +545,11 @@ export default function SkillsTablePage() {
 		const q = debouncedSearch.trim();
 		const scored: { row: SkillTableRow; score: number }[] = [];
 		for (const row of rows) {
+			if (pluginLinkFilter === "linked" && !row.pluginName) continue;
+			if (pluginLinkFilter === "orphan" && row.pluginName) continue;
+			if (approvedOnly && !row.marketplaces.some((m) => m.status === "approved")) continue;
+			if (activeOnly && row.total === 0) continue;
+			if (soloOnly && !(row.uniqueUsers === 1 && row.total > 0)) continue;
 			if (plugins.length > 0) {
 				const wantsNone = plugins.includes(NO_PLUGIN_FILTER);
 				const wantedNames = plugins.filter((p) => p !== NO_PLUGIN_FILTER);
@@ -570,7 +570,11 @@ export default function SkillsTablePage() {
 				const matchesNamed = row.marketplaces.some((mp) => wantedNames.includes(mp.name));
 				if (!((wantsNone && hasNone) || matchesNamed)) continue;
 			}
-			if (triggers.length > 0 && !triggers.some((t) => (row[t as keyof SkillTableRow] as number) > 0)) continue;
+			if (
+				triggers.length > 0 &&
+				!triggers.some((t) => (row[t as keyof SkillTableRow] as number) > 0)
+			)
+				continue;
 			// "Activated" / "Never used" are lifetime semantics — gated on
 			// lastSeenAt (which the backend now computes without a time filter),
 			// not on the windowed `total`. Otherwise a heavily-used skill with no
@@ -634,7 +638,26 @@ export default function SkillsTablePage() {
 		sortKey,
 		sortDir,
 		plugins,
+		pluginLinkFilter,
+		approvedOnly,
+		activeOnly,
+		soloOnly,
 	]);
+
+	const stats = useMemo(() => {
+		const total = filteredRows.length;
+		let linked = 0;
+		let inApproved = 0;
+		let activeInWindow = 0;
+		let soloUser = 0;
+		for (const row of filteredRows) {
+			if (row.pluginName) linked++;
+			if (row.marketplaces.some((m) => m.status === "approved")) inApproved++;
+			if (row.total > 0) activeInWindow++;
+			if (row.uniqueUsers === 1 && row.total > 0) soloUser++;
+		}
+		return { total, linked, orphan: total - linked, inApproved, activeInWindow, soloUser };
+	}, [filteredRows]);
 
 	const suggestions = useMemo(() => {
 		const q = debouncedSearch.trim();
@@ -759,9 +782,7 @@ export default function SkillsTablePage() {
 
 		setRows((prev) =>
 			prev.map((r) =>
-				selectedKeys.has(rowKey(r)) && (r.pluginName ?? "") === ""
-					? { ...r, status }
-					: r,
+				selectedKeys.has(rowKey(r)) && (r.pluginName ?? "") === "" ? { ...r, status } : r,
 			),
 		);
 
@@ -792,10 +813,13 @@ export default function SkillsTablePage() {
 		statusFilter !== "all" ||
 		marketplaces.length > 0 ||
 		triggers.length > 0 ||
-		plugins.length > 0;
+		plugins.length > 0 ||
+		pluginLinkFilter !== "all" ||
+		approvedOnly ||
+		activeOnly ||
+		soloOnly;
 
-	const isLeastUsedPreset =
-		usageFilter === "activated" && sortKey === "total" && sortDir === "asc";
+	const isLeastUsedPreset = usageFilter === "activated" && sortKey === "total" && sortDir === "asc";
 
 	function applyLeastUsedPreset() {
 		setSearchParams(
@@ -853,6 +877,23 @@ export default function SkillsTablePage() {
 						)}
 					</div>
 				}
+			/>
+
+			<SkillStatStrip
+				total={stats.total}
+				linked={stats.linked}
+				orphan={stats.orphan}
+				inApproved={stats.inApproved}
+				activeInWindow={stats.activeInWindow}
+				soloUser={stats.soloUser}
+				pluginLink={pluginLinkFilter}
+				onTogglePluginLink={(next) => updateParam("pluginLink", next, "all")}
+				approvedOnly={approvedOnly}
+				onToggleApproved={() => updateParam("approvedMp", approvedOnly ? "" : "1", "")}
+				activeOnly={activeOnly}
+				onToggleActive={() => updateParam("activeWindow", activeOnly ? "" : "1", "")}
+				soloOnly={soloOnly}
+				onToggleSolo={() => updateParam("solo", soloOnly ? "" : "1", "")}
 			/>
 
 			<SearchBar
@@ -940,19 +981,43 @@ export default function SkillsTablePage() {
 					{search && (
 						<FilterPill label={`"${search}"`} onRemove={() => updateParam("search", "", "")} />
 					)}
+					{pluginLinkFilter !== "all" && (
+						<FilterPill
+							label={`Plugin link: ${pluginLinkFilter === "linked" ? "linked" : "not in plugin"}`}
+							onRemove={() => updateParam("pluginLink", "", "all")}
+						/>
+					)}
+					{approvedOnly && (
+						<FilterPill
+							label="Marketplace: approved"
+							onRemove={() => updateParam("approvedMp", "", "")}
+						/>
+					)}
+					{activeOnly && (
+						<FilterPill
+							label="Active in window"
+							onRemove={() => updateParam("activeWindow", "", "")}
+						/>
+					)}
+					{soloOnly && (
+						<FilterPill label="Solo-user skills" onRemove={() => updateParam("solo", "", "")} />
+					)}
 					{plugins.map((p) => (
 						<FilterPill
 							key={`pl-${p}`}
 							label={`Plugin: ${p === NO_PLUGIN_FILTER ? NO_PLUGIN_LABEL : p}`}
-							onRemove={() => setListParam("plugin", plugins.filter((x) => x !== p))}
+							onRemove={() =>
+								setListParam(
+									"plugin",
+									plugins.filter((x) => x !== p),
+								)
+							}
 						/>
 					))}
 					{sourceFilter !== "all" && (
 						<FilterPill
 							label={`Source: ${
-								sourceFilter === NO_SOURCE_FILTER
-									? "(none)"
-									: SKILL_SOURCE_LABELS[sourceFilter]
+								sourceFilter === NO_SOURCE_FILTER ? "(none)" : SKILL_SOURCE_LABELS[sourceFilter]
 							}`}
 							onRemove={() => updateParam("source", "", "all")}
 						/>
@@ -970,14 +1035,24 @@ export default function SkillsTablePage() {
 						<FilterPill
 							key={`mp-${m}`}
 							label={`Marketplace: ${m === NO_MARKETPLACE ? NO_MARKETPLACE_LABEL : m}`}
-							onRemove={() => setListParam("marketplace", marketplaces.filter((x) => x !== m))}
+							onRemove={() =>
+								setListParam(
+									"marketplace",
+									marketplaces.filter((x) => x !== m),
+								)
+							}
 						/>
 					))}
 					{triggers.map((t) => (
 						<FilterPill
 							key={`tr-${t}`}
 							label={`Trigger: ${TRIGGERS.find((tr) => tr.key === t)?.label ?? t}`}
-							onRemove={() => setListParam("trigger", triggers.filter((x) => x !== t))}
+							onRemove={() =>
+								setListParam(
+									"trigger",
+									triggers.filter((x) => x !== t),
+								)
+							}
 						/>
 					))}
 				</div>
@@ -1063,9 +1138,7 @@ export default function SkillsTablePage() {
 							{bulkStatusResult.notFound > 0 && (
 								<>
 									{" · "}
-									<span className="text-text-3">
-										{bulkStatusResult.notFound} not found
-									</span>
+									<span className="text-text-3">{bulkStatusResult.notFound} not found</span>
 								</>
 							)}
 						</>
@@ -1213,189 +1286,186 @@ export default function SkillsTablePage() {
 							const key = rowKey(row);
 							const checked = selectedKeys.has(key);
 							return (
-							<tr
-								key={key}
-								onClick={() => setOpenSkill(row.skillName)}
-								onKeyDown={(e) => {
-									if (e.key === "Enter" || e.key === " ") {
-										e.preventDefault();
-										setOpenSkill(row.skillName);
-									}
-								}}
-								tabIndex={0}
-								className={cn(
-									"hover:bg-surface-800 transition-colors cursor-pointer focus:outline-none focus:bg-surface-800",
-									row.total === 0 && "opacity-60",
-									checked && "bg-accent-bright/5",
-								)}
-							>
-								<td
-									className="w-10 px-3 py-3"
-									onClick={(e) => e.stopPropagation()}
-									onKeyDown={(e) => e.stopPropagation()}
-								>
-									<input
-										type="checkbox"
-										aria-label={`Select skill ${row.skillName}`}
-										checked={checked}
-										onChange={() => toggleRow(key)}
-										className="h-4 w-4 cursor-pointer accent-accent-bright"
-									/>
-								</td>
-								<td className="px-4 py-3 font-mono text-text-1">
-									<span className="flex items-center gap-2">
-										{row.skillName}
-										{row.lastSeenAt === null && (
-											<span className="inline-flex items-center rounded border border-edge bg-surface-800 px-1.5 py-0.5 text-xs text-text-3">
-												Never used
-											</span>
-										)}
-									</span>
-								</td>
-								<td className="px-4 py-3 text-right font-mono text-text-1 tabular-nums">
-									{row.total.toLocaleString("en-US")}
-								</td>
-								<td className="px-4 py-3 text-right font-mono tabular-nums">
-									{row.uniqueUsers > 0 ? (
-										<span className="text-text-1">
-											{row.uniqueUsers.toLocaleString("en-US")}
-										</span>
-									) : (
-										<span className="text-text-4">—</span>
-									)}
-								</td>
-								<td
-									className="px-4 py-3 text-right font-mono tabular-nums"
-									title={
-										row.pluginUniqueLoaders == null
-											? "Loader counts only apply to plugin-owned skills"
-											: "Distinct users who loaded the plugin that ships this skill"
-									}
-								>
-									{row.pluginUniqueLoaders == null ? (
-										<span className="text-text-4">—</span>
-									) : row.pluginUniqueLoaders > 0 ? (
-										<span className="text-text-1">
-											{row.pluginUniqueLoaders.toLocaleString("en-US")}
-										</span>
-									) : (
-										<span className="text-text-4">0</span>
-									)}
-								</td>
-								<td className="px-4 py-3">
-									{(() => {
-										// dailyCounts is capped at 90 days, so for the "All" preset the
-										// Δ would silently mean "last 45d vs preceding 45d" — misleading.
-										// Suppress it until we have lifetime daily aggregates.
-										const isAllPreset =
-											periodFilter.kind === "preset" && periodFilter.days === "all";
-										if (isAllPreset)
-											return <span className="font-mono text-[11px] text-text-4">·</span>;
-										const pct = computeDeltaPct(row.dailyCounts);
-										if (pct === 0) return <span className="font-mono text-[11px] text-text-4">·</span>;
-										return (
-											<span className={cn(
-												"font-mono text-[11px]",
-												pct > 0 ? "text-success" : "text-danger",
-											)}>
-												{pct > 0 ? `+${pct}%` : `${pct}%`}
-											</span>
-										);
-									})()}
-								</td>
-								<td className="px-4 py-3">
-									<TrendSparkline
-										values={row.dailyCounts}
-										width={80}
-										height={20}
-										strokeClass={row.total === 0 ? "stroke-text-4" : "stroke-accent-bright"}
-										fillClass={row.total === 0 ? "fill-transparent" : "fill-accent-bright/15"}
-										days={
-											periodFilter.kind === "preset" && typeof periodFilter.days === "number"
-												? periodFilter.days
-												: row.dailyCounts.length
+								<tr
+									key={key}
+									onClick={() => setOpenSkill(row.skillName)}
+									onKeyDown={(e) => {
+										if (e.key === "Enter" || e.key === " ") {
+											e.preventDefault();
+											setOpenSkill(row.skillName);
 										}
-									/>
-								</td>
-								<td className="px-4 py-3">
-									{row.marketplaces.length > 0 ? (
-										<div className="flex flex-wrap gap-1">
-											{row.marketplaces.map((mp) => (
-												<MarketplaceBadge
-													key={mp.name}
-													name={mp.name}
-													status={mp.status}
-													onClick={(e) => e.stopPropagation()}
-												/>
-											))}
-										</div>
-									) : (
-										<span className="text-text-4">—</span>
+									}}
+									tabIndex={0}
+									className={cn(
+										"hover:bg-surface-800 transition-colors cursor-pointer focus:outline-none focus:bg-surface-800",
+										row.total === 0 && "opacity-60",
+										checked && "bg-accent-bright/5",
 									)}
-								</td>
-								<td className="px-4 py-3">
-									{isBundledSource(row.skillSource) ? (
-										<span
-											className="inline-flex cursor-help items-center rounded border border-accent-soft/30 bg-accent-bright/15 px-1.5 py-0.5 font-mono text-[11px] text-accent-soft"
-											title="Bundled skills ship inside Claude Code itself, so they are approved by default. You can still override their status manually."
-										>
-											{SKILL_SOURCE_LABELS.bundled.toLowerCase()}
-										</span>
-									) : isKnownSkillSource(row.skillSource) ? (
-										<span className="font-mono text-[11px] text-text-4">
-											{SKILL_SOURCE_LABELS[row.skillSource]}
-										</span>
-									) : (
-										<span className="font-mono text-[11px] text-text-4">—</span>
-									)}
-								</td>
-								<td
-									className="px-4 py-3"
-									onClick={(e) => e.stopPropagation()}
-									onKeyDown={(e) => e.stopPropagation()}
 								>
-									{(() => {
-										const status = (row.status ?? "to_review") as SkillStatus;
-										const pluginName = row.pluginName ?? "";
-										const editable = pluginName === "";
-										return (
-											<StatusChip
-												value={status}
-												options={SKILL_STATUS_CHIP_OPTIONS}
-												onChange={
-													editable
-														? (v) => handleStatusChange(row.skillName, "", v)
-														: undefined
-												}
-												disabled={!editable}
-												ariaLabel={`Status for ${row.skillName}`}
-												title={
-													editable
-														? undefined
-														: `Status inherited from plugin ${pluginName}`
-												}
-											/>
-										);
-									})()}
-								</td>
-								<td className="px-4 py-3">
-									{(() => {
-										const { text, cold } = lastUsedLabel(row.lastSeenAt);
-										return (
-											<span
-												title={row.lastSeenAt ?? "Never used"}
-												className={cn(
-													"font-mono text-[11px]",
-													cold ? "text-text-4" : "text-text-3",
-												)}
-											>
-												{text}
+									<td
+										className="w-10 px-3 py-3"
+										onClick={(e) => e.stopPropagation()}
+										onKeyDown={(e) => e.stopPropagation()}
+									>
+										<input
+											type="checkbox"
+											aria-label={`Select skill ${row.skillName}`}
+											checked={checked}
+											onChange={() => toggleRow(key)}
+											className="h-4 w-4 cursor-pointer accent-accent-bright"
+										/>
+									</td>
+									<td className="px-4 py-3 font-mono text-text-1">
+										<span className="flex items-center gap-2">
+											{row.skillName}
+											{row.lastSeenAt === null && (
+												<span className="inline-flex items-center rounded border border-edge bg-surface-800 px-1.5 py-0.5 text-xs text-text-3">
+													Never used
+												</span>
+											)}
+										</span>
+									</td>
+									<td className="px-4 py-3 text-right font-mono text-text-1 tabular-nums">
+										{row.total.toLocaleString("en-US")}
+									</td>
+									<td className="px-4 py-3 text-right font-mono tabular-nums">
+										{row.uniqueUsers > 0 ? (
+											<span className="text-text-1">{row.uniqueUsers.toLocaleString("en-US")}</span>
+										) : (
+											<span className="text-text-4">—</span>
+										)}
+									</td>
+									<td
+										className="px-4 py-3 text-right font-mono tabular-nums"
+										title={
+											row.pluginUniqueLoaders == null
+												? "Loader counts only apply to plugin-owned skills"
+												: "Distinct users who loaded the plugin that ships this skill"
+										}
+									>
+										{row.pluginUniqueLoaders == null ? (
+											<span className="text-text-4">—</span>
+										) : row.pluginUniqueLoaders > 0 ? (
+											<span className="text-text-1">
+												{row.pluginUniqueLoaders.toLocaleString("en-US")}
 											</span>
-										);
-									})()}
-								</td>
-								<TriggerMixCell row={row} />
-							</tr>
+										) : (
+											<span className="text-text-4">0</span>
+										)}
+									</td>
+									<td className="px-4 py-3">
+										{(() => {
+											// dailyCounts is capped at 90 days, so for the "All" preset the
+											// Δ would silently mean "last 45d vs preceding 45d" — misleading.
+											// Suppress it until we have lifetime daily aggregates.
+											const isAllPreset =
+												periodFilter.kind === "preset" && periodFilter.days === "all";
+											if (isAllPreset)
+												return <span className="font-mono text-[11px] text-text-4">·</span>;
+											const pct = computeDeltaPct(row.dailyCounts);
+											if (pct === 0)
+												return <span className="font-mono text-[11px] text-text-4">·</span>;
+											return (
+												<span
+													className={cn(
+														"font-mono text-[11px]",
+														pct > 0 ? "text-success" : "text-danger",
+													)}
+												>
+													{pct > 0 ? `+${pct}%` : `${pct}%`}
+												</span>
+											);
+										})()}
+									</td>
+									<td className="px-4 py-3">
+										<TrendSparkline
+											values={row.dailyCounts}
+											width={80}
+											height={20}
+											strokeClass={row.total === 0 ? "stroke-text-4" : "stroke-accent-bright"}
+											fillClass={row.total === 0 ? "fill-transparent" : "fill-accent-bright/15"}
+											days={
+												periodFilter.kind === "preset" && typeof periodFilter.days === "number"
+													? periodFilter.days
+													: row.dailyCounts.length
+											}
+										/>
+									</td>
+									<td className="px-4 py-3">
+										{row.marketplaces.length > 0 ? (
+											<div className="flex flex-wrap gap-1">
+												{row.marketplaces.map((mp) => (
+													<MarketplaceBadge
+														key={mp.name}
+														name={mp.name}
+														status={mp.status}
+														onClick={(e) => e.stopPropagation()}
+													/>
+												))}
+											</div>
+										) : (
+											<span className="text-text-4">—</span>
+										)}
+									</td>
+									<td className="px-4 py-3">
+										{isBundledSource(row.skillSource) ? (
+											<span
+												className="inline-flex cursor-help items-center rounded border border-accent-soft/30 bg-accent-bright/15 px-1.5 py-0.5 font-mono text-[11px] text-accent-soft"
+												title="Bundled skills ship inside Claude Code itself, so they are approved by default. You can still override their status manually."
+											>
+												{SKILL_SOURCE_LABELS.bundled.toLowerCase()}
+											</span>
+										) : isKnownSkillSource(row.skillSource) ? (
+											<span className="font-mono text-[11px] text-text-4">
+												{SKILL_SOURCE_LABELS[row.skillSource]}
+											</span>
+										) : (
+											<span className="font-mono text-[11px] text-text-4">—</span>
+										)}
+									</td>
+									<td
+										className="px-4 py-3"
+										onClick={(e) => e.stopPropagation()}
+										onKeyDown={(e) => e.stopPropagation()}
+									>
+										{(() => {
+											const status = (row.status ?? "to_review") as SkillStatus;
+											const pluginName = row.pluginName ?? "";
+											const editable = pluginName === "";
+											return (
+												<StatusChip
+													value={status}
+													options={SKILL_STATUS_CHIP_OPTIONS}
+													onChange={
+														editable ? (v) => handleStatusChange(row.skillName, "", v) : undefined
+													}
+													disabled={!editable}
+													ariaLabel={`Status for ${row.skillName}`}
+													title={
+														editable ? undefined : `Status inherited from plugin ${pluginName}`
+													}
+												/>
+											);
+										})()}
+									</td>
+									<td className="px-4 py-3">
+										{(() => {
+											const { text, cold } = lastUsedLabel(row.lastSeenAt);
+											return (
+												<span
+													title={row.lastSeenAt ?? "Never used"}
+													className={cn(
+														"font-mono text-[11px]",
+														cold ? "text-text-4" : "text-text-3",
+													)}
+												>
+													{text}
+												</span>
+											);
+										})()}
+									</td>
+									<TriggerMixCell row={row} />
+								</tr>
 							);
 						})
 					)}
@@ -1540,7 +1610,12 @@ function FilterPill({ label, onRemove }: { label: string; onRemove: () => void }
 				className="text-text-4 hover:text-text-1"
 			>
 				<svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-					<path d="M2 2l6 6M8 2L2 8" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+					<path
+						d="M2 2l6 6M8 2L2 8"
+						stroke="currentColor"
+						strokeWidth="1.25"
+						strokeLinecap="round"
+					/>
 				</svg>
 			</button>
 		</span>
