@@ -80,7 +80,7 @@ export function formatRelativeTime(iso: string, now: Date = new Date()): string 
 	if (diffDay === 1) return "yesterday";
 	if (diffDay < 7) return `${diffDay} days ago`;
 
-	return formatDateTime(iso);
+	return formatDate(iso);
 }
 
 // Compact "Nm ago / Nh ago / Nd ago" — for inline status lines where the
