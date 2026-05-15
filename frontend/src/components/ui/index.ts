@@ -25,4 +25,6 @@ export { ConfirmMenuItem } from "./ConfirmMenuItem";
 export { Sparkline } from "./Sparkline";
 export { StatCard } from "./StatCard";
 export type { StatCardProps, StatCardTone } from "./StatCard";
+export { HelpTip } from "./HelpTip";
+export type { HelpTipProps } from "./HelpTip";
 export { TRIGGER_BASE } from "./_styles";

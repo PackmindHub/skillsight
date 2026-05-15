@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
+import { HelpTip } from "./HelpTip";
 
 export type StatCardTone = "linked" | "orphan" | "approved" | "active" | "warning" | "danger";
 
@@ -36,7 +37,7 @@ const ACTIVE_CARD =
 	"border-[color-mix(in_srgb,var(--color-accent-bright)_55%,var(--color-edge))] bg-[color-mix(in_srgb,var(--color-accent-bright)_7%,var(--color-surface-900))]";
 
 const BASE_CARD =
-	"relative grid grid-cols-[1fr_auto] grid-rows-[auto_auto] items-center gap-x-3 gap-y-1 overflow-hidden rounded-xl border border-edge bg-[linear-gradient(180deg,var(--color-surface-800),var(--color-surface-900))] px-4 pb-3.5 pt-3 text-left transition-[border-color,background-color] duration-150";
+	"relative grid grid-cols-[1fr_auto] grid-rows-[auto_auto] items-center gap-x-3 gap-y-1 overflow-hidden rounded-xl border border-edge bg-[linear-gradient(180deg,var(--color-surface-800),var(--color-surface-900))] pb-3.5 pl-4 pr-[34px] pt-3 text-left transition-[border-color,background-color] duration-150";
 
 export interface StatCardProps {
 	tone: StatCardTone;
@@ -49,15 +50,16 @@ export interface StatCardProps {
 	total?: number;
 	active?: boolean;
 	onToggle?: () => void;
+	/**
+	 * Help body — surfaced via a "?" HelpTip affordance in the top-right corner
+	 * of the card.
+	 */
 	title?: string;
 }
 
 export function StatCard({ tone, label, value, total, active, onToggle, title }: StatCardProps) {
 	const hasDenominator = typeof total === "number";
 	const pct = hasDenominator && total > 0 ? Math.round((value / total) * 100) : null;
-	// When a denominator is provided but is zero (everything filtered out), show
-	// an empty bar; when no denominator was provided at all the bar is purely
-	// decorative and shows the full gradient.
 	const barWidth = hasDenominator ? (pct ?? 0) : 100;
 	const styles = TONE_STYLES[tone];
 	const clickable = typeof onToggle === "function";
@@ -99,27 +101,32 @@ export function StatCard({ tone, label, value, total, active, onToggle, title }:
 		</>
 	);
 
+	const helpTip = title ? <HelpTip title={label} body={title} /> : null;
+
 	if (clickable) {
 		return (
-			<button
-				type="button"
-				onClick={onToggle}
-				aria-pressed={active ?? false}
-				title={title}
-				className={cn(
-					BASE_CARD,
-					"cursor-pointer hover:border-edge-bright focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[color-mix(in_srgb,var(--color-accent-bright)_60%,transparent)]",
-					active && ACTIVE_CARD,
-				)}
-			>
-				{content}
-			</button>
+			<div className="relative">
+				<button
+					type="button"
+					onClick={onToggle}
+					aria-pressed={active ?? false}
+					className={cn(
+						BASE_CARD,
+						"w-full cursor-pointer hover:border-edge-bright focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[color-mix(in_srgb,var(--color-accent-bright)_60%,transparent)]",
+						active && ACTIVE_CARD,
+					)}
+				>
+					{content}
+				</button>
+				{helpTip}
+			</div>
 		);
 	}
 
 	return (
-		<div className={cn(BASE_CARD, "cursor-default")} title={title}>
+		<div className={cn(BASE_CARD, "cursor-default")}>
 			{content}
+			{helpTip}
 		</div>
 	);
 }
