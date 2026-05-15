@@ -38,7 +38,13 @@ export function Table({ dense, className, children, ...rest }: TableProps) {
 
 export function THead({ className, children, ...rest }: HTMLAttributes<HTMLTableSectionElement>) {
 	return (
-		<thead className={cn("bg-surface-800/60 text-text-3", className)} {...rest}>
+		<thead
+			className={cn(
+				"border-b border-edge bg-gradient-to-b from-accent-bright/[0.04] to-transparent text-text-4",
+				className,
+			)}
+			{...rest}
+		>
 			{children}
 		</thead>
 	);
@@ -85,7 +91,7 @@ export function TH({ align = "left", className, children, ...rest }: THProps) {
 	return (
 		<th
 			className={cn(
-				"px-4 py-3 font-medium text-text-3",
+				"h-9 px-4 font-mono text-[10px] uppercase tracking-wider text-text-4",
 				ALIGN[align],
 				className,
 			)}

@@ -1076,7 +1076,7 @@ export default function SkillsTablePage() {
 			<Table>
 				<THead>
 					<tr>
-						<th className="w-10 px-3 py-3">
+						<th className="h-9 w-10 px-3">
 							<input
 								ref={selectAllRef}
 								type="checkbox"
@@ -1125,20 +1125,22 @@ export default function SkillsTablePage() {
 							title="Distinct users who loaded the plugin that ships this skill"
 						/>
 						<th
-							className="text-left px-4 py-3 font-medium text-text-3"
+							className="h-9 px-4 text-left font-mono text-[10px] uppercase tracking-wider text-text-4"
 							title="Change in activations vs the preceding equal-length period"
 						>
 							Δ
 						</th>
 						<th
-							className="text-left px-4 py-3 font-medium text-text-3"
+							className="h-9 px-4 text-left font-mono text-[10px] uppercase tracking-wider text-text-4"
 							title="Daily activations over the selected period"
 						>
 							Trend
 						</th>
-						<th className="text-left px-4 py-3 font-medium text-text-3">Marketplaces</th>
+						<th className="h-9 px-4 text-left font-mono text-[10px] uppercase tracking-wider text-text-4">
+							Marketplaces
+						</th>
 						<th
-							className="text-left px-4 py-3 font-medium text-text-3"
+							className="h-9 px-4 text-left font-mono text-[10px] uppercase tracking-wider text-text-4"
 							title="Where this skill comes from (bundled, plugin marketplace, or unknown)"
 						>
 							Source
@@ -1160,7 +1162,7 @@ export default function SkillsTablePage() {
 							className="text-left"
 						/>
 						<th
-							className="min-w-44 text-left px-4 py-3 font-medium text-text-3"
+							className="h-9 min-w-44 px-4 text-left font-mono text-[10px] uppercase tracking-wider text-text-4"
 							title="Share of activations by trigger type"
 						>
 							Trigger mix
@@ -1463,17 +1465,23 @@ function SortableHeader({
 }) {
 	const active = sortKey === currentKey;
 	return (
-		<th className={cn("px-4 py-3 font-medium text-text-3", className)} title={title}>
+		<th
+			className={cn(
+				"h-9 px-4 font-mono text-[10px] uppercase tracking-wider text-text-4",
+				className,
+			)}
+			title={title}
+		>
 			<button
 				type="button"
 				onClick={() => onSort(sortKey)}
 				className={cn(
-					"inline-flex items-center gap-1 transition-colors hover:text-text-1",
+					"inline-flex items-center gap-1 uppercase tracking-wider transition-colors hover:text-text-1",
 					active && "text-text-1",
 				)}
 			>
 				{label}
-				<span aria-hidden="true" className="text-xs">
+				<span aria-hidden="true" className="text-[10px]">
 					{active ? (currentDir === "asc" ? "▲" : "▼") : "↕"}
 				</span>
 			</button>
