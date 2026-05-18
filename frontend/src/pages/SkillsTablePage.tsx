@@ -36,6 +36,7 @@ import {
 	isBundledSource,
 	isKnownSkillSource,
 } from "@/types/api";
+import { Plug } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -1314,14 +1315,41 @@ export default function SkillsTablePage() {
 										/>
 									</td>
 									<td className="px-4 py-3 font-mono text-text-1">
-										<span className="flex items-center gap-2">
-											{row.skillName}
-											{row.lastSeenAt === null && (
-												<span className="inline-flex items-center rounded border border-edge bg-surface-800 px-1.5 py-0.5 text-xs text-text-3">
-													Never used
-												</span>
-											)}
-										</span>
+										{(() => {
+											const showPluginChip =
+												!!row.pluginName && row.skillName.includes(":");
+											const displayName =
+												showPluginChip && row.pluginName
+													? row.skillName.startsWith(`${row.pluginName}:`)
+														? row.skillName.slice(row.pluginName.length + 1)
+														: row.skillName
+													: row.skillName;
+											return (
+												<div className="flex min-w-0 flex-col gap-1.5">
+													<span className="flex items-center gap-2">
+														{displayName}
+														{row.lastSeenAt === null && (
+															<span className="inline-flex items-center rounded border border-edge bg-surface-800 px-1.5 py-0.5 text-xs text-text-3">
+																Never used
+															</span>
+														)}
+													</span>
+													{showPluginChip && row.pluginName && (
+														<a
+															href={`/plugins?name=${encodeURIComponent(row.pluginName)}`}
+															target="_blank"
+															rel="noopener noreferrer"
+															onClick={(e) => e.stopPropagation()}
+															title={`Bundled by plugin ${row.pluginName}`}
+															className="inline-flex w-fit items-center gap-1.5 rounded border border-accent-bright/30 bg-accent-bright/10 px-1.5 py-0.5 font-mono text-[11px] leading-tight text-accent-soft hover:border-accent-bright/45 hover:bg-accent-bright/20"
+														>
+															<Plug size={11} aria-hidden className="opacity-90" />
+															<span className="truncate">{row.pluginName}</span>
+														</a>
+													)}
+												</div>
+											);
+										})()}
 									</td>
 									<td className="px-4 py-3 text-right font-mono text-text-1 tabular-nums">
 										{row.total.toLocaleString("en-US")}
