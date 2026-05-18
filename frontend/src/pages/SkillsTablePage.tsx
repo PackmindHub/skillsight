@@ -1,4 +1,5 @@
 import { MarketplaceBadge } from "@/components/marketplaces/MarketplaceBadge";
+import { PluginChip } from "@/components/skills/PluginChip";
 import { SkillDetailDrawer } from "@/components/skills/SkillDetailDrawer";
 import { SkillStatStrip } from "@/components/skills/SkillStatStrip";
 import { TrendSparkline } from "@/components/skills/TrendSparkline";
@@ -36,7 +37,6 @@ import {
 	isBundledSource,
 	isKnownSkillSource,
 } from "@/types/api";
-import { Plug } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -1335,17 +1335,10 @@ export default function SkillsTablePage() {
 														)}
 													</span>
 													{showPluginChip && row.pluginName && (
-														<a
-															href={`/plugins?name=${encodeURIComponent(row.pluginName)}`}
-															target="_blank"
-															rel="noopener noreferrer"
-															onClick={(e) => e.stopPropagation()}
-															title={`Bundled by plugin ${row.pluginName}`}
-															className="inline-flex w-fit items-center gap-1.5 rounded border border-accent-bright/30 bg-accent-bright/10 px-1.5 py-0.5 font-mono text-[11px] leading-tight text-accent-soft hover:border-accent-bright/45 hover:bg-accent-bright/20"
-														>
-															<Plug size={11} aria-hidden className="opacity-90" />
-															<span className="truncate">{row.pluginName}</span>
-														</a>
+														<PluginChip
+															pluginName={row.pluginName}
+															onFilter={(name) => setListParam("plugin", [name])}
+														/>
 													)}
 												</div>
 											);
