@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1
+
+- Surface the owning plugin under the skill name with a chip for `plugin:skill` entries, and strip the redundant prefix from the displayed name.
+- Replace the plugin chip link with a hover menu offering two disambiguated actions: filter the Skills table by the plugin, or jump to the plugin's page.
+
 ## 0.2.0
 
 - Track `plugin_loaded` events to surface adoption-funnel metrics (loaders vs. activations), including a weekly unique-loaders chart in the plugin drawer.
