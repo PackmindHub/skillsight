@@ -25,10 +25,8 @@ import { eventBus } from "@/lib/event-bus";
 import { getBaseUrl } from "@/lib/request-url";
 import { syncPluginStatuses } from "@/application/plugins/sync-plugin-statuses";
 
-const STATIC_ROOT =
-	process.env.NODE_ENV === "production"
-		? "./public"
-		: "../frontend/dist";
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
+const STATIC_ROOT = "./public";
 
 export function createApp() {
 	const deps = buildDeps();
@@ -82,10 +80,12 @@ export function createApp() {
 	app.route("/api/marketplace-sources", createMarketplaceSourcesRoute(deps));
 	app.get("/api/config", (c) => c.json({ baseUrl: getBaseUrl(c) }));
 
-	// Static files (frontend build)
-	app.use("/*", serveStatic({ root: STATIC_ROOT }));
-	// SPA fallback — all non-API, non-asset paths return index.html for React Router
-	app.use("/*", serveStatic({ path: "index.html", root: STATIC_ROOT }));
+	// Static files (frontend build) — only in production; in dev, Vite serves the SPA on :5173.
+	if (IS_PRODUCTION) {
+		app.use("/*", serveStatic({ root: STATIC_ROOT }));
+		// SPA fallback — all non-API, non-asset paths return index.html for React Router
+		app.use("/*", serveStatic({ path: "index.html", root: STATIC_ROOT }));
+	}
 
 	return app;
 }
