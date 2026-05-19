@@ -379,3 +379,18 @@ export interface CohortsResponse {
 	totalUsers: number;
 	totalSkills: number;
 }
+
+export interface CoUsageSession {
+	sessionId: string;
+	userEmail: string | null;
+	skills: { name: string; activations: number }[];
+	lastSeenAt: string;
+}
+
+export interface CoUsageResponse {
+	sessions: CoUsageSession[];
+	totalUsers: number;
+	totalMultiSkillSessions: number;
+	totalSingleSkillSessions: number;
+	windowDays: number | null;
+}

@@ -10,6 +10,7 @@ import {
 	LayoutDashboard,
 	LogOut,
 	type LucideIcon,
+	Network,
 	Plug,
 	ScrollText,
 	Settings as SettingsIcon,
@@ -35,6 +36,7 @@ const mainLinks: MainLink[] = [
 	{ to: "/plugins", label: "Plugins", icon: Plug },
 	{ to: "/marketplaces", label: "Marketplaces", icon: Boxes },
 	{ to: "/cohorts", label: "Cohorts", icon: Users },
+	{ to: "/co-usage", label: "Co-usage", icon: Network },
 	{ to: "/events", label: "Events", icon: Activity },
 	{ to: "/audit", label: "Audit Log", icon: ScrollText },
 ];

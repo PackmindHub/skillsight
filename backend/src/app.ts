@@ -16,6 +16,7 @@ import { createUpdateStatusRoute as createSkillsUpdateStatusRoute } from "@/http
 import { createUpdateStatusBulkRoute as createSkillsUpdateStatusBulkRoute } from "@/http/skills/update-status-bulk";
 import { createAuditRoute } from "@/http/audit";
 import { createCohortsRoute } from "@/http/cohorts";
+import { createCoUsageRoute } from "@/http/co-usage";
 import { createEventsRoute } from "@/http/events";
 import { createIntegrationsRoute } from "@/http/integrations";
 import { createMarketplacesRoute } from "@/http/marketplaces";
@@ -74,6 +75,7 @@ export function createApp() {
 	app.route("/api/audit", createAuditRoute(deps));
 	app.route("/api/events", createEventsRoute(deps));
 	app.route("/api/cohorts", createCohortsRoute(deps));
+	app.route("/api/co-usage", createCoUsageRoute(deps));
 	app.route("/api/integrations", createIntegrationsRoute(deps));
 	app.route("/api/marketplaces", createMarketplacesRoute(deps));
 	app.route("/api/plugins", createPluginsRoute(deps));

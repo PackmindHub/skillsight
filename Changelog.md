@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add a Co-usage page that surfaces groups of skills (pairs, triples, 4+) recurring inside the same `session_id`, with an Ignore-noise filter that re-projects sessions when omnipresent skills are excluded.
+
 ## 0.2.1
 
 - Surface the owning plugin under the skill name with a chip for `plugin:skill` entries, and strip the redundant prefix from the displayed name.

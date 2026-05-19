@@ -2,6 +2,7 @@ import type {
 	AuditFilters,
 	AuditResponse,
 	CohortsResponse,
+	CoUsageResponse,
 	DashboardPeriod,
 	Integration,
 	IntegrationPreviewEvent,
@@ -172,6 +173,10 @@ export const api = {
 	cohorts: {
 		list: (period: DashboardPeriod = "all") =>
 			apiFetch<CohortsResponse>(`/api/cohorts?days=${period}`),
+	},
+	coUsage: {
+		list: (period: DashboardPeriod = "all") =>
+			apiFetch<CoUsageResponse>(`/api/co-usage?days=${period}`),
 	},
 	plugins: {
 		list: (opts: { includeIgnored?: boolean } = {}) => {

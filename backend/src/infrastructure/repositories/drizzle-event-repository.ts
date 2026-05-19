@@ -6,6 +6,7 @@ import type {
 	DirectEventStats,
 	IEventRepository,
 	RecentSkillActivatedEvent,
+	SessionSkillActivation,
 	UserSkillActivation,
 } from "@/domain/ports/event-repository";
 import type { NewEvent } from "@/domain/event";
@@ -151,6 +152,45 @@ export class DrizzleEventRepository implements IEventRepository {
 				lastActivatedAt: r.lastActivatedAt instanceof Date
 					? r.lastActivatedAt
 					: new Date(r.lastActivatedAt as unknown as string),
+			}));
+	}
+
+	async listSessionSkillActivations(
+		window: CohortsWindow,
+	): Promise<SessionSkillActivation[]> {
+		const skillExpr = sql<string>`(${events.attributes}->>'skill.name')`;
+		const conditions = [
+			eq(events.eventName, EVENT_NAMES.SKILL_ACTIVATED),
+			sql`${events.sessionId} IS NOT NULL`,
+			sql`${skillExpr} IS NOT NULL`,
+		];
+		if (window !== "all") {
+			conditions.push(sql`${events.timestamp} >= NOW() - (${window} || ' days')::interval`);
+		}
+
+		const rows = await this.db
+			.select({
+				sessionId: events.sessionId,
+				userEmail: events.userEmail,
+				skillName: skillExpr,
+				activations: sql<number>`COUNT(*)::int`,
+				lastActivatedAt: sql<Date>`MAX(${events.timestamp})`,
+			})
+			.from(events)
+			.where(and(...conditions))
+			.groupBy(events.sessionId, events.userEmail, skillExpr);
+
+		return rows
+			.filter((r): r is typeof r & { sessionId: string } => r.sessionId != null)
+			.map((r) => ({
+				sessionId: r.sessionId,
+				userEmail: r.userEmail ?? null,
+				skillName: r.skillName,
+				activations: Number(r.activations),
+				lastActivatedAt:
+					r.lastActivatedAt instanceof Date
+						? r.lastActivatedAt
+						: new Date(r.lastActivatedAt as unknown as string),
 			}));
 	}
 }

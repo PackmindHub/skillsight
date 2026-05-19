@@ -4,6 +4,7 @@ import { IntegrationsHealthProvider } from "@/context/IntegrationsHealthContext"
 import { MarketplaceSourcesHealthProvider } from "@/context/MarketplaceSourcesHealthContext";
 import AuditLogPage from "@/pages/AuditLogPage";
 import CohortsPage from "@/pages/CohortsPage";
+import CoUsagePage from "@/pages/CoUsagePage";
 import DashboardPage from "@/pages/DashboardPage";
 import LiveEventsPage from "@/pages/LiveEventsPage";
 import LoginPage from "@/pages/LoginPage";
@@ -45,6 +46,7 @@ export default function App() {
 						<Route path="/marketplaces" element={<MarketplacesPage />} />
 						<Route path="/plugins" element={<PluginsPage />} />
 						<Route path="/cohorts" element={<CohortsPage />} />
+						<Route path="/co-usage" element={<CoUsagePage />} />
 						<Route path="/tokens" element={<TokensPage />} />
 						<Route path="/events" element={<LiveEventsPage />} />
 						<Route path="/audit" element={<AuditLogPage />} />
