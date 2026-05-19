@@ -6,6 +6,8 @@ import { version } from "../../../package.json";
 import {
 	Activity,
 	Boxes,
+	ExternalLink,
+	Github,
 	KeyRound,
 	LayoutDashboard,
 	LogOut,
@@ -190,7 +192,21 @@ export function Sidebar() {
 				))}
 			</div>
 
-			<div className="mt-auto flex flex-col gap-2.5 border-t border-edge-dim pt-2.5">
+			<div className="mt-auto flex flex-col gap-0.5">
+				<a
+					href="https://github.com/PackmindHub/skillsight"
+					target="_blank"
+					rel="noopener noreferrer"
+					title="github.com/PackmindHub/skillsight"
+					className="group flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-text-2 transition-colors hover:bg-surface-800 hover:text-text-1"
+				>
+					<Github size={16} className="shrink-0 opacity-80 group-hover:opacity-100" />
+					<span className="flex-1 truncate">Repository</span>
+					<ExternalLink size={10} className="opacity-55" />
+				</a>
+			</div>
+
+			<div className="flex flex-col gap-2.5 border-t border-edge-dim pt-2.5">
 				<UserCard />
 			</div>
 		</aside>
