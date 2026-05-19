@@ -226,6 +226,7 @@ export interface SkillTableRow {
 	skillSource: string | null;
 	total: number;
 	uniqueUsers: number;
+	uniqueSessions: number;
 	userSlash: number;
 	claudeProactive: number;
 	nestedSkill: number;

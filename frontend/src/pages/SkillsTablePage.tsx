@@ -217,6 +217,7 @@ type SortKey =
 	| "skillName"
 	| "total"
 	| "uniqueUsers"
+	| "uniqueSessions"
 	| "pluginUniqueLoaders"
 	| "status"
 	| "userSlash"
@@ -232,6 +233,7 @@ const SORT_KEYS: SortKey[] = [
 	"skillName",
 	"total",
 	"uniqueUsers",
+	"uniqueSessions",
 	"pluginUniqueLoaders",
 	"status",
 	"userSlash",
@@ -1188,6 +1190,15 @@ export default function SkillsTablePage() {
 							title="Distinct users who activated this skill"
 						/>
 						<SortableHeader
+							label="Session"
+							sortKey="uniqueSessions"
+							currentKey={sortKey}
+							currentDir={sortDir}
+							onSort={toggleSort}
+							className="text-right"
+							title="Distinct Claude Code sessions in which this skill was activated"
+						/>
+						<SortableHeader
 							label="Loaders"
 							sortKey="pluginUniqueLoaders"
 							currentKey={sortKey}
@@ -1246,19 +1257,19 @@ export default function SkillsTablePage() {
 						SKELETON_KEYS.map((k) => <SkeletonRow key={k} />)
 					) : error ? (
 						<tr>
-							<td colSpan={11} className="px-4 py-8 text-center text-danger text-sm">
+							<td colSpan={12} className="px-4 py-8 text-center text-danger text-sm">
 								{error}
 							</td>
 						</tr>
 					) : rows.length === 0 ? (
 						<tr>
-							<td colSpan={11} className="px-4 py-12 text-center text-text-3 text-sm">
+							<td colSpan={12} className="px-4 py-12 text-center text-text-3 text-sm">
 								No skills found.
 							</td>
 						</tr>
 					) : filteredRows.length === 0 ? (
 						<tr>
-							<td colSpan={11} className="px-4 py-8 text-center text-text-4 text-sm">
+							<td colSpan={12} className="px-4 py-8 text-center text-text-4 text-sm">
 								{statusFilter === "ignored" && !includeIgnored ? (
 									"Ignored skills are hidden. Enable 'Include ignored' to view them."
 								) : (
@@ -1350,6 +1361,13 @@ export default function SkillsTablePage() {
 									<td className="px-4 py-3 text-right font-mono tabular-nums">
 										{row.uniqueUsers > 0 ? (
 											<span className="text-text-1">{row.uniqueUsers.toLocaleString("en-US")}</span>
+										) : (
+											<span className="text-text-4">—</span>
+										)}
+									</td>
+									<td className="px-4 py-3 text-right font-mono tabular-nums">
+										{row.uniqueSessions > 0 ? (
+											<span className="text-text-1">{row.uniqueSessions.toLocaleString("en-US")}</span>
 										) : (
 											<span className="text-text-4">—</span>
 										)}
@@ -1589,6 +1607,9 @@ function SkeletonRow() {
 			</td>
 			<td className="px-4 py-3 text-right">
 				<div className="ml-auto h-3 w-10 rounded bg-surface-800 animate-pulse" />
+			</td>
+			<td className="px-4 py-3 text-right">
+				<div className="ml-auto h-3 w-8 rounded bg-surface-800 animate-pulse" />
 			</td>
 			<td className="px-4 py-3 text-right">
 				<div className="ml-auto h-3 w-8 rounded bg-surface-800 animate-pulse" />
