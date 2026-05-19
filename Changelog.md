@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.0
 
 - Add a Co-usage page that surfaces groups of skills (pairs, triples, 4+) recurring inside the same `session_id`, with an Ignore-noise filter that re-projects sessions when omnipresent skills are excluded.
 - Add a `Session` column to the Skills table (between `Users` and `Loaders`) showing the count of distinct sessions in which each skill was activated over the selected window.
