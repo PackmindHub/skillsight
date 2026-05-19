@@ -1190,7 +1190,7 @@ export default function SkillsTablePage() {
 							title="Distinct users who activated this skill"
 						/>
 						<SortableHeader
-							label="Session"
+							label="Sessions"
 							sortKey="uniqueSessions"
 							currentKey={sortKey}
 							currentDir={sortDir}
