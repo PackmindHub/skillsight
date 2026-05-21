@@ -9,6 +9,7 @@ import {
 	IncludeIgnoredToggle,
 	Input,
 	PageHeader,
+	SegmentedControl,
 	StatusChip,
 	type StatusChipOption,
 	StatusFilter,
@@ -17,6 +18,7 @@ import { useMarketplaceSourcesHealth } from "@/context/MarketplaceSourcesHealthC
 import { api } from "@/lib/api";
 import { useIncludeIgnored } from "@/lib/use-include-ignored";
 import { useStatusFilter } from "@/lib/use-status-filter";
+import { sourceDisplayLabel } from "@/lib/marketplace-source-label";
 import { cn, formatRelativeShort, repoSlugFromGitUrl } from "@/lib/utils";
 import {
 	MARKETPLACE_STATUSES,
@@ -160,14 +162,18 @@ function MarketplaceNumCell({
 	);
 }
 
-function MarketplaceGitSourceLine({
+function MarketplaceSourceLine({
 	source,
 	syncing,
 }: {
 	source: MarketplaceSource;
 	syncing: boolean;
 }) {
-	const repoSlug = repoSlugFromGitUrl(source.gitUrl);
+	const isPackmind = source.kind === "packmind";
+	const displayUrl = source.gitUrl ?? "";
+	const label = isPackmind
+		? sourceDisplayLabel(source)
+		: repoSlugFromGitUrl(displayUrl);
 	const hasError = source.lastSyncError !== null;
 	const paused = !source.enabled;
 	const syncState: "syncing" | "error" | "paused" | "ok" | "never" = syncing
@@ -230,35 +236,46 @@ function MarketplaceGitSourceLine({
 					: "text-text-3";
 	return (
 		<div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-			<a
-				href={source.gitUrl}
-				target="_blank"
-				rel="noreferrer"
-				title={source.gitUrl}
-				className="inline-flex min-w-0 max-w-full items-center gap-1.5 truncate rounded-md border border-edge-dim bg-surface-700/50 px-2 py-[3px] font-mono text-[11px] text-text-2 transition-colors hover:border-accent-2/40 hover:bg-accent-2/[0.08] hover:text-text-1"
-			>
-				<svg
-					width="11"
-					height="11"
-					viewBox="0 0 16 16"
-					aria-hidden="true"
-					className="shrink-0 text-text-3"
+			{isPackmind ? (
+				<span
+					className="inline-flex min-w-0 max-w-full items-center gap-1.5 truncate rounded-md border border-edge-dim bg-surface-700/50 px-2 py-[3px] font-mono text-[11px] text-text-2"
+					title="Synced via packmind-cli"
 				>
-					<path
-						fill="currentColor"
-						d="M8 0C3.58 0 0 3.58 0 8a8 8 0 005.47 7.59c.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"
-					/>
-				</svg>
-				<span className="truncate">{repoSlug}</span>
-				<ExternalLink className="h-2.5 w-2.5 shrink-0 opacity-60" aria-hidden="true" />
-			</a>
-			<span
-				className="inline-flex items-center gap-1 rounded border border-edge-dim bg-surface-800 px-1.5 py-[1px] font-mono text-[10px] text-text-3"
-				title={`Branch · ${source.branch || "main"}`}
-			>
-				<GitBranch className="h-2.5 w-2.5" aria-hidden="true" />
-				{source.branch || "main"}
-			</span>
+					<span className="truncate">{label}</span>
+				</span>
+			) : (
+				<a
+					href={displayUrl}
+					target="_blank"
+					rel="noreferrer"
+					title={displayUrl}
+					className="inline-flex min-w-0 max-w-full items-center gap-1.5 truncate rounded-md border border-edge-dim bg-surface-700/50 px-2 py-[3px] font-mono text-[11px] text-text-2 transition-colors hover:border-accent-2/40 hover:bg-accent-2/[0.08] hover:text-text-1"
+				>
+					<svg
+						width="11"
+						height="11"
+						viewBox="0 0 16 16"
+						aria-hidden="true"
+						className="shrink-0 text-text-3"
+					>
+						<path
+							fill="currentColor"
+							d="M8 0C3.58 0 0 3.58 0 8a8 8 0 005.47 7.59c.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"
+						/>
+					</svg>
+					<span className="truncate">{label}</span>
+					<ExternalLink className="h-2.5 w-2.5 shrink-0 opacity-60" aria-hidden="true" />
+				</a>
+			)}
+			{!isPackmind && (
+				<span
+					className="inline-flex items-center gap-1 rounded border border-edge-dim bg-surface-800 px-1.5 py-[1px] font-mono text-[10px] text-text-3"
+					title={`Branch · ${source.branch || "main"}`}
+				>
+					<GitBranch className="h-2.5 w-2.5" aria-hidden="true" />
+					{source.branch || "main"}
+				</span>
+			)}
 			<span
 				className={cn("inline-flex items-center gap-1.5 font-mono text-[10.5px]", statusTextColor)}
 			>
@@ -317,19 +334,27 @@ function MarketplaceAdoptionCell({
 	);
 }
 
+type SourceFormKind = "git" | "packmind";
+
 interface SourceForm {
+	kind: SourceFormKind;
 	gitUrl: string;
 	accessToken: string;
 	branch: string;
+	marketplaceName: string;
+	apiKey: string;
 	syncIntervalSecs: string;
 	enabled: boolean;
 	importPluginsAndSkills: boolean;
 }
 
 const defaultSourceForm: SourceForm = {
+	kind: "git",
 	gitUrl: "",
 	accessToken: "",
 	branch: "",
+	marketplaceName: "",
+	apiKey: "",
 	syncIntervalSecs: "3600",
 	enabled: true,
 	importPluginsAndSkills: true,
@@ -431,7 +456,8 @@ export default function MarketplacesPage() {
 	const [resumingSourceIds, setResumingSourceIds] = useState<Set<string>>(() => new Set());
 	const [testingConnection, setTestingConnection] = useState(false);
 	const [connectionTestResult, setConnectionTestResult] = useState<
-		| { ok: true; name: string; pluginCount: number; skillCount: number }
+		| { ok: true; kind: "git"; name: string; description?: string; pluginCount: number; skillCount: number }
+		| { ok: true; kind: "packmind"; user: string; org: string; host: string }
 		| { ok: false; error: string }
 		| null
 	>(null);
@@ -526,12 +552,20 @@ export default function MarketplacesPage() {
 		setTestingConnection(true);
 		setConnectionTestResult(null);
 		try {
-			const result = await api.marketplaceSources.testConnection({
-				gitUrl: sourceForm.gitUrl.trim(),
-				accessToken: sourceForm.accessToken || null,
-				branch: sourceForm.branch.trim() || null,
-				sourceId: editingSourceId,
-			});
+			const result =
+				sourceForm.kind === "packmind"
+					? await api.marketplaceSources.testConnection({
+							kind: "packmind",
+							apiKey: sourceForm.apiKey || null,
+							marketplaceName: sourceForm.marketplaceName.trim() || null,
+							sourceId: editingSourceId,
+						})
+					: await api.marketplaceSources.testConnection({
+							gitUrl: sourceForm.gitUrl.trim(),
+							accessToken: sourceForm.accessToken || null,
+							branch: sourceForm.branch.trim() || null,
+							sourceId: editingSourceId,
+						});
 			setConnectionTestResult(result);
 		} catch (e) {
 			setConnectionTestResult({ ok: false, error: e instanceof Error ? e.message : String(e) });
@@ -659,19 +693,46 @@ export default function MarketplacesPage() {
 		setSavingSource(true);
 		setSubmitError(null);
 		try {
-			const payload = {
-				gitUrl: sourceForm.gitUrl.trim(),
-				accessToken: sourceForm.accessToken || null,
-				branch: sourceForm.branch.trim() || null,
-				syncIntervalMs: Number(sourceForm.syncIntervalSecs) * 1000,
-				enabled: sourceForm.enabled,
-				importPluginsAndSkills: sourceForm.importPluginsAndSkills,
-			};
 			if (editingSourceId) {
-				const updated = await api.marketplaceSources.update(editingSourceId, payload);
+				const updatePayload =
+					sourceForm.kind === "packmind"
+						? {
+								marketplaceName: sourceForm.marketplaceName.trim() || undefined,
+								apiKey: sourceForm.apiKey || null,
+								syncIntervalMs: Number(sourceForm.syncIntervalSecs) * 1000,
+								enabled: sourceForm.enabled,
+								importPluginsAndSkills: sourceForm.importPluginsAndSkills,
+							}
+						: {
+								gitUrl: sourceForm.gitUrl.trim(),
+								accessToken: sourceForm.accessToken || null,
+								branch: sourceForm.branch.trim() || null,
+								syncIntervalMs: Number(sourceForm.syncIntervalSecs) * 1000,
+								enabled: sourceForm.enabled,
+								importPluginsAndSkills: sourceForm.importPluginsAndSkills,
+							};
+				const updated = await api.marketplaceSources.update(editingSourceId, updatePayload);
 				setSources((prev) => prev.map((s) => (s.id === editingSourceId ? updated : s)));
 			} else {
-				const { firstSync, ...created } = await api.marketplaceSources.create(payload);
+				const createPayload =
+					sourceForm.kind === "packmind"
+						? ({
+								kind: "packmind" as const,
+								marketplaceName: sourceForm.marketplaceName.trim(),
+								apiKey: sourceForm.apiKey,
+								syncIntervalMs: Number(sourceForm.syncIntervalSecs) * 1000,
+								enabled: sourceForm.enabled,
+								importPluginsAndSkills: sourceForm.importPluginsAndSkills,
+							} as const)
+						: ({
+								gitUrl: sourceForm.gitUrl.trim(),
+								accessToken: sourceForm.accessToken || null,
+								branch: sourceForm.branch.trim() || null,
+								syncIntervalMs: Number(sourceForm.syncIntervalSecs) * 1000,
+								enabled: sourceForm.enabled,
+								importPluginsAndSkills: sourceForm.importPluginsAndSkills,
+							} as const);
+				const { firstSync, ...created } = await api.marketplaceSources.create(createPayload);
 				setSources((prev) => [created, ...prev]);
 				if (firstSync?.error) {
 					setSubmitError(firstSync.error);
@@ -924,9 +985,15 @@ export default function MarketplacesPage() {
 				<div ref={sourceFormRef}>
 					<Card surface="raised">
 						<h3 className="text-sm font-medium text-text-1 mb-3">
-							{editingSourceId ? "Edit git source" : "Import marketplace from git"}
+							{editingSourceId
+								? sourceForm.kind === "packmind"
+									? "Edit Packmind source"
+									: "Edit git source"
+								: sourceForm.kind === "packmind"
+									? "Import marketplace from Packmind"
+									: "Import marketplace from git"}
 						</h3>
-						{!editingSourceId && importForMarketplace && (
+						{!editingSourceId && importForMarketplace && sourceForm.kind === "git" && (
 							<p className="mb-3 text-xs text-text-3">
 								This source will link to{" "}
 								<span className="font-mono text-text-2">{importForMarketplace}</span> if its{" "}
@@ -934,61 +1001,132 @@ export default function MarketplacesPage() {
 							</p>
 						)}
 						<form onSubmit={handleSourceSubmit} className="space-y-5">
-							<FormField
-								label="Repository URL"
-								htmlFor="ms-url"
-								required
-								helper="Accepts GitHub shorthand (owner/repo) or full GitHub / GitLab / Bitbucket HTTPS URLs."
-							>
-								<Input
-									id="ms-url"
-									required
-									size="sm"
-									value={sourceForm.gitUrl}
-									onChange={(e) => updateSourceField("gitUrl", e.target.value)}
-									placeholder="owner/repo  or  https://github.com/owner/repo"
-								/>
-							</FormField>
-
-							<div className="grid grid-cols-2 gap-3">
-								<FormField label="Branch" htmlFor="ms-branch">
-									<Input
-										id="ms-branch"
-										size="sm"
-										value={sourceForm.branch}
-										onChange={(e) => updateSourceField("branch", e.target.value)}
-										placeholder="main"
+							{!editingSourceId && (
+								<FormField label="Source type" htmlFor="ms-kind">
+									<SegmentedControl
+										value={sourceForm.kind}
+										onChange={(kind) => {
+											setSourceForm((f) => ({ ...f, kind }));
+											setConnectionTestResult(null);
+											setSubmitError(null);
+										}}
+										options={[
+											{ value: "git", label: "Git" },
+											{ value: "packmind", label: "Packmind" },
+										]}
+										ariaLabel="Source type"
 									/>
 								</FormField>
-								<FormField label="Sync interval (seconds, min 60)" htmlFor="ms-interval">
-									<Input
-										id="ms-interval"
-										type="number"
-										min="60"
-										size="sm"
-										value={sourceForm.syncIntervalSecs}
-										onChange={(e) =>
-											setSourceForm((f) => ({ ...f, syncIntervalSecs: e.target.value }))
-										}
-									/>
-								</FormField>
-							</div>
+							)}
 
-							<FormField
-								label={`Access token${editingSourceId ? " (blank = keep existing)" : ""}`}
-								htmlFor="ms-token"
-								helper="Leave blank for public repositories."
-							>
-								<Input
-									id="ms-token"
-									type="password"
-									size="sm"
-									value={sourceForm.accessToken}
-									onChange={(e) => updateSourceField("accessToken", e.target.value)}
-									placeholder={editingSourceId ? "••••••" : ""}
-									autoComplete="new-password"
-								/>
-							</FormField>
+							{sourceForm.kind === "git" ? (
+								<>
+									<FormField
+										label="Repository URL"
+										htmlFor="ms-url"
+										required
+										helper="Accepts GitHub shorthand (owner/repo) or full GitHub / GitLab / Bitbucket HTTPS URLs."
+									>
+										<Input
+											id="ms-url"
+											required
+											size="sm"
+											value={sourceForm.gitUrl}
+											onChange={(e) => updateSourceField("gitUrl", e.target.value)}
+											placeholder="owner/repo  or  https://github.com/owner/repo"
+										/>
+									</FormField>
+
+									<div className="grid grid-cols-2 gap-3">
+										<FormField label="Branch" htmlFor="ms-branch">
+											<Input
+												id="ms-branch"
+												size="sm"
+												value={sourceForm.branch}
+												onChange={(e) => updateSourceField("branch", e.target.value)}
+												placeholder="main"
+											/>
+										</FormField>
+										<FormField label="Sync interval (seconds, min 60)" htmlFor="ms-interval">
+											<Input
+												id="ms-interval"
+												type="number"
+												min="60"
+												size="sm"
+												value={sourceForm.syncIntervalSecs}
+												onChange={(e) =>
+													setSourceForm((f) => ({ ...f, syncIntervalSecs: e.target.value }))
+												}
+											/>
+										</FormField>
+									</div>
+
+									<FormField
+										label={`Access token${editingSourceId ? " (blank = keep existing)" : ""}`}
+										htmlFor="ms-token"
+										helper="Leave blank for public repositories."
+									>
+										<Input
+											id="ms-token"
+											type="password"
+											size="sm"
+											value={sourceForm.accessToken}
+											onChange={(e) => updateSourceField("accessToken", e.target.value)}
+											placeholder={editingSourceId ? "••••••" : ""}
+											autoComplete="new-password"
+										/>
+									</FormField>
+								</>
+							) : (
+								<>
+									<FormField
+										label="Marketplace name"
+										htmlFor="ms-mp-name"
+										required
+										helper="Display name for the Packmind marketplace, e.g. “Packmind”."
+									>
+										<Input
+											id="ms-mp-name"
+											required
+											size="sm"
+											value={sourceForm.marketplaceName}
+											onChange={(e) => updateSourceField("marketplaceName", e.target.value)}
+											placeholder="Packmind"
+										/>
+									</FormField>
+
+									<FormField
+										label={`Packmind API key${editingSourceId ? " (blank = keep existing)" : ""}`}
+										htmlFor="ms-api-key"
+										required={!editingSourceId}
+										helper="Long-lived API key issued by Packmind. Stored encrypted; passed to the CLI as PACKMIND_API_KEY_V3."
+									>
+										<Input
+											id="ms-api-key"
+											type="password"
+											required={!editingSourceId}
+											size="sm"
+											value={sourceForm.apiKey}
+											onChange={(e) => updateSourceField("apiKey", e.target.value)}
+											placeholder={editingSourceId ? "••••••" : ""}
+											autoComplete="new-password"
+										/>
+									</FormField>
+
+									<FormField label="Sync interval (seconds, min 60)" htmlFor="ms-interval">
+										<Input
+											id="ms-interval"
+											type="number"
+											min="60"
+											size="sm"
+											value={sourceForm.syncIntervalSecs}
+											onChange={(e) =>
+												setSourceForm((f) => ({ ...f, syncIntervalSecs: e.target.value }))
+											}
+										/>
+									</FormField>
+								</>
+							)}
 
 							<div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-1">
 								<label className="flex items-center gap-2 text-sm text-text-2 cursor-pointer">
@@ -1000,28 +1138,37 @@ export default function MarketplacesPage() {
 									/>
 									Enable periodic sync
 								</label>
-								<label className="flex items-center gap-2 text-sm text-text-2 cursor-pointer">
-									<input
-										type="checkbox"
-										className="h-4 w-4 rounded border-edge bg-surface-800 accent-accent-bright"
-										checked={sourceForm.importPluginsAndSkills}
-										onChange={(e) =>
-											setSourceForm((f) => ({ ...f, importPluginsAndSkills: e.target.checked }))
-										}
-									/>
-									Import plugins and skills into registry
-								</label>
+								{sourceForm.kind === "git" && (
+									<label className="flex items-center gap-2 text-sm text-text-2 cursor-pointer">
+										<input
+											type="checkbox"
+											className="h-4 w-4 rounded border-edge bg-surface-800 accent-accent-bright"
+											checked={sourceForm.importPluginsAndSkills}
+											onChange={(e) =>
+												setSourceForm((f) => ({ ...f, importPluginsAndSkills: e.target.checked }))
+											}
+										/>
+										Import plugins and skills into registry
+									</label>
+								)}
 							</div>
 
 							{connectionTestResult &&
 								(connectionTestResult.ok ? (
-									<p className="text-xs text-success">
-										Connected — found {connectionTestResult.pluginCount} plugin
-										{connectionTestResult.pluginCount === 1 ? "" : "s"} and{" "}
-										{connectionTestResult.skillCount} skill
-										{connectionTestResult.skillCount === 1 ? "" : "s"} in “
-										{connectionTestResult.name}”.
-									</p>
+									connectionTestResult.kind === "packmind" ? (
+										<p className="text-xs text-success">
+											Connected as {connectionTestResult.user} ({connectionTestResult.org}) on{" "}
+											{connectionTestResult.host}.
+										</p>
+									) : (
+										<p className="text-xs text-success">
+											Connected — found {connectionTestResult.pluginCount} plugin
+											{connectionTestResult.pluginCount === 1 ? "" : "s"} and{" "}
+											{connectionTestResult.skillCount} skill
+											{connectionTestResult.skillCount === 1 ? "" : "s"} in “
+											{connectionTestResult.name}”.
+										</p>
+									)
 								) : (
 									<p className="text-xs text-danger">{connectionTestResult.error}</p>
 								))}
@@ -1033,7 +1180,11 @@ export default function MarketplacesPage() {
 									variant="secondary"
 									size="sm"
 									onClick={handleTestConnection}
-									disabled={!sourceForm.gitUrl.trim()}
+									disabled={
+										sourceForm.kind === "git"
+											? !sourceForm.gitUrl.trim()
+											: !sourceForm.apiKey.trim() && !editingSourceId
+									}
 									loading={testingConnection}
 								>
 									Test connection
@@ -1069,14 +1220,17 @@ export default function MarketplacesPage() {
 								{orphanedSources.length === 1 ? "" : "s"} not yet linked to a marketplace
 							</p>
 							<ul className="mt-1 space-y-0.5">
-								{orphanedSources.map((s) => (
-									<li key={s.id} className="font-mono text-text-3 truncate" title={s.gitUrl}>
-										{s.gitUrl}
-										{s.lastSyncError && (
-											<span className="ml-2 text-danger">— {s.lastSyncError}</span>
-										)}
-									</li>
-								))}
+								{orphanedSources.map((s) => {
+									const label = sourceDisplayLabel(s);
+									return (
+										<li key={s.id} className="font-mono text-text-3 truncate" title={label}>
+											{label}
+											{s.lastSyncError && (
+												<span className="ml-2 text-danger">— {s.lastSyncError}</span>
+											)}
+										</li>
+									);
+								})}
 							</ul>
 						</div>
 					</div>
@@ -1371,6 +1525,14 @@ export default function MarketplacesPage() {
 														>
 															{mp.name}
 														</button>
+														{mp.provider === "packmind" && (
+															<span
+																className="shrink-0 rounded-md border border-accent-bright/30 bg-accent-bright/10 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide text-accent-bright"
+																title="Synced from Packmind via packmind-cli"
+															>
+																Packmind
+															</span>
+														)}
 													</div>
 													{mp.description && (
 														<div
@@ -1383,14 +1545,14 @@ export default function MarketplacesPage() {
 													{hasGit ? (
 														<div className="mt-2 flex flex-col gap-1.5">
 															{mpSources.map((source) => (
-																<MarketplaceGitSourceLine
+																<MarketplaceSourceLine
 																	key={source.id}
 																	source={source}
 																	syncing={syncingSourceIds.has(source.id)}
 																/>
 															))}
 														</div>
-													) : (
+													) : mp.provider === "packmind" ? null : (
 														<button
 															type="button"
 															onClick={() => openCreateSource(mp.name)}
@@ -1634,11 +1796,14 @@ export default function MarketplacesPage() {
 													<>
 														These git sources will be removed and their schedulers stopped:
 														<ul className="mt-1 list-disc pl-4 font-mono">
-															{linkedSources.map((s) => (
-																<li key={s.id} className="truncate" title={s.gitUrl}>
-																	{s.gitUrl}
-																</li>
-															))}
+															{linkedSources.map((s) => {
+																const label = sourceDisplayLabel(s);
+																return (
+																	<li key={s.id} className="truncate" title={label}>
+																		{label}
+																	</li>
+																);
+															})}
 														</ul>
 													</>
 												) : (

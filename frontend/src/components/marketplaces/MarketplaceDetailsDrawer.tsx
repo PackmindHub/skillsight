@@ -3,6 +3,7 @@ import { Button, FormField, Input } from "@/components/ui";
 import { Drawer } from "@/components/ui/Drawer";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { api } from "@/lib/api";
+import { sourceDisplayLabel } from "@/lib/marketplace-source-label";
 import type {
 	Marketplace,
 	MarketplaceDetailResponse,
@@ -39,7 +40,7 @@ function metadataFromMarketplace(mp: Marketplace): MetadataForm {
 
 function sourceFormFromSource(source: MarketplaceSource): SourceForm {
 	return {
-		gitUrl: source.gitUrl,
+		gitUrl: source.gitUrl ?? "",
 		accessToken: "",
 		branch: source.branch ?? "",
 		syncIntervalSecs: String(Math.round(source.syncIntervalMs / 1000)),
@@ -674,28 +675,40 @@ function MarketplaceSummary({
 							<span className="text-text-4">None linked</span>
 						) : (
 							<ul className="space-y-1">
-								{linkedSources.map((s) => (
-									<li key={s.id} className="flex items-center gap-2 min-w-0">
-										<a
-											href={s.gitUrl}
-											target="_blank"
-											rel="noopener noreferrer"
-											className="inline-flex items-center gap-1 font-mono text-xs text-accent-soft hover:text-accent-bright hover:underline truncate"
-											title={s.gitUrl}
-										>
-											<span className="truncate">{s.gitUrl}</span>
-											<ExternalLink className="h-3 w-3 shrink-0" aria-hidden="true" />
-										</a>
-										{s.branch && (
-											<span className="text-xs font-mono text-text-3">
-												{s.branch}
-											</span>
-										)}
-										{s.hasToken && (
-											<span className="badge badge-neutral shrink-0">token</span>
-										)}
-									</li>
-								))}
+								{linkedSources.map((s) => {
+									const label = sourceDisplayLabel(s);
+									return (
+										<li key={s.id} className="flex items-center gap-2 min-w-0">
+											{s.kind === "packmind" ? (
+												<span
+													className="inline-flex items-center gap-1 font-mono text-xs text-text-2 truncate"
+													title={label}
+												>
+													<span className="truncate">{label}</span>
+												</span>
+											) : (
+												<a
+													href={s.gitUrl ?? "#"}
+													target="_blank"
+													rel="noopener noreferrer"
+													className="inline-flex items-center gap-1 font-mono text-xs text-accent-soft hover:text-accent-bright hover:underline truncate"
+													title={label}
+												>
+													<span className="truncate">{label}</span>
+													<ExternalLink className="h-3 w-3 shrink-0" aria-hidden="true" />
+												</a>
+											)}
+											{s.branch && (
+												<span className="text-xs font-mono text-text-3">
+													{s.branch}
+												</span>
+											)}
+											{s.hasToken && (
+												<span className="badge badge-neutral shrink-0">token</span>
+											)}
+										</li>
+									);
+								})}
 							</ul>
 						)}
 					</dd>

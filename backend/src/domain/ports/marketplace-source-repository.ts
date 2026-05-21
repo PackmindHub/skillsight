@@ -1,5 +1,6 @@
 import type {
 	MarketplaceSource,
+	MarketplaceSourceKind,
 	MarketplaceSourceWithSecret,
 } from "@/domain/marketplace-source";
 
@@ -8,7 +9,9 @@ export interface IMarketplaceSourceRepository {
 	findById(id: string): Promise<MarketplaceSourceWithSecret | null>;
 	findByMarketplaceName(name: string): Promise<MarketplaceSource[]>;
 	create(data: {
-		gitUrl: string;
+		kind: MarketplaceSourceKind;
+		gitUrl?: string | null;
+		marketplaceName?: string | null;
 		accessTokenEncrypted?: string | null;
 		branch?: string | null;
 		syncIntervalMs: number;
@@ -18,7 +21,8 @@ export interface IMarketplaceSourceRepository {
 	update(
 		id: string,
 		data: {
-			gitUrl?: string;
+			gitUrl?: string | null;
+			marketplaceName?: string | null;
 			accessTokenEncrypted?: string | null;
 			branch?: string | null;
 			syncIntervalMs?: number;

@@ -117,7 +117,8 @@ export const plugins = pgTable("plugins", {
 
 export const marketplaceSources = pgTable("marketplace_sources", {
 	id: uuid("id").defaultRandom().primaryKey(),
-	gitUrl: varchar("git_url", { length: 1000 }).notNull(),
+	kind: varchar("kind", { length: 20 }).notNull().default("git"),
+	gitUrl: varchar("git_url", { length: 1000 }),
 	accessTokenEncrypted: text("access_token_encrypted"),
 	branch: varchar("branch", { length: 255 }),
 	marketplaceName: varchar("marketplace_name", { length: 255 }),
@@ -133,6 +134,7 @@ export const marketplaceSources = pgTable("marketplace_sources", {
 export const marketplaces = pgTable("marketplaces", {
 	name: varchar("name", { length: 255 }).primaryKey(),
 	status: varchar("status", { length: 20 }).notNull().default("to_review"),
+	provider: varchar("provider", { length: 20 }).notNull().default("git"),
 	url: varchar("url", { length: 1000 }),
 	description: text("description"),
 	firstSeenAt: timestamp("first_seen_at").defaultNow().notNull(),
@@ -208,3 +210,17 @@ export const pluginVersions = pgTable(
 		index("plugin_versions_plugin_idx").on(t.pluginName, t.marketplaceName),
 	],
 );
+
+// Drives ingest-time retro-association of skills to plugins for sources whose
+// telemetry events don't natively carry plugin.name (e.g. Packmind). Populated
+// at marketplace-source sync time. Single-column PK on skill_name — last-sync
+// wins if two sources both claim the same skill.
+export const externalSkillPluginMappings = pgTable("external_skill_plugin_mappings", {
+	skillName: varchar("skill_name", { length: 255 }).primaryKey(),
+	pluginName: varchar("plugin_name", { length: 255 }).notNull(),
+	marketplaceName: varchar("marketplace_name", { length: 255 }).notNull(),
+	sourceId: uuid("source_id")
+		.notNull()
+		.references(() => marketplaceSources.id, { onDelete: "cascade" }),
+	syncedAt: timestamp("synced_at").defaultNow().notNull(),
+});

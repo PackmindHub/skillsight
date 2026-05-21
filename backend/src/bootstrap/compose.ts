@@ -11,9 +11,13 @@ import { DrizzlePluginVersionRepository } from "@/infrastructure/repositories/dr
 import { DrizzleSkillRepository } from "@/infrastructure/repositories/drizzle-skill-repository";
 import { LokiHttpGateway } from "@/infrastructure/gateways/loki-http-gateway";
 import { GitMarketplaceHttpGateway } from "@/infrastructure/gateways/git-marketplace-http-gateway";
+import { PackmindCliGateway } from "@/infrastructure/gateways/packmind-cli-gateway";
 import { DrizzleMarketplaceSourceRepository } from "@/infrastructure/repositories/drizzle-marketplace-source-repository";
+import { DrizzleExternalSkillPluginMappingRepository } from "@/infrastructure/repositories/drizzle-external-skill-plugin-mapping-repository";
+import { ExternalSkillMappingCache } from "@/application/external-skill-mappings/mapping-cache";
 
 export function buildDeps() {
+	const externalSkillMappings = new DrizzleExternalSkillPluginMappingRepository(db);
 	return {
 		users: new DrizzleUserRepository(db),
 		audit: new DrizzleAuditRepository(db),
@@ -26,8 +30,11 @@ export function buildDeps() {
 		pluginSkills: new DrizzlePluginSkillRepository(db),
 		pluginVersions: new DrizzlePluginVersionRepository(db),
 		skills: new DrizzleSkillRepository(db),
+		externalSkillMappings,
+		mappingCache: new ExternalSkillMappingCache(externalSkillMappings),
 		loki: new LokiHttpGateway(),
 		gitMarketplace: new GitMarketplaceHttpGateway(),
+		packmindCli: new PackmindCliGateway(),
 	};
 }
 

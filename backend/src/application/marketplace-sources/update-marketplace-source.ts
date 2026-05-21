@@ -30,6 +30,7 @@ export async function updateMarketplaceSource(
 
 	const updates: Parameters<IMarketplaceSourceRepository["update"]>[1] = {};
 	if (data.gitUrl !== undefined) updates.gitUrl = data.gitUrl;
+	if (data.marketplaceName !== undefined) updates.marketplaceName = data.marketplaceName || null;
 	if (data.branch !== undefined) updates.branch = data.branch || null;
 	if (data.syncIntervalMs !== undefined) updates.syncIntervalMs = data.syncIntervalMs;
 	if (data.enabled !== undefined) updates.enabled = data.enabled;

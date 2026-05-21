@@ -1,3 +1,5 @@
+import type { ExternalSkillMappingCache } from "@/application/external-skill-mappings/mapping-cache";
+import { resolveSkillContext } from "@/application/external-skill-mappings/resolve-skill-context";
 import { EVENT_NAMES } from "@/domain/event";
 import {
 	computePluginStatus,
@@ -21,6 +23,7 @@ export async function ingestEvents(
 		pluginSkills: IPluginSkillRepository;
 		pluginVersions: IPluginVersionRepository;
 		skills: ISkillRepository;
+		mappingCache: ExternalSkillMappingCache;
 	},
 	rawBody: unknown,
 ): Promise<{ rejected: boolean; error?: string }> {
@@ -45,25 +48,27 @@ export async function ingestEvents(
 		events.map((e) => ({ ...e, source: "direct" as const })),
 	);
 
+	const resolveCtx = (skillName: string, attrs: Record<string, unknown>) =>
+		resolveSkillContext(
+			deps.mappingCache,
+			skillName,
+			attrs["plugin.name"],
+			attrs["marketplace.name"],
+		);
+
 	for (const e of events) {
 		if (e.eventName !== EVENT_NAMES.SKILL_ACTIVATED) continue;
 		const skillName = e.attributes["skill.name"];
 		if (typeof skillName !== "string") continue;
+		const ctx = resolveCtx(skillName, e.attributes);
 		eventBus.emitSkillActivated({
 			id: `${e.timestamp.getTime()}_${skillName}_${e.sessionId ?? ""}_${e.userEmail ?? ""}`,
 			timestamp: e.timestamp.toISOString(),
 			userEmail: e.userEmail,
 			sessionId: e.sessionId,
 			skillName,
-			pluginName:
-				typeof e.attributes["plugin.name"] === "string"
-					? (e.attributes["plugin.name"] as string)
-					: null,
-			marketplaceName: normalizeMarketplaceName(
-				typeof e.attributes["marketplace.name"] === "string"
-					? (e.attributes["marketplace.name"] as string)
-					: null,
-			),
+			pluginName: ctx.pluginName,
+			marketplaceName: ctx.marketplaceName,
 			trigger:
 				typeof e.attributes.invocation_trigger === "string"
 					? (e.attributes.invocation_trigger as string)
@@ -75,14 +80,12 @@ export async function ingestEvents(
 		...new Set(
 			events
 				.filter((e) => e.eventName === EVENT_NAMES.SKILL_ACTIVATED)
-				.map((e) =>
-					normalizeMarketplaceName(
-						typeof e.attributes["marketplace.name"] === "string"
-							? (e.attributes["marketplace.name"] as string)
-							: null,
-					),
-				)
-				.filter((name): name is string => name !== null),
+				.flatMap((e) => {
+					const skillName = e.attributes["skill.name"];
+					if (typeof skillName !== "string") return [];
+					const ctx = resolveCtx(skillName, e.attributes);
+					return ctx.marketplaceName ? [ctx.marketplaceName] : [];
+				}),
 		),
 	];
 	if (mpNames.length > 0) {
@@ -95,23 +98,26 @@ export async function ingestEvents(
 				e.eventName === EVENT_NAMES.SKILL_ACTIVATED &&
 				typeof e.attributes["skill.name"] === "string",
 		)
-		.map((e) => ({
-			skillName: e.attributes["skill.name"] as string,
-			pluginName:
-				typeof e.attributes["plugin.name"] === "string"
-					? (e.attributes["plugin.name"] as string)
-					: null,
-		}));
+		.map((e) => {
+			const skillName = e.attributes["skill.name"] as string;
+			const ctx = resolveCtx(skillName, e.attributes);
+			return { skillName, pluginName: ctx.pluginName };
+		});
 	if (skillEntries.length > 0) {
 		await deps.skills.upsertMany(skillEntries);
 	}
 
-	const skillActivationsWithPlugin = events.filter(
-		(e) =>
-			e.eventName === EVENT_NAMES.SKILL_ACTIVATED &&
-			typeof e.attributes["skill.name"] === "string" &&
-			typeof e.attributes["plugin.name"] === "string",
-	);
+	// skill_activated events that, after resolution, have an effective plugin name —
+	// either because the event carried plugin.name, or because the mapping cache
+	// supplied one (e.g. Packmind retro-link).
+	const skillActivationsWithPlugin = events.flatMap((e) => {
+		if (e.eventName !== EVENT_NAMES.SKILL_ACTIVATED) return [];
+		const skillName = e.attributes["skill.name"];
+		if (typeof skillName !== "string") return [];
+		const ctx = resolveCtx(skillName, e.attributes);
+		if (!ctx.pluginName) return [];
+		return [{ skillName, pluginName: ctx.pluginName, marketplaceName: ctx.marketplaceName }];
+	});
 
 	const pluginEvents = events.filter(
 		(e) =>
@@ -145,27 +151,20 @@ export async function ingestEvents(
 		const seenPlugins = new Set<string>();
 		const pluginSkillPairs: Array<{ pluginName: string; skillName: string }> = [];
 
-		for (const event of skillActivationsWithPlugin) {
-			const pluginName = event.attributes["plugin.name"] as string;
-			const skillName = event.attributes["skill.name"] as string;
-			pluginSkillPairs.push({ pluginName, skillName });
+		for (const entry of skillActivationsWithPlugin) {
+			pluginSkillPairs.push({ pluginName: entry.pluginName, skillName: entry.skillName });
 
-			if (seenPlugins.has(pluginName)) continue;
-			seenPlugins.add(pluginName);
+			if (seenPlugins.has(entry.pluginName)) continue;
+			seenPlugins.add(entry.pluginName);
 
-			const marketplaceName = normalizeMarketplaceName(
-				typeof event.attributes["marketplace.name"] === "string"
-					? (event.attributes["marketplace.name"] as string)
-					: null,
-			);
 			const status = computePluginStatus(
-				marketplaceName,
-				marketplaceName ? statusMap[marketplaceName] : null,
+				entry.marketplaceName,
+				entry.marketplaceName ? statusMap[entry.marketplaceName] : null,
 			);
 
 			await deps.plugins.upsertIfAbsent({
-				pluginName,
-				marketplaceName,
+				pluginName: entry.pluginName,
+				marketplaceName: entry.marketplaceName,
 				pluginVersion: null,
 				installTrigger: null,
 				marketplaceIsOfficial: null,
@@ -253,7 +252,7 @@ export async function ingestEvents(
 					? (event.attributes["marketplace.name"] as string)
 					: null,
 			);
-			const key = `${pluginName} ${marketplaceName ?? ""}`;
+			const key = `${pluginName} ${marketplaceName ?? ""}`;
 			if (seen.has(key)) continue;
 			seen.add(key);
 

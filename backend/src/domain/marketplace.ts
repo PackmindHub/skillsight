@@ -2,9 +2,12 @@ import type { PluginStatus } from "@/domain/plugin";
 
 export type MarketplaceStatus = "to_review" | "approved" | "denied" | "ignored";
 
+export type MarketplaceProvider = "git" | "packmind";
+
 export interface Marketplace {
 	name: string;
 	status: MarketplaceStatus;
+	provider: MarketplaceProvider;
 	url: string | null;
 	description: string | null;
 	firstSeenAt: Date;

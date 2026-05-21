@@ -8,9 +8,12 @@ export async function createMarketplaceSource(
 	deps: { marketplaceSources: IMarketplaceSourceRepository; audit: IAuditRepository },
 	data: CreateMarketplaceSourceData & { actorEmail?: string | null },
 ): Promise<MarketplaceSource> {
+	const kind = data.kind ?? "git";
 	const accessTokenEncrypted = data.accessToken ? encrypt(data.accessToken) : null;
 	const created = await deps.marketplaceSources.create({
-		gitUrl: data.gitUrl,
+		kind,
+		gitUrl: data.gitUrl ?? null,
+		marketplaceName: data.marketplaceName ?? null,
 		accessTokenEncrypted,
 		branch: data.branch ?? null,
 		syncIntervalMs: data.syncIntervalMs ?? 3600000,
@@ -23,7 +26,9 @@ export async function createMarketplaceSource(
 		action: "marketplace_source_created",
 		target: created.id,
 		metadata: {
+			kind: created.kind,
 			gitUrl: created.gitUrl,
+			marketplaceName: created.marketplaceName,
 			branch: created.branch,
 			syncIntervalMs: created.syncIntervalMs,
 			enabled: created.enabled,

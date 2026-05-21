@@ -1,4 +1,6 @@
 import { recordAudit } from "@/application/audit/record-audit";
+import type { ExternalSkillMappingCache } from "@/application/external-skill-mappings/mapping-cache";
+import { resolveSkillContext } from "@/application/external-skill-mappings/resolve-skill-context";
 import { publishIntegrationUpdate } from "@/application/integrations/publish-integration-update";
 import { EVENT_NAMES, type NewEvent } from "@/domain/event";
 import type { IntegrationWithSecret } from "@/domain/integration";
@@ -31,6 +33,7 @@ interface SyncDeps {
 	pluginSkills: IPluginSkillRepository;
 	pluginVersions: IPluginVersionRepository;
 	marketplaces: IMarketplaceRepository;
+	mappingCache: ExternalSkillMappingCache;
 	loki: ILokiGateway;
 	audit: IAuditRepository;
 }
@@ -80,25 +83,27 @@ export async function syncIntegration(
 
 		await deps.events.insertMany(parsedEvents);
 
+		const resolveCtx = (skillName: string, attrs: Record<string, unknown>) =>
+			resolveSkillContext(
+				deps.mappingCache,
+				skillName,
+				attrs["plugin.name"],
+				attrs["marketplace.name"],
+			);
+
 		for (const e of parsedEvents) {
 			if (e.eventName !== EVENT_NAMES.SKILL_ACTIVATED) continue;
 			const skillName = e.attributes["skill.name"];
 			if (typeof skillName !== "string") continue;
+			const ctx = resolveCtx(skillName, e.attributes);
 			eventBus.emitSkillActivated({
 				id: `${e.timestamp.getTime()}_${skillName}_${e.sessionId ?? ""}_${e.userEmail ?? ""}`,
 				timestamp: e.timestamp.toISOString(),
 				userEmail: e.userEmail,
 				sessionId: e.sessionId,
 				skillName,
-				pluginName:
-					typeof e.attributes["plugin.name"] === "string"
-						? (e.attributes["plugin.name"] as string)
-						: null,
-				marketplaceName: normalizeMarketplaceName(
-					typeof e.attributes["marketplace.name"] === "string"
-						? (e.attributes["marketplace.name"] as string)
-						: null,
-				),
+				pluginName: ctx.pluginName,
+				marketplaceName: ctx.marketplaceName,
 				trigger:
 					typeof e.attributes.invocation_trigger === "string"
 						? (e.attributes.invocation_trigger as string)
@@ -112,13 +117,11 @@ export async function syncIntegration(
 					e.eventName === EVENT_NAMES.SKILL_ACTIVATED &&
 					typeof e.attributes["skill.name"] === "string",
 			)
-			.map((e) => ({
-				skillName: e.attributes["skill.name"] as string,
-				pluginName:
-					typeof e.attributes["plugin.name"] === "string"
-						? (e.attributes["plugin.name"] as string)
-						: null,
-			}));
+			.map((e) => {
+				const skillName = e.attributes["skill.name"] as string;
+				const ctx = resolveCtx(skillName, e.attributes);
+				return { skillName, pluginName: ctx.pluginName };
+			});
 		if (skillEntries.length > 0) {
 			await deps.skills.upsertMany(skillEntries);
 		}
@@ -127,26 +130,26 @@ export async function syncIntegration(
 			...new Set(
 				parsedEvents
 					.filter((e) => e.eventName === EVENT_NAMES.SKILL_ACTIVATED)
-					.map((e) =>
-						normalizeMarketplaceName(
-							typeof e.attributes["marketplace.name"] === "string"
-								? (e.attributes["marketplace.name"] as string)
-								: null,
-						),
-					)
-					.filter((name): name is string => name !== null),
+					.flatMap((e) => {
+						const skillName = e.attributes["skill.name"];
+						if (typeof skillName !== "string") return [];
+						const ctx = resolveCtx(skillName, e.attributes);
+						return ctx.marketplaceName ? [ctx.marketplaceName] : [];
+					}),
 			),
 		];
 		if (mpNames.length > 0) {
 			await deps.marketplaces.upsertSeen(mpNames);
 		}
 
-		const skillActivationsWithPlugin = parsedEvents.filter(
-			(e) =>
-				e.eventName === EVENT_NAMES.SKILL_ACTIVATED &&
-				typeof e.attributes["skill.name"] === "string" &&
-				typeof e.attributes["plugin.name"] === "string",
-		);
+		const skillActivationsWithPlugin = parsedEvents.flatMap((e) => {
+			if (e.eventName !== EVENT_NAMES.SKILL_ACTIVATED) return [];
+			const skillName = e.attributes["skill.name"];
+			if (typeof skillName !== "string") return [];
+			const ctx = resolveCtx(skillName, e.attributes);
+			if (!ctx.pluginName) return [];
+			return [{ skillName, pluginName: ctx.pluginName, marketplaceName: ctx.marketplaceName }];
+		});
 
 		if (skillActivationsWithPlugin.length > 0) {
 			const statusMap = Object.fromEntries(
@@ -156,27 +159,20 @@ export async function syncIntegration(
 			const seenPlugins = new Set<string>();
 			const pluginSkillPairs: Array<{ pluginName: string; skillName: string }> = [];
 
-			for (const event of skillActivationsWithPlugin) {
-				const pluginName = event.attributes["plugin.name"] as string;
-				const skillName = event.attributes["skill.name"] as string;
-				pluginSkillPairs.push({ pluginName, skillName });
+			for (const entry of skillActivationsWithPlugin) {
+				pluginSkillPairs.push({ pluginName: entry.pluginName, skillName: entry.skillName });
 
-				if (seenPlugins.has(pluginName)) continue;
-				seenPlugins.add(pluginName);
+				if (seenPlugins.has(entry.pluginName)) continue;
+				seenPlugins.add(entry.pluginName);
 
-				const marketplaceName = normalizeMarketplaceName(
-					typeof event.attributes["marketplace.name"] === "string"
-						? (event.attributes["marketplace.name"] as string)
-						: null,
-				);
 				const status = computePluginStatus(
-					marketplaceName,
-					marketplaceName ? statusMap[marketplaceName] : null,
+					entry.marketplaceName,
+					entry.marketplaceName ? statusMap[entry.marketplaceName] : null,
 				);
 
 				await deps.plugins.upsertIfAbsent({
-					pluginName,
-					marketplaceName,
+					pluginName: entry.pluginName,
+					marketplaceName: entry.marketplaceName,
 					pluginVersion: null,
 					installTrigger: null,
 					marketplaceIsOfficial: null,

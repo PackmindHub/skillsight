@@ -31,6 +31,8 @@ async function main() {
 	serve({ fetch: app.fetch, port: config.PORT, hostname: "0.0.0.0" }, async (info) => {
 		console.log(`[server] Listening on 0.0.0.0:${info.port}`);
 		const deps = buildDeps();
+		await deps.mappingCache.load();
+		console.log(`[startup] Loaded ${deps.mappingCache.size()} external skill mapping(s).`);
 		await startScheduler(deps.integrations, (integration) =>
 			syncIntegration(
 				{
@@ -41,6 +43,7 @@ async function main() {
 					pluginSkills: deps.pluginSkills,
 					pluginVersions: deps.pluginVersions,
 					marketplaces: deps.marketplaces,
+					mappingCache: deps.mappingCache,
 					loki: deps.loki,
 					audit: deps.audit,
 				},
@@ -58,6 +61,9 @@ async function main() {
 					pluginVersions: deps.pluginVersions,
 					skills: deps.skills,
 					gitMarketplace: deps.gitMarketplace,
+					packmindCli: deps.packmindCli,
+					externalSkillMappings: deps.externalSkillMappings,
+					mappingCache: deps.mappingCache,
 					audit: deps.audit,
 				},
 				source,

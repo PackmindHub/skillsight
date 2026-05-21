@@ -6,7 +6,14 @@ import { ingestEvents } from "@/application/telemetry/ingest-events";
 export function createTelemetryRoute(
 	deps: Pick<
 		AppDeps,
-		"events" | "marketplaces" | "plugins" | "pluginSkills" | "pluginVersions" | "skills" | "tokens"
+		| "events"
+		| "marketplaces"
+		| "plugins"
+		| "pluginSkills"
+		| "pluginVersions"
+		| "skills"
+		| "tokens"
+		| "mappingCache"
 	>,
 ) {
 	const route = new Hono();

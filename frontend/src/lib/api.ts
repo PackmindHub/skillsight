@@ -357,14 +357,26 @@ export const api = {
 	},
 	marketplaceSources: {
 		list: () => apiFetch<MarketplaceSource[]>("/api/marketplace-sources"),
-		create: (data: {
-			gitUrl: string;
-			accessToken?: string | null;
-			branch?: string | null;
-			syncIntervalMs?: number;
-			enabled?: boolean;
-			importPluginsAndSkills?: boolean;
-		}) =>
+		create: (
+			data:
+				| {
+						kind?: "git";
+						gitUrl: string;
+						accessToken?: string | null;
+						branch?: string | null;
+						syncIntervalMs?: number;
+						enabled?: boolean;
+						importPluginsAndSkills?: boolean;
+				  }
+				| {
+						kind: "packmind";
+						marketplaceName: string;
+						apiKey: string;
+						syncIntervalMs?: number;
+						enabled?: boolean;
+						importPluginsAndSkills?: boolean;
+				  },
+		) =>
 			apiFetch<
 				MarketplaceSource & {
 					firstSync: {
@@ -381,7 +393,9 @@ export const api = {
 			id: string,
 			data: {
 				gitUrl?: string;
+				marketplaceName?: string;
 				accessToken?: string | null;
+				apiKey?: string | null;
 				branch?: string | null;
 				syncIntervalMs?: number;
 				enabled?: boolean;
@@ -402,19 +416,37 @@ export const api = {
 			apiFetch<MarketplaceSource>(`/api/marketplace-sources/${id}/pause`, { method: "POST" }),
 		resume: (id: string) =>
 			apiFetch<MarketplaceSource>(`/api/marketplace-sources/${id}/resume`, { method: "POST" }),
-		testConnection: (data: {
-			gitUrl: string;
-			accessToken?: string | null;
-			branch?: string | null;
-			sourceId?: string | null;
-		}) =>
+		testConnection: (
+			data:
+				| {
+						kind?: "git";
+						gitUrl: string;
+						accessToken?: string | null;
+						branch?: string | null;
+						sourceId?: string | null;
+				  }
+				| {
+						kind: "packmind";
+						apiKey?: string | null;
+						marketplaceName?: string | null;
+						sourceId?: string | null;
+				  },
+		) =>
 			apiFetch<
 				| {
 						ok: true;
+						kind: "git";
 						name: string;
 						description?: string;
 						pluginCount: number;
 						skillCount: number;
+				  }
+				| {
+						ok: true;
+						kind: "packmind";
+						user: string;
+						org: string;
+						host: string;
 				  }
 				| { ok: false; error: string }
 			>("/api/marketplace-sources/test-connection", {

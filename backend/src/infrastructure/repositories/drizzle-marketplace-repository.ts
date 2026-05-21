@@ -6,6 +6,7 @@ import type { IMarketplaceRepository } from "@/domain/ports/marketplace-reposito
 import type {
 	Marketplace,
 	MarketplacePluginRow,
+	MarketplaceProvider,
 	MarketplaceSkillRow,
 	MarketplaceStatus,
 	MarketplaceWithStats,
@@ -19,6 +20,7 @@ export class DrizzleMarketplaceRepository implements IMarketplaceRepository {
 			SELECT
 			  m.name,
 			  m.status,
+			  m.provider,
 			  m.url,
 			  m.description,
 			  m.first_seen_at AS "firstSeenAt",
@@ -140,6 +142,7 @@ export class DrizzleMarketplaceRepository implements IMarketplaceRepository {
 		return {
 			name: row.name,
 			status: row.status as MarketplaceStatus,
+			provider: (row.provider as MarketplaceProvider) ?? "git",
 			url: row.url,
 			description: row.description,
 			firstSeenAt: row.firstSeenAt,
@@ -164,6 +167,7 @@ export class DrizzleMarketplaceRepository implements IMarketplaceRepository {
 		return {
 			name: row.name,
 			status: row.status as MarketplaceStatus,
+			provider: (row.provider as MarketplaceProvider) ?? "git",
 			url: row.url,
 			description: row.description,
 			firstSeenAt: row.firstSeenAt,
@@ -173,15 +177,18 @@ export class DrizzleMarketplaceRepository implements IMarketplaceRepository {
 
 	async upsertFromImport(data: {
 		name: string;
+		provider?: MarketplaceProvider;
 		url?: string | null;
 		description?: string | null;
 	}): Promise<void> {
 		const now = new Date();
+		const provider = data.provider ?? "git";
 		await this.db
 			.insert(marketplaces)
 			.values({
 				name: data.name,
 				status: "approved",
+				provider,
 				url: data.url ?? null,
 				description: data.description ?? null,
 				firstSeenAt: now,
@@ -190,6 +197,7 @@ export class DrizzleMarketplaceRepository implements IMarketplaceRepository {
 			.onConflictDoUpdate({
 				target: marketplaces.name,
 				set: {
+					provider,
 					url: data.url ?? null,
 					description: data.description ?? null,
 					lastSeenAt: now,

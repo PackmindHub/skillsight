@@ -8,6 +8,7 @@ type AuditCall = Parameters<IAuditRepository["log"]>[0];
 
 const BASE_SOURCE: MarketplaceSourceWithSecret = {
 	id: "src-1",
+	kind: "git",
 	gitUrl: "github.com/org/repo",
 	accessTokenEncrypted: null,
 	hasToken: false,

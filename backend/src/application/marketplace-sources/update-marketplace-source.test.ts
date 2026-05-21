@@ -14,6 +14,7 @@ const audit: IAuditRepository = {
 
 const BASE_SOURCE: MarketplaceSourceWithSecret = {
 	id: "src-1",
+	kind: "git",
 	gitUrl: "github.com/org/repo",
 	accessTokenEncrypted: null,
 	hasToken: false,

@@ -1,6 +1,9 @@
+export type MarketplaceSourceKind = "git" | "packmind";
+
 export interface MarketplaceSource {
 	id: string;
-	gitUrl: string;
+	kind: MarketplaceSourceKind;
+	gitUrl: string | null;
 	hasToken: boolean;
 	branch: string | null;
 	marketplaceName: string | null;
@@ -18,7 +21,9 @@ export interface MarketplaceSourceWithSecret extends MarketplaceSource {
 }
 
 export interface CreateMarketplaceSourceData {
-	gitUrl: string;
+	kind?: MarketplaceSourceKind;
+	gitUrl?: string;
+	marketplaceName?: string;
 	accessToken?: string;
 	branch?: string;
 	syncIntervalMs?: number;
@@ -28,6 +33,7 @@ export interface CreateMarketplaceSourceData {
 
 export interface UpdateMarketplaceSourceData {
 	gitUrl?: string;
+	marketplaceName?: string;
 	accessToken?: string | null;
 	branch?: string;
 	syncIntervalMs?: number;

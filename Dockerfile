@@ -4,6 +4,15 @@
 FROM oven/bun:1.3.10-alpine AS base
 WORKDIR /app
 
+# Install packmind-cli for the Packmind marketplace integration. It ships as
+# the npm package @packmind/cli and exposes a `packmind-cli` bin on PATH; the
+# sync gateway spawns it directly. Installed in the base stage so dev (used by
+# docker-compose.dev.yml) and runtime both get it without duplication. Override
+# the binary path with PACKMIND_CLI_BIN if needed.
+RUN apk add --no-cache nodejs npm \
+    && npm install -g @packmind/cli \
+    && packmind-cli --version
+
 # ---- deps: install ALL dependencies (incl. devDependencies) ----
 # Cached as long as the lockfile + workspace package.json files don't change.
 FROM base AS deps

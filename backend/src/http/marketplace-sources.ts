@@ -16,7 +16,8 @@ import {
 	cancelMarketplaceSource,
 } from "@/infrastructure/scheduler/marketplace-source-scheduler";
 
-const createSchema = z.object({
+const gitCreateSchema = z.object({
+	kind: z.literal("git").optional(),
 	gitUrl: z.string().min(1).max(1000),
 	accessToken: z.string().optional().nullable(),
 	branch: z.string().max(255).optional().nullable(),
@@ -25,21 +26,43 @@ const createSchema = z.object({
 	importPluginsAndSkills: z.boolean().default(false),
 });
 
+const packmindCreateSchema = z.object({
+	kind: z.literal("packmind"),
+	marketplaceName: z.string().min(1).max(255),
+	apiKey: z.string().min(1),
+	syncIntervalMs: z.number().int().min(60000).default(3600000),
+	enabled: z.boolean().default(true),
+	importPluginsAndSkills: z.boolean().default(true),
+});
+
+const createSchema = z.union([packmindCreateSchema, gitCreateSchema]);
+
 const updateSchema = z.object({
 	gitUrl: z.string().min(1).max(1000).optional(),
+	marketplaceName: z.string().min(1).max(255).optional(),
 	accessToken: z.string().optional().nullable(),
+	apiKey: z.string().optional().nullable(),
 	branch: z.string().max(255).optional().nullable(),
 	syncIntervalMs: z.number().int().min(60000).optional(),
 	enabled: z.boolean().optional(),
 	importPluginsAndSkills: z.boolean().optional(),
 });
 
-const testConnectionSchema = z.object({
-	gitUrl: z.string().min(1).max(1000),
-	accessToken: z.string().nullable().optional(),
-	branch: z.string().max(255).nullable().optional(),
-	sourceId: z.string().uuid().nullable().optional(),
-});
+const testConnectionSchema = z.union([
+	z.object({
+		kind: z.literal("git").optional(),
+		gitUrl: z.string().min(1).max(1000),
+		accessToken: z.string().nullable().optional(),
+		branch: z.string().max(255).nullable().optional(),
+		sourceId: z.string().uuid().nullable().optional(),
+	}),
+	z.object({
+		kind: z.literal("packmind"),
+		apiKey: z.string().nullable().optional(),
+		marketplaceName: z.string().max(255).nullable().optional(),
+		sourceId: z.string().uuid().nullable().optional(),
+	}),
+]);
 
 export function createMarketplaceSourcesRoute(
 	deps: Pick<
@@ -51,6 +74,9 @@ export function createMarketplaceSourcesRoute(
 		| "pluginVersions"
 		| "skills"
 		| "gitMarketplace"
+		| "packmindCli"
+		| "externalSkillMappings"
+		| "mappingCache"
 		| "audit"
 	>,
 ) {
@@ -62,6 +88,9 @@ export function createMarketplaceSourcesRoute(
 		pluginVersions: deps.pluginVersions,
 		skills: deps.skills,
 		gitMarketplace: deps.gitMarketplace,
+		packmindCli: deps.packmindCli,
+		externalSkillMappings: deps.externalSkillMappings,
+		mappingCache: deps.mappingCache,
 		audit: deps.audit,
 	});
 
@@ -75,17 +104,57 @@ export function createMarketplaceSourcesRoute(
 
 	route.post("/test-connection", async (c) => {
 		const body = testConnectionSchema.parse(await c.req.json());
-		const result = await testMarketplaceSourceConnection(deps, {
-			gitUrl: body.gitUrl,
-			accessToken: body.accessToken ?? null,
-			branch: body.branch ?? null,
-			sourceId: body.sourceId ?? null,
-		});
+		const result = await testMarketplaceSourceConnection(deps, body);
 		return c.json(result);
 	});
 
 	route.post("/", async (c) => {
 		const body = createSchema.parse(await c.req.json());
+
+		if (body.kind === "packmind") {
+			const test = await testMarketplaceSourceConnection(deps, {
+				kind: "packmind",
+				apiKey: body.apiKey,
+			});
+			if (!test.ok) return c.json({ error: test.error }, 400);
+			const actorEmail = c.get("user").email;
+			const source = await createMarketplaceSource(deps, {
+				kind: "packmind",
+				marketplaceName: body.marketplaceName,
+				accessToken: body.apiKey,
+				syncIntervalMs: body.syncIntervalMs,
+				enabled: body.enabled,
+				importPluginsAndSkills: body.importPluginsAndSkills,
+				actorEmail,
+			});
+			const withSecret = await deps.marketplaceSources.findById(source.id);
+			let firstSync: { pluginCount: number; skillCount: number; error: string | null } | null = null;
+			if (withSecret) {
+				const result = await syncMarketplaceSource(makeSyncDeps(), withSecret, {
+					actorEmail,
+					mode: "manual",
+				});
+				firstSync = {
+					pluginCount: result.pluginCount,
+					skillCount: result.skillCount,
+					error: result.error,
+				};
+				if (source.enabled)
+					scheduleMarketplaceSource(withSecret, (s) =>
+						syncMarketplaceSource(makeSyncDeps(), s, { mode: "scheduled" }),
+					);
+			}
+			const refreshedWithSecret = await deps.marketplaceSources.findById(source.id);
+			const refreshed = refreshedWithSecret
+				? (() => {
+						const { accessTokenEncrypted: _t, ...rest } = refreshedWithSecret;
+						return rest;
+					})()
+				: source;
+			return c.json({ ...refreshed, firstSync }, 201);
+		}
+
+		// Git path (default).
 		const test = await testMarketplaceSourceConnection(deps, {
 			gitUrl: body.gitUrl,
 			accessToken: body.accessToken ?? null,
@@ -94,6 +163,7 @@ export function createMarketplaceSourcesRoute(
 		if (!test.ok) return c.json({ error: test.error }, 400);
 		const actorEmail = c.get("user").email;
 		const source = await createMarketplaceSource(deps, {
+			kind: "git",
 			gitUrl: body.gitUrl,
 			accessToken: body.accessToken ?? undefined,
 			branch: body.branch ?? undefined,
@@ -134,16 +204,37 @@ export function createMarketplaceSourcesRoute(
 		const body = updateSchema.parse(await c.req.json());
 		const existing = await deps.marketplaceSources.findById(id);
 		if (!existing) return c.json({ error: "Not found" }, 404);
-		const test = await testMarketplaceSourceConnection(deps, {
-			gitUrl: body.gitUrl ?? existing.gitUrl,
-			accessToken: body.accessToken ?? null,
-			branch: body.branch !== undefined ? body.branch : existing.branch,
-			sourceId: id,
-		});
-		if (!test.ok) return c.json({ error: test.error }, 400);
+
+		// Packmind sources don't have a gitUrl to test; verify the API key instead.
+		if (existing.kind === "packmind") {
+			const apiKey = body.apiKey ?? null;
+			if (apiKey) {
+				const test = await testMarketplaceSourceConnection(deps, {
+					kind: "packmind",
+					apiKey,
+					sourceId: id,
+				});
+				if (!test.ok) return c.json({ error: test.error }, 400);
+			}
+		} else {
+			const test = await testMarketplaceSourceConnection(deps, {
+				gitUrl: body.gitUrl ?? existing.gitUrl ?? "",
+				accessToken: body.accessToken ?? null,
+				branch: body.branch !== undefined ? body.branch : existing.branch,
+				sourceId: id,
+			});
+			if (!test.ok) return c.json({ error: test.error }, 400);
+		}
+
+		// `accessToken` is the generic credential column on the wire — for Packmind
+		// the UI sends `apiKey`, normalize it here.
+		const credential =
+			existing.kind === "packmind" ? (body.apiKey ?? undefined) : (body.accessToken ?? undefined);
+
 		const result = await updateMarketplaceSource(deps, id, {
 			gitUrl: body.gitUrl,
-			accessToken: body.accessToken,
+			marketplaceName: body.marketplaceName,
+			accessToken: credential as string | null | undefined,
 			branch: body.branch ?? undefined,
 			syncIntervalMs: body.syncIntervalMs,
 			enabled: body.enabled,

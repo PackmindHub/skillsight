@@ -37,6 +37,14 @@ export interface ISkillRepository {
 		key: { skillName: string; pluginName: string },
 		status: SkillStatus,
 	): Promise<Skill | null>;
+	// Move the orphan row (skillName, '') over to a real plugin, preserving its
+	// status/firstSeenAt. If no orphan exists, the call is a no-op for that
+	// entry; if a linked row already exists, the orphan is dropped without
+	// touching the existing linked row. Used by sync flows that retro-associate
+	// skills (e.g. Packmind) to clean up legacy orphan rows from prior ingest.
+	relinkOrphans(
+		entries: Array<{ skillName: string; pluginName: string }>,
+	): Promise<number>;
 }
 
 export interface SkillUpsertEntry {

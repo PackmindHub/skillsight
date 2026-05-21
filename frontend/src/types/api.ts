@@ -182,12 +182,15 @@ export interface PluginSkillsResponse {
 	weeklyLoaders: PluginWeeklyLoaders;
 }
 
+export type MarketplaceProvider = "git" | "packmind";
+
 export interface MarketplaceRef {
 	name: string;
 	status: MarketplaceStatus;
 }
 
 export interface Marketplace extends MarketplaceRef {
+	provider: MarketplaceProvider;
 	url: string | null;
 	description: string | null;
 	firstSeenAt: string;
@@ -304,9 +307,12 @@ export interface AuditDiffMetadata {
 	changedFields: string[];
 }
 
+export type MarketplaceSourceKind = "git" | "packmind";
+
 export interface MarketplaceSource {
 	id: string;
-	gitUrl: string;
+	kind: MarketplaceSourceKind;
+	gitUrl: string | null;
 	hasToken: boolean;
 	branch: string | null;
 	marketplaceName: string | null;

@@ -1,8 +1,10 @@
 import { describe, expect, it } from "bun:test";
+import { ExternalSkillMappingCache } from "@/application/external-skill-mappings/mapping-cache";
 import { EVENT_NAMES, SHORT_EVENT_NAMES, type NewEvent } from "@/domain/event";
 import type { IntegrationWithSecret } from "@/domain/integration";
 import type { IAuditRepository } from "@/domain/ports/audit-repository";
 import type { IEventRepository } from "@/domain/ports/event-repository";
+import type { IExternalSkillPluginMappingRepository } from "@/domain/ports/external-skill-plugin-mapping-repository";
 import type { IIntegrationRepository } from "@/domain/ports/integration-repository";
 import type { ILokiGateway, LokiStreamResult } from "@/domain/ports/loki-gateway";
 import type { IMarketplaceRepository } from "@/domain/ports/marketplace-repository";
@@ -13,6 +15,22 @@ import type {
 	SkillUpsertEntry,
 } from "@/domain/ports/skill-repository";
 import { syncIntegration } from "./sync-integration";
+
+function emptyMappingRepo(): IExternalSkillPluginMappingRepository {
+	return {
+		findAll: async () => [],
+		findByName: async () => null,
+		upsertMany: async () => {},
+		deleteBySourceId: async () => {},
+		deleteMissingForSource: async () => {},
+	};
+}
+
+async function makeLoadedMappingCache() {
+	const cache = new ExternalSkillMappingCache(emptyMappingRepo());
+	await cache.load();
+	return cache;
+}
 
 function makeAudit(): IAuditRepository {
 	return {
@@ -87,6 +105,7 @@ function makeSkills() {
 		deleteByKeys: async () => 0,
 		findByKey: async () => null,
 		updateStatus: async () => null,
+		relinkOrphans: async () => 0,
 	};
 	return { repo, upsertManyCalls };
 }
@@ -212,6 +231,7 @@ describe("syncIntegration", () => {
 				marketplaces: makeMarketplaces().repo,
 				loki,
 				audit: makeAudit(),
+				mappingCache: await makeLoadedMappingCache(),
 			},
 			BASE_INTEGRATION,
 		);
@@ -239,6 +259,7 @@ describe("syncIntegration", () => {
 				marketplaces: makeMarketplaces().repo,
 				loki,
 				audit: makeAudit(),
+				mappingCache: await makeLoadedMappingCache(),
 			},
 			BASE_INTEGRATION,
 		);
@@ -275,6 +296,7 @@ describe("syncIntegration", () => {
 				marketplaces,
 				loki,
 				audit: makeAudit(),
+				mappingCache: await makeLoadedMappingCache(),
 			},
 			BASE_INTEGRATION,
 		);
@@ -302,6 +324,7 @@ describe("syncIntegration", () => {
 				marketplaces: makeMarketplaces().repo,
 				loki,
 				audit: makeAudit(),
+				mappingCache: await makeLoadedMappingCache(),
 			},
 			BASE_INTEGRATION,
 		);
@@ -334,6 +357,7 @@ describe("syncIntegration", () => {
 				marketplaces: makeMarketplaces().repo,
 				loki,
 				audit: makeAudit(),
+				mappingCache: await makeLoadedMappingCache(),
 			},
 			BASE_INTEGRATION,
 		);
@@ -370,6 +394,7 @@ describe("syncIntegration", () => {
 				marketplaces: makeMarketplaces().repo,
 				loki,
 				audit: makeAudit(),
+				mappingCache: await makeLoadedMappingCache(),
 			},
 			BASE_INTEGRATION,
 		);
@@ -400,6 +425,7 @@ describe("syncIntegration", () => {
 				marketplaces: makeMarketplaces().repo,
 				loki,
 				audit: makeAudit(),
+				mappingCache: await makeLoadedMappingCache(),
 			},
 			BASE_INTEGRATION,
 		);
@@ -429,6 +455,7 @@ describe("syncIntegration", () => {
 				marketplaces: makeMarketplaces().repo,
 				loki,
 				audit: makeAudit(),
+				mappingCache: await makeLoadedMappingCache(),
 			},
 			BASE_INTEGRATION,
 		);
@@ -465,6 +492,7 @@ describe("syncIntegration — 'inline' marketplace normalization", () => {
 				marketplaces,
 				loki,
 				audit: makeAudit(),
+				mappingCache: await makeLoadedMappingCache(),
 			},
 			BASE_INTEGRATION,
 		);
@@ -506,6 +534,7 @@ describe("syncIntegration — 'inline' marketplace normalization", () => {
 				marketplaces,
 				loki,
 				audit: makeAudit(),
+				mappingCache: await makeLoadedMappingCache(),
 			},
 			BASE_INTEGRATION,
 		);

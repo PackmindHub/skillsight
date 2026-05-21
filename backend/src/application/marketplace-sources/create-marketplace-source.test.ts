@@ -14,6 +14,7 @@ const audit: IAuditRepository = {
 
 const BASE_RESULT: MarketplaceSource = {
 	id: "src-1",
+	kind: "git",
 	gitUrl: "github.com/org/repo",
 	hasToken: false,
 	branch: null,

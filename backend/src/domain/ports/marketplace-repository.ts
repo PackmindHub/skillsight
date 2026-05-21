@@ -1,6 +1,7 @@
 import type {
 	Marketplace,
 	MarketplacePluginRow,
+	MarketplaceProvider,
 	MarketplaceSkillRow,
 	MarketplaceStatus,
 	MarketplaceWithStats,
@@ -17,6 +18,7 @@ export interface IMarketplaceRepository {
 	upsertSeen(names: string[]): Promise<void>;
 	upsertFromImport(data: {
 		name: string;
+		provider?: MarketplaceProvider;
 		url?: string | null;
 		description?: string | null;
 	}): Promise<void>;

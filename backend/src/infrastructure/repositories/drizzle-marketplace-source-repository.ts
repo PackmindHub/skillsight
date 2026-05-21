@@ -2,11 +2,16 @@ import { eq } from "drizzle-orm";
 import type { AppDb } from "@/db/client";
 import { marketplaceSources } from "@/db/schema";
 import type { IMarketplaceSourceRepository } from "@/domain/ports/marketplace-source-repository";
-import type { MarketplaceSource, MarketplaceSourceWithSecret } from "@/domain/marketplace-source";
+import type {
+	MarketplaceSource,
+	MarketplaceSourceKind,
+	MarketplaceSourceWithSecret,
+} from "@/domain/marketplace-source";
 
 function toPublic(row: typeof marketplaceSources.$inferSelect): MarketplaceSource {
 	return {
 		id: row.id,
+		kind: (row.kind as MarketplaceSourceKind) ?? "git",
 		gitUrl: row.gitUrl,
 		hasToken: row.accessTokenEncrypted !== null,
 		branch: row.branch,
@@ -50,7 +55,9 @@ export class DrizzleMarketplaceSourceRepository implements IMarketplaceSourceRep
 	}
 
 	async create(data: {
-		gitUrl: string;
+		kind: MarketplaceSourceKind;
+		gitUrl?: string | null;
+		marketplaceName?: string | null;
 		accessTokenEncrypted?: string | null;
 		branch?: string | null;
 		syncIntervalMs: number;
@@ -60,7 +67,9 @@ export class DrizzleMarketplaceSourceRepository implements IMarketplaceSourceRep
 		const [row] = await this.db
 			.insert(marketplaceSources)
 			.values({
-				gitUrl: data.gitUrl,
+				kind: data.kind,
+				gitUrl: data.gitUrl ?? null,
+				marketplaceName: data.marketplaceName ?? null,
 				accessTokenEncrypted: data.accessTokenEncrypted ?? null,
 				branch: data.branch ?? null,
 				syncIntervalMs: data.syncIntervalMs,
@@ -74,7 +83,8 @@ export class DrizzleMarketplaceSourceRepository implements IMarketplaceSourceRep
 	async update(
 		id: string,
 		data: {
-			gitUrl?: string;
+			gitUrl?: string | null;
+			marketplaceName?: string | null;
 			accessTokenEncrypted?: string | null;
 			branch?: string | null;
 			syncIntervalMs?: number;
@@ -85,12 +95,14 @@ export class DrizzleMarketplaceSourceRepository implements IMarketplaceSourceRep
 		const updates: Partial<typeof marketplaceSources.$inferInsert> = {
 			updatedAt: new Date(),
 		};
-		if (data.gitUrl !== undefined) updates.gitUrl = data.gitUrl;
+		if ("gitUrl" in data) updates.gitUrl = data.gitUrl;
+		if ("marketplaceName" in data) updates.marketplaceName = data.marketplaceName;
 		if ("accessTokenEncrypted" in data) updates.accessTokenEncrypted = data.accessTokenEncrypted;
 		if ("branch" in data) updates.branch = data.branch;
 		if (data.syncIntervalMs !== undefined) updates.syncIntervalMs = data.syncIntervalMs;
 		if (data.enabled !== undefined) updates.enabled = data.enabled;
-		if (data.importPluginsAndSkills !== undefined) updates.importPluginsAndSkills = data.importPluginsAndSkills;
+		if (data.importPluginsAndSkills !== undefined)
+			updates.importPluginsAndSkills = data.importPluginsAndSkills;
 
 		const [row] = await this.db
 			.update(marketplaceSources)

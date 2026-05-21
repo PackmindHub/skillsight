@@ -7,6 +7,7 @@ export async function listMarketplaceSources(deps: {
 	const sources = await deps.marketplaceSources.findAll();
 	return sources.map((s) => ({
 		id: s.id,
+		kind: s.kind,
 		gitUrl: s.gitUrl,
 		hasToken: s.hasToken,
 		branch: s.branch,

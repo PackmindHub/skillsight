@@ -62,6 +62,7 @@ export function createIntegrationsRoute(
 		| "pluginSkills"
 		| "pluginVersions"
 		| "marketplaces"
+		| "mappingCache"
 		| "loki"
 		| "audit"
 	>,
@@ -74,6 +75,7 @@ export function createIntegrationsRoute(
 		pluginSkills: deps.pluginSkills,
 		pluginVersions: deps.pluginVersions,
 		marketplaces: deps.marketplaces,
+		mappingCache: deps.mappingCache,
 		loki: deps.loki,
 		audit: deps.audit,
 	};

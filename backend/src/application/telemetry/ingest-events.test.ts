@@ -1,6 +1,8 @@
 import { describe, expect, it } from "bun:test";
+import { ExternalSkillMappingCache } from "@/application/external-skill-mappings/mapping-cache";
 import { EVENT_NAMES } from "@/domain/event";
 import type { IEventRepository } from "@/domain/ports/event-repository";
+import type { IExternalSkillPluginMappingRepository } from "@/domain/ports/external-skill-plugin-mapping-repository";
 import type { IMarketplaceRepository } from "@/domain/ports/marketplace-repository";
 import type { IPluginRepository } from "@/domain/ports/plugin-repository";
 import type { IPluginSkillRepository } from "@/domain/ports/plugin-skill-repository";
@@ -10,6 +12,31 @@ import type {
 	SkillUpsertEntry,
 } from "@/domain/ports/skill-repository";
 import { ingestEvents } from "./ingest-events";
+
+function makeMappingCache(initial: Array<{ skillName: string; pluginName: string; marketplaceName: string }> = []) {
+	const repo: IExternalSkillPluginMappingRepository = {
+		findAll: async () =>
+			initial.map((e) => ({
+				skillName: e.skillName,
+				pluginName: e.pluginName,
+				marketplaceName: e.marketplaceName,
+				sourceId: "stub",
+				syncedAt: new Date(),
+			})),
+		findByName: async () => null,
+		upsertMany: async () => {},
+		deleteBySourceId: async () => {},
+		deleteMissingForSource: async () => {},
+	};
+	const cache = new ExternalSkillMappingCache(repo);
+	return cache;
+}
+
+async function loadCache(initial: Parameters<typeof makeMappingCache>[0] = []) {
+	const cache = makeMappingCache(initial);
+	await cache.load();
+	return cache;
+}
 
 function makeEvents(): IEventRepository {
 	return {
@@ -120,6 +147,7 @@ function makeSkills() {
 		deleteByKeys: async () => 0,
 		findByKey: async () => null,
 		updateStatus: async () => null,
+		relinkOrphans: async () => 0,
 	};
 	return { repo, upsertManyCalls };
 }
@@ -163,6 +191,7 @@ describe("ingestEvents — skills upsert", () => {
 				pluginSkills,
 				pluginVersions: makePluginVersions().repo,
 				skills,
+				mappingCache: await loadCache(),
 			},
 			otlpBody([
 				{
@@ -196,6 +225,7 @@ describe("ingestEvents — skills upsert", () => {
 				pluginSkills,
 				pluginVersions: makePluginVersions().repo,
 				skills,
+				mappingCache: await loadCache(),
 			},
 			otlpBody([
 				{
@@ -207,6 +237,86 @@ describe("ingestEvents — skills upsert", () => {
 
 		expect(upsertManyCalls).toHaveLength(1);
 		expect(upsertManyCalls[0]).toEqual([{ skillName: "format", pluginName: null }]);
+	});
+
+	it("retro-links via the mapping cache when plugin.name is absent but a mapping exists", async () => {
+		const { repo: skills, upsertManyCalls } = makeSkills();
+		const { repo: plugins, upsertIfAbsentCalls } = makePlugins();
+		const { repo: pluginSkills, upsertManyCalls: pluginSkillCalls } = makePluginSkills();
+		const cache = await loadCache([
+			{
+				skillName: "hexagonal-architecture",
+				pluginName: "@backend/generic",
+				marketplaceName: "Packmind",
+			},
+		]);
+
+		await ingestEvents(
+			{
+				events: makeEvents(),
+				marketplaces: makeMarketplaces(),
+				plugins,
+				pluginSkills,
+				pluginVersions: makePluginVersions().repo,
+				skills,
+				mappingCache: cache,
+			},
+			otlpBody([
+				{
+					eventName: EVENT_NAMES.SKILL_ACTIVATED,
+					attrs: { "skill.name": "hexagonal-architecture" },
+				},
+			]),
+		);
+
+		// The skill is upserted with the cache-resolved plugin name instead of null.
+		expect(upsertManyCalls[0]).toEqual([
+			{ skillName: "hexagonal-architecture", pluginName: "@backend/generic" },
+		]);
+		// The plugin row is created via the auto-creation path with the resolved marketplace.
+		expect(upsertIfAbsentCalls).toEqual([
+			{ pluginName: "@backend/generic", marketplaceName: "Packmind" },
+		]);
+		// And the plugin_skills membership row is written.
+		expect(pluginSkillCalls[0]).toEqual([
+			{ pluginName: "@backend/generic", skillName: "hexagonal-architecture" },
+		]);
+	});
+
+	it("prefers the explicit plugin.name attribute over the cache when both are present", async () => {
+		const { repo: skills, upsertManyCalls } = makeSkills();
+		const { repo: plugins } = makePlugins();
+		const { repo: pluginSkills } = makePluginSkills();
+		const cache = await loadCache([
+			{
+				skillName: "lint",
+				pluginName: "@backend/generic",
+				marketplaceName: "Packmind",
+			},
+		]);
+
+		await ingestEvents(
+			{
+				events: makeEvents(),
+				marketplaces: makeMarketplaces(),
+				plugins,
+				pluginSkills,
+				pluginVersions: makePluginVersions().repo,
+				skills,
+				mappingCache: cache,
+			},
+			otlpBody([
+				{
+					eventName: EVENT_NAMES.SKILL_ACTIVATED,
+					attrs: { "skill.name": "lint", "plugin.name": "@frontend/quality" },
+				},
+			]),
+		);
+
+		// The explicit plugin.name wins; the cache mapping is ignored.
+		expect(upsertManyCalls[0]).toEqual([
+			{ skillName: "lint", pluginName: "@frontend/quality" },
+		]);
 	});
 
 	it("ignores skill_activated events with no skill.name", async () => {
@@ -222,6 +332,7 @@ describe("ingestEvents — skills upsert", () => {
 				pluginSkills,
 				pluginVersions: makePluginVersions().repo,
 				skills,
+				mappingCache: await loadCache(),
 			},
 			otlpBody([
 				{ eventName: EVENT_NAMES.SKILL_ACTIVATED, attrs: { "plugin.name": "x" } },
@@ -246,6 +357,7 @@ describe("ingestEvents — skills upsert", () => {
 				pluginSkills,
 				pluginVersions: makePluginVersions().repo,
 				skills,
+				mappingCache: await loadCache(),
 			},
 			otlpBody([
 				{ eventName: EVENT_NAMES.PLUGIN_INSTALLED, attrs: { "plugin.name": "x" } },
@@ -270,6 +382,7 @@ describe("ingestEvents — plugin auto-creation from skill_activated", () => {
 				pluginSkills,
 				pluginVersions: makePluginVersions().repo,
 				skills,
+				mappingCache: await loadCache(),
 			},
 			otlpBody([
 				{
@@ -298,6 +411,7 @@ describe("ingestEvents — plugin auto-creation from skill_activated", () => {
 				pluginSkills,
 				pluginVersions: makePluginVersions().repo,
 				skills,
+				mappingCache: await loadCache(),
 			},
 			otlpBody([
 				{
@@ -325,6 +439,7 @@ describe("ingestEvents — plugin auto-creation from skill_activated", () => {
 				pluginSkills,
 				pluginVersions: makePluginVersions().repo,
 				skills,
+				mappingCache: await loadCache(),
 			},
 			otlpBody([
 				{
@@ -360,6 +475,7 @@ describe("ingestEvents — plugin auto-creation from skill_activated", () => {
 				pluginSkills,
 				pluginVersions: makePluginVersions().repo,
 				skills,
+				mappingCache: await loadCache(),
 			},
 			otlpBody([
 				{
@@ -393,6 +509,7 @@ describe("ingestEvents — 'inline' marketplace normalization", () => {
 				pluginSkills,
 				pluginVersions: makePluginVersions().repo,
 				skills,
+				mappingCache: await loadCache(),
 			},
 			otlpBody([
 				{
@@ -426,6 +543,7 @@ describe("ingestEvents — 'inline' marketplace normalization", () => {
 				pluginSkills,
 				pluginVersions: makePluginVersions().repo,
 				skills,
+				mappingCache: await loadCache(),
 			},
 			otlpBody([
 				{
@@ -459,6 +577,7 @@ describe("ingestEvents — 'inline' marketplace normalization", () => {
 				pluginSkills,
 				pluginVersions: makePluginVersions().repo,
 				skills,
+				mappingCache: await loadCache(),
 			},
 			otlpBody([
 				{
@@ -499,6 +618,7 @@ describe("ingestEvents — plugin_loaded", () => {
 				pluginSkills,
 				pluginVersions: makePluginVersions().repo,
 				skills,
+				mappingCache: await loadCache(),
 			},
 			otlpBody([
 				{
@@ -531,6 +651,7 @@ describe("ingestEvents — plugin_loaded", () => {
 				pluginSkills,
 				pluginVersions: makePluginVersions().repo,
 				skills,
+				mappingCache: await loadCache(),
 			},
 			otlpBody([
 				{
@@ -566,6 +687,7 @@ describe("ingestEvents — plugin_loaded", () => {
 				pluginSkills,
 				pluginVersions: makePluginVersions().repo,
 				skills,
+				mappingCache: await loadCache(),
 			},
 			otlpBody([
 				{
@@ -740,6 +862,7 @@ describe("ingestEvents — plugin_loaded", () => {
 				pluginSkills,
 				pluginVersions: makePluginVersions().repo,
 				skills,
+				mappingCache: await loadCache(),
 			},
 			otlpBody([
 				{
