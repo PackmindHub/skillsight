@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0
+
+- Add Packmind as a second kind of marketplace source alongside git-backed ones: instead of cloning a `marketplace.json`, Packmind sources are fed by the `@packmind/cli` binary (`packages list` / `packages show <slug>`), and each Packmind package becomes a plugin keyed by its `@space/slug`. The marketplace-source form now exposes a kind selector, Packmind rows carry a "Packmind" badge, and "Test connection" runs `packmind-cli whoami` for Packmind sources. The Docker image installs `@packmind/cli` globally so `packmind-cli` is on `PATH` out of the box.
+- Add an `external_skill_plugin_mappings` table (with an in-memory cache refreshed after every Packmind sync) consulted at OTLP ingest time, so `skill_activated` events from Packmind telemetry — which don't carry `plugin.name` — retro-link to their owning plugin instead of creating orphan rows.
+- Add a "Repository" link at the bottom of the sidebar pointing to the GitHub repo.
+- Flip the StatusChip dropdown above its trigger when there isn't enough room below, so the status menu on the last row of the Skills table no longer gets clipped under the viewport.
+- Pluralize the `Sessions` column header in the Skills table.
+
 ## 0.3.0
 
 - Add a Co-usage page that surfaces groups of skills (pairs, triples, 4+) recurring inside the same `session_id`, with an Ignore-noise filter that re-projects sessions when omnipresent skills are excluded.
