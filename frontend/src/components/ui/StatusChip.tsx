@@ -87,7 +87,11 @@ export function StatusChip<T extends string>({
 			const rect = trigger.getBoundingClientRect();
 			const minWidth = Math.max(MENU_MIN_WIDTH, rect.width);
 			const left = align === "right" ? rect.right - minWidth : rect.left;
-			setMenuPos({ top: rect.bottom + 4, left, minWidth });
+			const menuHeight = menuRef.current?.offsetHeight ?? 0;
+			const spaceBelow = window.innerHeight - rect.bottom;
+			const placeAbove = menuHeight > 0 && spaceBelow < menuHeight + 12 && rect.top > spaceBelow;
+			const top = placeAbove ? rect.top - menuHeight - 4 : rect.bottom + 4;
+			setMenuPos({ top, left, minWidth });
 		}
 		reposition();
 		window.addEventListener("scroll", reposition, true);
@@ -97,6 +101,20 @@ export function StatusChip<T extends string>({
 			window.removeEventListener("resize", reposition);
 		};
 	}, [open, align]);
+
+	// After the menu mounts we know its real height, so re-run the flip check
+	// against the trigger's current position. Skips when no adjustment is needed.
+	useLayoutEffect(() => {
+		if (!open || !menuPos || !menuRef.current || !triggerRef.current) return;
+		const triggerRect = triggerRef.current.getBoundingClientRect();
+		const menuHeight = menuRef.current.offsetHeight;
+		const spaceBelow = window.innerHeight - triggerRect.bottom;
+		const placeAbove = spaceBelow < menuHeight + 12 && triggerRect.top > spaceBelow;
+		const desiredTop = placeAbove ? triggerRect.top - menuHeight - 4 : triggerRect.bottom + 4;
+		if (Math.abs(desiredTop - menuPos.top) > 0.5) {
+			setMenuPos({ ...menuPos, top: desiredTop });
+		}
+	}, [open, menuPos]);
 
 	useEffect(() => {
 		if (!open) return;
