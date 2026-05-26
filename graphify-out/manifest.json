@@ -1,0 +1,1637 @@
+{
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/package.json": {
+    "mtime": 1779779916.547024,
+    "ast_hash": "17df079ec32a8d3f877828de5601722f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/docker-local.sh": {
+    "mtime": 1779779916.5207393,
+    "ast_hash": "865729590832bb59328a75438d3d5165",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/package.json": {
+    "mtime": 1779779916.5215974,
+    "ast_hash": "2460488b4c179b4ef938bc027c0a4eae",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/tsconfig.json": {
+    "mtime": 1779779916.5465348,
+    "ast_hash": "81524894f01da4e259af63cf32339b57",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/vite.config.ts": {
+    "mtime": 1779779916.5467966,
+    "ast_hash": "37fe7f20fdaf5b02b966d3e6dd264283",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/biome.json": {
+    "mtime": 1779779916.5210497,
+    "ast_hash": "91ad5b5c84b9472e17e9ce872e76ad83",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/App.tsx": {
+    "mtime": 1779779916.5221293,
+    "ast_hash": "74c32de928e83cb6934dddaf765e9c27",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/test-setup.test.ts": {
+    "mtime": 1779779916.5456746,
+    "ast_hash": "1bd13d96e29404666d50e99fe8b2e272",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/main.tsx": {
+    "mtime": 1779779916.5418298,
+    "ast_hash": "491f1d06dfac06a7280e0c39cc6e5f22",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/test-setup.ts": {
+    "mtime": 1779779916.5459158,
+    "ast_hash": "8bf5e728cab77756c9818e0733004fe4",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/types/api.ts": {
+    "mtime": 1779783000.814354,
+    "ast_hash": "6fc0ccffce9c10e315939be60cc877d3",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/context/IntegrationsHealthContext.tsx": {
+    "mtime": 1779779916.5385144,
+    "ast_hash": "fda61cf23067e40fceaf655a8b2026c8",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/context/AuthContext.tsx": {
+    "mtime": 1779779916.538103,
+    "ast_hash": "81a49a61f6d926ed3cc5bb23736939ed",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/context/MarketplaceSourcesHealthContext.tsx": {
+    "mtime": 1779779916.538609,
+    "ast_hash": "0d748d9f18767c0368948a27e093c479",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/IconButton.test.tsx": {
+    "mtime": 1779779916.533213,
+    "ast_hash": "57b8919efe15a7650b59ea865bc82fbb",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/Button.test.tsx": {
+    "mtime": 1779779916.5308177,
+    "ast_hash": "c444e329318d8131b46d3f3b4a1edb8d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/ConfirmDialog.tsx": {
+    "mtime": 1779779916.531727,
+    "ast_hash": "cb7d3310926151fa0da0e9c5a7494559",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/StatusFilter.tsx": {
+    "mtime": 1779779916.5369663,
+    "ast_hash": "8911506e43679299029d6fbb1c7c61df",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/Card.tsx": {
+    "mtime": 1779779916.5314546,
+    "ast_hash": "6d74e1eb1b7aac66c158b8303e0781e5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/FormField.test.tsx": {
+    "mtime": 1779779916.532127,
+    "ast_hash": "9450d0036d129bedffd13919e43461c8",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/PageHeader.test.tsx": {
+    "mtime": 1779779916.5345273,
+    "ast_hash": "86d1c51ca947d8360c1f80790031a2af",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/IncludeIgnoredToggle.tsx": {
+    "mtime": 1779779916.5335605,
+    "ast_hash": "e1f056b619d76b8d8f7eb1726ec0fb21",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/FormField.tsx": {
+    "mtime": 1779779916.5322258,
+    "ast_hash": "627d8140a6eca5142c1346d4e291b217",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/PageHeader.tsx": {
+    "mtime": 1779779916.5346146,
+    "ast_hash": "bdde2630eed7492a59b812cc0a2b3356",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/StatusFilter.test.tsx": {
+    "mtime": 1779779916.536812,
+    "ast_hash": "2de5584142b30ee4110d6badee9d68db",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/Input.test.tsx": {
+    "mtime": 1779779916.5336492,
+    "ast_hash": "d5eb043ad14883da88c9b1020618e579",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/StatCard.tsx": {
+    "mtime": 1779779916.5356417,
+    "ast_hash": "34b762fa848c88bbaf12c878d8f1bdbf",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/SearchBar.tsx": {
+    "mtime": 1779779916.5347445,
+    "ast_hash": "0dffdccd8411287c6e89658f97da0057",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/Card.test.tsx": {
+    "mtime": 1779779916.5313742,
+    "ast_hash": "b05b36c72d5bc738cd4f6c23858eebfc",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/Drawer.tsx": {
+    "mtime": 1779779916.532049,
+    "ast_hash": "be9644eac7c55f28264678c4af95ab6c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/Sparkline.tsx": {
+    "mtime": 1779779916.5352998,
+    "ast_hash": "967f452ccc9f1b6b43738199c5a1494c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/StatusBadge.tsx": {
+    "mtime": 1779779916.536231,
+    "ast_hash": "141cdf12da52bc9b6e8abe73470199e0",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/StatusChip.tsx": {
+    "mtime": 1779779916.536601,
+    "ast_hash": "bc299a84a3f8c662a66c7b1cdbe66184",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/ConfirmMenuItem.tsx": {
+    "mtime": 1779779916.5318117,
+    "ast_hash": "9d2ece7432a000df26cfcc17147f8339",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/StatusBadge.test.tsx": {
+    "mtime": 1779779916.5358665,
+    "ast_hash": "9e06b148fcfbeff8f32ab98463a599c4",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/_styles.ts": {
+    "mtime": 1779779916.537555,
+    "ast_hash": "184b857dfd8af892bb52b94c5ce1fde7",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/Menu.tsx": {
+    "mtime": 1779779916.5340183,
+    "ast_hash": "6f8056a2d5c02e5913f2ad4febe9eee3",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/IconButton.tsx": {
+    "mtime": 1779779916.533417,
+    "ast_hash": "6b718cc5c502c371e30a2e0eb1dc28dd",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/Table.tsx": {
+    "mtime": 1779779916.537403,
+    "ast_hash": "e9ee29b418058ce2ffd5579a550be8fb",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/index.ts": {
+    "mtime": 1779779916.5378027,
+    "ast_hash": "5c08f169741994d54b6b2893a8a926d2",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/HelpTip.test.tsx": {
+    "mtime": 1779779916.5325894,
+    "ast_hash": "9bbd0af680f1bdf763e4201792bda9dc",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/Button.tsx": {
+    "mtime": 1779779916.5310342,
+    "ast_hash": "2e0e0e8dc07473041d63aac5c91f1975",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/SingleSelect.tsx": {
+    "mtime": 1779779916.535044,
+    "ast_hash": "d5616552f5c7d0feced864f00a6894b5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/MultiSelect.tsx": {
+    "mtime": 1779779916.534434,
+    "ast_hash": "0328e0b3d3135cb3c58a6b3891149c2d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/HelpTip.tsx": {
+    "mtime": 1779779916.5328774,
+    "ast_hash": "8f153e19f91329e70e62556760618c09",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/Table.test.tsx": {
+    "mtime": 1779779916.537048,
+    "ast_hash": "9f896ee55686ce35b93bb575f02f42f0",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/SegmentedControl.tsx": {
+    "mtime": 1779779916.5348194,
+    "ast_hash": "fd05294263390e14f8f1db637b199f83",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/Select.tsx": {
+    "mtime": 1779779916.534892,
+    "ast_hash": "1e81ef0a40497aaef3c1a21ae5c7c591",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/ui/Input.tsx": {
+    "mtime": 1779779916.5339003,
+    "ast_hash": "e853475f7dd840520c84007ad4c2667c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/plugins/PluginLoadersChart.tsx": {
+    "mtime": 1779779916.528743,
+    "ast_hash": "579180498443afcc31be382fe811fd1f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/plugins/PluginStatStrip.tsx": {
+    "mtime": 1779779916.529279,
+    "ast_hash": "3450b34405d851f0464b7bdc8345c5ca",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/plugins/PluginSkillsDrawer.tsx": {
+    "mtime": 1779779916.529034,
+    "ast_hash": "619c88e6bc75a34f528ee44b00253f82",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/layout/TopBar.tsx": {
+    "mtime": 1779779916.5274146,
+    "ast_hash": "5e6df5c79cbf07424f7d02ee8f951e74",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/layout/AppShell.tsx": {
+    "mtime": 1779779916.5268896,
+    "ast_hash": "3563b34a6f395594ac5380bf42345a27",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/layout/Sidebar.tsx": {
+    "mtime": 1779779916.527183,
+    "ast_hash": "55ca0454cdc3db5dcbffcd02318307e4",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/cohorts/CohortDrawer.tsx": {
+    "mtime": 1779779916.5233314,
+    "ast_hash": "5d7ac3663a2936910f201a5694cbe80a",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/cohorts/CohortKnot.tsx": {
+    "mtime": 1779779916.5241644,
+    "ast_hash": "0a1b2b4e696fea8180613ac60029bcd0",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/cohorts/AvatarStack.tsx": {
+    "mtime": 1779779916.5228317,
+    "ast_hash": "0b4262a22e2e461a07dec554ffcde79d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/cohorts/SkillChip.tsx": {
+    "mtime": 1779779916.524318,
+    "ast_hash": "c0f0d9a1f62b9dcb8cc9ef79eb40d3b1",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/cohorts/CohortCard.tsx": {
+    "mtime": 1779779916.5231123,
+    "ast_hash": "d8dab649f2f7543206f7e852123edb99",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/cohorts/format.ts": {
+    "mtime": 1779779916.5244682,
+    "ast_hash": "37f61178001265f6c3d1281fa175d25e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/cohorts/skill-color.ts": {
+    "mtime": 1779779916.5247765,
+    "ast_hash": "f8532a98aec55f4ddd7a41152dfb224d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/cohorts/initials.ts": {
+    "mtime": 1779779916.5246313,
+    "ast_hash": "317ada05f198e7e0e02e0d1bcbc2484b",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/integrations/IntegrationFormDrawer.tsx": {
+    "mtime": 1779779916.5263505,
+    "ast_hash": "e918311a0e3d98bd0de3421741a438c1",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/integrations/IntegrationCard.tsx": {
+    "mtime": 1779779916.5258574,
+    "ast_hash": "f1a28f27412e1ee3682b3cea72b18773",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/integrations/_parts.tsx": {
+    "mtime": 1779779916.5266118,
+    "ast_hash": "9cb93965c75cc7c8a6525fa0827e004e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/integrations/DirectIntegrationCard.tsx": {
+    "mtime": 1779779916.525447,
+    "ast_hash": "27e3a878d987f74b7c61ecccfb69ebb9",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/audit/DiffView.tsx": {
+    "mtime": 1779779916.52253,
+    "ast_hash": "b6bfff5a6b9d2611b59fda83fda175de",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/audit/AuditFilters.tsx": {
+    "mtime": 1779779916.522448,
+    "ast_hash": "014240ac2e7ed837401d90e1c7a88c32",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/skills/PluginChip.tsx": {
+    "mtime": 1779779916.529738,
+    "ast_hash": "a70dc9ee317b727710764334a8c74a18",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/skills/SkillDetailDrawer.tsx": {
+    "mtime": 1779779916.53005,
+    "ast_hash": "6c1285ad952d727813c5179f3cac73a3",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/skills/TrendSparkline.tsx": {
+    "mtime": 1779779916.5305243,
+    "ast_hash": "94f65105b4cbfd97e2bf88d3f941dbd3",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/skills/SkillStatStrip.tsx": {
+    "mtime": 1779779916.5302544,
+    "ast_hash": "7f14c7447559f33f84f4992e4e3b992c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/marketplaces/MarketplaceBadge.tsx": {
+    "mtime": 1779779916.52769,
+    "ast_hash": "6abe051327533031e1a497f36de8c75f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/marketplaces/SourceErrorBanner.tsx": {
+    "mtime": 1779779916.5284216,
+    "ast_hash": "883072675e1ee951de16f8c544348cd5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/marketplaces/MarketplaceStatStrip.tsx": {
+    "mtime": 1779779916.5283458,
+    "ast_hash": "cc3d9e3fa8e3b23d9392f89e7d28889c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/marketplaces/MarketplaceDetailsDrawer.tsx": {
+    "mtime": 1779779916.5279772,
+    "ast_hash": "c0be26b20c074a5b7fb109bbc6eb5968",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/co-usage/ComboDrawer.tsx": {
+    "mtime": 1779783938.685944,
+    "ast_hash": "1af94fefdb23bb950d5a36323742994d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/components/co-usage/types.ts": {
+    "mtime": 1779783066.1975048,
+    "ast_hash": "c2e767940e7768aeca79e726a474be4d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/lib/utils.test.ts": {
+    "mtime": 1779779916.5411456,
+    "ast_hash": "25cd892d123f8aba00952d893c1870f8",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/lib/marketplace-source-label.ts": {
+    "mtime": 1779779916.53967,
+    "ast_hash": "dae9d3a384d8548bd8f0da426c907882",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/lib/use-status-filter.ts": {
+    "mtime": 1779779916.5407598,
+    "ast_hash": "6bc91f3fee379137cefa6340fcab2f07",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/lib/utils.ts": {
+    "mtime": 1779779916.541568,
+    "ast_hash": "49a1531863926374fe9e0c4211b9c449",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/lib/api.ts": {
+    "mtime": 1779783008.860403,
+    "ast_hash": "1ac7b0c87858c292c282da2788d08a44",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/lib/use-debounced-value.ts": {
+    "mtime": 1779779916.5397513,
+    "ast_hash": "c506feb4ac0d846ef7cb9eb2eb38bf6c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/lib/use-include-without-skills.ts": {
+    "mtime": 1779779916.5404637,
+    "ast_hash": "cf99dcc6b897f6b24d661ea4da52cf6c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/lib/fuzzy.ts": {
+    "mtime": 1779779916.5394242,
+    "ast_hash": "434af63d3ea399b7c986f21dfcb80349",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/lib/use-status-filter.test.tsx": {
+    "mtime": 1779779916.5406795,
+    "ast_hash": "e7a91217e8f82758cffb4f1e2e9dd79a",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/lib/use-include-ignored.ts": {
+    "mtime": 1779779916.5401213,
+    "ast_hash": "e7f355e80481c53e463b70717a0b363d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/pages/PluginsPage.tsx": {
+    "mtime": 1779779916.5445628,
+    "ast_hash": "9ce53319e46f5d99baaa12494e700ad7",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/pages/LoginPage.tsx": {
+    "mtime": 1779779916.5434906,
+    "ast_hash": "a510d794c5c571082f4e94f0c6cbc62d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/pages/SkillsTablePage.tsx": {
+    "mtime": 1779779916.5449376,
+    "ast_hash": "5fa68833783e5dc6ab880f36b7de1d88",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/pages/CoUsagePage.tsx": {
+    "mtime": 1779783223.6803908,
+    "ast_hash": "550e2180dbf8c01aea64c3eb49519272",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/pages/AuditLogPage.tsx": {
+    "mtime": 1779779916.5422137,
+    "ast_hash": "ac292c1e76bc2e3aff955aa15b02ceeb",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/pages/TokensPage.tsx": {
+    "mtime": 1779779916.545277,
+    "ast_hash": "c6d763a7f0315259c3ba529d20c33f8d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/pages/OnboardingPage.tsx": {
+    "mtime": 1779779916.544157,
+    "ast_hash": "7d13b605850ea0f4fcae4bc102aa2fcc",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/pages/MarketplacesPage.tsx": {
+    "mtime": 1779779916.5440066,
+    "ast_hash": "b2d63e61cc4b053c586a9e61578b5694",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/pages/CohortsPage.tsx": {
+    "mtime": 1779779916.5428746,
+    "ast_hash": "fc2af62a6a41c3117ddd680b169101b1",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/pages/DashboardPage.tsx": {
+    "mtime": 1779779916.5431607,
+    "ast_hash": "c9b87dd3737149e8110653888672909c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/pages/LiveEventsPage.tsx": {
+    "mtime": 1779779916.543383,
+    "ast_hash": "2f82683bf430136d71ff51e384d0e961",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/pages/settings/IntegrationsPage.tsx": {
+    "mtime": 1779779916.545592,
+    "ast_hash": "99d3325cd65574e7d866a938cb175cb9",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.claude/settings.json": {
+    "mtime": 1779779916.4578793,
+    "ast_hash": "ade71b21d63c25c37aebfbeea7b6099d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.claude/settings.local.json": {
+    "mtime": 1779783925.3441842,
+    "ast_hash": "8b919d32b4acaed526a3a374deeb26e2",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.claude/skills/skill-creator/eval-viewer/generate_review.py": {
+    "mtime": 1779779916.460565,
+    "ast_hash": "d7f883f3d3596e62618faecf298c4f5f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.claude/skills/skill-creator/scripts/run_eval.py": {
+    "mtime": 1779779916.4629955,
+    "ast_hash": "75269360a221e48f79425605de5e5cb6",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.claude/skills/skill-creator/scripts/package_skill.py": {
+    "mtime": 1779779916.4626417,
+    "ast_hash": "ba8744b000bd7d7ffcb5c85113113f0e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.claude/skills/skill-creator/scripts/quick_validate.py": {
+    "mtime": 1779779916.4627998,
+    "ast_hash": "8247be9cfc7938843f586b6509a64641",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.claude/skills/skill-creator/scripts/improve_description.py": {
+    "mtime": 1779779916.4624457,
+    "ast_hash": "b20bbcc3d69bc299b541c8b62c25cefe",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.claude/skills/skill-creator/scripts/aggregate_benchmark.py": {
+    "mtime": 1779779916.4618897,
+    "ast_hash": "5c2dfb44a0a33c588e9e9f3df60a3537",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.claude/skills/skill-creator/scripts/__init__.py": {
+    "mtime": 1779779916.4613507,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.claude/skills/skill-creator/scripts/run_loop.py": {
+    "mtime": 1779779916.4632633,
+    "ast_hash": "c3365f6c1927bf535f463f841c32ae81",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.claude/skills/skill-creator/scripts/generate_report.py": {
+    "mtime": 1779779916.4621637,
+    "ast_hash": "09607615aed355c104f9c4f6dec7c9aa",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.claude/skills/skill-creator/scripts/utils.py": {
+    "mtime": 1779779916.4634123,
+    "ast_hash": "6cf213a77cbadc39febbaf9ee57fac10",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/package.json": {
+    "mtime": 1779779916.4694674,
+    "ast_hash": "8daf0879603a1db9739859c6654a351a",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/tsconfig.json": {
+    "mtime": 1779779916.5195243,
+    "ast_hash": "50b1a5ca51c1d7444d6e91fb0e5c485b",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/drizzle.config.ts": {
+    "mtime": 1779779916.4692373,
+    "ast_hash": "238cee029d15b393f42fea2253c589cb",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/biome.json": {
+    "mtime": 1779779916.468732,
+    "ast_hash": "b6668dcd303969b7d8af28becc279396",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/app.ts": {
+    "mtime": 1779779916.4699569,
+    "ast_hash": "8b742b8c6a9f0b208fccff7ca3a49da6",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/test-setup.ts": {
+    "mtime": 1779779916.5190208,
+    "ast_hash": "83000b7836ea4cf360c9f07bd5d5f3fd",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/types.ts": {
+    "mtime": 1779779916.519268,
+    "ast_hash": "396fa08f312bc4d3dbf8c90b73904692",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/index.ts": {
+    "mtime": 1779779916.5086262,
+    "ast_hash": "49a23cd4549c2c168e40702287acea73",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/middleware/session-auth.ts": {
+    "mtime": 1779779916.5179484,
+    "ast_hash": "dd474c1c585d54e9cf67bbc59e8458ce",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/middleware/require-admin.ts": {
+    "mtime": 1779779916.517788,
+    "ast_hash": "fc238bafc89fac4b89cd84d301e00fa7",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/middleware/ingestion-auth.ts": {
+    "mtime": 1779779916.5176435,
+    "ast_hash": "3e58c72eb8420b8b27abb8e05f752d70",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/parsers/otlp-parser.test.ts": {
+    "mtime": 1779779916.5185,
+    "ast_hash": "1685e9f077e5d7ec6bde68124f64761c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/parsers/loki-stream-parser.ts": {
+    "mtime": 1779779916.5182521,
+    "ast_hash": "38d9d98a470f9f996ace24999109846e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/parsers/otlp-parser.ts": {
+    "mtime": 1779779916.5187783,
+    "ast_hash": "96933aa51eb5aa9002e0cea065df05c6",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/bootstrap/backfill-loki-queries.ts": {
+    "mtime": 1779779916.4893954,
+    "ast_hash": "44782671dd8683d6c655bebf93eb3596",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/bootstrap/seed-admin.ts": {
+    "mtime": 1779779916.4897783,
+    "ast_hash": "48b4a070f503bc33e5015d953ae3e109",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/bootstrap/compose.ts": {
+    "mtime": 1779779916.4895473,
+    "ast_hash": "669712e75082dfcbc1a233c11898cd34",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/config/env.ts": {
+    "mtime": 1779779916.4900584,
+    "ast_hash": "ce1ba2fa90103f0793f5d129fc5c6f3f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/http/telemetry.test.ts": {
+    "mtime": 1779779916.5079298,
+    "ast_hash": "d7be9c27af16898e1660e3a63a20893d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/http/marketplaces.ts": {
+    "mtime": 1779779916.5059707,
+    "ast_hash": "8c12d2b153b3c861848f014e8a28b45f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/http/integrations.ts": {
+    "mtime": 1779779916.5054722,
+    "ast_hash": "e46e841dccedbe8f3115090f177c7ef3",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/http/marketplace-sources.ts": {
+    "mtime": 1779779916.5056787,
+    "ast_hash": "cd42c4749c329ffd058ae92b65af86f2",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/http/auth.test.ts": {
+    "mtime": 1779779916.504013,
+    "ast_hash": "127b390ca0b4823583e26e372fe1f955",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/http/telemetry.ts": {
+    "mtime": 1779779916.5080864,
+    "ast_hash": "6c13e5b1e5bbc3690e022ebfa2833f67",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/http/events.ts": {
+    "mtime": 1779779916.5048733,
+    "ast_hash": "2a23e9ef0fc2b037d64677f489956620",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/http/health.ts": {
+    "mtime": 1779779916.5052528,
+    "ast_hash": "a29a0c51eecfaffcc7737408743c61a4",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/http/audit.ts": {
+    "mtime": 1779779916.503903,
+    "ast_hash": "14bc7d3c1d53530266727e9dff144b98",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/http/co-usage.ts": {
+    "mtime": 1779782717.0088916,
+    "ast_hash": "3ccba21aadd3d385a44526aa9ac257bc",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/http/plugins.ts": {
+    "mtime": 1779779916.5062125,
+    "ast_hash": "0615633dc613c5417ba0dd384ffbce3e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/http/auth.ts": {
+    "mtime": 1779779916.5040946,
+    "ast_hash": "b90eda8dbe2f6d33d22c6cb503168a45",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/http/cohorts.ts": {
+    "mtime": 1779779916.504613,
+    "ast_hash": "8edf552c6df3d5bfec79cd72afd6ac26",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/http/skills/usage.ts": {
+    "mtime": 1779779916.5076756,
+    "ast_hash": "9687647f21d5857569a4e7832b1058c7",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/http/skills/update-status.ts": {
+    "mtime": 1779779916.5069382,
+    "ast_hash": "372069c121fde10e1a352c0bc23a4c46",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/http/skills/usage.test.ts": {
+    "mtime": 1779779916.5073204,
+    "ast_hash": "9e75393ee5707ad8934bd618f079d059",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/http/skills/update-status-bulk.ts": {
+    "mtime": 1779779916.5067687,
+    "ast_hash": "63e31dab2891b24973c67c92cefe0ae2",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/http/skills/delete.ts": {
+    "mtime": 1779779916.5065978,
+    "ast_hash": "8cae472bb261086415302c9184cd30ad",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/lib/request-url.ts": {
+    "mtime": 1779779916.5169408,
+    "ast_hash": "2f61cb85db100f6481d36514108e2f1d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/lib/semver.test.ts": {
+    "mtime": 1779779916.5172148,
+    "ast_hash": "ec016c486458f140ef528e3709b80409",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/lib/event-bus.ts": {
+    "mtime": 1779779916.5168614,
+    "ast_hash": "9df6c288c34af2ce754452f9aeabc694",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/lib/semver.ts": {
+    "mtime": 1779779916.5174456,
+    "ast_hash": "e1bdc5d1ea806871e266179939d5d0c5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/schema.ts": {
+    "mtime": 1779779916.497001,
+    "ast_hash": "cd7c733e60bdcf1812bf38bb6422ac44",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/client.ts": {
+    "mtime": 1779779916.490184,
+    "ast_hash": "8a2098af9ee744b1ff9b97a151df5808",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/0018_events_source_indexes.sql": {
+    "mtime": 1779779916.4948297,
+    "ast_hash": "56a2d8bad8e2d67d445ef4245bd9ec36",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/0001_panoramic_edwin_jarvis.sql": {
+    "mtime": 1779779916.4907308,
+    "ast_hash": "d2f1c5664bf2ae5d2aec1f1e0447f806",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/0020_events_plugin_loaded_partial_idx.sql": {
+    "mtime": 1779779916.4955287,
+    "ast_hash": "537579a7d5aae6b5262c31104b4e2f86",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/0010_skills.sql": {
+    "mtime": 1779779916.4926643,
+    "ast_hash": "6341d798adea3ae9ece8303ce850c918",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/0013_events_dedup_idx.sql": {
+    "mtime": 1779779916.4934058,
+    "ast_hash": "445e77a7b66835a51ba50f98543d421f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/0016_plugins_source.sql": {
+    "mtime": 1779779916.4942367,
+    "ast_hash": "22d3b6be1d6aeb597121b93b00c4b5b8",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/0002_puzzling_giant_man.sql": {
+    "mtime": 1779779916.491244,
+    "ast_hash": "6c880ffa2c077910df333ffe9d7353bd",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/0004_marketplace_sources.sql": {
+    "mtime": 1779779916.4917388,
+    "ast_hash": "2d7131d4e8c6a835833e82cecbc61964",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/0006_plugin_skills.sql": {
+    "mtime": 1779779916.4922163,
+    "ast_hash": "393c2280ebb64ae393ba6926445b4fed",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/0007_default_loki_query.sql": {
+    "mtime": 1779779916.4924247,
+    "ast_hash": "13b807a42aa678b75c231dc1076ae29e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/0021_packmind_marketplace.sql": {
+    "mtime": 1779779916.4957821,
+    "ast_hash": "90b129e769de380407f6d4166d8ca516",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/0003_plugins.sql": {
+    "mtime": 1779779916.491518,
+    "ast_hash": "23292bbfa666cfe68ed9f6ab34104b47",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/0019_add_plugin_versions.sql": {
+    "mtime": 1779779916.4951963,
+    "ast_hash": "a47d7bc221d1593610f916e5d6223a56",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/0000_empty_zodiak.sql": {
+    "mtime": 1779779916.4904726,
+    "ast_hash": "db231428784eeb023a9ee471366a7ecc",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/0009_audit_indexes.sql": {
+    "mtime": 1779779916.4925864,
+    "ast_hash": "3eaa4dd381984c8e074e7be1c10e413c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/0002_marketplace.sql": {
+    "mtime": 1779779916.4910007,
+    "ast_hash": "ea0539dba3fda3547a0fb4811f64d70b",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/0014_repurge_inline_marketplace.sql": {
+    "mtime": 1779779916.4937046,
+    "ast_hash": "eef7e6ef3adbdcce3a65752e9f9d398d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/0017_events_source_integration_fk.sql": {
+    "mtime": 1779779916.494489,
+    "ast_hash": "dcfbfe84a48d4e1bc85205af52875633",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/0005_import_plugins_and_skills.sql": {
+    "mtime": 1779779916.4920263,
+    "ast_hash": "905d023d0ffb8c7507665e6d065a3bc4",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/0011_loki_query_default_line_regex.sql": {
+    "mtime": 1779779916.4929154,
+    "ast_hash": "4385d0188bb0b1819040b392dcef6c33",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/0015_status_to_review_default.sql": {
+    "mtime": 1779779916.4938955,
+    "ast_hash": "57a63c8d5d32b850d5797c183a4cb4b4",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/0012_clear_inline_marketplace.sql": {
+    "mtime": 1779779916.493161,
+    "ast_hash": "2f85cb8288ebfbbe58491314633de509",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/0008_plugin_skills_skill_name_idx.sql": {
+    "mtime": 1779779916.492516,
+    "ast_hash": "9f240830ef81d791fa01d23db2c3bcd5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/meta/0000_snapshot.json": {
+    "mtime": 1779779916.4960392,
+    "ast_hash": "098bd79cd7525f19479ebfa7fa510133",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/meta/_journal.json": {
+    "mtime": 1779779916.4967468,
+    "ast_hash": "5f8d2799b1404f0741bbef1fa95e99d4",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/meta/0001_snapshot.json": {
+    "mtime": 1779779916.496235,
+    "ast_hash": "1934114defe9eb6eb99e1d375c380061",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/db/migrations/meta/0002_snapshot.json": {
+    "mtime": 1779779916.4964893,
+    "ast_hash": "9625d3c7c01d974645306d6aadf4e41d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/marketplace-sources/sync-marketplace-source.ts": {
+    "mtime": 1779779916.4780807,
+    "ast_hash": "167c5384f6d37e18800c132ecffd4652",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/marketplace-sources/test-marketplace-source-connection.ts": {
+    "mtime": 1779779916.4790335,
+    "ast_hash": "9518f57328e73faa139dc888a55be16d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/marketplace-sources/sync-marketplace-source.types.ts": {
+    "mtime": 1779779916.4783354,
+    "ast_hash": "4bc1ddc7ed13e79524eefda4b2a6c0fe",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/marketplace-sources/update-marketplace-source.test.ts": {
+    "mtime": 1779779916.4791865,
+    "ast_hash": "6c3a6aae2e38d05d381b9e07713d29a0",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/marketplace-sources/list-marketplace-sources.ts": {
+    "mtime": 1779779916.477423,
+    "ast_hash": "189b81524d31f541e23790de9c079557",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/marketplace-sources/delete-marketplace-source.ts": {
+    "mtime": 1779779916.4771547,
+    "ast_hash": "a7a9dbd50aa05ac1014c8c978dc66b62",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/marketplace-sources/create-marketplace-source.ts": {
+    "mtime": 1779779916.4766462,
+    "ast_hash": "66498e462526a07f6a8d1d5b67d2af32",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/marketplace-sources/sync-marketplace-source.test.ts": {
+    "mtime": 1779779916.4777312,
+    "ast_hash": "5f51fa5e96dc01e4236cf8a3063b5c44",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/marketplace-sources/create-marketplace-source.test.ts": {
+    "mtime": 1779779916.4763765,
+    "ast_hash": "1e11b7be15d4a418470a2ba8c84c7ae0",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/marketplace-sources/update-marketplace-source.ts": {
+    "mtime": 1779779916.47935,
+    "ast_hash": "9973349abe3475f38458ad0d6a0ecf18",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/marketplace-sources/sync-packmind-marketplace-source.ts": {
+    "mtime": 1779779916.478643,
+    "ast_hash": "26a98e09c273a4a86bd1c7bc5ba31fee",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/marketplace-sources/test-marketplace-source-connection.test.ts": {
+    "mtime": 1779779916.4788482,
+    "ast_hash": "f67028f18dcb3c4dc748c6773f3207ba",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/marketplace-sources/delete-marketplace-source.test.ts": {
+    "mtime": 1779779916.477059,
+    "ast_hash": "643746dcf7a0425b409a888fd39eb6da",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/auth/login.ts": {
+    "mtime": 1779779916.4713793,
+    "ast_hash": "aea5a3c606528e1076da95f4d9d19d93",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/auth/complete-onboarding.ts": {
+    "mtime": 1779779916.470886,
+    "ast_hash": "3e0d84b89c7398c1dc95e3912e1666dc",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/auth/get-current-user.ts": {
+    "mtime": 1779779916.471113,
+    "ast_hash": "00d99a6fd00838c843e24dca5f76877a",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/plugins/sync-plugin-statuses.ts": {
+    "mtime": 1779779916.4835246,
+    "ast_hash": "ccc5141be2ad83e04b8422c07a26fdad",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/plugins/get-plugin-weekly-loaders.ts": {
+    "mtime": 1779779916.4824886,
+    "ast_hash": "dfd9724515f90c343ef577f987911150",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/plugins/sync-plugin-statuses.test.ts": {
+    "mtime": 1779779916.4834325,
+    "ast_hash": "0107d7eb24b13d1d3792f51ab7932161",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/plugins/list-plugin-skills.ts": {
+    "mtime": 1779779916.4828708,
+    "ast_hash": "f9aa94262df1035769c8d42b51772901",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/plugins/list-plugins.ts": {
+    "mtime": 1779779916.483134,
+    "ast_hash": "2f8125f578b59d3c3ffb286cdaf2fb61",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/plugins/update-plugin.ts": {
+    "mtime": 1779779916.483791,
+    "ast_hash": "f3ba8667e7de3b87c2a320d8eb69a82e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/plugins/get-plugin-weekly-loaders.test.ts": {
+    "mtime": 1779779916.4823048,
+    "ast_hash": "5a09d7ca05a7ad1b59847bf9045ac840",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/cohorts/get-cohorts.ts": {
+    "mtime": 1779779916.4723434,
+    "ast_hash": "39fe9b0c8d2d015d38566c11ae4587aa",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/cohorts/get-cohorts.test.ts": {
+    "mtime": 1779779916.4721375,
+    "ast_hash": "2060caca65d59e9fa699ad1c474bf4b4",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/integrations/get-direct-stats.ts": {
+    "mtime": 1779779916.4744542,
+    "ast_hash": "69859660b66576e80d90de0736bcc447",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/integrations/update-integration.ts": {
+    "mtime": 1779779916.4759886,
+    "ast_hash": "b500751188cb043936e8e55e74f27b93",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/integrations/clear-integration-data.ts": {
+    "mtime": 1779779916.4740367,
+    "ast_hash": "7a2827de250ed3a57351c02bbed468d3",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/integrations/delete-integration.ts": {
+    "mtime": 1779779916.4742076,
+    "ast_hash": "9e8d760a21cdc93fec7cc6927b608096",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/integrations/publish-integration-update.ts": {
+    "mtime": 1779779916.4751954,
+    "ast_hash": "109e8891906b7718f923264ca364a981",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/integrations/list-integrations.ts": {
+    "mtime": 1779779916.4746065,
+    "ast_hash": "64cac067fb66a032b0febf3d1125c59c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/integrations/clear-direct-data.ts": {
+    "mtime": 1779779916.4737165,
+    "ast_hash": "0188056616c11d7228eace39eda40edd",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/integrations/create-integration.ts": {
+    "mtime": 1779779916.4741228,
+    "ast_hash": "f27ec8d990c9671406817408283309ed",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/integrations/sync-integration.ts": {
+    "mtime": 1779779916.475892,
+    "ast_hash": "fbbefa6f353087d1f48dd9d53394d5a6",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/integrations/preview-integration.ts": {
+    "mtime": 1779779916.4749448,
+    "ast_hash": "7da48c663c0ae674a05a23e178262434",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/integrations/sync-integration.test.ts": {
+    "mtime": 1779779916.4755108,
+    "ast_hash": "061b5eed7525f128c2be703ff5c50e08",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/audit/list-audit-events.ts": {
+    "mtime": 1779779916.4704812,
+    "ast_hash": "2f1228137f7f2b8da6733c5005877655",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/audit/record-audit.ts": {
+    "mtime": 1779779916.4705615,
+    "ast_hash": "e5e099e2d6316a842d1d5cec05097045",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/audit/diff.ts": {
+    "mtime": 1779779916.4702382,
+    "ast_hash": "404ea60025567aee7d37ce5ec745a571",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/audit/diff.test.ts": {
+    "mtime": 1779779916.4701521,
+    "ast_hash": "bffb1e3cdeb637a25985937439b75bef",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/audit/export-audit-events.ts": {
+    "mtime": 1779779916.4704022,
+    "ast_hash": "ab2e7a3f3f1f0191f30f45a9820ea64d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/audit/export-audit-events.test.ts": {
+    "mtime": 1779779916.4703214,
+    "ast_hash": "0a58ea645dbaa221f0063a9c9e21fe73",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/skills/update-skill-status.ts": {
+    "mtime": 1779779916.4872434,
+    "ast_hash": "d35e4a6f2391a95405a80c1427bfa80a",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/skills/get-skill-detail.ts": {
+    "mtime": 1779779916.4855528,
+    "ast_hash": "3513d6f0aeabb46b1631669ceab39fc0",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/skills/get-monthly-trends.ts": {
+    "mtime": 1779779916.485052,
+    "ast_hash": "996e637196b7845007bd09ab455c2a6d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/skills/get-monthly-trends.test.ts": {
+    "mtime": 1779779916.484967,
+    "ast_hash": "f5fda6734c460fe2c47aed74f7cfa76c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/skills/delete-skills.test.ts": {
+    "mtime": 1779779916.4842622,
+    "ast_hash": "c6bf328a9a7b8f9d7da15b7d9a92c1fd",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/skills/update-skills-status.test.ts": {
+    "mtime": 1779779916.4874976,
+    "ast_hash": "bd7c601f8468455cd7b55a83c2f2112e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/skills/update-skill-status.test.ts": {
+    "mtime": 1779779916.4869926,
+    "ast_hash": "0bbb26190b784ceb895a1760f47343d9",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/skills/get-skills-table.ts": {
+    "mtime": 1779779916.4863884,
+    "ast_hash": "7cd1dcefbd5e2fd5dbdd250a29dd9a6f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/skills/get-usage-stats.ts": {
+    "mtime": 1779779916.4866803,
+    "ast_hash": "4fdfbc05182746ac4e639bc74b104a2e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/skills/delete-skills.ts": {
+    "mtime": 1779779916.4845362,
+    "ast_hash": "93d2eedd436631cacee2fa44ec4dcaea",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/skills/update-skills-status.ts": {
+    "mtime": 1779779916.4876902,
+    "ast_hash": "f19a0ad74929466435d618d09b99925a",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/skills/get-skills-table.test.ts": {
+    "mtime": 1779779916.486164,
+    "ast_hash": "b14c19ea1a849bbef995d5fcb585009f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/telemetry/ingest-events.test.ts": {
+    "mtime": 1779779916.488006,
+    "ast_hash": "baeeae8b456e285cb97870f4509cc69a",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/telemetry/ingest-events.ts": {
+    "mtime": 1779779916.488315,
+    "ast_hash": "723296be107f33a4cb05117396cfabbb",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/external-skill-mappings/mapping-cache.ts": {
+    "mtime": 1779779916.4729903,
+    "ast_hash": "c5e2398ac87c836e2b434abcb4c0803f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/external-skill-mappings/mapping-cache.test.ts": {
+    "mtime": 1779779916.47276,
+    "ast_hash": "2b615e03e9d270de8783ce80ee2df73e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/external-skill-mappings/resolve-skill-context.ts": {
+    "mtime": 1779779916.473245,
+    "ast_hash": "ddea8dc70e5958b157a636a5ec40e4c1",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/marketplaces/delete-marketplaces.ts": {
+    "mtime": 1779779916.4807055,
+    "ast_hash": "247bbcc305ce153c27e9e26576f781f2",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/marketplaces/delete-marketplace.test.ts": {
+    "mtime": 1779779916.4797761,
+    "ast_hash": "8de4366487e60c13f792d2b035b8367b",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/marketplaces/delete-marketplace.ts": {
+    "mtime": 1779779916.480038,
+    "ast_hash": "ec08b1ebda683fc0b0d0d950002c65cf",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/marketplaces/update-marketplaces-status.ts": {
+    "mtime": 1779779916.481914,
+    "ast_hash": "c485b40e9e8a8e15b30613306a2c371e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/marketplaces/update-marketplace.ts": {
+    "mtime": 1779779916.4814627,
+    "ast_hash": "4f9fb929cffa2908aebe6a0168036adc",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/marketplaces/list-marketplaces.ts": {
+    "mtime": 1779779916.4813604,
+    "ast_hash": "e010d4c275b1c03683616f7b28b2c470",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/marketplaces/list-marketplace-detail.ts": {
+    "mtime": 1779779916.4808006,
+    "ast_hash": "5c79535e29795a022cb13af620375b2f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/marketplaces/update-marketplaces-status.test.ts": {
+    "mtime": 1779779916.4817038,
+    "ast_hash": "5cabc502d92561e2ba53120493e7973c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/marketplaces/delete-marketplaces.test.ts": {
+    "mtime": 1779779916.4804366,
+    "ast_hash": "f993e80f07389a456c28b739d0f35ded",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/co-usage/get-session-timeline.ts": {
+    "mtime": 1779782710.869606,
+    "ast_hash": "8208575246c5d322beb6234000b254e7",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/application/co-usage/get-co-usage.ts": {
+    "mtime": 1779779916.4716856,
+    "ast_hash": "094e1495a208622bde4550f62f68cc43",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/infrastructure/crypto/jwt.ts": {
+    "mtime": 1779779916.5094857,
+    "ast_hash": "3bf28a4067e085a5211c92c58532ac46",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/infrastructure/crypto/jwt.test.ts": {
+    "mtime": 1779779916.5093236,
+    "ast_hash": "98e9ed68ab9128396d5ce26efe57c83b",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/infrastructure/crypto/encrypt.ts": {
+    "mtime": 1779779916.5092332,
+    "ast_hash": "775973bdad4766a83b75a09f146b5f7c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/infrastructure/scheduler/marketplace-source-scheduler.ts": {
+    "mtime": 1779779916.5162673,
+    "ast_hash": "80e0c7afc6f7bc6af47446c3ea26596e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/infrastructure/scheduler/sync-scheduler.ts": {
+    "mtime": 1779779916.516581,
+    "ast_hash": "1c6956a4f05dde88618f79c3dc13369f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/infrastructure/repositories/drizzle-plugin-skill-repository.ts": {
+    "mtime": 1779779916.5151637,
+    "ast_hash": "3aa87cc2d34cbb4d244b6100d16200d0",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/infrastructure/repositories/drizzle-event-repository.ts": {
+    "mtime": 1779782700.9666278,
+    "ast_hash": "7d63e06c0d83efaf354c190f5f0ae7fd",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/infrastructure/repositories/drizzle-marketplace-source-repository.ts": {
+    "mtime": 1779779916.5145562,
+    "ast_hash": "fa01d38bec980528d85f90907a387692",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/infrastructure/repositories/drizzle-plugin-repository.ts": {
+    "mtime": 1779779916.5148797,
+    "ast_hash": "f972168ce3c84329f97058a5c1e39c8e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/infrastructure/repositories/drizzle-user-repository.ts": {
+    "mtime": 1779779916.5161285,
+    "ast_hash": "8c36eeb811b8464fbeec805f1a0e7d67",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/infrastructure/repositories/drizzle-external-skill-plugin-mapping-repository.ts": {
+    "mtime": 1779779916.5137193,
+    "ast_hash": "82d09ab2e791f27f63861f2920731bdb",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/infrastructure/repositories/drizzle-marketplace-repository.ts": {
+    "mtime": 1779779916.5143554,
+    "ast_hash": "09b088c6b2441f8b98cccd1d2702511e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/infrastructure/repositories/drizzle-audit-repository.ts": {
+    "mtime": 1779779916.513265,
+    "ast_hash": "56f056c731b9f44cec21605da712c35e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/infrastructure/repositories/drizzle-plugin-version-repository.ts": {
+    "mtime": 1779779916.5155044,
+    "ast_hash": "a57e0475f4b3fcfc8d77b5d3c4d9a7c2",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/infrastructure/repositories/drizzle-integration-repository.ts": {
+    "mtime": 1779779916.5141478,
+    "ast_hash": "5dee6449ee4304240cecc65794e0cb0a",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/infrastructure/repositories/drizzle-skill-repository.ts": {
+    "mtime": 1779779916.5157905,
+    "ast_hash": "b2b1c481e1c9d50961615ed5169eb7e0",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/infrastructure/audit/redact.ts": {
+    "mtime": 1779779916.5089161,
+    "ast_hash": "3d8dc19517960f1e67e5b2d4f6329bce",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/infrastructure/audit/redact.test.ts": {
+    "mtime": 1779779916.508824,
+    "ast_hash": "ee9435d66eb4fb7e7c5933a6ea53bc85",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/infrastructure/gateways/git-marketplace-http-gateway.ts": {
+    "mtime": 1779779916.5122242,
+    "ast_hash": "04a3b05474eb3b695c6746af339a7618",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/infrastructure/gateways/packmind-cli-gateway.test.ts": {
+    "mtime": 1779779916.512854,
+    "ast_hash": "a0cc4ea3db28d66f001319a58844bb80",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/infrastructure/gateways/packmind-cli-gateway.ts": {
+    "mtime": 1779779916.5131283,
+    "ast_hash": "46b59025a8f95babf6b0e72c0e466de4",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/infrastructure/gateways/loki-http-gateway.ts": {
+    "mtime": 1779779916.5125442,
+    "ast_hash": "5a1570329147ccb602831b340122053b",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/infrastructure/gateways/git-browse-url.ts": {
+    "mtime": 1779779916.5105112,
+    "ast_hash": "f4d354c214194476322b4e95c8ea8936",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/infrastructure/gateways/git-marketplace-http-gateway.test.ts": {
+    "mtime": 1779779916.511474,
+    "ast_hash": "704b3fd5075eb54631ffa66c55eac042",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/infrastructure/gateways/git-browse-url.test.ts": {
+    "mtime": 1779779916.5103009,
+    "ast_hash": "81b8cd961dc65e5d99a2ed8d1bc0e383",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/domain/marketplace-source.ts": {
+    "mtime": 1779779916.498455,
+    "ast_hash": "047f68fc57dc6355c4d292dde861612e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/domain/marketplace.ts": {
+    "mtime": 1779779916.4986084,
+    "ast_hash": "9a6df016842e791711a144461b2ca0dd",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/domain/plugin.ts": {
+    "mtime": 1779779916.499113,
+    "ast_hash": "95cf6b6e747ecc2736e3c1559d1d3efe",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/domain/integration.ts": {
+    "mtime": 1779779916.4982023,
+    "ast_hash": "37bc7f023b8c5a6a1f60fd5f36a7c25a",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/domain/external-skill-mapping.ts": {
+    "mtime": 1779779916.4979548,
+    "ast_hash": "830fc8fe3eae101dac38698a93e17e63",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/domain/plugin.test.ts": {
+    "mtime": 1779779916.498882,
+    "ast_hash": "db852f8e3c9c46feb4329185837b8c06",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/domain/audit.ts": {
+    "mtime": 1779779916.4974039,
+    "ast_hash": "0d98ee10eb27f3bf2a4967a82ef53e59",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/domain/event.ts": {
+    "mtime": 1779779916.497714,
+    "ast_hash": "fb70d721ecbc2ea85c8380a152f385b5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/domain/user.ts": {
+    "mtime": 1779779916.5035977,
+    "ast_hash": "e6ecc7690851e7a0fe83534c0c317f29",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/domain/skill.ts": {
+    "mtime": 1779779916.5032322,
+    "ast_hash": "41efa6f16d50624c01a8965fbe6c6f5d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/domain/ports/git-marketplace-gateway.ts": {
+    "mtime": 1779779916.5000641,
+    "ast_hash": "2cd21bc5d94bfe3bb7ba300146da011d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/domain/ports/plugin-repository.ts": {
+    "mtime": 1779779916.501567,
+    "ast_hash": "cf27c31b14749af6c109d6335f9defa6",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/domain/ports/marketplace-repository.ts": {
+    "mtime": 1779779916.5007868,
+    "ast_hash": "1cde0252c2790b1f5a1bd75ce4b3740d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/domain/ports/marketplace-source-repository.ts": {
+    "mtime": 1779779916.500982,
+    "ast_hash": "5f86a9049c388697ff348dc44c8a8db7",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/domain/ports/event-repository.ts": {
+    "mtime": 1779782688.252549,
+    "ast_hash": "0ea7a5a7d7a633ee6a2b83c233463e06",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/domain/ports/plugin-version-repository.ts": {
+    "mtime": 1779779916.5020716,
+    "ast_hash": "ab5be22c7e8b14f75d40f841cca94bf7",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/domain/ports/packmind-cli-gateway.ts": {
+    "mtime": 1779779916.501233,
+    "ast_hash": "b482c195a90af1141baf9c998e5cb47e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/domain/ports/user-repository.ts": {
+    "mtime": 1779779916.5027926,
+    "ast_hash": "f1a80f92a7cc0050bac063d7c596aa7f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/domain/ports/skill-repository.ts": {
+    "mtime": 1779779916.502225,
+    "ast_hash": "5ea9205e65c82581a9a154dd0a824bf2",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/domain/ports/plugin-skill-repository.ts": {
+    "mtime": 1779779916.5018094,
+    "ast_hash": "a88a660e4bcc516597ba37c84c6114d8",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/domain/ports/integration-repository.ts": {
+    "mtime": 1779779916.5003529,
+    "ast_hash": "d99d3a8696fce50d948d3656fbe0027d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/domain/ports/audit-repository.ts": {
+    "mtime": 1779779916.4992528,
+    "ast_hash": "6f029ab20c317c51fead566207b0bd07",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/domain/ports/external-skill-plugin-mapping-repository.ts": {
+    "mtime": 1779779916.4998415,
+    "ast_hash": "c1fe5af8287dca1385c52a5cc8d7876d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/domain/ports/loki-gateway.ts": {
+    "mtime": 1779779916.5006278,
+    "ast_hash": "907582b23730039f05ab9f20f7ba98c3",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/scripts/sync-version.mjs": {
+    "mtime": 1779779916.5543137,
+    "ast_hash": "e0d47409a1493adbd7de2e67a49b3783",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/Changelog.md": {
+    "mtime": 1779779916.467131,
+    "ast_hash": "7142df3d6ce76ee9bd8698eb11485680",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/docker-compose.dev.yml": {
+    "mtime": 1779779916.5201445,
+    "ast_hash": "b15084f018a5c1e8bbc8893581cf3243",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/README.md": {
+    "mtime": 1779779916.468399,
+    "ast_hash": "54f605f0853a70376081738dec5f2a33",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/CONTRIBUTING.md": {
+    "mtime": 1779779916.4668574,
+    "ast_hash": "8dbae0562277f2f9d54f3543779d7b41",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/docker-compose.yml": {
+    "mtime": 1779779916.5204835,
+    "ast_hash": "0effb52b9f50aeaf2d8988169b05bf1c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/CLAUDE.md": {
+    "mtime": 1779779916.466484,
+    "ast_hash": "1416c67b48a789d792ac9a8b90425db0",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/index.html": {
+    "mtime": 1779779916.521364,
+    "ast_hash": "5b4cc46aa5cc267b4bcf3c4f646b52c2",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.claude/skills/skill-creator/SKILL.md": {
+    "mtime": 1779779916.4591353,
+    "ast_hash": "a1277b9e97e7a84dbd80a984164ad373",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.claude/skills/skill-creator/LICENSE.txt": {
+    "mtime": 1779779916.4588,
+    "ast_hash": "0ee6429f4c66920b6744d818225fb58f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.claude/skills/skill-creator/eval-viewer/viewer.html": {
+    "mtime": 1779779916.4608972,
+    "ast_hash": "bef0b26fd04ee3a25344b7ae361a5bd1",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.claude/skills/skill-creator/references/schemas.md": {
+    "mtime": 1779779916.4612615,
+    "ast_hash": "466f2adac472716df6867541ff75c462",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.claude/skills/skill-creator/agents/grader.md": {
+    "mtime": 1779779916.459869,
+    "ast_hash": "c8913119223249181559ec9cf9a5e8c6",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.claude/skills/skill-creator/agents/comparator.md": {
+    "mtime": 1779779916.459681,
+    "ast_hash": "1b3e8695c8a40d1ad7af30b622190c99",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.claude/skills/skill-creator/agents/analyzer.md": {
+    "mtime": 1779779916.4594696,
+    "ast_hash": "b78964a8d55ff0e038d657a9cb79f46a",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.claude/skills/skill-creator/assets/eval_review.html": {
+    "mtime": 1779779916.4601262,
+    "ast_hash": "215a74d6269d72e8ffd254cedc1e0b0a",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.claude/skills/drizzle-migrations/SKILL.md": {
+    "mtime": 1779779916.4584136,
+    "ast_hash": "3b8529d2943b7448e840f4a81c53e5ca",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.github/pull_request_template.md": {
+    "mtime": 1779779916.4650493,
+    "ast_hash": "7fc58fff10f8284759792a4443859065",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.github/workflows/release.yml": {
+    "mtime": 1779779916.4656456,
+    "ast_hash": "a99d2fbaf44f8a5b4ec329ece917f673",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.github/workflows/ci.yml": {
+    "mtime": 1779779916.4653394,
+    "ast_hash": "d30b6ce5fc20526ab4fbba4e97892368",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.github/ISSUE_TEMPLATE/feature_request.md": {
+    "mtime": 1779779916.4647725,
+    "ast_hash": "d922e379bb6f89eee60efaa8b4ffdfc7",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/.github/ISSUE_TEMPLATE/bug_report.md": {
+    "mtime": 1779779916.464455,
+    "ast_hash": "d01a126e9f9db3482e9a77a6efe0c101",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/res/dashboard.png": {
+    "mtime": 1779779916.5513632,
+    "ast_hash": "ae01b4c2a99459e7a21469b1fda0dd8d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/res/marketplaces.png": {
+    "mtime": 1779779916.552788,
+    "ast_hash": "3276e043545522d1a112390517bada80",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/res/skills.png": {
+    "mtime": 1779779916.5539396,
+    "ast_hash": "c1949e3adb94f7b7e92d17a47ba39f2d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/public/favicon.svg": {
+    "mtime": 1779779916.5218508,
+    "ast_hash": "a0fe44f66cf9994a69cbbce0346870e0",
+    "semantic_hash": ""
+  }
+}
