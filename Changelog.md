@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.0
+
+- Expand the Co-usage combo drawer with a per-session timeline view that renders each session's skill activations in chronological order, color-coded by skill, so the order in which skills fire within a combo is observable rather than just their co-occurrence. Backed by a new `GET /api/co-usage/sessions/:sessionId/timeline` endpoint that returns ordered `(skillName, pluginName, timestamp)` events for a given session.
+
 ## 0.4.0
 
 - Add Packmind as a second kind of marketplace source alongside git-backed ones: instead of cloning a `marketplace.json`, Packmind sources are fed by the `@packmind/cli` binary (`packages list` / `packages show <slug>`), and each Packmind package becomes a plugin keyed by its `@space/slug`. The marketplace-source form now exposes a kind selector, Packmind rows carry a "Packmind" badge, and "Test connection" runs `packmind-cli whoami` for Packmind sources. The Docker image installs `@packmind/cli` globally so `packmind-cli` is on `PATH` out of the box.
