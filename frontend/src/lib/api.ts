@@ -3,6 +3,7 @@ import type {
 	AuditResponse,
 	CohortsResponse,
 	CoUsageResponse,
+	CoUsageTimelineResponse,
 	DashboardPeriod,
 	Integration,
 	IntegrationPreviewEvent,
@@ -177,6 +178,10 @@ export const api = {
 	coUsage: {
 		list: (period: DashboardPeriod = "all") =>
 			apiFetch<CoUsageResponse>(`/api/co-usage?days=${period}`),
+		timeline: (sessionId: string) =>
+			apiFetch<CoUsageTimelineResponse>(
+				`/api/co-usage/sessions/${encodeURIComponent(sessionId)}/timeline`,
+			),
 	},
 	plugins: {
 		list: (opts: { includeIgnored?: boolean } = {}) => {

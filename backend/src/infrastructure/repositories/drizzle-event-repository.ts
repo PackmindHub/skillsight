@@ -7,6 +7,7 @@ import type {
 	IEventRepository,
 	RecentSkillActivatedEvent,
 	SessionSkillActivation,
+	SessionTimelineEvent,
 	UserSkillActivation,
 } from "@/domain/ports/event-repository";
 import type { NewEvent } from "@/domain/event";
@@ -192,5 +193,32 @@ export class DrizzleEventRepository implements IEventRepository {
 						? r.lastActivatedAt
 						: new Date(r.lastActivatedAt as unknown as string),
 			}));
+	}
+
+	async listSessionTimeline(sessionId: string): Promise<SessionTimelineEvent[]> {
+		const skillExpr = sql<string>`(${events.attributes}->>'skill.name')`;
+		const pluginExpr = sql<string | null>`(${events.attributes}->>'plugin.name')`;
+		const rows = await this.db
+			.select({
+				timestamp: events.timestamp,
+				skillName: skillExpr,
+				pluginName: pluginExpr,
+			})
+			.from(events)
+			.where(
+				and(
+					eq(events.eventName, EVENT_NAMES.SKILL_ACTIVATED),
+					eq(events.sessionId, sessionId),
+					sql`${skillExpr} IS NOT NULL`,
+				),
+			)
+			.orderBy(events.timestamp);
+
+		return rows.map((r) => ({
+			skillName: r.skillName,
+			pluginName: typeof r.pluginName === "string" ? r.pluginName : null,
+			timestamp:
+				r.timestamp instanceof Date ? r.timestamp : new Date(r.timestamp as unknown as string),
+		}));
 	}
 }
