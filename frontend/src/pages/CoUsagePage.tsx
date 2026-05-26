@@ -2,6 +2,8 @@ import { type CSSProperties, useEffect, useMemo, useRef, useState } from "react"
 import { PageHeader, SegmentedControl } from "@/components/ui";
 import { SkillChip } from "@/components/cohorts/SkillChip";
 import { skillColor } from "@/components/cohorts/skill-color";
+import { ComboDrawer } from "@/components/co-usage/ComboDrawer";
+import type { Combo } from "@/components/co-usage/types";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { CoUsageResponse, CoUsageSession, DashboardPeriod } from "@/types/api";
@@ -32,19 +34,6 @@ const SORT_OPTIONS = [
 	{ value: "size", label: "Size" },
 ] as const;
 type SortKey = (typeof SORT_OPTIONS)[number]["value"];
-
-// ─── Derived domain types ────────────────────────────────────────────────
-interface Combo {
-	id: string;
-	skills: string[];
-	size: number;
-	sessions: CoUsageSession[];
-	sessionCount: number;
-	userCount: number;
-	users: string[];
-	totalActivations: number;
-	lastSeenAt: string; // ISO
-}
 
 function formatNum(n: number): string {
 	return n.toLocaleString("en-US");
@@ -566,108 +555,6 @@ function NoiseFilterRow({
 	);
 }
 
-// ─── Side panel for selected combo ───────────────────────────────────────
-function CombosSidePanel({
-	combo,
-	onClose,
-	now,
-}: {
-	combo: Combo;
-	onClose: () => void;
-	now: number;
-}) {
-	const sample = [...combo.sessions]
-		.sort((a, b) => (a.lastSeenAt < b.lastSeenAt ? 1 : -1))
-		.slice(0, 10);
-	const userCounts = combo.sessions.reduce<Record<string, number>>((acc, s) => {
-		if (!s.userEmail) return acc;
-		acc[s.userEmail] = (acc[s.userEmail] ?? 0) + 1;
-		return acc;
-	}, {});
-	const topUsers = Object.entries(userCounts)
-		.sort((a, b) => b[1] - a[1])
-		.slice(0, 4);
-
-	return (
-		<aside
-			className="flex w-80 shrink-0 flex-col gap-3.5 overflow-y-auto rounded-lg border border-edge-dim p-4"
-			style={{ background: "linear-gradient(180deg, var(--color-surface-800), var(--color-surface-900))" }}
-		>
-			<div className="flex items-start justify-between gap-2">
-				<div>
-					<div className="font-mono text-[9.5px] uppercase tracking-[0.12em] text-accent-soft">
-						Selected combo
-					</div>
-					<div className="mt-1 text-sm text-text-1">
-						<span className="font-mono font-medium">{combo.sessionCount}</span> sessions ·{" "}
-						<span className="font-mono font-medium">{combo.userCount}</span> users
-					</div>
-				</div>
-				<button
-					type="button"
-					onClick={onClose}
-					aria-label="Close panel"
-					className="rounded p-1 font-mono text-xs text-text-3 hover:bg-surface-700 hover:text-text-1"
-				>
-					✕
-				</button>
-			</div>
-
-			<div className="flex flex-wrap gap-1.5">
-				{combo.skills.map((s) => (
-					<SkillChip key={s} skill={s} />
-				))}
-			</div>
-
-			{topUsers.length > 0 && (
-				<div>
-					<div className="mb-1.5 font-mono text-[9.5px] uppercase tracking-[0.08em] text-text-4">
-						Top users in this combo
-					</div>
-					<div className="flex flex-col gap-1">
-						{topUsers.map(([u, n]) => (
-							<div
-								key={u}
-								className="flex items-center gap-2 rounded border border-edge-dim bg-surface-800 px-2 py-1.5"
-							>
-								<span className="min-w-0 flex-1 truncate text-xs text-text-2">{u}</span>
-								<span className="font-mono text-[11px] text-text-3">
-									{n}
-									<span className="ml-0.5 text-text-4">sess</span>
-								</span>
-							</div>
-						))}
-					</div>
-				</div>
-			)}
-
-			<div>
-				<div className="mb-1.5 font-mono text-[9.5px] uppercase tracking-[0.08em] text-text-4">
-					Recent sessions ({sample.length} of {combo.sessionCount})
-				</div>
-				<div className="flex flex-col gap-1">
-					{sample.map((s) => (
-						<div
-							key={s.sessionId}
-							className="flex items-center gap-2 rounded border border-edge-dim bg-surface-800 px-2 py-1.5"
-						>
-							<span className="min-w-[60px] truncate font-mono text-[10px] text-text-4">
-								{s.sessionId.slice(0, 8)}
-							</span>
-							<span className="min-w-0 flex-1 truncate text-[11.5px] text-text-2">
-								{s.userEmail ?? "(unknown user)"}
-							</span>
-							<span className="font-mono text-[10px] text-text-4">
-								{formatAgo(ageMinutes(s.lastSeenAt, now))} ago
-							</span>
-						</div>
-					))}
-				</div>
-			</div>
-		</aside>
-	);
-}
-
 // ─── Single combo row ────────────────────────────────────────────────────
 function ComboRow({
 	combo,
@@ -1056,7 +943,7 @@ export default function CoUsagePage() {
 				</span>
 			</div>
 
-			{/* List + side panel */}
+			{/* List + drawer */}
 			<div className="flex min-h-0 flex-1 gap-3.5">
 				<div
 					className="flex-1 min-w-0 overflow-auto rounded-lg border border-edge-dim"
@@ -1142,17 +1029,17 @@ export default function CoUsagePage() {
 					)}
 				</div>
 
-				{selected && (
-					<CombosSidePanel
-						combo={
-							// Re-look up the latest version of the combo in case ignored set changed.
-							projectedCombos.find((c) => c.id === selected.id) ?? selected
-						}
-						onClose={() => setSelected(null)}
-						now={now}
-					/>
-				)}
 			</div>
+
+			{selected && (
+				<ComboDrawer
+					combo={projectedCombos.find((c) => c.id === selected.id) ?? selected}
+					comboList={filtered}
+					onSelectCombo={setSelected}
+					onClose={() => setSelected(null)}
+					now={now}
+				/>
+			)}
 
 		</div>
 	);

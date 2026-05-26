@@ -401,3 +401,14 @@ export interface CoUsageResponse {
 	totalSingleSkillSessions: number;
 	windowDays: number | null;
 }
+
+export interface CoUsageTimelineEvent {
+	skillName: string;
+	pluginName: string | null;
+	timestamp: string;
+}
+
+export interface CoUsageTimelineResponse {
+	sessionId: string;
+	events: CoUsageTimelineEvent[];
+}

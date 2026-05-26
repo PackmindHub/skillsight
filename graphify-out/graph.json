@@ -1,0 +1,3308 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "label": "get-session-timeline.ts",
+      "file_type": "code",
+      "source_file": "backend/src/application/co-usage/get-session-timeline.ts",
+      "source_location": "L1",
+      "id": "backend_src_application_co_usage_get_session_timeline_ts",
+      "community": 4,
+      "norm_label": "get-session-timeline.ts"
+    },
+    {
+      "label": "SessionTimelineEventDto",
+      "file_type": "code",
+      "source_file": "backend/src/application/co-usage/get-session-timeline.ts",
+      "source_location": "L3",
+      "id": "co_usage_get_session_timeline_sessiontimelineeventdto",
+      "community": 4,
+      "norm_label": "sessiontimelineeventdto"
+    },
+    {
+      "label": "SessionTimelineResponse",
+      "file_type": "code",
+      "source_file": "backend/src/application/co-usage/get-session-timeline.ts",
+      "source_location": "L9",
+      "id": "co_usage_get_session_timeline_sessiontimelineresponse",
+      "community": 4,
+      "norm_label": "sessiontimelineresponse"
+    },
+    {
+      "label": "getSessionTimeline()",
+      "file_type": "code",
+      "source_file": "backend/src/application/co-usage/get-session-timeline.ts",
+      "source_location": "L14",
+      "id": "co_usage_get_session_timeline_getsessiontimeline",
+      "community": 4,
+      "norm_label": "getsessiontimeline()"
+    },
+    {
+      "label": "event-repository.ts",
+      "file_type": "code",
+      "source_file": "backend/src/domain/ports/event-repository.ts",
+      "source_location": "L1",
+      "id": "backend_src_domain_ports_event_repository_ts",
+      "community": 4,
+      "norm_label": "event-repository.ts"
+    },
+    {
+      "label": "RecentSkillActivatedEvent",
+      "file_type": "code",
+      "source_file": "backend/src/domain/ports/event-repository.ts",
+      "source_location": "L3",
+      "id": "ports_event_repository_recentskillactivatedevent",
+      "community": 4,
+      "norm_label": "recentskillactivatedevent"
+    },
+    {
+      "label": "UserSkillActivation",
+      "file_type": "code",
+      "source_file": "backend/src/domain/ports/event-repository.ts",
+      "source_location": "L14",
+      "id": "ports_event_repository_userskillactivation",
+      "community": 4,
+      "norm_label": "userskillactivation"
+    },
+    {
+      "label": "SessionSkillActivation",
+      "file_type": "code",
+      "source_file": "backend/src/domain/ports/event-repository.ts",
+      "source_location": "L21",
+      "id": "ports_event_repository_sessionskillactivation",
+      "community": 4,
+      "norm_label": "sessionskillactivation"
+    },
+    {
+      "label": "SessionTimelineEvent",
+      "file_type": "code",
+      "source_file": "backend/src/domain/ports/event-repository.ts",
+      "source_location": "L29",
+      "id": "ports_event_repository_sessiontimelineevent",
+      "community": 4,
+      "norm_label": "sessiontimelineevent"
+    },
+    {
+      "label": "CohortsWindow",
+      "file_type": "code",
+      "source_file": "backend/src/domain/ports/event-repository.ts",
+      "source_location": "L35",
+      "id": "ports_event_repository_cohortswindow",
+      "community": 4,
+      "norm_label": "cohortswindow"
+    },
+    {
+      "label": "DirectEventStats",
+      "file_type": "code",
+      "source_file": "backend/src/domain/ports/event-repository.ts",
+      "source_location": "L37",
+      "id": "ports_event_repository_directeventstats",
+      "community": 4,
+      "norm_label": "directeventstats"
+    },
+    {
+      "label": "IEventRepository",
+      "file_type": "code",
+      "source_file": "backend/src/domain/ports/event-repository.ts",
+      "source_location": "L42",
+      "id": "ports_event_repository_ieventrepository",
+      "community": 4,
+      "norm_label": "ieventrepository"
+    },
+    {
+      "label": "co-usage.ts",
+      "file_type": "code",
+      "source_file": "backend/src/http/co-usage.ts",
+      "source_location": "L1",
+      "id": "backend_src_http_co_usage_ts",
+      "community": 4,
+      "norm_label": "co-usage.ts"
+    },
+    {
+      "label": "parseWindow()",
+      "file_type": "code",
+      "source_file": "backend/src/http/co-usage.ts",
+      "source_location": "L9",
+      "id": "http_co_usage_parsewindow",
+      "community": 4,
+      "norm_label": "parsewindow()"
+    },
+    {
+      "label": "createCoUsageRoute()",
+      "file_type": "code",
+      "source_file": "backend/src/http/co-usage.ts",
+      "source_location": "L16",
+      "id": "http_co_usage_createcousageroute",
+      "community": 4,
+      "norm_label": "createcousageroute()"
+    },
+    {
+      "label": "drizzle-event-repository.ts",
+      "file_type": "code",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L1",
+      "id": "backend_src_infrastructure_repositories_drizzle_event_repository_ts",
+      "community": 4,
+      "norm_label": "drizzle-event-repository.ts"
+    },
+    {
+      "label": "DrizzleEventRepository",
+      "file_type": "code",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L17",
+      "id": "repositories_drizzle_event_repository_drizzleeventrepository",
+      "community": 5,
+      "norm_label": "drizzleeventrepository"
+    },
+    {
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L18",
+      "id": "repositories_drizzle_event_repository_drizzleeventrepository_constructor",
+      "community": 5,
+      "norm_label": ".constructor()"
+    },
+    {
+      "label": ".insertMany()",
+      "file_type": "code",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L20",
+      "id": "repositories_drizzle_event_repository_drizzleeventrepository_insertmany",
+      "community": 5,
+      "norm_label": ".insertmany()"
+    },
+    {
+      "label": ".deleteByIntegrationId()",
+      "file_type": "code",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L38",
+      "id": "repositories_drizzle_event_repository_drizzleeventrepository_deletebyintegrationid",
+      "community": 5,
+      "norm_label": ".deletebyintegrationid()"
+    },
+    {
+      "label": ".deleteDirectEvents()",
+      "file_type": "code",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L42",
+      "id": "repositories_drizzle_event_repository_drizzleeventrepository_deletedirectevents",
+      "community": 5,
+      "norm_label": ".deletedirectevents()"
+    },
+    {
+      "label": ".getDirectStats()",
+      "file_type": "code",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L46",
+      "id": "repositories_drizzle_event_repository_drizzleeventrepository_getdirectstats",
+      "community": 5,
+      "norm_label": ".getdirectstats()"
+    },
+    {
+      "label": ".deleteBySkillKeys()",
+      "file_type": "code",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L66",
+      "id": "repositories_drizzle_event_repository_drizzleeventrepository_deletebyskillkeys",
+      "community": 5,
+      "norm_label": ".deletebyskillkeys()"
+    },
+    {
+      "label": ".listRecentSkillActivations()",
+      "file_type": "code",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L83",
+      "id": "repositories_drizzle_event_repository_drizzleeventrepository_listrecentskillactivations",
+      "community": 5,
+      "norm_label": ".listrecentskillactivations()"
+    },
+    {
+      "label": ".listUserSkillActivations()",
+      "file_type": "code",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L125",
+      "id": "repositories_drizzle_event_repository_drizzleeventrepository_listuserskillactivations",
+      "community": 5,
+      "norm_label": ".listuserskillactivations()"
+    },
+    {
+      "label": ".listSessionSkillActivations()",
+      "file_type": "code",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L159",
+      "id": "repositories_drizzle_event_repository_drizzleeventrepository_listsessionskillactivations",
+      "community": 5,
+      "norm_label": ".listsessionskillactivations()"
+    },
+    {
+      "label": ".listSessionTimeline()",
+      "file_type": "code",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L198",
+      "id": "repositories_drizzle_event_repository_drizzleeventrepository_listsessiontimeline",
+      "community": 5,
+      "norm_label": ".listsessiontimeline()"
+    },
+    {
+      "label": "ComboDrawer.tsx",
+      "file_type": "code",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L1",
+      "id": "frontend_src_components_co_usage_combodrawer_tsx",
+      "community": 3,
+      "norm_label": "combodrawer.tsx"
+    },
+    {
+      "label": "DAYS",
+      "file_type": "code",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L9",
+      "id": "co_usage_combodrawer_days",
+      "community": 3,
+      "norm_label": "days"
+    },
+    {
+      "label": "MONTHS",
+      "file_type": "code",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L10",
+      "id": "co_usage_combodrawer_months",
+      "community": 3,
+      "norm_label": "months"
+    },
+    {
+      "label": "pad2()",
+      "file_type": "code",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L12",
+      "id": "co_usage_combodrawer_pad2",
+      "community": 3,
+      "norm_label": "pad2()"
+    },
+    {
+      "label": "fmtClock()",
+      "file_type": "code",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L16",
+      "id": "co_usage_combodrawer_fmtclock",
+      "community": 3,
+      "norm_label": "fmtclock()"
+    },
+    {
+      "label": "fmtClockShort()",
+      "file_type": "code",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L21",
+      "id": "co_usage_combodrawer_fmtclockshort",
+      "community": 3,
+      "norm_label": "fmtclockshort()"
+    },
+    {
+      "label": "fmtDate()",
+      "file_type": "code",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L26",
+      "id": "co_usage_combodrawer_fmtdate",
+      "community": 3,
+      "norm_label": "fmtdate()"
+    },
+    {
+      "label": "fmtOffset()",
+      "file_type": "code",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L31",
+      "id": "co_usage_combodrawer_fmtoffset",
+      "community": 3,
+      "norm_label": "fmtoffset()"
+    },
+    {
+      "label": "fmtGap()",
+      "file_type": "code",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L40",
+      "id": "co_usage_combodrawer_fmtgap",
+      "community": 3,
+      "norm_label": "fmtgap()"
+    },
+    {
+      "label": "fmtAgo()",
+      "file_type": "code",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L50",
+      "id": "co_usage_combodrawer_fmtago",
+      "community": 3,
+      "norm_label": "fmtago()"
+    },
+    {
+      "label": "fmtNum()",
+      "file_type": "code",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L58",
+      "id": "co_usage_combodrawer_fmtnum",
+      "community": 3,
+      "norm_label": "fmtnum()"
+    },
+    {
+      "label": "SessionTimelineBlockProps",
+      "file_type": "code",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L64",
+      "id": "co_usage_combodrawer_sessiontimelineblockprops",
+      "community": 3,
+      "norm_label": "sessiontimelineblockprops"
+    },
+    {
+      "label": "TimelineRun",
+      "file_type": "code",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L70",
+      "id": "co_usage_combodrawer_timelinerun",
+      "community": 3,
+      "norm_label": "timelinerun"
+    },
+    {
+      "label": "PositionedEvent",
+      "file_type": "code",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L77",
+      "id": "co_usage_combodrawer_positionedevent",
+      "community": 3,
+      "norm_label": "positionedevent"
+    },
+    {
+      "label": "SessionTimelineBlock()",
+      "file_type": "code",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L85",
+      "id": "co_usage_combodrawer_sessiontimelineblock",
+      "community": 3,
+      "norm_label": "sessiontimelineblock()"
+    },
+    {
+      "label": "SessionHeaderMeta()",
+      "file_type": "code",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L483",
+      "id": "co_usage_combodrawer_sessionheadermeta",
+      "community": 3,
+      "norm_label": "sessionheadermeta()"
+    },
+    {
+      "label": "DrawerStat()",
+      "file_type": "code",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L509",
+      "id": "co_usage_combodrawer_drawerstat",
+      "community": 3,
+      "norm_label": "drawerstat()"
+    },
+    {
+      "label": "DrawerIconBtn()",
+      "file_type": "code",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L547",
+      "id": "co_usage_combodrawer_drawericonbtn",
+      "community": 3,
+      "norm_label": "drawericonbtn()"
+    },
+    {
+      "label": "SortMode",
+      "file_type": "code",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L576",
+      "id": "co_usage_combodrawer_sortmode",
+      "community": 3,
+      "norm_label": "sortmode"
+    },
+    {
+      "label": "SORT_OPTIONS",
+      "file_type": "code",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L578",
+      "id": "co_usage_combodrawer_sort_options",
+      "community": 3,
+      "norm_label": "sort_options"
+    },
+    {
+      "label": "ComboDrawerProps",
+      "file_type": "code",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L586",
+      "id": "co_usage_combodrawer_combodrawerprops",
+      "community": 3,
+      "norm_label": "combodrawerprops"
+    },
+    {
+      "label": "ComboDrawer()",
+      "file_type": "code",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L594",
+      "id": "co_usage_combodrawer_combodrawer",
+      "community": 3,
+      "norm_label": "combodrawer()"
+    },
+    {
+      "label": "Kbd()",
+      "file_type": "code",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L915",
+      "id": "co_usage_combodrawer_kbd",
+      "community": 3,
+      "norm_label": "kbd()"
+    },
+    {
+      "label": "types.ts",
+      "file_type": "code",
+      "source_file": "frontend/src/components/co-usage/types.ts",
+      "source_location": "L1",
+      "id": "frontend_src_components_co_usage_types_ts",
+      "community": 2,
+      "norm_label": "types.ts"
+    },
+    {
+      "label": "Combo",
+      "file_type": "code",
+      "source_file": "frontend/src/components/co-usage/types.ts",
+      "source_location": "L3",
+      "id": "co_usage_types_combo",
+      "community": 2,
+      "norm_label": "combo"
+    },
+    {
+      "label": "api.ts",
+      "file_type": "code",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "id": "frontend_src_lib_api_ts",
+      "community": 1,
+      "norm_label": "api.ts"
+    },
+    {
+      "label": "periodFilterParams()",
+      "file_type": "code",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L28",
+      "id": "lib_api_periodfilterparams",
+      "community": 1,
+      "norm_label": "periodfilterparams()"
+    },
+    {
+      "label": "buildAuditQuery()",
+      "file_type": "code",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L39",
+      "id": "lib_api_buildauditquery",
+      "community": 1,
+      "norm_label": "buildauditquery()"
+    },
+    {
+      "label": "apiFetch()",
+      "file_type": "code",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L53",
+      "id": "lib_api_apifetch",
+      "community": 1,
+      "norm_label": "apifetch()"
+    },
+    {
+      "label": "api",
+      "file_type": "code",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L73",
+      "id": "lib_api_api",
+      "community": 3,
+      "norm_label": "api"
+    },
+    {
+      "label": "CoUsagePage.tsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L1",
+      "id": "frontend_src_pages_cousagepage_tsx",
+      "community": 2,
+      "norm_label": "cousagepage.tsx"
+    },
+    {
+      "label": "PERIOD_OPTIONS",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L15",
+      "id": "pages_cousagepage_period_options",
+      "community": 2,
+      "norm_label": "period_options"
+    },
+    {
+      "label": "SIZE_OPTIONS",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L22",
+      "id": "pages_cousagepage_size_options",
+      "community": 2,
+      "norm_label": "size_options"
+    },
+    {
+      "label": "SizeFilter",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L28",
+      "id": "pages_cousagepage_sizefilter",
+      "community": 2,
+      "norm_label": "sizefilter"
+    },
+    {
+      "label": "SORT_OPTIONS",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L30",
+      "id": "pages_cousagepage_sort_options",
+      "community": 2,
+      "norm_label": "sort_options"
+    },
+    {
+      "label": "SortKey",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L36",
+      "id": "pages_cousagepage_sortkey",
+      "community": 2,
+      "norm_label": "sortkey"
+    },
+    {
+      "label": "formatNum()",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L38",
+      "id": "pages_cousagepage_formatnum",
+      "community": 2,
+      "norm_label": "formatnum()"
+    },
+    {
+      "label": "ageMinutes()",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L42",
+      "id": "pages_cousagepage_ageminutes",
+      "community": 2,
+      "norm_label": "ageminutes()"
+    },
+    {
+      "label": "formatAgo()",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L46",
+      "id": "pages_cousagepage_formatago",
+      "community": 2,
+      "norm_label": "formatago()"
+    },
+    {
+      "label": "aggregateCombos()",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L55",
+      "id": "pages_cousagepage_aggregatecombos",
+      "community": 2,
+      "norm_label": "aggregatecombos()"
+    },
+    {
+      "label": "DensityBar()",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L99",
+      "id": "pages_cousagepage_densitybar",
+      "community": 2,
+      "norm_label": "densitybar()"
+    },
+    {
+      "label": "ComboKnot()",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L147",
+      "id": "pages_cousagepage_comboknot",
+      "community": 2,
+      "norm_label": "comboknot()"
+    },
+    {
+      "label": "StatTile()",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L205",
+      "id": "pages_cousagepage_stattile",
+      "community": 2,
+      "norm_label": "stattile()"
+    },
+    {
+      "label": "IgnoreChip()",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L236",
+      "id": "pages_cousagepage_ignorechip",
+      "community": 2,
+      "norm_label": "ignorechip()"
+    },
+    {
+      "label": "SuggestChip()",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L262",
+      "id": "pages_cousagepage_suggestchip",
+      "community": 2,
+      "norm_label": "suggestchip()"
+    },
+    {
+      "label": "PickerOption",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L293",
+      "id": "pages_cousagepage_pickeroption",
+      "community": 2,
+      "norm_label": "pickeroption"
+    },
+    {
+      "label": "SkillPicker()",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L298",
+      "id": "pages_cousagepage_skillpicker",
+      "community": 2,
+      "norm_label": "skillpicker()"
+    },
+    {
+      "label": "NoiseFilterRow()",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L407",
+      "id": "pages_cousagepage_noisefilterrow",
+      "community": 2,
+      "norm_label": "noisefilterrow()"
+    },
+    {
+      "label": "ComboRow()",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L559",
+      "id": "pages_cousagepage_comborow",
+      "community": 2,
+      "norm_label": "comborow()"
+    },
+    {
+      "label": "CoUsagePage()",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L678",
+      "id": "pages_cousagepage_cousagepage",
+      "community": 2,
+      "norm_label": "cousagepage()"
+    },
+    {
+      "label": "api.ts",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L1",
+      "id": "frontend_src_types_api_ts",
+      "community": 0,
+      "norm_label": "api.ts"
+    },
+    {
+      "label": "User",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L1",
+      "id": "types_api_user",
+      "community": 1,
+      "norm_label": "user"
+    },
+    {
+      "label": "Token",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L7",
+      "id": "types_api_token",
+      "community": 1,
+      "norm_label": "token"
+    },
+    {
+      "label": "SkillUsageStat",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L18",
+      "id": "types_api_skillusagestat",
+      "community": 0,
+      "norm_label": "skillusagestat"
+    },
+    {
+      "label": "DailyTrend",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L23",
+      "id": "types_api_dailytrend",
+      "community": 0,
+      "norm_label": "dailytrend"
+    },
+    {
+      "label": "TopUser",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L28",
+      "id": "types_api_topuser",
+      "community": 0,
+      "norm_label": "topuser"
+    },
+    {
+      "label": "TriggerBreakdown",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L33",
+      "id": "types_api_triggerbreakdown",
+      "community": 0,
+      "norm_label": "triggerbreakdown"
+    },
+    {
+      "label": "UsageStats",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L38",
+      "id": "types_api_usagestats",
+      "community": 0,
+      "norm_label": "usagestats"
+    },
+    {
+      "label": "UsageResponse",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L47",
+      "id": "types_api_usageresponse",
+      "community": 1,
+      "norm_label": "usageresponse"
+    },
+    {
+      "label": "DashboardPeriod",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L55",
+      "id": "types_api_dashboardperiod",
+      "community": 2,
+      "norm_label": "dashboardperiod"
+    },
+    {
+      "label": "PeriodFilter",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L57",
+      "id": "types_api_periodfilter",
+      "community": 1,
+      "norm_label": "periodfilter"
+    },
+    {
+      "label": "MonthlyPoint",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L61",
+      "id": "types_api_monthlypoint",
+      "community": 0,
+      "norm_label": "monthlypoint"
+    },
+    {
+      "label": "MonthlyTrendsResponse",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L66",
+      "id": "types_api_monthlytrendsresponse",
+      "community": 1,
+      "norm_label": "monthlytrendsresponse"
+    },
+    {
+      "label": "MarketplaceStatus",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L72",
+      "id": "types_api_marketplacestatus",
+      "community": 1,
+      "norm_label": "marketplacestatus"
+    },
+    {
+      "label": "PluginStatus",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L74",
+      "id": "types_api_pluginstatus",
+      "community": 0,
+      "norm_label": "pluginstatus"
+    },
+    {
+      "label": "SkillStatus",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L76",
+      "id": "types_api_skillstatus",
+      "community": 1,
+      "norm_label": "skillstatus"
+    },
+    {
+      "label": "SKILL_STATUSES",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L78",
+      "id": "types_api_skill_statuses",
+      "community": 0,
+      "norm_label": "skill_statuses"
+    },
+    {
+      "label": "SkillSource",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L88",
+      "id": "types_api_skillsource",
+      "community": 0,
+      "norm_label": "skillsource"
+    },
+    {
+      "label": "SKILL_SOURCES",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L90",
+      "id": "types_api_skill_sources",
+      "community": 0,
+      "norm_label": "skill_sources"
+    },
+    {
+      "label": "SKILL_SOURCE_LABELS",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L97",
+      "id": "types_api_skill_source_labels",
+      "community": 0,
+      "norm_label": "skill_source_labels"
+    },
+    {
+      "label": "isBundledSource()",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L104",
+      "id": "types_api_isbundledsource",
+      "community": 0,
+      "norm_label": "isbundledsource()"
+    },
+    {
+      "label": "isKnownSkillSource()",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L108",
+      "id": "types_api_isknownskillsource",
+      "community": 0,
+      "norm_label": "isknownskillsource()"
+    },
+    {
+      "label": "PLUGIN_STATUSES",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L112",
+      "id": "types_api_plugin_statuses",
+      "community": 0,
+      "norm_label": "plugin_statuses"
+    },
+    {
+      "label": "MARKETPLACE_STATUSES",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L120",
+      "id": "types_api_marketplace_statuses",
+      "community": 0,
+      "norm_label": "marketplace_statuses"
+    },
+    {
+      "label": "Plugin",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L127",
+      "id": "types_api_plugin",
+      "community": 1,
+      "norm_label": "plugin"
+    },
+    {
+      "label": "PluginVersionRow",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L148",
+      "id": "types_api_pluginversionrow",
+      "community": 0,
+      "norm_label": "pluginversionrow"
+    },
+    {
+      "label": "PluginSkillRow",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L156",
+      "id": "types_api_pluginskillrow",
+      "community": 0,
+      "norm_label": "pluginskillrow"
+    },
+    {
+      "label": "PluginUserRow",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L161",
+      "id": "types_api_pluginuserrow",
+      "community": 0,
+      "norm_label": "pluginuserrow"
+    },
+    {
+      "label": "PluginWeeklyLoadersBucket",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L166",
+      "id": "types_api_pluginweeklyloadersbucket",
+      "community": 0,
+      "norm_label": "pluginweeklyloadersbucket"
+    },
+    {
+      "label": "PluginWeeklyLoaders",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L172",
+      "id": "types_api_pluginweeklyloaders",
+      "community": 0,
+      "norm_label": "pluginweeklyloaders"
+    },
+    {
+      "label": "PluginSkillsResponse",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L177",
+      "id": "types_api_pluginskillsresponse",
+      "community": 1,
+      "norm_label": "pluginskillsresponse"
+    },
+    {
+      "label": "MarketplaceProvider",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L185",
+      "id": "types_api_marketplaceprovider",
+      "community": 0,
+      "norm_label": "marketplaceprovider"
+    },
+    {
+      "label": "MarketplaceRef",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L187",
+      "id": "types_api_marketplaceref",
+      "community": 0,
+      "norm_label": "marketplaceref"
+    },
+    {
+      "label": "Marketplace",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L192",
+      "id": "types_api_marketplace",
+      "community": 1,
+      "norm_label": "marketplace"
+    },
+    {
+      "label": "MarketplacePluginRow",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L207",
+      "id": "types_api_marketplacepluginrow",
+      "community": 0,
+      "norm_label": "marketplacepluginrow"
+    },
+    {
+      "label": "MarketplaceSkillRow",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L215",
+      "id": "types_api_marketplaceskillrow",
+      "community": 0,
+      "norm_label": "marketplaceskillrow"
+    },
+    {
+      "label": "MarketplaceDetailResponse",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L221",
+      "id": "types_api_marketplacedetailresponse",
+      "community": 1,
+      "norm_label": "marketplacedetailresponse"
+    },
+    {
+      "label": "SkillTableRow",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L226",
+      "id": "types_api_skilltablerow",
+      "community": 0,
+      "norm_label": "skilltablerow"
+    },
+    {
+      "label": "SkillsTableResponse",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L243",
+      "id": "types_api_skillstableresponse",
+      "community": 1,
+      "norm_label": "skillstableresponse"
+    },
+    {
+      "label": "SkillDetailTopUser",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L247",
+      "id": "types_api_skilldetailtopuser",
+      "community": 0,
+      "norm_label": "skilldetailtopuser"
+    },
+    {
+      "label": "SkillDetailPluginRef",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L252",
+      "id": "types_api_skilldetailpluginref",
+      "community": 0,
+      "norm_label": "skilldetailpluginref"
+    },
+    {
+      "label": "SkillDetail",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L262",
+      "id": "types_api_skilldetail",
+      "community": 1,
+      "norm_label": "skilldetail"
+    },
+    {
+      "label": "AuditEvent",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L279",
+      "id": "types_api_auditevent",
+      "community": 0,
+      "norm_label": "auditevent"
+    },
+    {
+      "label": "AuditResponse",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L288",
+      "id": "types_api_auditresponse",
+      "community": 1,
+      "norm_label": "auditresponse"
+    },
+    {
+      "label": "AuditFilters",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L295",
+      "id": "types_api_auditfilters",
+      "community": 1,
+      "norm_label": "auditfilters"
+    },
+    {
+      "label": "AuditDiffMetadata",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L304",
+      "id": "types_api_auditdiffmetadata",
+      "community": 0,
+      "norm_label": "auditdiffmetadata"
+    },
+    {
+      "label": "MarketplaceSourceKind",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L310",
+      "id": "types_api_marketplacesourcekind",
+      "community": 0,
+      "norm_label": "marketplacesourcekind"
+    },
+    {
+      "label": "MarketplaceSource",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L312",
+      "id": "types_api_marketplacesource",
+      "community": 1,
+      "norm_label": "marketplacesource"
+    },
+    {
+      "label": "Integration",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L328",
+      "id": "types_api_integration",
+      "community": 1,
+      "norm_label": "integration"
+    },
+    {
+      "label": "IntegrationPreviewEvent",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L346",
+      "id": "types_api_integrationpreviewevent",
+      "community": 1,
+      "norm_label": "integrationpreviewevent"
+    },
+    {
+      "label": "LiveSkillActivatedEvent",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L353",
+      "id": "types_api_liveskillactivatedevent",
+      "community": 1,
+      "norm_label": "liveskillactivatedevent"
+    },
+    {
+      "label": "LiveEventsResponse",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L364",
+      "id": "types_api_liveeventsresponse",
+      "community": 1,
+      "norm_label": "liveeventsresponse"
+    },
+    {
+      "label": "CohortMember",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L368",
+      "id": "types_api_cohortmember",
+      "community": 0,
+      "norm_label": "cohortmember"
+    },
+    {
+      "label": "Cohort",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L375",
+      "id": "types_api_cohort",
+      "community": 0,
+      "norm_label": "cohort"
+    },
+    {
+      "label": "CohortsResponse",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L383",
+      "id": "types_api_cohortsresponse",
+      "community": 1,
+      "norm_label": "cohortsresponse"
+    },
+    {
+      "label": "CoUsageSession",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L390",
+      "id": "types_api_cousagesession",
+      "community": 2,
+      "norm_label": "cousagesession"
+    },
+    {
+      "label": "CoUsageResponse",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L397",
+      "id": "types_api_cousageresponse",
+      "community": 2,
+      "norm_label": "cousageresponse"
+    },
+    {
+      "label": "CoUsageTimelineEvent",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L405",
+      "id": "types_api_cousagetimelineevent",
+      "community": 3,
+      "norm_label": "cousagetimelineevent"
+    },
+    {
+      "label": "CoUsageTimelineResponse",
+      "file_type": "code",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L411",
+      "id": "types_api_cousagetimelineresponse",
+      "community": 1,
+      "norm_label": "cousagetimelineresponse"
+    }
+  ],
+  "links": [
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/application/co-usage/get-session-timeline.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "backend_src_application_co_usage_get_session_timeline_ts",
+      "target": "backend_src_domain_ports_event_repository_ts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/application/co-usage/get-session-timeline.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "backend_src_application_co_usage_get_session_timeline_ts",
+      "target": "ports_event_repository_ieventrepository",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/application/co-usage/get-session-timeline.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "backend_src_application_co_usage_get_session_timeline_ts",
+      "target": "co_usage_get_session_timeline_sessiontimelineeventdto",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/application/co-usage/get-session-timeline.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "backend_src_application_co_usage_get_session_timeline_ts",
+      "target": "co_usage_get_session_timeline_sessiontimelineresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/application/co-usage/get-session-timeline.ts",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "backend_src_application_co_usage_get_session_timeline_ts",
+      "target": "co_usage_get_session_timeline_getsessiontimeline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/http/co-usage.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "backend_src_http_co_usage_ts",
+      "target": "backend_src_application_co_usage_get_session_timeline_ts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/http/co-usage.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "backend_src_http_co_usage_ts",
+      "target": "co_usage_get_session_timeline_getsessiontimeline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/domain/ports/event-repository.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "backend_src_domain_ports_event_repository_ts",
+      "target": "ports_event_repository_recentskillactivatedevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/domain/ports/event-repository.ts",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "backend_src_domain_ports_event_repository_ts",
+      "target": "ports_event_repository_userskillactivation",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/domain/ports/event-repository.ts",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "backend_src_domain_ports_event_repository_ts",
+      "target": "ports_event_repository_sessionskillactivation",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/domain/ports/event-repository.ts",
+      "source_location": "L29",
+      "weight": 1.0,
+      "source": "backend_src_domain_ports_event_repository_ts",
+      "target": "ports_event_repository_sessiontimelineevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/domain/ports/event-repository.ts",
+      "source_location": "L35",
+      "weight": 1.0,
+      "source": "backend_src_domain_ports_event_repository_ts",
+      "target": "ports_event_repository_cohortswindow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/domain/ports/event-repository.ts",
+      "source_location": "L37",
+      "weight": 1.0,
+      "source": "backend_src_domain_ports_event_repository_ts",
+      "target": "ports_event_repository_directeventstats",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/domain/ports/event-repository.ts",
+      "source_location": "L42",
+      "weight": 1.0,
+      "source": "backend_src_domain_ports_event_repository_ts",
+      "target": "ports_event_repository_ieventrepository",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/http/co-usage.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "backend_src_http_co_usage_ts",
+      "target": "backend_src_domain_ports_event_repository_ts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "backend_src_infrastructure_repositories_drizzle_event_repository_ts",
+      "target": "backend_src_domain_ports_event_repository_ts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "backend_src_infrastructure_repositories_drizzle_event_repository_ts",
+      "target": "ports_event_repository_recentskillactivatedevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "backend_src_infrastructure_repositories_drizzle_event_repository_ts",
+      "target": "ports_event_repository_userskillactivation",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "backend_src_infrastructure_repositories_drizzle_event_repository_ts",
+      "target": "ports_event_repository_sessionskillactivation",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "backend_src_infrastructure_repositories_drizzle_event_repository_ts",
+      "target": "ports_event_repository_sessiontimelineevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/http/co-usage.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "backend_src_http_co_usage_ts",
+      "target": "ports_event_repository_cohortswindow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "backend_src_infrastructure_repositories_drizzle_event_repository_ts",
+      "target": "ports_event_repository_cohortswindow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "backend_src_infrastructure_repositories_drizzle_event_repository_ts",
+      "target": "ports_event_repository_directeventstats",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "backend_src_infrastructure_repositories_drizzle_event_repository_ts",
+      "target": "ports_event_repository_ieventrepository",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/http/co-usage.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "backend_src_http_co_usage_ts",
+      "target": "http_co_usage_parsewindow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/http/co-usage.ts",
+      "source_location": "L16",
+      "weight": 1.0,
+      "source": "backend_src_http_co_usage_ts",
+      "target": "http_co_usage_createcousageroute",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "backend_src_infrastructure_repositories_drizzle_event_repository_ts",
+      "target": "repositories_drizzle_event_repository_drizzleeventrepository",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "repositories_drizzle_event_repository_drizzleeventrepository",
+      "target": "repositories_drizzle_event_repository_drizzleeventrepository_constructor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "repositories_drizzle_event_repository_drizzleeventrepository",
+      "target": "repositories_drizzle_event_repository_drizzleeventrepository_insertmany",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L38",
+      "weight": 1.0,
+      "source": "repositories_drizzle_event_repository_drizzleeventrepository",
+      "target": "repositories_drizzle_event_repository_drizzleeventrepository_deletebyintegrationid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L42",
+      "weight": 1.0,
+      "source": "repositories_drizzle_event_repository_drizzleeventrepository",
+      "target": "repositories_drizzle_event_repository_drizzleeventrepository_deletedirectevents",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L46",
+      "weight": 1.0,
+      "source": "repositories_drizzle_event_repository_drizzleeventrepository",
+      "target": "repositories_drizzle_event_repository_drizzleeventrepository_getdirectstats",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L66",
+      "weight": 1.0,
+      "source": "repositories_drizzle_event_repository_drizzleeventrepository",
+      "target": "repositories_drizzle_event_repository_drizzleeventrepository_deletebyskillkeys",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L83",
+      "weight": 1.0,
+      "source": "repositories_drizzle_event_repository_drizzleeventrepository",
+      "target": "repositories_drizzle_event_repository_drizzleeventrepository_listrecentskillactivations",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L125",
+      "weight": 1.0,
+      "source": "repositories_drizzle_event_repository_drizzleeventrepository",
+      "target": "repositories_drizzle_event_repository_drizzleeventrepository_listuserskillactivations",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L159",
+      "weight": 1.0,
+      "source": "repositories_drizzle_event_repository_drizzleeventrepository",
+      "target": "repositories_drizzle_event_repository_drizzleeventrepository_listsessionskillactivations",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/src/infrastructure/repositories/drizzle-event-repository.ts",
+      "source_location": "L198",
+      "weight": 1.0,
+      "source": "repositories_drizzle_event_repository_drizzleeventrepository",
+      "target": "repositories_drizzle_event_repository_drizzleeventrepository_listsessiontimeline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "frontend_src_lib_api_ts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "lib_api_api",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "frontend_src_types_api_ts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "types_api_cousagesession",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "types_api_cousagetimelineevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "frontend_src_components_co_usage_types_ts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "co_usage_types_combo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "co_usage_combodrawer_days",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "co_usage_combodrawer_months",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "co_usage_combodrawer_pad2",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "co_usage_combodrawer_fmtclock",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "co_usage_combodrawer_fmtclockshort",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L26",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "co_usage_combodrawer_fmtdate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "co_usage_combodrawer_fmtoffset",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L40",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "co_usage_combodrawer_fmtgap",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L50",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "co_usage_combodrawer_fmtago",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L58",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "co_usage_combodrawer_fmtnum",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L64",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "co_usage_combodrawer_sessiontimelineblockprops",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L70",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "co_usage_combodrawer_timelinerun",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L77",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "co_usage_combodrawer_positionedevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L85",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "co_usage_combodrawer_sessiontimelineblock",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L483",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "co_usage_combodrawer_sessionheadermeta",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L509",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "co_usage_combodrawer_drawerstat",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L547",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "co_usage_combodrawer_drawericonbtn",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L576",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "co_usage_combodrawer_sortmode",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L578",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "co_usage_combodrawer_sort_options",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L586",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "co_usage_combodrawer_combodrawerprops",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L594",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "co_usage_combodrawer_combodrawer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L915",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_combodrawer_tsx",
+      "target": "co_usage_combodrawer_kbd",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "frontend_src_components_co_usage_combodrawer_tsx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "co_usage_combodrawer_fmtclock",
+      "target": "co_usage_combodrawer_pad2",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "co_usage_combodrawer_fmtclockshort",
+      "target": "co_usage_combodrawer_pad2",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L37",
+      "weight": 1.0,
+      "source": "co_usage_combodrawer_fmtoffset",
+      "target": "co_usage_combodrawer_pad2",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L712",
+      "weight": 1.0,
+      "source": "co_usage_combodrawer_combodrawer",
+      "target": "co_usage_combodrawer_pad2",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L215",
+      "weight": 1.0,
+      "source": "co_usage_combodrawer_sessiontimelineblock",
+      "target": "co_usage_combodrawer_fmtclockshort",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L212",
+      "weight": 1.0,
+      "source": "co_usage_combodrawer_sessiontimelineblock",
+      "target": "co_usage_combodrawer_fmtdate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L218",
+      "weight": 1.0,
+      "source": "co_usage_combodrawer_sessiontimelineblock",
+      "target": "co_usage_combodrawer_fmtgap",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L501",
+      "weight": 1.0,
+      "source": "co_usage_combodrawer_sessionheadermeta",
+      "target": "co_usage_combodrawer_fmtago",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L794",
+      "weight": 1.0,
+      "source": "co_usage_combodrawer_combodrawer",
+      "target": "co_usage_combodrawer_fmtago",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/ComboDrawer.tsx",
+      "source_location": "L789",
+      "weight": 1.0,
+      "source": "co_usage_combodrawer_combodrawer",
+      "target": "co_usage_combodrawer_fmtnum",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "co_usage_combodrawer_combodrawer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/types.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_types_ts",
+      "target": "frontend_src_types_api_ts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/types.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_types_ts",
+      "target": "types_api_cousagesession",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/co-usage/types.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "frontend_src_components_co_usage_types_ts",
+      "target": "co_usage_types_combo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "frontend_src_components_co_usage_types_ts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "co_usage_types_combo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "frontend_src_types_api_ts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "types_api_auditfilters",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "types_api_auditresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "types_api_cohortsresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "types_api_cousageresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "types_api_cousagetimelineresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "types_api_dashboardperiod",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "types_api_integration",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "types_api_integrationpreviewevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "types_api_liveeventsresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "types_api_liveskillactivatedevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "types_api_marketplace",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "types_api_marketplacedetailresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "types_api_marketplacesource",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "types_api_marketplacestatus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "types_api_monthlytrendsresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "types_api_periodfilter",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "types_api_plugin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "types_api_pluginskillsresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "types_api_skilldetail",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "types_api_skillstatus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "types_api_skillstableresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "types_api_token",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "types_api_usageresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "types_api_user",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L28",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "lib_api_periodfilterparams",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L39",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "lib_api_buildauditquery",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L53",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "lib_api_apifetch",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/lib/api.ts",
+      "source_location": "L73",
+      "weight": 1.0,
+      "source": "frontend_src_lib_api_ts",
+      "target": "lib_api_api",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "frontend_src_lib_api_ts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "lib_api_api",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "frontend_src_types_api_ts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "types_api_cousageresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "types_api_cousagesession",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "types_api_dashboardperiod",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "pages_cousagepage_period_options",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "pages_cousagepage_size_options",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L28",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "pages_cousagepage_sizefilter",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L30",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "pages_cousagepage_sort_options",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L36",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "pages_cousagepage_sortkey",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L38",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "pages_cousagepage_formatnum",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L42",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "pages_cousagepage_ageminutes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L46",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "pages_cousagepage_formatago",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L55",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "pages_cousagepage_aggregatecombos",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L99",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "pages_cousagepage_densitybar",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L147",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "pages_cousagepage_comboknot",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L205",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "pages_cousagepage_stattile",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L236",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "pages_cousagepage_ignorechip",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L262",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "pages_cousagepage_suggestchip",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L293",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "pages_cousagepage_pickeroption",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L298",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "pages_cousagepage_skillpicker",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L407",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "pages_cousagepage_noisefilterrow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L559",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "pages_cousagepage_comborow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L678",
+      "weight": 1.0,
+      "source": "frontend_src_pages_cousagepage_tsx",
+      "target": "pages_cousagepage_cousagepage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L636",
+      "weight": 1.0,
+      "source": "pages_cousagepage_comborow",
+      "target": "pages_cousagepage_formatnum",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L853",
+      "weight": 1.0,
+      "source": "pages_cousagepage_cousagepage",
+      "target": "pages_cousagepage_formatnum",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L112",
+      "weight": 1.0,
+      "source": "pages_cousagepage_densitybar",
+      "target": "pages_cousagepage_ageminutes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L670",
+      "weight": 1.0,
+      "source": "pages_cousagepage_comborow",
+      "target": "pages_cousagepage_ageminutes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/CoUsagePage.tsx",
+      "source_location": "L670",
+      "weight": 1.0,
+      "source": "pages_cousagepage_comborow",
+      "target": "pages_cousagepage_formatago",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_user",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_token",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_skillusagestat",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_dailytrend",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L28",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_topuser",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L33",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_triggerbreakdown",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L38",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_usagestats",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L47",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_usageresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L55",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_dashboardperiod",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L57",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_periodfilter",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L61",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_monthlypoint",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L66",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_monthlytrendsresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L72",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_marketplacestatus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L74",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_pluginstatus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L76",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_skillstatus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L78",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_skill_statuses",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L88",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_skillsource",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L90",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_skill_sources",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L97",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_skill_source_labels",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L104",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_isbundledsource",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L108",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_isknownskillsource",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L112",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_plugin_statuses",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L120",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_marketplace_statuses",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L127",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_plugin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L148",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_pluginversionrow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L156",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_pluginskillrow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L161",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_pluginuserrow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L166",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_pluginweeklyloadersbucket",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L172",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_pluginweeklyloaders",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L177",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_pluginskillsresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L185",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_marketplaceprovider",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L187",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_marketplaceref",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L192",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_marketplace",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L207",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_marketplacepluginrow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L215",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_marketplaceskillrow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L221",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_marketplacedetailresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L226",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_skilltablerow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L243",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_skillstableresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L247",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_skilldetailtopuser",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L252",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_skilldetailpluginref",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L262",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_skilldetail",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L279",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_auditevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L288",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_auditresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L295",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_auditfilters",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L304",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_auditdiffmetadata",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L310",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_marketplacesourcekind",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L312",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_marketplacesource",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L328",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_integration",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L346",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_integrationpreviewevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L353",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_liveskillactivatedevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L364",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_liveeventsresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L368",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_cohortmember",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L375",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_cohort",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L383",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_cohortsresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L390",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_cousagesession",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L397",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_cousageresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L405",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_cousagetimelineevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/types/api.ts",
+      "source_location": "L411",
+      "weight": 1.0,
+      "source": "frontend_src_types_api_ts",
+      "target": "types_api_cousagetimelineresponse",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "built_at_commit": "5e120786b4c3efff6a1bf300a291fffece198950"
+}

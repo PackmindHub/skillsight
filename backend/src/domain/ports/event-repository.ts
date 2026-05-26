@@ -26,6 +26,12 @@ export interface SessionSkillActivation {
 	lastActivatedAt: Date;
 }
 
+export interface SessionTimelineEvent {
+	skillName: string;
+	pluginName: string | null;
+	timestamp: Date;
+}
+
 export type CohortsWindow = "all" | number;
 
 export interface DirectEventStats {
@@ -41,5 +47,6 @@ export interface IEventRepository {
 	listRecentSkillActivations(limit: number): Promise<RecentSkillActivatedEvent[]>;
 	listUserSkillActivations(window: CohortsWindow): Promise<UserSkillActivation[]>;
 	listSessionSkillActivations(window: CohortsWindow): Promise<SessionSkillActivation[]>;
+	listSessionTimeline(sessionId: string): Promise<SessionTimelineEvent[]>;
 	getDirectStats(): Promise<DirectEventStats>;
 }
