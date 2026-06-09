@@ -35,5 +35,6 @@ export interface IPluginRepository {
 	getWeeklyLoadersByVersion(
 		pluginName: string,
 		marketplaceName: string | null,
+		pluginIdHash?: string | null,
 	): Promise<PluginWeeklyLoaders>;
 }

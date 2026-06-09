@@ -13,6 +13,11 @@ export interface Plugin {
 }
 
 export interface PluginWithStats extends Plugin {
+	// Set only for redacted "third-party" catalog rows, which are synthesized at
+	// query time (one per distinct plugin_id_hash) rather than stored in the
+	// `plugins` table. Null for every real cataloged plugin. Callers use it as the
+	// row identity for third-party entries since they all share pluginName='third-party'.
+	pluginIdHash: string | null;
 	marketplaceStatus: string | null;
 	installationCount: number;
 	uniqueUserCount: number;

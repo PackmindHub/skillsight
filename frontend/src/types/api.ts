@@ -126,6 +126,10 @@ export const MARKETPLACE_STATUSES: readonly MarketplaceStatus[] = [
 
 export interface Plugin {
 	pluginName: string;
+	// Set only for redacted third-party rows (synthesized per plugin_id_hash on the
+	// backend). All such rows share pluginName='third-party', so this is their real
+	// row identity. Null for every cataloged plugin.
+	pluginIdHash?: string | null;
 	marketplaceName: string | null;
 	marketplaceStatus: MarketplaceStatus | null;
 	pluginVersion: string | null;

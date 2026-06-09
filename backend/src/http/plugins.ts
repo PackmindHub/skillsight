@@ -32,7 +32,12 @@ export function createPluginsRoute(
 			rawMarketplace === undefined || rawMarketplace === ""
 				? null
 				: decodeURIComponent(rawMarketplace);
-		const data = await listPluginSkills(deps, pluginName, marketplaceName);
+		// `idHash` identifies a redacted third-party row (pluginName is always the
+		// shared 'third-party'); absent for real cataloged plugins.
+		const rawIdHash = c.req.query("idHash");
+		const pluginIdHash =
+			rawIdHash === undefined || rawIdHash === "" ? null : decodeURIComponent(rawIdHash);
+		const data = await listPluginSkills(deps, pluginName, marketplaceName, pluginIdHash);
 		return c.json(data);
 	});
 

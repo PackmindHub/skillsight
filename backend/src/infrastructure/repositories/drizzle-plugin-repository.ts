@@ -37,9 +37,17 @@ export class DrizzlePluginRepository implements IPluginRepository {
 		// "inline" marketplace bucket join the NULL-marketplace plugin row.
 		// Redacted rows (`plugin.name = 'third-party'`) are excluded because they
 		// can't be attributed to a specific catalog entry.
+		// The catalog branch reads stored `plugins` rows. The third-party branch is
+		// synthesized at query time from `plugin_loaded` events — one row per distinct
+		// plugin_id_hash — because Claude Code redacts every anonymous plugin to the
+		// shared name 'third-party' (real identity is the hash), so they were never
+		// written to the `plugins` table. Only load stats are meaningful for them;
+		// every other count is 0. UNION ALL then a single ORDER BY over the combined set.
 		const rows = await this.db.execute(sql`
+			SELECT * FROM (
 			SELECT
 			  p.plugin_name             AS "pluginName",
+			  NULL::text                AS "pluginIdHash",
 			  p.marketplace_name        AS "marketplaceName",
 			  p.plugin_version          AS "pluginVersion",
 			  p.install_trigger         AS "installTrigger",
@@ -115,7 +123,44 @@ export class DrizzlePluginRepository implements IPluginRepository {
 					? sql``
 					: sql`WHERE p.status <> 'ignored' AND COALESCE(m.status, '') <> 'ignored'`
 			}
-			ORDER BY s.install_count DESC NULLS LAST, p.plugin_name
+
+			UNION ALL
+
+			SELECT
+			  'third-party'      AS "pluginName",
+			  tp.plugin_id_hash  AS "pluginIdHash",
+			  NULL::text         AS "marketplaceName",
+			  NULL::text         AS "pluginVersion",
+			  NULL::text         AS "installTrigger",
+			  NULL::boolean      AS "marketplaceIsOfficial",
+			  NULL::text         AS "source",
+			  'to_review'        AS "status",
+			  NULL::text         AS "marketplaceStatus",
+			  tp.first_seen_at   AS "firstSeenAt",
+			  tp.last_seen_at    AS "lastSeenAt",
+			  0                  AS "installationCount",
+			  0                  AS "uniqueUserCount",
+			  0                  AS "skillCount",
+			  0                  AS "skillActivationCount",
+			  NULL::timestamp    AS "lastSkillActivationAt",
+			  tp.load_count      AS "loadCount",
+			  tp.unique_loaders  AS "uniqueLoaderCount",
+			  ARRAY[]::text[]    AS "versionStrings"
+			FROM (
+			  SELECT
+			    attributes->>'plugin_id_hash'   AS plugin_id_hash,
+			    COUNT(*)::int                   AS load_count,
+			    COUNT(DISTINCT user_email)::int AS unique_loaders,
+			    MIN(timestamp)                  AS first_seen_at,
+			    MAX(timestamp)                  AS last_seen_at
+			  FROM events
+			  WHERE event_name = ${EVENT_NAMES.PLUGIN_LOADED}
+			    AND attributes->>'plugin.name' = 'third-party'
+			    AND attributes->>'plugin_id_hash' IS NOT NULL
+			  GROUP BY 1
+			) tp
+			) combined
+			ORDER BY "installationCount" DESC, "loadCount" DESC, "pluginName", "pluginIdHash"
 		`);
 
 		return (rows as unknown as Array<PluginWithStats & { versionStrings: string[] }>).map(
@@ -380,11 +425,21 @@ export class DrizzlePluginRepository implements IPluginRepository {
 	async getWeeklyLoadersByVersion(
 		pluginName: string,
 		marketplaceName: string | null,
+		pluginIdHash?: string | null,
 	): Promise<PluginWeeklyLoaders> {
-		// Marketplace matching mirrors listWithStats: events tagged with the
-		// synthetic "inline" marketplace bucket are normalized to empty so they
-		// join the null-marketplace plugin row.
+		// Two identity modes. For redacted third-party rows the catalog identity is
+		// plugin_id_hash (name is always the shared 'third-party'), so match on the
+		// hash; version is redacted there, so the per-version series stays empty and
+		// only the weekly totals line renders. Otherwise match on (name, marketplace),
+		// mirroring listWithStats — events tagged with the synthetic "inline"
+		// marketplace bucket are normalized to empty so they join the null row.
 		const marketplaceKey = marketplaceName ?? "";
+		const identityFilter = pluginIdHash
+			? sql`AND attributes->>'plugin.name' = 'third-party'
+			    AND attributes->>'plugin_id_hash' = ${pluginIdHash}`
+			: sql`AND attributes->>'plugin.name' = ${pluginName}
+			    AND attributes->>'plugin.name' <> 'third-party'
+			    AND COALESCE(NULLIF(attributes->>'marketplace.name', 'inline'), '') = ${marketplaceKey}`;
 		const rows = (await this.db.execute(sql`
 			WITH spine AS (
 			  SELECT generate_series(
@@ -400,9 +455,7 @@ export class DrizzlePluginRepository implements IPluginRepository {
 			    user_email
 			  FROM events
 			  WHERE event_name = ${EVENT_NAMES.PLUGIN_LOADED}
-			    AND attributes->>'plugin.name' = ${pluginName}
-			    AND attributes->>'plugin.name' <> 'third-party'
-			    AND COALESCE(NULLIF(attributes->>'marketplace.name', 'inline'), '') = ${marketplaceKey}
+			    ${identityFilter}
 			    AND user_email IS NOT NULL
 			    AND timestamp >= NOW() - INTERVAL '60 days'
 			),

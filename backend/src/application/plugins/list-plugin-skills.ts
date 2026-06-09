@@ -22,12 +22,13 @@ export async function listPluginSkills(
 	deps: { plugins: IPluginRepository; pluginVersions: IPluginVersionRepository },
 	pluginName: string,
 	marketplaceName: string | null,
+	pluginIdHash: string | null = null,
 ): Promise<PluginDrawerData> {
 	const [skills, topUsers, versions, weeklyLoaders] = await Promise.all([
 		deps.plugins.listSkillsWithActivations(pluginName),
 		deps.plugins.listTopUsers(pluginName, TOP_USERS_LIMIT),
 		deps.pluginVersions.listForPlugin(pluginName, marketplaceName),
-		deps.plugins.getWeeklyLoadersByVersion(pluginName, marketplaceName),
+		deps.plugins.getWeeklyLoadersByVersion(pluginName, marketplaceName, pluginIdHash),
 	]);
 	return {
 		skills,

@@ -13,12 +13,14 @@ import { useEffect, useState } from "react";
 interface PluginSkillsDrawerProps {
 	pluginName: string | null;
 	marketplaceName: string | null;
+	pluginIdHash?: string | null;
 	onClose: () => void;
 }
 
 export function PluginSkillsDrawer({
 	pluginName,
 	marketplaceName,
+	pluginIdHash = null,
 	onClose,
 }: PluginSkillsDrawerProps) {
 	const [skills, setSkills] = useState<PluginSkillRow[] | null>(null);
@@ -43,7 +45,7 @@ export function PluginSkillsDrawer({
 		setLoading(true);
 		setError(null);
 		api.plugins
-			.skills(pluginName, marketplaceName)
+			.skills(pluginName, marketplaceName, pluginIdHash)
 			.then((res) => {
 				if (cancelled) return;
 				setSkills(res.skills);
@@ -61,7 +63,7 @@ export function PluginSkillsDrawer({
 		return () => {
 			cancelled = true;
 		};
-	}, [pluginName, marketplaceName]);
+	}, [pluginName, marketplaceName, pluginIdHash]);
 
 	const totalActivations = skills?.reduce((sum, s) => sum + s.activationCount, 0) ?? 0;
 	const unusedCount = skills?.filter((s) => s.activationCount === 0).length ?? 0;
@@ -70,7 +72,7 @@ export function PluginSkillsDrawer({
 		<Drawer
 			open={pluginName !== null}
 			onClose={onClose}
-			title={pluginName ?? "Plugin"}
+			title={pluginIdHash ? `${pluginName} · ${pluginIdHash.slice(0, 8)}` : (pluginName ?? "Plugin")}
 			widthClass="w-[520px]"
 		>
 			{loading && <p className="text-sm text-text-3">Loading…</p>}

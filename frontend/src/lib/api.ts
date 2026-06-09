@@ -186,11 +186,15 @@ export const api = {
 			const qs = opts.includeIgnored ? "?includeIgnored=1" : "";
 			return apiFetch<{ plugins: Plugin[] }>(`/api/plugins${qs}`);
 		},
-		skills: (pluginName: string, marketplaceName: string | null = null) => {
-			const qs =
-				marketplaceName == null
-					? ""
-					: `?marketplace=${encodeURIComponent(marketplaceName)}`;
+		skills: (
+			pluginName: string,
+			marketplaceName: string | null = null,
+			pluginIdHash: string | null = null,
+		) => {
+			const params = new URLSearchParams();
+			if (marketplaceName != null) params.set("marketplace", marketplaceName);
+			if (pluginIdHash != null) params.set("idHash", pluginIdHash);
+			const qs = params.toString() ? `?${params.toString()}` : "";
 			return apiFetch<PluginSkillsResponse>(
 				`/api/plugins/${encodeURIComponent(pluginName)}/skills${qs}`,
 			);

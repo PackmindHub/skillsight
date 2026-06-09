@@ -169,6 +169,7 @@ export default function PluginsPage() {
 	const [selectedPlugin, setSelectedPlugin] = useState<{
 		pluginName: string;
 		marketplaceName: string | null;
+		pluginIdHash: string | null;
 	} | null>(null);
 	const [selected, setSelected] = useState<Set<string>>(new Set());
 	const selectAllRef = useRef<HTMLInputElement>(null);
@@ -387,7 +388,13 @@ export default function PluginsPage() {
 		return arr;
 	}, [filteredItems, sortKey, sortDir]);
 
-	const filteredNames = useMemo(() => sortedItems.map((p) => p.pluginName), [sortedItems]);
+	// Third-party rows (pluginIdHash set) aren't in the `plugins` table — bulk
+	// status PATCH 404s and they own no skills for a cohort — so they're excluded
+	// from selection mechanics entirely (their checkbox is disabled below).
+	const filteredNames = useMemo(
+		() => sortedItems.filter((p) => !p.pluginIdHash).map((p) => p.pluginName),
+		[sortedItems],
+	);
 	const visibleSelectedCount = useMemo(
 		() => filteredNames.reduce((n, name) => n + (selected.has(name) ? 1 : 0), 0),
 		[filteredNames, selected],
@@ -810,17 +817,21 @@ export default function PluginsPage() {
 
 							{sortedItems.map((plugin) => {
 								const status = (plugin.status ?? "to_review") as PluginStatus;
-								const isHighlighted = highlightName === plugin.pluginName;
-								const isSelected = selected.has(plugin.pluginName);
+								const isThirdParty = !!plugin.pluginIdHash;
+								// Third-party rows all share pluginName='third-party'; identity is the hash.
+								const rowKey = plugin.pluginIdHash ?? plugin.pluginName;
+								const isHighlighted = highlightName === plugin.pluginName && !isThirdParty;
+								const isSelected = !isThirdParty && selected.has(plugin.pluginName);
 								const openDrawer = () =>
 									setSelectedPlugin({
 										pluginName: plugin.pluginName,
 										marketplaceName: plugin.marketplaceName,
+										pluginIdHash: plugin.pluginIdHash ?? null,
 									});
 								const activations = plugin.skillActivationCount;
 								return (
 									<div
-										key={plugin.pluginName}
+										key={rowKey}
 										ref={isHighlighted ? highlightedRowRef : undefined}
 										className={cn(
 											"grid items-center gap-3 border-t border-edge-dim px-4 py-3.5 transition-colors first:border-t-0 hover:bg-accent-bright/[0.03]",
@@ -835,21 +846,33 @@ export default function PluginsPage() {
 												type="checkbox"
 												aria-label={`Select plugin ${plugin.pluginName}`}
 												checked={isSelected}
+												disabled={isThirdParty}
 												onChange={() => toggleRowSelect(plugin.pluginName)}
-												className="h-4 w-4 cursor-pointer accent-accent-bright"
+												title={
+													isThirdParty
+														? "Redacted third-party plugin — no bulk actions available"
+														: undefined
+												}
+												className="h-4 w-4 cursor-pointer accent-accent-bright disabled:cursor-not-allowed disabled:opacity-40"
 											/>
 										</div>
 										<div className="flex min-w-0 items-center gap-3">
-											<PluginLogo name={plugin.pluginName} />
+											<PluginLogo name={rowKey} />
 											<div className="min-w-0">
 												<div className="flex items-baseline gap-2 min-w-0">
 													<button
 														type="button"
 														onClick={openDrawer}
 														className="truncate font-mono text-sm text-text-1 hover:underline"
-														title={plugin.pluginName}
+														title={
+															isThirdParty
+																? `Redacted third-party plugin · ${plugin.pluginIdHash}`
+																: plugin.pluginName
+														}
 													>
-														{plugin.pluginName}
+														{isThirdParty
+															? `third-party · ${plugin.pluginIdHash?.slice(0, 8)}`
+															: plugin.pluginName}
 													</button>
 													{plugin.latestVersion && (
 														<span
@@ -938,6 +961,7 @@ export default function PluginsPage() {
 												options={PLUGIN_STATUS_CHIP_OPTIONS}
 												onChange={(v) => handleStatusChange(plugin.pluginName, v)}
 												ariaLabel={`Status for ${plugin.pluginName}`}
+												disabled={isThirdParty}
 											/>
 										</div>
 									</div>
@@ -951,6 +975,7 @@ export default function PluginsPage() {
 			<PluginSkillsDrawer
 				pluginName={selectedPlugin?.pluginName ?? null}
 				marketplaceName={selectedPlugin?.marketplaceName ?? null}
+				pluginIdHash={selectedPlugin?.pluginIdHash ?? null}
 				onClose={() => setSelectedPlugin(null)}
 			/>
 		</div>
