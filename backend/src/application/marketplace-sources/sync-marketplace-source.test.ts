@@ -452,9 +452,24 @@ describe("syncMarketplaceSource", () => {
 
 			expect(upsertManyCalls).toHaveLength(1);
 			expect(upsertManyCalls[0]).toEqual([
-				{ pluginName: "plugin-a", skillName: "plugin-a:lint" },
-				{ pluginName: "plugin-a", skillName: "plugin-a:format" },
-				{ pluginName: "plugin-b", skillName: "plugin-b:lint" },
+				{
+					pluginName: "plugin-a",
+					skillName: "plugin-a:lint",
+					marketplaceName: "acme-marketplace",
+					skillSource: "plugin",
+				},
+				{
+					pluginName: "plugin-a",
+					skillName: "plugin-a:format",
+					marketplaceName: "acme-marketplace",
+					skillSource: "plugin",
+				},
+				{
+					pluginName: "plugin-b",
+					skillName: "plugin-b:lint",
+					marketplaceName: "acme-marketplace",
+					skillSource: "plugin",
+				},
 			]);
 		});
 
@@ -1003,7 +1018,11 @@ describe("syncMarketplaceSource — Packmind kind", () => {
 		// relinkOrphans called with the declared pairs.
 		expect(skills.relinkCalls).toHaveLength(1);
 		expect(skills.relinkCalls[0]).toEqual([
-			{ skillName: "hexagonal-architecture", pluginName: "@backend/generic" },
+			{
+				skillName: "hexagonal-architecture",
+				pluginName: "@backend/generic",
+				marketplaceName: "Packmind",
+			},
 		]);
 
 		// Mapping table populated with the (skillName -> plugin, marketplace, sourceId) row.

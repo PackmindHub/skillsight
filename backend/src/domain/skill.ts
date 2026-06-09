@@ -30,14 +30,33 @@ export function isBundledSource(skillSource: string | null): boolean {
 export interface Skill {
 	skillName: string;
 	pluginName: string;
+	marketplaceName: string;
+	skillSource: string;
 	status: SkillStatus;
 	firstSeenAt: Date;
 	lastSeenAt: Date;
 }
 
+// Full identity of a skill status/ownership row. `marketplaceName` and
+// `skillSource` use '' as the no-marketplace / unknown-source bucket (matching the
+// DB defaults), so callers can always pass all four fields. skill_source is the
+// active discriminator that keeps a plugin-less skill seen from user settings vs
+// project settings as independent, independently-statusable rows.
+export interface SkillKey {
+	skillName: string;
+	pluginName: string;
+	marketplaceName: string;
+	skillSource: string;
+}
+
 export interface SkillTableRow {
 	skillName: string;
 	pluginName: string | null;
+	// The identity's marketplace bucket ('' for orphan/plugin-less rows). Together
+	// with skillName/pluginName/skillSource this is the full status key the client
+	// echoes back on a status/delete action — distinct from `marketplaceNames`
+	// below, which is the cosmetic set of marketplaces a skill was *seen* in.
+	marketplaceName: string;
 	skillSource: string | null;
 	total: number;
 	uniqueUsers: number;

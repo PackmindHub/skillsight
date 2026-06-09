@@ -64,13 +64,18 @@ export class DrizzleEventRepository implements IEventRepository {
 	}
 
 	async deleteBySkillKeys(
-		entries: Array<{ skillName: string; pluginName: string }>,
+		entries: Array<{ skillName: string; pluginName: string; skillSource: string }>,
 	): Promise<number> {
 		if (entries.length === 0) return 0;
+		// Match on skill.name + plugin.name + skill.source so deleting one identity
+		// (e.g. the user-settings copy of a skill) doesn't take out another's events.
+		// marketplace is intentionally omitted: plugin.name already implies it, and
+		// plugin-less identities always carry marketplace ''.
 		const conditions = entries.map((e) =>
 			and(
 				sql`(${events.attributes}->>'skill.name') = ${e.skillName}`,
 				sql`COALESCE(${events.attributes}->>'plugin.name', '') = ${e.pluginName}`,
+				sql`COALESCE(${events.attributes}->>'skill.source', '') = ${e.skillSource}`,
 			),
 		);
 		const deleted = await this.db

@@ -18,6 +18,7 @@ import type {
 	Plugin,
 	PluginSkillsResponse,
 	SkillDetail,
+	SkillKeyPayload,
 	SkillStatus,
 	SkillsTableResponse,
 	Token,
@@ -98,12 +99,12 @@ export const api = {
 			return apiFetch<SkillDetail>(`/api/skills/usage/detail?${params.toString()}`);
 		},
 		monthlyTrends: () => apiFetch<MonthlyTrendsResponse>("/api/skills/usage/monthly"),
-		deleteMany: (entries: Array<{ skillName: string; pluginName: string }>) =>
+		deleteMany: (entries: SkillKeyPayload[]) =>
 			apiFetch<{ skillsDeleted: number; eventsDeleted: number }>("/api/skills/delete", {
 				method: "POST",
 				body: JSON.stringify({ skills: entries }),
 			}),
-		updateStatus: (body: { skillName: string; pluginName: string; status: SkillStatus }) =>
+		updateStatus: (body: SkillKeyPayload & { status: SkillStatus }) =>
 			apiFetch<{
 				skillName: string;
 				pluginName: string;
@@ -112,10 +113,7 @@ export const api = {
 				method: "PATCH",
 				body: JSON.stringify(body),
 			}),
-		updateStatusBulk: (body: {
-			skills: Array<{ skillName: string; pluginName: string }>;
-			status: SkillStatus;
-		}) =>
+		updateStatusBulk: (body: { skills: SkillKeyPayload[]; status: SkillStatus }) =>
 			apiFetch<{ updated: number; skippedInherited: number; notFound: number }>(
 				"/api/skills/status/bulk",
 				{ method: "PATCH", body: JSON.stringify(body) },

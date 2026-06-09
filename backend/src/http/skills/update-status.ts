@@ -9,6 +9,8 @@ import type { AppVariables } from "@/types";
 const updateSchema = z.object({
 	skillName: z.string().min(1).max(255),
 	pluginName: z.string().max(255),
+	marketplaceName: z.string().max(255).optional().default(""),
+	skillSource: z.string().max(32).optional().default(""),
 	status: z.enum(["to_review", "approved", "removed", "denied", "ignored"]),
 });
 

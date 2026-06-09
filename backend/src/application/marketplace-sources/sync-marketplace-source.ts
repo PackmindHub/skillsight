@@ -145,6 +145,9 @@ async function syncGitMarketplaceSource(
 				(plugin.skills ?? []).map((skillName) => ({
 					pluginName: plugin.name,
 					skillName: `${plugin.name}:${skillName}`,
+					// Plugin-owned: marketplace = this catalog's name, source = 'plugin'.
+					marketplaceName: data.name,
+					skillSource: "plugin",
 				})),
 			);
 			if (allSkills.length > 0) {

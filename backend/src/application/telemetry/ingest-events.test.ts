@@ -207,8 +207,8 @@ describe("ingestEvents — skills upsert", () => {
 
 		expect(upsertManyCalls).toHaveLength(1);
 		expect(upsertManyCalls[0]).toEqual([
-			{ skillName: "lint", pluginName: "plugin-a" },
-			{ skillName: "lint", pluginName: "plugin-b" },
+			{ skillName: "lint", pluginName: "plugin-a", marketplaceName: null, skillSource: "plugin" },
+			{ skillName: "lint", pluginName: "plugin-b", marketplaceName: null, skillSource: "plugin" },
 		]);
 	});
 
@@ -236,7 +236,9 @@ describe("ingestEvents — skills upsert", () => {
 		);
 
 		expect(upsertManyCalls).toHaveLength(1);
-		expect(upsertManyCalls[0]).toEqual([{ skillName: "format", pluginName: null }]);
+		expect(upsertManyCalls[0]).toEqual([
+			{ skillName: "format", pluginName: null, marketplaceName: null, skillSource: "" },
+		]);
 	});
 
 	it("retro-links via the mapping cache when plugin.name is absent but a mapping exists", async () => {
@@ -271,7 +273,12 @@ describe("ingestEvents — skills upsert", () => {
 
 		// The skill is upserted with the cache-resolved plugin name instead of null.
 		expect(upsertManyCalls[0]).toEqual([
-			{ skillName: "hexagonal-architecture", pluginName: "@backend/generic" },
+			{
+				skillName: "hexagonal-architecture",
+				pluginName: "@backend/generic",
+				marketplaceName: "Packmind",
+				skillSource: "plugin",
+			},
 		]);
 		// The plugin row is created via the auto-creation path with the resolved marketplace.
 		expect(upsertIfAbsentCalls).toEqual([
@@ -315,7 +322,12 @@ describe("ingestEvents — skills upsert", () => {
 
 		// The explicit plugin.name wins; the cache mapping is ignored.
 		expect(upsertManyCalls[0]).toEqual([
-			{ skillName: "lint", pluginName: "@frontend/quality" },
+			{
+				skillName: "lint",
+				pluginName: "@frontend/quality",
+				marketplaceName: null,
+				skillSource: "plugin",
+			},
 		]);
 	});
 
@@ -341,7 +353,9 @@ describe("ingestEvents — skills upsert", () => {
 		);
 
 		expect(upsertManyCalls).toHaveLength(1);
-		expect(upsertManyCalls[0]).toEqual([{ skillName: "y", pluginName: null }]);
+		expect(upsertManyCalls[0]).toEqual([
+			{ skillName: "y", pluginName: null, marketplaceName: null, skillSource: "" },
+		]);
 	});
 
 	it("does not call skills.upsertMany when no skill_activated events are received", async () => {

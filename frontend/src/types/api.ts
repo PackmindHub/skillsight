@@ -226,6 +226,10 @@ export interface MarketplaceDetailResponse {
 export interface SkillTableRow {
 	skillName: string;
 	pluginName: string | null;
+	// Identity marketplace bucket ('' for orphan/plugin-less rows). Part of the
+	// status key echoed back on status/delete actions — distinct from the cosmetic
+	// `marketplaces` list below.
+	marketplaceName: string;
 	skillSource: string | null;
 	total: number;
 	uniqueUsers: number;
@@ -242,6 +246,15 @@ export interface SkillTableRow {
 
 export interface SkillsTableResponse {
 	rows: SkillTableRow[];
+}
+
+// Full status/delete identity of a skill row. marketplaceName/skillSource use ''
+// (never null) so the four fields always round-trip to the backend's SkillKey.
+export interface SkillKeyPayload {
+	skillName: string;
+	pluginName: string;
+	marketplaceName: string;
+	skillSource: string;
 }
 
 export interface SkillDetailTopUser {

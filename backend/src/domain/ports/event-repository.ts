@@ -43,7 +43,9 @@ export interface IEventRepository {
 	insertMany(events: NewEvent[]): Promise<void>;
 	deleteByIntegrationId(integrationId: string): Promise<void>;
 	deleteDirectEvents(): Promise<void>;
-	deleteBySkillKeys(entries: Array<{ skillName: string; pluginName: string }>): Promise<number>;
+	deleteBySkillKeys(
+		entries: Array<{ skillName: string; pluginName: string; skillSource: string }>,
+	): Promise<number>;
 	listRecentSkillActivations(limit: number): Promise<RecentSkillActivatedEvent[]>;
 	listUserSkillActivations(window: CohortsWindow): Promise<UserSkillActivation[]>;
 	listSessionSkillActivations(window: CohortsWindow): Promise<SessionSkillActivation[]>;

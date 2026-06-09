@@ -171,17 +171,31 @@ export const pluginSkills = pgTable(
 	],
 );
 
+// Status/ownership table for skills. One row per distinct skill identity, where
+// identity is the full tuple (skill_name, plugin_name, marketplace_name,
+// skill_source). The same plugin-less skill seen from user settings vs project
+// settings are independent rows with independent status — '' is the
+// no-plugin/no-marketplace/unknown-source bucket so the PK stays non-null without
+// NULLS NOT DISTINCT (same convention as plugin_versions.marketplace_name).
+// Analytics (counts, marketplaceNames) are derived from the event stream at query
+// time — only status, first/last seen live here.
 export const skills = pgTable(
 	"skills",
 	{
 		skillName: varchar("skill_name", { length: 255 }).notNull(),
 		pluginName: varchar("plugin_name", { length: 255 }).notNull().default(""),
+		marketplaceName: varchar("marketplace_name", { length: 255 }).notNull().default(""),
+		// Wire value of the `skill.source` OTLP attribute
+		// (bundled | userSettings | projectSettings | plugin); '' when absent.
+		skillSource: varchar("skill_source", { length: 32 }).notNull().default(""),
 		status: varchar("status", { length: 20 }).notNull().default("to_review"),
 		firstSeenAt: timestamp("first_seen_at").defaultNow().notNull(),
 		lastSeenAt: timestamp("last_seen_at").defaultNow().notNull(),
 	},
 	(t) => [
-		primaryKey({ columns: [t.skillName, t.pluginName] }),
+		primaryKey({
+			columns: [t.skillName, t.pluginName, t.marketplaceName, t.skillSource],
+		}),
 		index("skills_status_idx").on(t.status),
 		index("skills_plugin_name_idx").on(t.pluginName),
 	],
@@ -213,14 +227,23 @@ export const pluginVersions = pgTable(
 
 // Drives ingest-time retro-association of skills to plugins for sources whose
 // telemetry events don't natively carry plugin.name (e.g. Packmind). Populated
-// at marketplace-source sync time. Single-column PK on skill_name — last-sync
-// wins if two sources both claim the same skill.
-export const externalSkillPluginMappings = pgTable("external_skill_plugin_mappings", {
-	skillName: varchar("skill_name", { length: 255 }).primaryKey(),
-	pluginName: varchar("plugin_name", { length: 255 }).notNull(),
-	marketplaceName: varchar("marketplace_name", { length: 255 }).notNull(),
-	sourceId: uuid("source_id")
-		.notNull()
-		.references(() => marketplaceSources.id, { onDelete: "cascade" }),
-	syncedAt: timestamp("synced_at").defaultNow().notNull(),
-});
+// at marketplace-source sync time. Composite PK (skill_name, plugin_name,
+// marketplace_name) so the same skill can legitimately belong to several plugins
+// (a single-column skill_name PK trips "ON CONFLICT DO UPDATE command cannot
+// affect row a second time" the moment one sync batch carries a skill twice).
+// The ingest-time mapping cache is keyed on skill_name alone and stays
+// single-winner: when a skill maps to multiple plugins, the cache resolves to one
+// (last loaded wins) since plugin-less telemetry can't disambiguate.
+export const externalSkillPluginMappings = pgTable(
+	"external_skill_plugin_mappings",
+	{
+		skillName: varchar("skill_name", { length: 255 }).notNull(),
+		pluginName: varchar("plugin_name", { length: 255 }).notNull(),
+		marketplaceName: varchar("marketplace_name", { length: 255 }).notNull(),
+		sourceId: uuid("source_id")
+			.notNull()
+			.references(() => marketplaceSources.id, { onDelete: "cascade" }),
+		syncedAt: timestamp("synced_at").defaultNow().notNull(),
+	},
+	(t) => [primaryKey({ columns: [t.skillName, t.pluginName, t.marketplaceName] })],
+);

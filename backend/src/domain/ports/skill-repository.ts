@@ -1,4 +1,4 @@
-import type { Skill, SkillDetailRow, SkillStatus, SkillTableRow } from "@/domain/skill";
+import type { Skill, SkillDetailRow, SkillKey, SkillStatus, SkillTableRow } from "@/domain/skill";
 
 export type DaysWindow = number | "all";
 
@@ -31,23 +31,24 @@ export interface ISkillRepository {
 	upsertMany(entries: SkillUpsertEntry[]): Promise<void>;
 	propagateStatusFromPlugins(affectedPluginNames: string[], newStatus: SkillStatus): Promise<void>;
 	deleteByPlugins(pluginNames: string[]): Promise<void>;
-	deleteByKeys(entries: Array<{ skillName: string; pluginName: string }>): Promise<number>;
-	findByKey(key: { skillName: string; pluginName: string }): Promise<Skill | null>;
-	updateStatus(
-		key: { skillName: string; pluginName: string },
-		status: SkillStatus,
-	): Promise<Skill | null>;
-	// Move the orphan row (skillName, '') over to a real plugin, preserving its
-	// status/firstSeenAt. If no orphan exists, the call is a no-op for that
-	// entry; if a linked row already exists, the orphan is dropped without
-	// touching the existing linked row. Used by sync flows that retro-associate
-	// skills (e.g. Packmind) to clean up legacy orphan rows from prior ingest.
+	deleteByKeys(entries: SkillKey[]): Promise<number>;
+	findByKey(key: SkillKey): Promise<Skill | null>;
+	updateStatus(key: SkillKey, status: SkillStatus): Promise<Skill | null>;
+	// Move the legacy bare-orphan row (skillName, '', '', '') over to a real
+	// plugin-owned identity (skillName, pluginName, marketplaceName, 'plugin'),
+	// preserving its status/firstSeenAt. If no bare orphan exists, the call is a
+	// no-op for that entry; if the linked row already exists, the orphan is dropped
+	// without touching it. Used by sync flows that retro-associate skills (e.g.
+	// Packmind) to clean up orphan rows created by ingest before the mapping
+	// existed.
 	relinkOrphans(
-		entries: Array<{ skillName: string; pluginName: string }>,
+		entries: Array<{ skillName: string; pluginName: string; marketplaceName: string }>,
 	): Promise<number>;
 }
 
 export interface SkillUpsertEntry {
 	skillName: string;
 	pluginName?: string | null;
+	marketplaceName?: string | null;
+	skillSource?: string | null;
 }

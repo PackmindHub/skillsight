@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.0
+
+- Promote skill identity from `(skill_name, plugin_name)` to the full tuple `(skill_name, plugin_name, marketplace_name, skill_source)`. The same plugin-less skill observed from user settings vs project settings (and per source) are now independent rows in the Skills table with independent approve/deny/ignore status, instead of silently collapsing into one. The status, bulk-status, and delete APIs carry the full key end-to-end; event deletion is scoped by `skill.source` so removing one identity no longer takes out another's events.
+- Fix a runtime crash when a marketplace source declared the same skill in more than one plugin: `external_skill_plugin_mappings` keyed only on `skill_name`, so a single upsert batch carrying a skill twice failed with `ON CONFLICT DO UPDATE command cannot affect row a second time`. Its primary key is now `(skill_name, plugin_name, marketplace_name)`, letting a skill legitimately belong to several plugins. Migrations `0022` and `0023` widen the two primary keys (idempotent; existing rows are preserved).
+
 ## 0.5.0
 
 - Expand the Co-usage combo drawer with a per-session timeline view that renders each session's skill activations in chronological order, color-coded by skill, so the order in which skills fire within a combo is observable rather than just their co-occurrence. Backed by a new `GET /api/co-usage/sessions/:sessionId/timeline` endpoint that returns ordered `(skillName, pluginName, timestamp)` events for a given session.

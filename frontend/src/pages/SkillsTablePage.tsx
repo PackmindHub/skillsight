@@ -31,6 +31,7 @@ import {
 	SKILL_SOURCES,
 	SKILL_SOURCE_LABELS,
 	SKILL_STATUSES,
+	type SkillKeyPayload,
 	type SkillSource,
 	type SkillStatus,
 	type SkillTableRow,
@@ -255,19 +256,31 @@ const TRIGGER_KEYS = TRIGGERS.map((t) => t.key);
 const SKELETON_KEYS = ["a", "b", "c", "d", "e", "f", "g", "h"];
 const NO_MARKETPLACE = "__none__";
 const NO_MARKETPLACE_LABEL = "(none)";
-const NO_PLUGIN_KEY = "__none__";
 const NO_PLUGIN_FILTER = "__no_plugin__";
 const NO_PLUGIN_LABEL = "(none)";
 
-function rowKey(row: { skillName: string; pluginName: string | null }): string {
-	return `${row.skillName}::${row.pluginName ?? NO_PLUGIN_KEY}`;
+// The full status/delete identity of a row, with '' for the orphan
+// plugin/marketplace buckets so it round-trips to the backend SkillKey.
+function rowToKey(row: SkillTableRow): SkillKeyPayload {
+	return {
+		skillName: row.skillName,
+		pluginName: row.pluginName ?? "",
+		marketplaceName: row.marketplaceName,
+		skillSource: row.skillSource ?? "",
+	};
 }
 
-function keyToEntry(key: string): { skillName: string; pluginName: string } {
-	const idx = key.indexOf("::");
-	const skillName = key.slice(0, idx);
-	const pluginPart = key.slice(idx + 2);
-	return { skillName, pluginName: pluginPart === NO_PLUGIN_KEY ? "" : pluginPart };
+// Selection-set / React key. Encodes all four identity fields with a NUL
+// delimiter (in-memory only — never displayed or sent), so two rows that differ
+// only by skill source are tracked separately.
+function rowKey(row: SkillTableRow): string {
+	const k = rowToKey(row);
+	return [k.skillName, k.pluginName, k.marketplaceName, k.skillSource].join("\u0000");
+}
+
+function keyToEntry(key: string): SkillKeyPayload {
+	const [skillName, pluginName, marketplaceName, skillSource] = key.split("\u0000");
+	return { skillName, pluginName, marketplaceName, skillSource };
 }
 
 type PeriodValue = DashboardPeriod | "custom";
@@ -479,14 +492,19 @@ export default function SkillsTablePage() {
 		);
 	}
 
-	async function handleStatusChange(skillName: string, pluginName: string, status: SkillStatus) {
+	async function handleStatusChange(key: SkillKeyPayload, status: SkillStatus) {
 		setRows((prev) =>
 			prev.map((r) =>
-				r.skillName === skillName && (r.pluginName ?? "") === pluginName ? { ...r, status } : r,
+				r.skillName === key.skillName &&
+				(r.pluginName ?? "") === key.pluginName &&
+				r.marketplaceName === key.marketplaceName &&
+				(r.skillSource ?? "") === key.skillSource
+					? { ...r, status }
+					: r,
 			),
 		);
 		try {
-			await api.skills.updateStatus({ skillName, pluginName, status });
+			await api.skills.updateStatus({ ...key, status });
 		} catch {
 			setReloadToken((n) => n + 1);
 		}
@@ -1474,7 +1492,7 @@ export default function SkillsTablePage() {
 													value={status}
 													options={SKILL_STATUS_CHIP_OPTIONS}
 													onChange={
-														editable ? (v) => handleStatusChange(row.skillName, "", v) : undefined
+														editable ? (v) => handleStatusChange(rowToKey(row), v) : undefined
 													}
 													disabled={!editable}
 													ariaLabel={`Status for ${row.skillName}`}

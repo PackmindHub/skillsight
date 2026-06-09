@@ -1,12 +1,12 @@
 import { recordAudit } from "@/application/audit/record-audit";
 import type { IAuditRepository } from "@/domain/ports/audit-repository";
 import type { ISkillRepository } from "@/domain/ports/skill-repository";
-import type { SkillStatus } from "@/domain/skill";
+import type { SkillKey, SkillStatus } from "@/domain/skill";
 
 export const UPDATE_SKILLS_STATUS_MAX_BATCH = 500;
 
 export interface UpdateSkillsStatusInput {
-	entries: Array<{ skillName: string; pluginName: string }>;
+	entries: SkillKey[];
 	status: SkillStatus;
 	actorEmail: string | null;
 }
@@ -20,15 +20,17 @@ export async function updateSkillsStatus(
 	input: UpdateSkillsStatusInput,
 ): Promise<UpdateSkillsStatusResult> {
 	const seen = new Set<string>();
-	const normalized: Array<{ skillName: string; pluginName: string }> = [];
+	const normalized: SkillKey[] = [];
 	for (const e of input.entries) {
 		const skillName = e.skillName?.trim();
 		if (!skillName) continue;
 		const pluginName = e.pluginName ?? "";
-		const key = `${skillName} ${pluginName}`;
+		const marketplaceName = e.marketplaceName ?? "";
+		const skillSource = e.skillSource ?? "";
+		const key = [skillName, pluginName, marketplaceName, skillSource].join("\u0000");
 		if (seen.has(key)) continue;
 		seen.add(key);
-		normalized.push({ skillName, pluginName });
+		normalized.push({ skillName, pluginName, marketplaceName, skillSource });
 	}
 
 	if (normalized.length === 0) return { error: "empty" };

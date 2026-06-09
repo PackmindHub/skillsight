@@ -8,23 +8,25 @@ export async function updateSkillStatus(
 	input: {
 		skillName: string;
 		pluginName: string;
+		marketplaceName: string;
+		skillSource: string;
 		status: SkillStatus;
 		actorEmail: string | null;
 	},
 ): Promise<Skill | { error: "not_found" | "not_editable" }> {
-	const existing = await deps.skills.findByKey({
+	const key = {
 		skillName: input.skillName,
 		pluginName: input.pluginName,
-	});
+		marketplaceName: input.marketplaceName,
+		skillSource: input.skillSource,
+	};
+	const existing = await deps.skills.findByKey(key);
 	if (!existing) return { error: "not_found" };
 	if (existing.pluginName !== "") return { error: "not_editable" };
 
 	if (existing.status === input.status) return existing;
 
-	const updated = await deps.skills.updateStatus(
-		{ skillName: input.skillName, pluginName: input.pluginName },
-		input.status,
-	);
+	const updated = await deps.skills.updateStatus(key, input.status);
 	if (!updated) return { error: "not_found" };
 
 	await recordAudit(deps, {
@@ -35,6 +37,8 @@ export async function updateSkillStatus(
 			from: existing.status,
 			to: input.status,
 			pluginName: input.pluginName,
+			marketplaceName: input.marketplaceName,
+			skillSource: input.skillSource,
 			scope: "direct",
 		},
 	});

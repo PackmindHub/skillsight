@@ -131,13 +131,25 @@ export async function syncPackmindMarketplaceSource(
 		// Retro-link any pre-existing orphan rows so the skills table reflects the
 		// new ownership immediately.
 		await deps.skills.relinkOrphans(
-			declaredPairs.map((p) => ({ skillName: p.skillName, pluginName: p.pluginName })),
+			declaredPairs.map((p) => ({
+				skillName: p.skillName,
+				pluginName: p.pluginName,
+				marketplaceName,
+			})),
 		);
 
 		// Make sure every declared (skill, plugin) has a skills row at all — if
-		// neither an orphan nor a linked row existed, upsertMany creates one.
+		// neither an orphan nor a linked row existed, upsertMany creates one. These
+		// are plugin-owned, so source is 'plugin' and marketplace is the package's.
 		if (declaredPairs.length > 0) {
-			await deps.skills.upsertMany(declaredPairs);
+			await deps.skills.upsertMany(
+				declaredPairs.map((p) => ({
+					skillName: p.skillName,
+					pluginName: p.pluginName,
+					marketplaceName,
+					skillSource: "plugin",
+				})),
+			);
 		}
 
 		// Replace the ingest-time mapping for this source.

@@ -158,8 +158,8 @@ describe("deleteSkills", () => {
 		});
 
 		expect(skillsCalls[0]).toEqual([
-			{ skillName: "linting", pluginName: "acme/lint" },
-			{ skillName: "phantom", pluginName: "" },
+			{ skillName: "linting", pluginName: "acme/lint", marketplaceName: "", skillSource: "" },
+			{ skillName: "phantom", pluginName: "", marketplaceName: "", skillSource: "" },
 		]);
 		expect(eventsCalls[0]).toEqual(skillsCalls[0]);
 	});

@@ -101,7 +101,21 @@ export async function ingestEvents(
 		.map((e) => {
 			const skillName = e.attributes["skill.name"] as string;
 			const ctx = resolveCtx(skillName, e.attributes);
-			return { skillName, pluginName: ctx.pluginName };
+			const rawSource = e.attributes["skill.source"];
+			return {
+				skillName,
+				pluginName: ctx.pluginName,
+				marketplaceName: ctx.marketplaceName,
+				// Plugin-owned skills are always attributed to source 'plugin' so they
+				// land on the plugin-owned identity the skills table uses; only truly
+				// plugin-less skills keep their reported skill.source (user/project
+				// settings, bundled), which is what separates those identities.
+				skillSource: ctx.pluginName
+					? "plugin"
+					: typeof rawSource === "string"
+						? rawSource
+						: "",
+			};
 		});
 	if (skillEntries.length > 0) {
 		await deps.skills.upsertMany(skillEntries);
