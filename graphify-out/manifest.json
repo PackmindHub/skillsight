@@ -1685,8 +1685,8 @@
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/frontend/src/types/api.ts": {
-    "mtime": 1780996145.7302082,
-    "ast_hash": "343de7c1c8200b84b33e1142929c2a5d",
+    "mtime": 1781090978.8393652,
+    "ast_hash": "36088b72ce71312fe1fd292ba69a8a32",
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/frontend/src/context/IntegrationsHealthContext.tsx": {
@@ -2050,8 +2050,8 @@
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/frontend/src/lib/api.ts": {
-    "mtime": 1780996152.4322448,
-    "ast_hash": "03c2469d66ffac16b6a3edc565723eb5",
+    "mtime": 1781091374.901379,
+    "ast_hash": "a350a90b02c6b6c728e161d5cbcb89e5",
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/frontend/src/lib/use-debounced-value.ts": {
@@ -2115,8 +2115,8 @@
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/frontend/src/pages/MarketplacesPage.tsx": {
-    "mtime": 1779355336.7519684,
-    "ast_hash": "b2d63e61cc4b053c586a9e61578b5694",
+    "mtime": 1781091374.9216146,
+    "ast_hash": "66ddd4bddec52ab24780b551eadb34f6",
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/frontend/src/pages/CohortsPage.tsx": {
@@ -2145,8 +2145,8 @@
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/.claude/settings.local.json": {
-    "mtime": 1780991772.5146925,
-    "ast_hash": "fcc4297f7ecc58114948cc7083192cae",
+    "mtime": 1780998484.587925,
+    "ast_hash": "be03a8d3a613089d0be2ae37c1b7fade",
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/.claude/skills/skill-creator/eval-viewer/generate_review.py": {
@@ -2305,8 +2305,8 @@
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/http/marketplace-sources.ts": {
-    "mtime": 1779353272.9310021,
-    "ast_hash": "cd42c4749c329ffd058ae92b65af86f2",
+    "mtime": 1781090910.249601,
+    "ast_hash": "e76b1abfcff3042692b144ebfd05845c",
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/http/auth.test.ts": {
@@ -2400,8 +2400,8 @@
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/db/schema.ts": {
-    "mtime": 1780988827.1378498,
-    "ast_hash": "e73c1834188cba4c390b199db4f52571",
+    "mtime": 1781090670.676856,
+    "ast_hash": "a1dd9fb7fef5e706a6a524d079f7961c",
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/db/client.ts": {
@@ -2530,8 +2530,8 @@
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/meta/_journal.json": {
-    "mtime": 1780988841.934815,
-    "ast_hash": "029f6721985775e11e83f049a8c536e7",
+    "mtime": 1781090756.2811854,
+    "ast_hash": "1190fd01dda6d8f653be4e09ded2da6e",
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/meta/0001_snapshot.json": {
@@ -2545,13 +2545,13 @@
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplace-sources/sync-marketplace-source.ts": {
-    "mtime": 1780989742.663257,
-    "ast_hash": "c72a0889838142708dc2b95e40c83eb1",
+    "mtime": 1781090843.4498281,
+    "ast_hash": "f15c81dd028ee06951732115102cb507",
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplace-sources/test-marketplace-source-connection.ts": {
-    "mtime": 1779353022.0587165,
-    "ast_hash": "9518f57328e73faa139dc888a55be16d",
+    "mtime": 1781090863.7124891,
+    "ast_hash": "e69b8ba967c1818821b2c05170fc9131",
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplace-sources/sync-marketplace-source.types.ts": {
@@ -2565,8 +2565,8 @@
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplace-sources/list-marketplace-sources.ts": {
-    "mtime": 1779353263.472755,
-    "ast_hash": "189b81524d31f541e23790de9c079557",
+    "mtime": 1781091150.7447686,
+    "ast_hash": "86a19ff0cc3341237a9bb351fc7a5298",
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplace-sources/delete-marketplace-source.ts": {
@@ -2575,13 +2575,13 @@
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplace-sources/create-marketplace-source.ts": {
-    "mtime": 1779352829.9995694,
-    "ast_hash": "66498e462526a07f6a8d1d5b67d2af32",
+    "mtime": 1781090813.9839315,
+    "ast_hash": "8b030af541a78405fc5fc7e1b54bb929",
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplace-sources/sync-marketplace-source.test.ts": {
-    "mtime": 1780991371.0089467,
-    "ast_hash": "b8def04b59a648414a0f976a9fec5a19",
+    "mtime": 1781091294.2739105,
+    "ast_hash": "1abbb1d78577128165a59833a83218c1",
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplace-sources/create-marketplace-source.test.ts": {
@@ -2590,8 +2590,8 @@
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplace-sources/update-marketplace-source.ts": {
-    "mtime": 1779352837.857533,
-    "ast_hash": "9973349abe3475f38458ad0d6a0ecf18",
+    "mtime": 1781090833.5902786,
+    "ast_hash": "8243c8893d698c2aab0407ae66b27b78",
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplace-sources/sync-packmind-marketplace-source.ts": {
@@ -2930,8 +2930,8 @@
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/repositories/drizzle-marketplace-source-repository.ts": {
-    "mtime": 1779352630.0766473,
-    "ast_hash": "fa01d38bec980528d85f90907a387692",
+    "mtime": 1781090787.9329054,
+    "ast_hash": "af5a332ea05cfb11d76e0a01d49e9285",
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/repositories/drizzle-plugin-repository.ts": {
@@ -2970,8 +2970,8 @@
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/repositories/drizzle-skill-repository.ts": {
-    "mtime": 1780991471.0766966,
-    "ast_hash": "571323452f2682ccc2fddef3ebd52a1d",
+    "mtime": 1781090952.4854295,
+    "ast_hash": "dcd2873aaab36fcefa56c0f18ae7594a",
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/audit/redact.ts": {
@@ -2985,8 +2985,8 @@
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/gateways/git-marketplace-http-gateway.ts": {
-    "mtime": 1778668075.8397496,
-    "ast_hash": "04a3b05474eb3b695c6746af339a7618",
+    "mtime": 1781090609.7253873,
+    "ast_hash": "d48e935a87436c25c1a2896ce6b3a9da",
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/gateways/packmind-cli-gateway.test.ts": {
@@ -3005,23 +3005,23 @@
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/gateways/git-browse-url.ts": {
-    "mtime": 1778589598.3280714,
-    "ast_hash": "f4d354c214194476322b4e95c8ea8936",
+    "mtime": 1781090649.2512932,
+    "ast_hash": "1ec188fde79375c923ab8dd9c89faf02",
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/gateways/git-marketplace-http-gateway.test.ts": {
-    "mtime": 1778668246.981389,
-    "ast_hash": "704b3fd5075eb54631ffa66c55eac042",
+    "mtime": 1781091225.8926232,
+    "ast_hash": "679c96d90fd07817cc71b0c085816747",
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/gateways/git-browse-url.test.ts": {
-    "mtime": 1778589619.56492,
-    "ast_hash": "81b8cd961dc65e5d99a2ed8d1bc0e383",
+    "mtime": 1781091195.1705515,
+    "ast_hash": "372f40449b78c0cf4c9af3782d4a89b9",
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/domain/marketplace-source.ts": {
-    "mtime": 1779352568.306553,
-    "ast_hash": "047f68fc57dc6355c4d292dde861612e",
+    "mtime": 1781090642.3972738,
+    "ast_hash": "889d346ed95f85027fd23d5c339197f2",
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/domain/marketplace.ts": {
@@ -3070,8 +3070,8 @@
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/domain/ports/git-marketplace-gateway.ts": {
-    "mtime": 1778589530.9687328,
-    "ast_hash": "2cd21bc5d94bfe3bb7ba300146da011d",
+    "mtime": 1781090656.682689,
+    "ast_hash": "edc8290d32e40aa47a05a5471c23cd6c",
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/domain/ports/plugin-repository.ts": {
@@ -3085,8 +3085,8 @@
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/domain/ports/marketplace-source-repository.ts": {
-    "mtime": 1779352603.6872532,
-    "ast_hash": "5f86a9049c388697ff348dc44c8a8db7",
+    "mtime": 1781090802.9159908,
+    "ast_hash": "a67c578b93057e0dab77fb2a9869c30d",
     "semantic_hash": ""
   },
   "/Users/cedricteyton/Code/skills-observability/backend/src/domain/ports/event-repository.ts": {
@@ -3897,6 +3897,11 @@
   "/Users/cedricteyton/Code/skills-observability/backend/src/application/plugins/list-plugin-skills.test.ts": {
     "mtime": 1780996350.8874934,
     "ast_hash": "ebc9e970e3d188ca9745151ff5de5807",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0024_marketplace_source_provider.sql": {
+    "mtime": 1781090743.885286,
+    "ast_hash": "4c71605345da2a20cf702f5c22429edb",
     "semantic_hash": ""
   }
 }

@@ -1,16 +1,16 @@
-# Graph Report - skills-observability  (2026-06-09)
+# Graph Report - skills-observability  (2026-06-10)
 
 ## Corpus Check
-- 362 files · ~348,006 words
+- 363 files · ~349,242 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 3340 nodes · 5258 edges · 264 communities (243 shown, 21 thin omitted)
+- 3347 nodes · 5280 edges · 256 communities (235 shown, 21 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 11 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `514632b8`
+- Built from commit: `bb773b8f`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -229,13 +229,11 @@
 - [[_COMMUNITY_Community 211|Community 211]]
 - [[_COMMUNITY_Community 212|Community 212]]
 - [[_COMMUNITY_Community 213|Community 213]]
-- [[_COMMUNITY_Community 214|Community 214]]
 - [[_COMMUNITY_Community 215|Community 215]]
 - [[_COMMUNITY_Community 216|Community 216]]
 - [[_COMMUNITY_Community 217|Community 217]]
 - [[_COMMUNITY_Community 218|Community 218]]
 - [[_COMMUNITY_Community 219|Community 219]]
-- [[_COMMUNITY_Community 220|Community 220]]
 - [[_COMMUNITY_Community 221|Community 221]]
 - [[_COMMUNITY_Community 222|Community 222]]
 - [[_COMMUNITY_Community 223|Community 223]]
@@ -259,17 +257,11 @@
 - [[_COMMUNITY_Community 241|Community 241]]
 - [[_COMMUNITY_Community 242|Community 242]]
 - [[_COMMUNITY_Community 244|Community 244]]
-- [[_COMMUNITY_Community 252|Community 252]]
-- [[_COMMUNITY_Community 253|Community 253]]
-- [[_COMMUNITY_Community 254|Community 254]]
-- [[_COMMUNITY_Community 255|Community 255]]
 - [[_COMMUNITY_Community 256|Community 256]]
-- [[_COMMUNITY_Community 257|Community 257]]
 - [[_COMMUNITY_Community 258|Community 258]]
 - [[_COMMUNITY_Community 259|Community 259]]
 - [[_COMMUNITY_Community 260|Community 260]]
 - [[_COMMUNITY_Community 261|Community 261]]
-- [[_COMMUNITY_Community 262|Community 262]]
 - [[_COMMUNITY_Community 263|Community 263]]
 
 ## God Nodes (most connected - your core abstractions)
@@ -291,32 +283,32 @@
   /Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/pages/CoUsagePage.tsx → frontend/src/lib/utils.ts
 - `ComboRow()` --calls--> `cn()`  [EXTRACTED]
   /Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/frontend/src/pages/CoUsagePage.tsx → frontend/src/lib/utils.ts
+- `createApp()` --calls--> `createCoUsageRoute()`  [EXTRACTED]
+  backend/src/app.ts → /Users/cedricteyton/emdash/worktrees/skills-observability/emdash/skills-sequential-usage-2c59d/backend/src/http/co-usage.ts
 - `StatCard()` --calls--> `cn()`  [EXTRACTED]
   frontend/src/components/ui/StatCard.tsx → frontend/src/lib/utils.ts
-- `SearchBar()` --calls--> `cn()`  [EXTRACTED]
-  frontend/src/components/ui/SearchBar.tsx → frontend/src/lib/utils.ts
 
-## Communities (264 total, 21 thin omitted)
+## Communities (256 total, 21 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.06
 Nodes (38): MarketplaceBadge(), MarketplaceBadgeProps, STATUS_STYLES, STATUS_BADGE, PLUGIN_STATUS_STYLES, SeenStat(), SkillDetailDrawer(), SkillDetailDrawerProps (+30 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.07
-Nodes (30): AuthContext, AuthContextValue, AuthProvider(), AuthState, useAuth(), IntegrationsHealthContext, IntegrationsHealthProvider(), IntegrationsHealthValue (+22 more)
+Cohesion: 0.05
+Nodes (42): AuthContext, AuthContextValue, AuthProvider(), AuthState, useAuth(), IntegrationsHealthContext, IntegrationsHealthProvider(), IntegrationsHealthValue (+34 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.23
-Nodes (14): Marketplace, MarketplaceDetail, MarketplacePluginRow, MarketplaceProvider, MarketplaceSkillRow, MarketplaceStatus, MarketplaceWithStats, defaultBundledStatus() (+6 more)
+Cohesion: 0.08
+Nodes (33): buildDiff(), shallowEqual(), diff, AuditDiffMetadata, Marketplace, MarketplaceDetail, MarketplacePluginRow, MarketplaceProvider (+25 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.05
 Nodes (71): ComboDrawer(), ComboDrawerProps, DAYS, DrawerIconBtn(), DrawerStat(), fmtAgo(), fmtClock(), fmtClockShort() (+63 more)
 
 ### Community 4 - "Community 4"
-Cohesion: 0.10
-Nodes (28): buildSessions(), CoUsageResponse, CoUsageSession, getCoUsage(), getSessionTimeline(), SessionTimelineEventDto, SessionTimelineResponse, buildCohorts() (+20 more)
+Cohesion: 0.06
+Nodes (33): buildSessions(), CoUsageResponse, CoUsageSession, getCoUsage(), getSessionTimeline(), SessionTimelineEventDto, SessionTimelineResponse, buildCohorts() (+25 more)
 
 ### Community 5 - "Community 5"
 Cohesion: 0.13
@@ -327,8 +319,8 @@ Cohesion: 0.07
 Nodes (26): dependencies, drizzle-orm, hono, @hono/node-server, jose, @node-rs/argon2, postgres, zod (+18 more)
 
 ### Community 7 - "Community 7"
-Cohesion: 0.06
-Nodes (31): dependencies, clsx, lucide-react, react, react-dom, react-router-dom, recharts, tailwind-merge (+23 more)
+Cohesion: 0.18
+Nodes (11): devDependencies, @biomejs/biome, happy-dom, @happy-dom/global-registrator, tailwindcss, @tailwindcss/vite, @types/react, @types/react-dom (+3 more)
 
 ### Community 8 - "Community 8"
 Cohesion: 0.14
@@ -348,23 +340,23 @@ Nodes (41): After this step, Architecture markers (check directories), Check exi
 
 ### Community 12 - "Community 12"
 Cohesion: 0.05
-Nodes (29): activeCall, BASE_MARKETPLACE_DATA, BASE_SOURCE, cache, cli, makeMappingCache(), makeMappingRepo(), mapping (+21 more)
+Nodes (28): activeCall, BASE_MARKETPLACE_DATA, BASE_SOURCE, cache, capturingGateway, cli, makeMappingCache(), makeMappingRepo() (+20 more)
 
 ### Community 13 - "Community 13"
-Cohesion: 0.09
-Nodes (22): useIncludeIgnored(), useIncludeWithoutSkills(), html, Probe(), STATUSES, useStatusFilter(), hashIndex(), initialsFromName() (+14 more)
+Cohesion: 0.12
+Nodes (18): useIncludeIgnored(), useIncludeWithoutSkills(), hashIndex(), initialsFromName(), LOGO_GRADIENTS, pickList(), PLUGIN_SORT_KEYS, PLUGIN_STATUS_CHIP_OPTIONS (+10 more)
 
 ### Community 14 - "Community 14"
-Cohesion: 0.12
-Nodes (15): eventBus, IntegrationDeletedEvent, IntegrationUpdatedEvent, MarketplaceStatusChangedEvent, SkillActivatedLiveEvent, { audit }, { audit, calls: auditCalls }, AuditCall (+7 more)
+Cohesion: 0.25
+Nodes (8): dependencies, clsx, lucide-react, react, react-dom, react-router-dom, recharts, tailwind-merge
 
 ### Community 15 - "Community 15"
-Cohesion: 0.18
-Nodes (15): ParsedEvent, LokiHttpGateway, LokiQueryResponse, readErrorDetail(), truncate(), parsePreviewStreams(), PreviewEvent, previewIntegration() (+7 more)
+Cohesion: 0.29
+Nodes (7): LokiHttpGateway, LokiQueryResponse, readErrorDetail(), truncate(), ILokiGateway, LokiStreamResult, LokiStreamValue
 
 ### Community 16 - "Community 16"
-Cohesion: 0.14
-Nodes (20): AppDeps, ACTION_SET, filtersSchema, bulkDeleteSchema, bulkStatusSchema, deleteModeSchema, updateSchema, updateSchema (+12 more)
+Cohesion: 0.16
+Nodes (18): AppDeps, ACTION_SET, filtersSchema, bulkDeleteSchema, bulkStatusSchema, deleteModeSchema, updateSchema, updateSchema (+10 more)
 
 ### Community 17 - "Community 17"
 Cohesion: 0.05
@@ -372,23 +364,23 @@ Nodes (36): `allowed-tools` field, assets/, Body content, code:block1 (skill-nam
 
 ### Community 18 - "Community 18"
 Cohesion: 0.07
-Nodes (27): sourceDisplayLabel(), MarketplaceDetailsDrawer(), MarketplaceDetailsDrawerProps, MetadataForm, SourceForm, MarketplaceStatStrip(), MarketplaceStatStripProps, SourceErrorBanner() (+19 more)
+Nodes (28): sourceDisplayLabel(), MarketplaceDetailsDrawer(), MarketplaceDetailsDrawerProps, MetadataForm, SourceForm, MarketplaceStatStrip(), MarketplaceStatStripProps, SourceErrorBanner() (+20 more)
 
 ### Community 19 - "Community 19"
-Cohesion: 0.06
-Nodes (43): skills, Skill, SKILL_SOURCES, SKILL_STATUSES, SkillDetailPluginRef, SkillDetailRow, SkillKey, SkillSource (+35 more)
+Cohesion: 0.05
+Nodes (44): Skill, SKILL_SOURCES, SKILL_STATUSES, SkillDetailPluginRef, SkillDetailRow, SkillKey, SkillSource, SkillStatus (+36 more)
 
 ### Community 20 - "Community 20"
 Cohesion: 0.11
-Nodes (27): csvField(), exportAuditEventsCsv(), HEADER, lines, listAuditEvents(), recordAudit(), auditEvents, ALL_AUDIT_ACTIONS (+19 more)
+Nodes (26): csvField(), exportAuditEventsCsv(), HEADER, lines, listAuditEvents(), recordAudit(), ALL_AUDIT_ACTIONS, AuditAction (+18 more)
 
 ### Community 21 - "Community 21"
-Cohesion: 0.25
-Nodes (5): getSkillsTable(), captured, deps, from, to
+Cohesion: 0.32
+Nodes (6): statusLabel(), STATUS_DOT, StatusFilter(), StatusFilterProps, html, PLUGIN
 
 ### Community 22 - "Community 22"
 Cohesion: 0.10
-Nodes (25): BIN(), isAuthError(), PackmindCliError, PackmindCliGateway, parsePackageShow(), parsePackagesList(), parseWhoami(), run() (+17 more)
+Nodes (24): BIN(), isAuthError(), PackmindCliError, PackmindCliGateway, parsePackageShow(), parsePackagesList(), parseWhoami(), run() (+16 more)
 
 ### Community 23 - "Community 23"
 Cohesion: 0.08
@@ -399,8 +391,8 @@ Cohesion: 0.18
 Nodes (11): name, notNull, primaryKey, type, added_by, skill_name, columns, name (+3 more)
 
 ### Community 25 - "Community 25"
-Cohesion: 0.09
-Nodes (34): CreateMarketplaceSourceData, MarketplaceSource, MarketplaceSourceKind, MarketplaceSourceWithSecret, UpdateMarketplaceSourceData, createSchema, gitCreateSchema, packmindCreateSchema (+26 more)
+Cohesion: 0.08
+Nodes (37): CreateMarketplaceSourceData, GitProvider, MarketplaceSource, MarketplaceSourceKind, MarketplaceSourceWithSecret, UpdateMarketplaceSourceData, createSchema, gitCreateSchema (+29 more)
 
 ### Community 26 - "Community 26"
 Cohesion: 0.07
@@ -411,24 +403,24 @@ Cohesion: 0.07
 Nodes (29): Analyzing Benchmark Results, Categories for Suggestions, code:json ({), code:json ([), Guidelines, Guidelines, Inputs, Inputs (+21 more)
 
 ### Community 28 - "Community 28"
-Cohesion: 0.08
-Nodes (15): { audit }, { audit, calls: auditCalls }, AuditCall, names, { repo: marketplaces }, { repo: marketplaces, state }, { repo: marketplaces, state: mpState }, { repo: marketplaceSources } (+7 more)
+Cohesion: 0.07
+Nodes (20): DeleteMarketplaceItemOutcome, deleteMarketplaces(), DeleteMarketplacesInput, DeleteMarketplacesMode, DeleteMarketplacesResult, { audit }, { audit, calls: auditCalls }, AuditCall (+12 more)
 
 ### Community 29 - "Community 29"
 Cohesion: 0.11
-Nodes (18): buildSkillRepoUrl(), GitHost, parseGitUrl(), buildHeaders(), describeFetchFailure(), ExternalPluginSource, fetchPluginSkills(), GitMarketplaceHttpGateway (+10 more)
+Nodes (20): buildSkillRepoUrl(), GitHost, parseGitUrl(), SAAS_ORIGIN, splitOwnerRepo(), buildHeaders(), buildMarketplaceJsonUrl(), describeFetchFailure() (+12 more)
 
 ### Community 30 - "Community 30"
-Cohesion: 0.11
-Nodes (21): cn(), Coords, PluginChip(), PluginChipProps, TipRow(), TrendSparkline(), TrendSparklineProps, Card() (+13 more)
+Cohesion: 0.23
+Nodes (10): Card(), CardBody(), CardFooter(), CardHeader(), CardPadding, CardProps, CardSurface, PADDING (+2 more)
 
 ### Community 31 - "Community 31"
 Cohesion: 0.08
 Nodes (14): BASE_INTEGRATION, emptyMappingRepo(), loki, makeLoadedMappingCache(), { repo: events }, { repo: events, inserted }, { repo: integrations }, { repo: marketplaces, upsertSeenCalls } (+6 more)
 
 ### Community 32 - "Community 32"
-Cohesion: 0.15
-Nodes (22): NewPlugin, Plugin, PluginLoadStats, PluginSkillActivation, PluginStatus, PluginUserActivation, PluginVersionRow, PluginVersionSeen (+14 more)
+Cohesion: 0.16
+Nodes (21): NewPlugin, Plugin, PluginLoadStats, PluginSkillActivation, PluginStatus, PluginUserActivation, PluginVersionRow, PluginWeeklyLoaders (+13 more)
 
 ### Community 33 - "Community 33"
 Cohesion: 0.08
@@ -455,8 +447,8 @@ Cohesion: 0.09
 Nodes (22): 9.1 Deploy Locally (after successful creation), 9.2 Cleanup and Summary, code:markdown (# Standard Name), code:block10 (Onboarding cancelled.), code:bash (packmind-cli install @$SPACE_SLUG/$PACKAGE_SLUG), code:block12 (============================================================), code:block13 (Draft files ready for review at:), code:markdown (# Command Name) (+14 more)
 
 ### Community 39 - "Community 39"
-Cohesion: 0.30
-Nodes (9): CreateIntegrationData, Integration, IntegrationWithSecret, UpdateIntegrationData, DIFF_FIELDS, pick(), updateIntegration(), UpdateIntegrationOptions (+1 more)
+Cohesion: 0.16
+Nodes (21): CreateIntegrationData, Integration, IntegrationWithSecret, UpdateIntegrationData, createSchema, previewSchema, updateSchema, createIntegration() (+13 more)
 
 ### Community 40 - "Community 40"
 Cohesion: 0.12
@@ -475,40 +467,40 @@ Cohesion: 0.11
 Nodes (16): Input, InputProps, html, MultiSelect(), MultiSelectOption, MultiSelectProps, SearchBar(), SearchBarProps (+8 more)
 
 ### Community 45 - "Community 45"
-Cohesion: 0.16
-Nodes (16): CLAUDE_CODE_EVENT_PREFIX, EVENT_NAMES, SHORT_EVENT_NAMES, AnyValue, flattenAttributes(), KeyValue, LogRecord, nanoStringToDate() (+8 more)
+Cohesion: 0.13
+Nodes (23): CLAUDE_CODE_EVENT_PREFIX, EVENT_NAMES, ParsedEvent, SHORT_EVENT_NAMES, parsePreviewStreams(), PreviewEvent, previewIntegration(), eventFromBodyAndMetadata() (+15 more)
 
 ### Community 46 - "Community 46"
 Cohesion: 0.09
 Nodes (21): compilerOptions, allowImportingTsExtensions, baseUrl, isolatedModules, jsx, lib, module, moduleResolution (+13 more)
 
 ### Community 47 - "Community 47"
-Cohesion: 0.12
-Nodes (17): name, notNull, primaryKey, type, name, notNull, primaryKey, type (+9 more)
+Cohesion: 0.33
+Nodes (6): enabled, default, name, notNull, primaryKey, type
 
 ### Community 48 - "Community 48"
-Cohesion: 0.25
-Nodes (8): columns, concurrently, isUnique, method, name, with, events_event_name_ts_idx, indexes
+Cohesion: 0.29
+Nodes (7): columns, concurrently, isUnique, method, name, with, events_event_name_ts_idx
 
 ### Community 49 - "Community 49"
 Cohesion: 0.22
 Nodes (11): completeOnboarding(), getCurrentUser(), login(), LoginDeps, User, createAuthRoute(), loginSchema, ALICE (+3 more)
 
 ### Community 51 - "Community 51"
-Cohesion: 0.17
-Nodes (18): buildDeps(), createAuditRoute(), createCoUsageRoute(), createCohortsRoute(), createEventsRoute(), createHealthRoute(), createIntegrationsRoute(), createMarketplaceSourcesRoute() (+10 more)
+Cohesion: 0.18
+Nodes (17): buildDeps(), createAuditRoute(), createCohortsRoute(), createEventsRoute(), createHealthRoute(), createIntegrationsRoute(), createMarketplaceSourcesRoute(), createMarketplacesRoute() (+9 more)
 
 ### Community 52 - "Community 52"
-Cohesion: 0.11
-Nodes (23): decrypt(), encrypt(), getKey(), computePluginStatus(), SyncDeps, syncGitMarketplaceSource(), syncMarketplaceSource(), SyncMarketplaceSourceOptions (+15 more)
+Cohesion: 0.10
+Nodes (26): decrypt(), encrypt(), getKey(), computePluginStatus(), SyncDeps, syncGitMarketplaceSource(), syncMarketplaceSource(), SyncMarketplaceSourceOptions (+18 more)
 
 ### Community 53 - "Community 53"
 Cohesion: 0.20
 Nodes (10): checkConstraints, compositePrimaryKeys, foreignKeys, indexes, isRLSEnabled, name, policies, schema (+2 more)
 
 ### Community 54 - "Community 54"
-Cohesion: 0.13
-Nodes (12): AppDb, externalSkillPluginMappings, ExternalSkillPluginMapping, MappingHit, cache, { repo }, { repo, swap }, ExternalSkillPluginMappingUpsert (+4 more)
+Cohesion: 0.15
+Nodes (10): ExternalSkillPluginMapping, MappingHit, cache, { repo }, { repo, swap }, ExternalSkillPluginMappingUpsert, IExternalSkillPluginMappingRepository, DrizzleExternalSkillPluginMappingRepository (+2 more)
 
 ### Community 55 - "Community 55"
 Cohesion: 0.11
@@ -535,8 +527,8 @@ Cohesion: 0.20
 Nodes (10): checkConstraints, compositePrimaryKeys, foreignKeys, indexes, isRLSEnabled, name, policies, schema (+2 more)
 
 ### Community 62 - "Community 62"
-Cohesion: 0.16
-Nodes (10): normalizeMarketplaceName(), ExternalSkillMappingCache, ResolvedSkillContext, resolveSkillContext(), publishIntegrationUpdate(), lastEventTimestamp(), parseStreams(), SyncDeps (+2 more)
+Cohesion: 0.19
+Nodes (14): AppDb, normalizeMarketplaceName(), PluginVersionSeen, ResolvedSkillContext, resolveSkillContext(), publishIntegrationUpdate(), lastEventTimestamp(), parseStreams() (+6 more)
 
 ### Community 63 - "Community 63"
 Cohesion: 0.12
@@ -552,7 +544,7 @@ Nodes (6): created_at, default, name, notNull, primaryKey, type
 
 ### Community 66 - "Community 66"
 Cohesion: 0.12
-Nodes (17): description, status, url, name, notNull, primaryKey, type, columns (+9 more)
+Nodes (17): description, first_seen_at, url, name, notNull, primaryKey, type, default (+9 more)
 
 ### Community 67 - "Community 67"
 Cohesion: 0.12
@@ -575,16 +567,16 @@ Cohesion: 0.18
 Nodes (11): name, notNull, primaryKey, type, added_by, skill_name, columns, name (+3 more)
 
 ### Community 72 - "Community 72"
-Cohesion: 0.18
-Nodes (11): expires_at, name, name, notNull, primaryKey, type, name, notNull (+3 more)
+Cohesion: 0.33
+Nodes (6): expires_at, name, notNull, primaryKey, type, columns
 
 ### Community 73 - "Community 73"
-Cohesion: 0.12
-Nodes (16): name, notNull, primaryKey, type, added_by, skill_name, source, columns (+8 more)
+Cohesion: 0.06
+Nodes (32): default, name, notNull, primaryKey, type, name, notNull, primaryKey (+24 more)
 
 ### Community 74 - "Community 74"
-Cohesion: 0.12
-Nodes (16): email, onboarding_completed_at, password_hash, name, notNull, primaryKey, type, name (+8 more)
+Cohesion: 0.09
+Nodes (23): email, id, password_hash, role, name, notNull, primaryKey, type (+15 more)
 
 ### Community 75 - "Community 75"
 Cohesion: 0.40
@@ -615,8 +607,8 @@ Cohesion: 0.25
 Nodes (8): columns, concurrently, isUnique, method, name, with, events_session_id_idx, indexes
 
 ### Community 82 - "Community 82"
-Cohesion: 0.13
-Nodes (15): columns, concurrently, isUnique, method, name, with, columns, concurrently (+7 more)
+Cohesion: 0.25
+Nodes (8): columns, concurrently, isUnique, method, name, with, events_event_name_ts_idx, indexes
 
 ### Community 83 - "Community 83"
 Cohesion: 0.13
@@ -627,8 +619,8 @@ Cohesion: 0.14
 Nodes (13): noUnusedVariables, formatter, enabled, indentStyle, lineWidth, linter, enabled, rules (+5 more)
 
 ### Community 85 - "Community 85"
-Cohesion: 0.18
-Nodes (14): Align, EmptyRow(), EmptyRowProps, Table(), TableProps, TBody(), TD(), TDProps (+6 more)
+Cohesion: 0.10
+Nodes (25): cn(), Coords, PluginChip(), PluginChipProps, TipRow(), TrendSparkline(), TrendSparklineProps, IncludeIgnoredToggle() (+17 more)
 
 ### Community 86 - "Community 86"
 Cohesion: 0.14
@@ -639,8 +631,8 @@ Cohesion: 0.20
 Nodes (11): computeDeltaPct(), formatRelativeShort(), isCurrentUtcMonth(), repoSlugFromGitUrl(), sumKnownTriggers(), now, totals, MarketplaceSourceLine() (+3 more)
 
 ### Community 89 - "Community 89"
-Cohesion: 0.14
-Nodes (14): checkConstraints, compositePrimaryKeys, foreignKeys, indexes, isRLSEnabled, name, policies, schema (+6 more)
+Cohesion: 0.22
+Nodes (9): checkConstraints, compositePrimaryKeys, foreignKeys, indexes, isRLSEnabled, name, policies, schema (+1 more)
 
 ### Community 90 - "Community 90"
 Cohesion: 0.14
@@ -663,8 +655,8 @@ Cohesion: 0.15
 Nodes (12): After All Intents Are Submitted, Applying Changes, code:block1 (## Submission Plan), code:block2 (packmind-cli playbook add <path-to-the-file-you-edited>), For Each Intent (one at a time):, Group Changes by Intent, Pre-flight: Space Discovery, Step 1: Write or edit artifact files locally (+4 more)
 
 ### Community 95 - "Community 95"
-Cohesion: 0.11
-Nodes (22): backfillLokiQueries(), seedAdmin(), result, schema, db, pg, events, eventsPluginLoadedPartialIndexSql (+14 more)
+Cohesion: 0.10
+Nodes (24): backfillLokiQueries(), seedAdmin(), result, schema, db, pg, auditEvents, eventsPluginLoadedPartialIndexSql (+16 more)
 
 ### Community 96 - "Community 96"
 Cohesion: 0.15
@@ -695,16 +687,16 @@ Cohesion: 0.20
 Nodes (9): Coords, HelpTip(), HelpTipProps, SIZE, html, StatCard(), StatCardProps, StatCardTone (+1 more)
 
 ### Community 103 - "Community 103"
+Cohesion: 0.33
+Nodes (6): jti, name, notNull, primaryKey, type, columns
+
+### Community 104 - "Community 104"
 Cohesion: 0.17
 Nodes (12): jti, revoked_at, name, notNull, primaryKey, type, columns, default (+4 more)
 
-### Community 104 - "Community 104"
-Cohesion: 0.12
-Nodes (18): expires_at, jti, revoked_at, name, notNull, primaryKey, type, name (+10 more)
-
 ### Community 105 - "Community 105"
-Cohesion: 0.12
-Nodes (18): expires_at, jti, revoked_at, name, notNull, primaryKey, type, name (+10 more)
+Cohesion: 0.17
+Nodes (12): jti, revoked_at, name, notNull, primaryKey, type, columns, default (+4 more)
 
 ### Community 106 - "Community 106"
 Cohesion: 0.18
@@ -719,32 +711,32 @@ Cohesion: 0.20
 Nodes (7): IconButton, IconButtonProps, IconButtonSize, IconButtonVariant, SIZE, html, VARIANT
 
 ### Community 109 - "Community 109"
-Cohesion: 0.33
-Nodes (6): name, notNull, primaryKey, type, action, columns
+Cohesion: 0.18
+Nodes (11): name, notNull, primaryKey, type, action, target, columns, name (+3 more)
 
 ### Community 110 - "Community 110"
-Cohesion: 0.40
-Nodes (5): name, notNull, primaryKey, type, attributes
+Cohesion: 0.18
+Nodes (11): name, notNull, primaryKey, type, attributes, event_name, name, notNull (+3 more)
 
 ### Community 111 - "Community 111"
 Cohesion: 0.18
 Nodes (11): email, onboarding_completed_at, name, notNull, primaryKey, type, name, notNull (+3 more)
 
 ### Community 112 - "Community 112"
-Cohesion: 0.18
-Nodes (11): name, notNull, primaryKey, type, name, notNull, primaryKey, type (+3 more)
+Cohesion: 0.12
+Nodes (17): name, notNull, primaryKey, type, default, name, notNull, primaryKey (+9 more)
 
 ### Community 113 - "Community 113"
 Cohesion: 0.18
-Nodes (11): name, notNull, primaryKey, type, action, target, columns, name (+3 more)
+Nodes (11): name, notNull, primaryKey, type, actor_email, target, columns, name (+3 more)
 
 ### Community 114 - "Community 114"
-Cohesion: 0.18
-Nodes (11): session_id, user_email, columns, name, notNull, primaryKey, type, name (+3 more)
+Cohesion: 0.40
+Nodes (5): session_id, name, notNull, primaryKey, type
 
 ### Community 115 - "Community 115"
 Cohesion: 0.09
-Nodes (22): email, onboarding_completed_at, password_hash, role, name, notNull, primaryKey, type (+14 more)
+Nodes (22): email, id, onboarding_completed_at, password_hash, name, notNull, primaryKey, type (+14 more)
 
 ### Community 116 - "Community 116"
 Cohesion: 0.24
@@ -775,10 +767,6 @@ Cohesion: 0.20
 Nodes (10): checkConstraints, compositePrimaryKeys, foreignKeys, isRLSEnabled, name, policies, schema, uniqueConstraints (+2 more)
 
 ### Community 123 - "Community 123"
-Cohesion: 0.20
-Nodes (10): checkConstraints, compositePrimaryKeys, foreignKeys, indexes, isRLSEnabled, name, policies, schema (+2 more)
-
-### Community 124 - "Community 124"
 Cohesion: 0.20
 Nodes (10): checkConstraints, compositePrimaryKeys, foreignKeys, indexes, isRLSEnabled, name, policies, schema (+2 more)
 
@@ -827,8 +815,8 @@ Cohesion: 0.28
 Nodes (7): main(), package_skill(), Check if a path should be excluded from packaging., Package a skill folder into a .skill file.      Args:         skill_path: Path t, should_exclude(), Basic validation of a skill, validate_skill()
 
 ### Community 136 - "Community 136"
-Cohesion: 0.29
-Nodes (7): columns, concurrently, isUnique, method, name, with, events_session_id_idx
+Cohesion: 0.25
+Nodes (8): columns, concurrently, isUnique, method, name, with, events_session_id_idx, indexes
 
 ### Community 137 - "Community 137"
 Cohesion: 0.22
@@ -891,8 +879,8 @@ Cohesion: 0.25
 Nodes (7): All items created successfully, code:block1 (============================================================), code:block2 (============================================================), code:block3 (============================================================), Completion Summary (CLI 0.23.0), No patterns discovered, Partial success (some items failed)
 
 ### Community 152 - "Community 152"
-Cohesion: 0.18
-Nodes (14): createSchema, previewSchema, updateSchema, createIntegration(), DirectStatsDto, getDirectStats(), listIntegrations(), cancelIntegration() (+6 more)
+Cohesion: 0.29
+Nodes (7): columns, concurrently, isUnique, method, name, with, events_session_id_idx
 
 ### Community 153 - "Community 153"
 Cohesion: 0.29
@@ -904,7 +892,7 @@ Nodes (7): Available Analyses, License, Packmind Onboarding Skill, Usage, What I
 
 ### Community 155 - "Community 155"
 Cohesion: 0.15
-Nodes (14): PluginStatus, SkillStatus, AnyStatus, STATUS_BADGE_CLASS, STATUS_LABEL, StatusBadge(), StatusBadgeProps, statusLabel() (+6 more)
+Nodes (12): html, Probe(), STATUSES, useStatusFilter(), PluginStatus, SkillStatus, AnyStatus, STATUS_BADGE_CLASS (+4 more)
 
 ### Community 156 - "Community 156"
 Cohesion: 0.25
@@ -959,20 +947,20 @@ Cohesion: 0.33
 Nodes (6): timestamp, default, name, notNull, primaryKey, type
 
 ### Community 169 - "Community 169"
-Cohesion: 0.33
-Nodes (6): name, notNull, primaryKey, type, action, columns
+Cohesion: 0.18
+Nodes (11): name, notNull, primaryKey, type, name, notNull, primaryKey, type (+3 more)
 
 ### Community 170 - "Community 170"
 Cohesion: 0.33
-Nodes (6): default, name, notNull, primaryKey, type, added_at
+Nodes (6): revoked_at, default, name, notNull, primaryKey, type
 
 ### Community 171 - "Community 171"
 Cohesion: 0.33
-Nodes (6): default, name, notNull, primaryKey, type, auth_type
+Nodes (6): role, default, name, notNull, primaryKey, type
 
 ### Community 172 - "Community 172"
-Cohesion: 0.33
-Nodes (6): created_at, default, name, notNull, primaryKey, type
+Cohesion: 0.12
+Nodes (17): created_at, expires_at, user_label, default, name, notNull, primaryKey, type (+9 more)
 
 ### Community 173 - "Community 173"
 Cohesion: 0.33
@@ -980,19 +968,19 @@ Nodes (6): enabled, default, name, notNull, primaryKey, type
 
 ### Community 174 - "Community 174"
 Cohesion: 0.33
-Nodes (6): id, default, name, notNull, primaryKey, type
+Nodes (6): status, default, name, notNull, primaryKey, type
 
 ### Community 175 - "Community 175"
 Cohesion: 0.33
 Nodes (6): loki_query, default, name, notNull, primaryKey, type
 
 ### Community 176 - "Community 176"
-Cohesion: 0.33
-Nodes (6): role, default, name, notNull, primaryKey, type
+Cohesion: 0.40
+Nodes (5): name, name, notNull, primaryKey, type
 
 ### Community 177 - "Community 177"
-Cohesion: 0.33
-Nodes (6): session_id, columns, name, notNull, primaryKey, type
+Cohesion: 0.40
+Nodes (5): session_id, name, notNull, primaryKey, type
 
 ### Community 178 - "Community 178"
 Cohesion: 0.33
@@ -1015,20 +1003,20 @@ Cohesion: 0.33
 Nodes (6): default, name, notNull, primaryKey, type, auth_type
 
 ### Community 183 - "Community 183"
-Cohesion: 0.33
-Nodes (6): first_seen_at, default, name, notNull, primaryKey, type
+Cohesion: 0.40
+Nodes (5): uniqueConstraints, columns, name, nullsNotDistinct, tokens_jti_unique
 
 ### Community 184 - "Community 184"
-Cohesion: 0.33
-Nodes (6): id, default, name, notNull, primaryKey, type
+Cohesion: 0.40
+Nodes (5): name, notNull, primaryKey, type, auth_username
 
 ### Community 185 - "Community 185"
 Cohesion: 0.33
 Nodes (6): last_seen_at, default, name, notNull, primaryKey, type
 
 ### Community 186 - "Community 186"
-Cohesion: 0.33
-Nodes (6): loki_query, default, name, notNull, primaryKey, type
+Cohesion: 0.12
+Nodes (17): last_sync_at, last_sync_error, loki_query, name, notNull, primaryKey, type, name (+9 more)
 
 ### Community 187 - "Community 187"
 Cohesion: 0.33
@@ -1068,23 +1056,23 @@ Nodes (5): name, notNull, primaryKey, type, actor_email
 
 ### Community 198 - "Community 198"
 Cohesion: 0.40
-Nodes (5): event_name, name, notNull, primaryKey, type
+Nodes (5): onboarding_completed_at, name, notNull, primaryKey, type
 
 ### Community 199 - "Community 199"
 Cohesion: 0.40
 Nodes (5): metadata, name, notNull, primaryKey, type
 
 ### Community 200 - "Community 200"
-Cohesion: 0.15
-Nodes (11): deleteSkills(), audit, AuditCall, callOrder, { deps }, { deps, auditCalls }, { deps, skillsCalls, eventsCalls }, { deps, skillsCalls, eventsCalls, auditCalls } (+3 more)
+Cohesion: 0.17
+Nodes (10): audit, AuditCall, callOrder, { deps }, { deps, auditCalls }, { deps, skillsCalls, eventsCalls }, { deps, skillsCalls, eventsCalls, auditCalls }, entries (+2 more)
 
 ### Community 201 - "Community 201"
-Cohesion: 0.33
-Nodes (6): session_id, columns, name, notNull, primaryKey, type
+Cohesion: 0.40
+Nodes (5): session_id, name, notNull, primaryKey, type
 
 ### Community 202 - "Community 202"
 Cohesion: 0.40
-Nodes (5): target, name, notNull, primaryKey, type
+Nodes (5): name, notNull, primaryKey, type, action
 
 ### Community 203 - "Community 203"
 Cohesion: 0.40
@@ -1092,11 +1080,11 @@ Nodes (5): user_email, name, notNull, primaryKey, type
 
 ### Community 204 - "Community 204"
 Cohesion: 0.40
-Nodes (5): name, notNull, primaryKey, type, actor_email
+Nodes (5): name, notNull, primaryKey, type, auth_password_encrypted
 
 ### Community 205 - "Community 205"
-Cohesion: 0.40
-Nodes (5): name, notNull, primaryKey, type, attributes
+Cohesion: 0.18
+Nodes (11): name, notNull, primaryKey, type, attributes, event_name, name, notNull (+3 more)
 
 ### Community 206 - "Community 206"
 Cohesion: 0.19
@@ -1104,11 +1092,11 @@ Nodes (8): Button, ButtonProps, ButtonSize, ButtonVariant, SIZE, html, VARIANT, 
 
 ### Community 207 - "Community 207"
 Cohesion: 0.40
-Nodes (5): event_name, name, notNull, primaryKey, type
+Nodes (5): name, notNull, primaryKey, type, auth_username
 
 ### Community 208 - "Community 208"
 Cohesion: 0.40
-Nodes (5): last_sync_at, name, notNull, primaryKey, type
+Nodes (5): user_email, name, notNull, primaryKey, type
 
 ### Community 209 - "Community 209"
 Cohesion: 0.40
@@ -1127,20 +1115,16 @@ Cohesion: 0.40
 Nodes (5): user_email, name, notNull, primaryKey, type
 
 ### Community 213 - "Community 213"
-Cohesion: 0.40
-Nodes (5): event_name, name, notNull, primaryKey, type
-
-### Community 214 - "Community 214"
-Cohesion: 0.40
-Nodes (5): last_sync_error, name, notNull, primaryKey, type
+Cohesion: 0.18
+Nodes (11): name, notNull, primaryKey, type, attributes, event_name, name, notNull (+3 more)
 
 ### Community 215 - "Community 215"
 Cohesion: 0.40
 Nodes (5): metadata, name, notNull, primaryKey, type
 
 ### Community 216 - "Community 216"
-Cohesion: 0.40
-Nodes (5): name, name, notNull, primaryKey, type
+Cohesion: 0.12
+Nodes (16): expires_at, name, user_label, name, notNull, primaryKey, type, name (+8 more)
 
 ### Community 217 - "Community 217"
 Cohesion: 0.40
@@ -1153,10 +1137,6 @@ Nodes (5): user_label, name, notNull, primaryKey, type
 ### Community 219 - "Community 219"
 Cohesion: 0.40
 Nodes (5): source_integration_id, name, notNull, primaryKey, type
-
-### Community 220 - "Community 220"
-Cohesion: 0.40
-Nodes (5): name, notNull, primaryKey, type, actor_email
 
 ### Community 221 - "Community 221"
 Cohesion: 0.50
@@ -1194,25 +1174,9 @@ Nodes (8): LIMIT_OPTIONS, LIMIT_SEGMENTS, TIMESTAMP_FORMAT, TRIGGER_KEYS, TRIGGE
 Cohesion: 0.67
 Nodes (3): code:bash (nohup python <skill-creator-path>/eval-viewer/generate_revie), code:bash (python -m scripts.aggregate_benchmark <workspace>/iteration-), Step 4: Grade, aggregate, and launch the viewer
 
-### Community 252 - "Community 252"
-Cohesion: 0.40
-Nodes (5): name, notNull, primaryKey, type, attributes
-
-### Community 253 - "Community 253"
-Cohesion: 0.40
-Nodes (5): last_sync_at, name, notNull, primaryKey, type
-
-### Community 254 - "Community 254"
-Cohesion: 0.40
-Nodes (5): user_label, name, notNull, primaryKey, type
-
 ### Community 256 - "Community 256"
 Cohesion: 0.22
 Nodes (8): SIZE_TRIGGER, StatusChip(), StatusChipOption, StatusChipProps, StatusChipSize, StatusChipTone, TONE_CHIP, TONE_DOT_STYLE
-
-### Community 257 - "Community 257"
-Cohesion: 0.38
-Nodes (5): buildDiff(), shallowEqual(), diff, AuditDiffMetadata, updateMarketplace()
 
 ### Community 258 - "Community 258"
 Cohesion: 0.52
@@ -1230,33 +1194,29 @@ Nodes (5): password_hash, name, notNull, primaryKey, type
 Cohesion: 0.40
 Nodes (5): last_sync_error, name, notNull, primaryKey, type
 
-### Community 262 - "Community 262"
-Cohesion: 0.40
-Nodes (5): user_label, name, notNull, primaryKey, type
-
 ### Community 263 - "Community 263"
 Cohesion: 0.40
 Nodes (5): uniqueConstraints, columns, name, nullsNotDistinct, tokens_jti_unique
 
 ## Knowledge Gaps
-- **1771 isolated node(s):** `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.1` (+1766 more)
+- **1773 isolated node(s):** `@backend/skills-observability-standards`, `agents`, `lockfileVersion`, `packageSlugs`, `agents` (+1768 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **21 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `cn()` connect `Community 30` to `Community 256`, `Community 1`, `Community 0`, `Community 259`, `Community 3`, `Community 7`, `Community 9`, `Community 13`, `Community 18`, `Community 23`, `Community 155`, `Community 36`, `Community 43`, `Community 206`, `Community 85`, `Community 88`, `Community 102`, `Community 233`, `Community 108`?**
-  _High betweenness centrality (0.011) - this node is a cross-community bridge._
-- **Why does `columns` connect `Community 112` to `Community 261`, `Community 75`, `Community 171`, `Community 173`, `Community 174`, `Community 175`, `Community 208`, `Community 172`, `Community 178`, `Community 211`, `Community 180`, `Community 181`, `Community 126`?**
+- **Why does `cn()` connect `Community 85` to `Community 256`, `Community 1`, `Community 0`, `Community 259`, `Community 3`, `Community 9`, `Community 13`, `Community 14`, `Community 18`, `Community 21`, `Community 23`, `Community 30`, `Community 36`, `Community 43`, `Community 206`, `Community 88`, `Community 102`, `Community 233`, `Community 108`?**
+  _High betweenness centrality (0.014) - this node is a cross-community bridge._
+- **Why does `DrizzleEventRepository` connect `Community 4` to `Community 16`?**
   _High betweenness centrality (0.006) - this node is a cross-community bridge._
-- **Why does `DrizzleEventRepository` connect `Community 255` to `Community 16`, `Community 4`?**
-  _High betweenness centrality (0.004) - this node is a cross-community bridge._
-- **What connects `0.6.0`, `0.5.0`, `0.4.0` to the rest of the system?**
-  _1796 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Why does `columns` connect `Community 112` to `Community 261`, `Community 74`, `Community 75`, `Community 172`, `Community 173`, `Community 175`, `Community 178`, `Community 211`, `Community 180`, `Community 181`, `Community 184`, `Community 126`?**
+  _High betweenness centrality (0.005) - this node is a cross-community bridge._
+- **What connects `@backend/skills-observability-standards`, `agents`, `lockfileVersion` to the rest of the system?**
+  _1798 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
   _Cohesion score 0.061224489795918366 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.07419712070874862 - nodes in this community are weakly interconnected._
-- **Should `Community 3` be split into smaller, more focused modules?**
-  _Cohesion score 0.05362517099863201 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.052597402597402594 - nodes in this community are weakly interconnected._
+- **Should `Community 2` be split into smaller, more focused modules?**
+  _Cohesion score 0.0824829931972789 - nodes in this community are weakly interconnected._
