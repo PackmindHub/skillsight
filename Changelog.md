@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.1
+
+- Support self-hosted GitLab marketplace sources. A source now carries an explicit `provider` (`auto` / `github` / `gitlab` / `bitbucket`, selectable in the add-source form); GitLab content — both `marketplace.json` and each plugin's `skills/` listing — is fetched through the GitLab REST API ("get raw file" and repository-tree endpoints) instead of the `/-/raw/` web route, which 302-redirected `PRIVATE-TOKEN` auth to the sign-in page and 404'd private repos. The provider origin is derived from the source git URL so any GitLab host is targeted, not just `gitlab.com`; this also fixes private `gitlab.com` repositories that previously failed the same way. External-plugin token forwarding is now restricted to the same host *and* origin so a token can't leak across GitLab instances. Migration `0024` adds the `provider` column (default `auto`, preserving existing behavior).
+
 ## 0.6.0
 
 - Promote skill identity from `(skill_name, plugin_name)` to the full tuple `(skill_name, plugin_name, marketplace_name, skill_source)`. The same plugin-less skill observed from user settings vs project settings (and per source) are now independent rows in the Skills table with independent approve/deny/ignore status, instead of silently collapsing into one. The status, bulk-status, and delete APIs carry the full key end-to-end; event deletion is scoped by `skill.source` so removing one identity no longer takes out another's events.
