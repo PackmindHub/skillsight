@@ -1633,5 +1633,2270 @@
     "mtime": 1779779916.5218508,
     "ast_hash": "a0fe44f66cf9994a69cbbce0346870e0",
     "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/package.json": {
+    "mtime": 1780992120.0386083,
+    "ast_hash": "09c31daba802925cb861ef930b52db3b",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/docker-local.sh": {
+    "mtime": 1778595105.2367687,
+    "ast_hash": "865729590832bb59328a75438d3d5165",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/package.json": {
+    "mtime": 1780992133.4209368,
+    "ast_hash": "a70911ece7f09c376761975bf42eb446",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/tsconfig.json": {
+    "mtime": 1778161059.2374558,
+    "ast_hash": "81524894f01da4e259af63cf32339b57",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/vite.config.ts": {
+    "mtime": 1778157147.4681678,
+    "ast_hash": "37fe7f20fdaf5b02b966d3e6dd264283",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/biome.json": {
+    "mtime": 1778153353.6891587,
+    "ast_hash": "91ad5b5c84b9472e17e9ce872e76ad83",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/App.tsx": {
+    "mtime": 1779179948.841313,
+    "ast_hash": "74c32de928e83cb6934dddaf765e9c27",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/test-setup.test.ts": {
+    "mtime": 1778421561.2564192,
+    "ast_hash": "1bd13d96e29404666d50e99fe8b2e272",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/main.tsx": {
+    "mtime": 1778149106.4074113,
+    "ast_hash": "491f1d06dfac06a7280e0c39cc6e5f22",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/test-setup.ts": {
+    "mtime": 1778159912.772373,
+    "ast_hash": "8bf5e728cab77756c9818e0733004fe4",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/types/api.ts": {
+    "mtime": 1780996145.7302082,
+    "ast_hash": "343de7c1c8200b84b33e1142929c2a5d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/context/IntegrationsHealthContext.tsx": {
+    "mtime": 1778669969.9121475,
+    "ast_hash": "fda61cf23067e40fceaf655a8b2026c8",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/context/AuthContext.tsx": {
+    "mtime": 1778153370.5452724,
+    "ast_hash": "81a49a61f6d926ed3cc5bb23736939ed",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/context/MarketplaceSourcesHealthContext.tsx": {
+    "mtime": 1778421561.2521908,
+    "ast_hash": "0d748d9f18767c0368948a27e093c479",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/IconButton.test.tsx": {
+    "mtime": 1778833530.479167,
+    "ast_hash": "57b8919efe15a7650b59ea865bc82fbb",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/Button.test.tsx": {
+    "mtime": 1778833537.1500132,
+    "ast_hash": "c444e329318d8131b46d3f3b4a1edb8d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/ConfirmDialog.tsx": {
+    "mtime": 1778488118.7461197,
+    "ast_hash": "cb7d3310926151fa0da0e9c5a7494559",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/StatusFilter.tsx": {
+    "mtime": 1778833176.7549605,
+    "ast_hash": "8911506e43679299029d6fbb1c7c61df",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/Card.tsx": {
+    "mtime": 1778421561.2500079,
+    "ast_hash": "6d74e1eb1b7aac66c158b8303e0781e5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/FormField.test.tsx": {
+    "mtime": 1778421561.25026,
+    "ast_hash": "9450d0036d129bedffd13919e43461c8",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/PageHeader.test.tsx": {
+    "mtime": 1778421561.2507923,
+    "ast_hash": "86d1c51ca947d8360c1f80790031a2af",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/IncludeIgnoredToggle.tsx": {
+    "mtime": 1778833194.6295488,
+    "ast_hash": "e1f056b619d76b8d8f7eb1726ec0fb21",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/FormField.tsx": {
+    "mtime": 1778421561.2503474,
+    "ast_hash": "627d8140a6eca5142c1346d4e291b217",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/PageHeader.tsx": {
+    "mtime": 1778421561.2508733,
+    "ast_hash": "bdde2630eed7492a59b812cc0a2b3356",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/StatusFilter.test.tsx": {
+    "mtime": 1778508317.6275432,
+    "ast_hash": "2de5584142b30ee4110d6badee9d68db",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/Input.test.tsx": {
+    "mtime": 1778421561.250427,
+    "ast_hash": "d5eb043ad14883da88c9b1020618e579",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/StatCard.tsx": {
+    "mtime": 1778858172.6043282,
+    "ast_hash": "34b762fa848c88bbaf12c878d8f1bdbf",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/SearchBar.tsx": {
+    "mtime": 1778421561.251078,
+    "ast_hash": "0dffdccd8411287c6e89658f97da0057",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/Card.test.tsx": {
+    "mtime": 1778421561.2499266,
+    "ast_hash": "b05b36c72d5bc738cd4f6c23858eebfc",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/Drawer.tsx": {
+    "mtime": 1778482410.9629724,
+    "ast_hash": "be9644eac7c55f28264678c4af95ab6c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/Sparkline.tsx": {
+    "mtime": 1778497986.2607245,
+    "ast_hash": "967f452ccc9f1b6b43738199c5a1494c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/StatusBadge.tsx": {
+    "mtime": 1778592460.6681368,
+    "ast_hash": "141cdf12da52bc9b6e8abe73470199e0",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/StatusChip.tsx": {
+    "mtime": 1779371810.5637016,
+    "ast_hash": "bc299a84a3f8c662a66c7b1cdbe66184",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/ConfirmMenuItem.tsx": {
+    "mtime": 1778421561.2500975,
+    "ast_hash": "9d2ece7432a000df26cfcc17147f8339",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/StatusBadge.test.tsx": {
+    "mtime": 1778508320.727247,
+    "ast_hash": "9e06b148fcfbeff8f32ab98463a599c4",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/_styles.ts": {
+    "mtime": 1778833158.0276842,
+    "ast_hash": "184b857dfd8af892bb52b94c5ce1fde7",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/Menu.tsx": {
+    "mtime": 1778421561.2506073,
+    "ast_hash": "6f8056a2d5c02e5913f2ad4febe9eee3",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/IconButton.tsx": {
+    "mtime": 1778833248.426966,
+    "ast_hash": "6b718cc5c502c371e30a2e0eb1dc28dd",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/Table.tsx": {
+    "mtime": 1778832122.2162318,
+    "ast_hash": "e9ee29b418058ce2ffd5579a550be8fb",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/index.ts": {
+    "mtime": 1778858128.9841623,
+    "ast_hash": "5c08f169741994d54b6b2893a8a926d2",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/HelpTip.test.tsx": {
+    "mtime": 1778858280.6579397,
+    "ast_hash": "9bbd0af680f1bdf763e4201792bda9dc",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/Button.tsx": {
+    "mtime": 1778833141.592957,
+    "ast_hash": "2e0e0e8dc07473041d63aac5c91f1975",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/SingleSelect.tsx": {
+    "mtime": 1778833211.468699,
+    "ast_hash": "d5616552f5c7d0feced864f00a6894b5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/MultiSelect.tsx": {
+    "mtime": 1778833226.989223,
+    "ast_hash": "0328e0b3d3135cb3c58a6b3891149c2d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/HelpTip.tsx": {
+    "mtime": 1778858206.388978,
+    "ast_hash": "8f153e19f91329e70e62556760618c09",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/Table.test.tsx": {
+    "mtime": 1778421561.2517595,
+    "ast_hash": "9f896ee55686ce35b93bb575f02f42f0",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/SegmentedControl.tsx": {
+    "mtime": 1778421561.2511659,
+    "ast_hash": "fd05294263390e14f8f1db637b199f83",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/Select.tsx": {
+    "mtime": 1778421561.251244,
+    "ast_hash": "1e81ef0a40497aaef3c1a21ae5c7c591",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/ui/Input.tsx": {
+    "mtime": 1778423036.341931,
+    "ast_hash": "e853475f7dd840520c84007ad4c2667c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/plugins/PluginLoadersChart.tsx": {
+    "mtime": 1778831687.916976,
+    "ast_hash": "579180498443afcc31be382fe811fd1f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/plugins/PluginStatStrip.tsx": {
+    "mtime": 1778841966.2269275,
+    "ast_hash": "3450b34405d851f0464b7bdc8345c5ca",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/plugins/PluginSkillsDrawer.tsx": {
+    "mtime": 1780996176.4456773,
+    "ast_hash": "96ff6cad27ccfafd2b27ce52378f9a55",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/layout/TopBar.tsx": {
+    "mtime": 1778499735.5912683,
+    "ast_hash": "5e6df5c79cbf07424f7d02ee8f951e74",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/layout/AppShell.tsx": {
+    "mtime": 1778497783.4886522,
+    "ast_hash": "3563b34a6f395594ac5380bf42345a27",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/layout/Sidebar.tsx": {
+    "mtime": 1779186211.6063104,
+    "ast_hash": "55ca0454cdc3db5dcbffcd02318307e4",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/cohorts/CohortDrawer.tsx": {
+    "mtime": 1778573907.0193033,
+    "ast_hash": "5d7ac3663a2936910f201a5694cbe80a",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/cohorts/CohortKnot.tsx": {
+    "mtime": 1778573999.3698847,
+    "ast_hash": "0a1b2b4e696fea8180613ac60029bcd0",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/cohorts/AvatarStack.tsx": {
+    "mtime": 1778573869.5385773,
+    "ast_hash": "0b4262a22e2e461a07dec554ffcde79d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/cohorts/SkillChip.tsx": {
+    "mtime": 1778573880.531644,
+    "ast_hash": "c0f0d9a1f62b9dcb8cc9ef79eb40d3b1",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/cohorts/CohortCard.tsx": {
+    "mtime": 1778573892.2173247,
+    "ast_hash": "d8dab649f2f7543206f7e852123edb99",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/cohorts/format.ts": {
+    "mtime": 1778573884.6170805,
+    "ast_hash": "37f61178001265f6c3d1281fa175d25e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/cohorts/skill-color.ts": {
+    "mtime": 1778573857.2848918,
+    "ast_hash": "f8532a98aec55f4ddd7a41152dfb224d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/cohorts/initials.ts": {
+    "mtime": 1778573876.0519335,
+    "ast_hash": "317ada05f198e7e0e02e0d1bcbc2484b",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/integrations/IntegrationFormDrawer.tsx": {
+    "mtime": 1778832097.4496365,
+    "ast_hash": "e918311a0e3d98bd0de3421741a438c1",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/integrations/IntegrationCard.tsx": {
+    "mtime": 1778833290.947494,
+    "ast_hash": "f1a28f27412e1ee3682b3cea72b18773",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/integrations/_parts.tsx": {
+    "mtime": 1778598736.5096374,
+    "ast_hash": "9cb93965c75cc7c8a6525fa0827e004e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/integrations/DirectIntegrationCard.tsx": {
+    "mtime": 1778675180.83113,
+    "ast_hash": "27e3a878d987f74b7c61ecccfb69ebb9",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/audit/DiffView.tsx": {
+    "mtime": 1778421561.2478771,
+    "ast_hash": "b6bfff5a6b9d2611b59fda83fda175de",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/audit/AuditFilters.tsx": {
+    "mtime": 1778423049.9349897,
+    "ast_hash": "014240ac2e7ed837401d90e1c7a88c32",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/skills/PluginChip.tsx": {
+    "mtime": 1779090608.2324717,
+    "ast_hash": "a70dc9ee317b727710764334a8c74a18",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/skills/SkillDetailDrawer.tsx": {
+    "mtime": 1778697213.6036913,
+    "ast_hash": "6c1285ad952d727813c5179f3cac73a3",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/skills/TrendSparkline.tsx": {
+    "mtime": 1778510507.901504,
+    "ast_hash": "94f65105b4cbfd97e2bf88d3f941dbd3",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/skills/SkillStatStrip.tsx": {
+    "mtime": 1778841889.6624937,
+    "ast_hash": "7f14c7447559f33f84f4992e4e3b992c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/marketplaces/MarketplaceBadge.tsx": {
+    "mtime": 1778507523.3096457,
+    "ast_hash": "6abe051327533031e1a497f36de8c75f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/marketplaces/SourceErrorBanner.tsx": {
+    "mtime": 1778421561.2489371,
+    "ast_hash": "883072675e1ee951de16f8c544348cd5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/marketplaces/MarketplaceStatStrip.tsx": {
+    "mtime": 1778842560.8795779,
+    "ast_hash": "cc3d9e3fa8e3b23d9392f89e7d28889c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/marketplaces/MarketplaceDetailsDrawer.tsx": {
+    "mtime": 1779355386.9950218,
+    "ast_hash": "c0be26b20c074a5b7fb109bbc6eb5968",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/co-usage/ComboDrawer.tsx": {
+    "mtime": 1779785377.3376896,
+    "ast_hash": "1af94fefdb23bb950d5a36323742994d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/components/co-usage/types.ts": {
+    "mtime": 1779785377.3379235,
+    "ast_hash": "c2e767940e7768aeca79e726a474be4d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/lib/utils.test.ts": {
+    "mtime": 1778665360.2947214,
+    "ast_hash": "25cd892d123f8aba00952d893c1870f8",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/lib/marketplace-source-label.ts": {
+    "mtime": 1779355237.6265159,
+    "ast_hash": "dae9d3a384d8548bd8f0da426c907882",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/lib/use-status-filter.ts": {
+    "mtime": 1778421561.2527869,
+    "ast_hash": "6bc91f3fee379137cefa6340fcab2f07",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/lib/utils.ts": {
+    "mtime": 1778832047.4227605,
+    "ast_hash": "49a1531863926374fe9e0c4211b9c449",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/lib/api.ts": {
+    "mtime": 1780996152.4322448,
+    "ast_hash": "03c2469d66ffac16b6a3edc565723eb5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/lib/use-debounced-value.ts": {
+    "mtime": 1778421561.2526257,
+    "ast_hash": "c506feb4ac0d846ef7cb9eb2eb38bf6c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/lib/use-include-without-skills.ts": {
+    "mtime": 1778668370.7618766,
+    "ast_hash": "cf99dcc6b897f6b24d661ea4da52cf6c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/lib/fuzzy.ts": {
+    "mtime": 1778421561.2525442,
+    "ast_hash": "434af63d3ea399b7c986f21dfcb80349",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/lib/use-status-filter.test.tsx": {
+    "mtime": 1778508322.1175234,
+    "ast_hash": "e7a91217e8f82758cffb4f1e2e9dd79a",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/lib/use-include-ignored.ts": {
+    "mtime": 1778592473.4530342,
+    "ast_hash": "e7f355e80481c53e463b70717a0b363d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/pages/PluginsPage.tsx": {
+    "mtime": 1780996228.618197,
+    "ast_hash": "a1cf82bc80a2c6d8418dcd213dc54d49",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/pages/LoginPage.tsx": {
+    "mtime": 1778421561.2537985,
+    "ast_hash": "a510d794c5c571082f4e94f0c6cbc62d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/pages/SkillsTablePage.tsx": {
+    "mtime": 1780991471.1070411,
+    "ast_hash": "678ec72443ac57f75d85165ba5724131",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/pages/CoUsagePage.tsx": {
+    "mtime": 1779785377.33885,
+    "ast_hash": "550e2180dbf8c01aea64c3eb49519272",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/pages/AuditLogPage.tsx": {
+    "mtime": 1778672083.6234093,
+    "ast_hash": "ac292c1e76bc2e3aff955aa15b02ceeb",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/pages/TokensPage.tsx": {
+    "mtime": 1778599654.8162634,
+    "ast_hash": "c6d763a7f0315259c3ba529d20c33f8d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/pages/OnboardingPage.tsx": {
+    "mtime": 1778421561.2547147,
+    "ast_hash": "7d13b605850ea0f4fcae4bc102aa2fcc",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/pages/MarketplacesPage.tsx": {
+    "mtime": 1779355336.7519684,
+    "ast_hash": "b2d63e61cc4b053c586a9e61578b5694",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/pages/CohortsPage.tsx": {
+    "mtime": 1778833513.469431,
+    "ast_hash": "fc2af62a6a41c3117ddd680b169101b1",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/pages/DashboardPage.tsx": {
+    "mtime": 1778833477.929202,
+    "ast_hash": "c9b87dd3737149e8110653888672909c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/pages/LiveEventsPage.tsx": {
+    "mtime": 1778833434.1812742,
+    "ast_hash": "2f82683bf430136d71ff51e384d0e961",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/src/pages/settings/IntegrationsPage.tsx": {
+    "mtime": 1778670006.7767804,
+    "ast_hash": "99d3325cd65574e7d866a938cb175cb9",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/settings.json": {
+    "mtime": 1779785377.3721347,
+    "ast_hash": "ef240a0011506e4dac5e50a66a68191e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/settings.local.json": {
+    "mtime": 1780991772.5146925,
+    "ast_hash": "fcc4297f7ecc58114948cc7083192cae",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/skill-creator/eval-viewer/generate_review.py": {
+    "mtime": 1778422371.3064866,
+    "ast_hash": "d7f883f3d3596e62618faecf298c4f5f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/skill-creator/scripts/run_eval.py": {
+    "mtime": 1778422371.3118067,
+    "ast_hash": "75269360a221e48f79425605de5e5cb6",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/skill-creator/scripts/package_skill.py": {
+    "mtime": 1778422371.3125083,
+    "ast_hash": "ba8744b000bd7d7ffcb5c85113113f0e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/skill-creator/scripts/quick_validate.py": {
+    "mtime": 1778422371.3129656,
+    "ast_hash": "8247be9cfc7938843f586b6509a64641",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/skill-creator/scripts/improve_description.py": {
+    "mtime": 1778422371.3135011,
+    "ast_hash": "b20bbcc3d69bc299b541c8b62c25cefe",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/skill-creator/scripts/aggregate_benchmark.py": {
+    "mtime": 1778422371.3141506,
+    "ast_hash": "5c2dfb44a0a33c588e9e9f3df60a3537",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/skill-creator/scripts/__init__.py": {
+    "mtime": 1778422371.3143523,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/skill-creator/scripts/run_loop.py": {
+    "mtime": 1778422371.3150632,
+    "ast_hash": "c3365f6c1927bf535f463f841c32ae81",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/skill-creator/scripts/generate_report.py": {
+    "mtime": 1778422371.3158798,
+    "ast_hash": "09607615aed355c104f9c4f6dec7c9aa",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/skill-creator/scripts/utils.py": {
+    "mtime": 1778422371.3163106,
+    "ast_hash": "6cf213a77cbadc39febbaf9ee57fac10",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/package.json": {
+    "mtime": 1780992133.4194999,
+    "ast_hash": "fdf2b42e249eac17ec0ca4c8d86d204b",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/tsconfig.json": {
+    "mtime": 1778161202.2427518,
+    "ast_hash": "50b1a5ca51c1d7444d6e91fb0e5c485b",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/drizzle.config.ts": {
+    "mtime": 1778148638.4590738,
+    "ast_hash": "238cee029d15b393f42fea2253c589cb",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/biome.json": {
+    "mtime": 1778148634.2444673,
+    "ast_hash": "b6668dcd303969b7d8af28becc279396",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/app.ts": {
+    "mtime": 1779184558.1312845,
+    "ast_hash": "8b742b8c6a9f0b208fccff7ca3a49da6",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/test-setup.ts": {
+    "mtime": 1778184623.7181406,
+    "ast_hash": "83000b7836ea4cf360c9f07bd5d5f3fd",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/types.ts": {
+    "mtime": 1778148949.4162786,
+    "ast_hash": "396fa08f312bc4d3dbf8c90b73904692",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/index.ts": {
+    "mtime": 1779353243.497501,
+    "ast_hash": "49a23cd4549c2c168e40702287acea73",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/middleware/session-auth.ts": {
+    "mtime": 1778831687.9167204,
+    "ast_hash": "dd474c1c585d54e9cf67bbc59e8458ce",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/middleware/require-admin.ts": {
+    "mtime": 1778831687.9165335,
+    "ast_hash": "fc238bafc89fac4b89cd84d301e00fa7",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/middleware/ingestion-auth.ts": {
+    "mtime": 1778831687.9163983,
+    "ast_hash": "3e58c72eb8420b8b27abb8e05f752d70",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/parsers/otlp-parser.test.ts": {
+    "mtime": 1778600239.8719993,
+    "ast_hash": "1685e9f077e5d7ec6bde68124f64761c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/parsers/loki-stream-parser.ts": {
+    "mtime": 1778484272.265004,
+    "ast_hash": "38d9d98a470f9f996ace24999109846e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/parsers/otlp-parser.ts": {
+    "mtime": 1778600234.4662125,
+    "ast_hash": "96933aa51eb5aa9002e0cea065df05c6",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/bootstrap/backfill-loki-queries.ts": {
+    "mtime": 1778685258.9366183,
+    "ast_hash": "44782671dd8683d6c655bebf93eb3596",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/bootstrap/seed-admin.ts": {
+    "mtime": 1778162264.5416243,
+    "ast_hash": "48b4a070f503bc33e5015d953ae3e109",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/bootstrap/compose.ts": {
+    "mtime": 1779353153.1355436,
+    "ast_hash": "669712e75082dfcbc1a233c11898cd34",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/config/env.ts": {
+    "mtime": 1778678266.203536,
+    "ast_hash": "ce1ba2fa90103f0793f5d129fc5c6f3f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/http/telemetry.test.ts": {
+    "mtime": 1778831687.9128377,
+    "ast_hash": "d7be9c27af16898e1660e3a63a20893d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/http/marketplaces.ts": {
+    "mtime": 1778831687.9112954,
+    "ast_hash": "8c12d2b153b3c861848f014e8a28b45f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/http/integrations.ts": {
+    "mtime": 1779353226.2658665,
+    "ast_hash": "e46e841dccedbe8f3115090f177c7ef3",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/http/marketplace-sources.ts": {
+    "mtime": 1779353272.9310021,
+    "ast_hash": "cd42c4749c329ffd058ae92b65af86f2",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/http/auth.test.ts": {
+    "mtime": 1778421561.2381618,
+    "ast_hash": "127b390ca0b4823583e26e372fe1f955",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/http/telemetry.ts": {
+    "mtime": 1779353211.0681877,
+    "ast_hash": "6c13e5b1e5bbc3690e022ebfa2833f67",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/http/events.ts": {
+    "mtime": 1778531805.686419,
+    "ast_hash": "2a23e9ef0fc2b037d64677f489956620",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/http/health.ts": {
+    "mtime": 1778575514.164312,
+    "ast_hash": "a29a0c51eecfaffcc7737408743c61a4",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/http/audit.ts": {
+    "mtime": 1778831687.9095123,
+    "ast_hash": "14bc7d3c1d53530266727e9dff144b98",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/http/co-usage.ts": {
+    "mtime": 1779785377.3368816,
+    "ast_hash": "3ccba21aadd3d385a44526aa9ac257bc",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/http/plugins.ts": {
+    "mtime": 1780996115.6416235,
+    "ast_hash": "39b6f0aaff7911eb289cf3de46e8363d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/http/auth.ts": {
+    "mtime": 1778421561.2383015,
+    "ast_hash": "b90eda8dbe2f6d33d22c6cb503168a45",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/http/cohorts.ts": {
+    "mtime": 1778573700.6394327,
+    "ast_hash": "8edf552c6df3d5bfec79cd72afd6ac26",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/http/skills/usage.ts": {
+    "mtime": 1778685496.487554,
+    "ast_hash": "9687647f21d5857569a4e7832b1058c7",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/http/skills/update-status.ts": {
+    "mtime": 1780989759.9535804,
+    "ast_hash": "07f844f759a8b886f08fa2c052d4e7fa",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/http/skills/usage.test.ts": {
+    "mtime": 1778611770.9992132,
+    "ast_hash": "9e75393ee5707ad8934bd618f079d059",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/http/skills/update-status-bulk.ts": {
+    "mtime": 1780989769.5566936,
+    "ast_hash": "a01cc2c0a7c98e96ef64d9800afab6b1",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/http/skills/delete.ts": {
+    "mtime": 1780989777.2680283,
+    "ast_hash": "36792deb71dd4aed5702fa11db576a29",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/lib/request-url.ts": {
+    "mtime": 1778421561.2446537,
+    "ast_hash": "2f61cb85db100f6481d36514108e2f1d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/lib/semver.test.ts": {
+    "mtime": 1778689064.3049786,
+    "ast_hash": "ec016c486458f140ef528e3709b80409",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/lib/event-bus.ts": {
+    "mtime": 1778531668.4329178,
+    "ast_hash": "9df6c288c34af2ce754452f9aeabc694",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/lib/semver.ts": {
+    "mtime": 1778689054.1735117,
+    "ast_hash": "e1bdc5d1ea806871e266179939d5d0c5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/schema.ts": {
+    "mtime": 1780988827.1378498,
+    "ast_hash": "e73c1834188cba4c390b199db4f52571",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/client.ts": {
+    "mtime": 1778421561.2331617,
+    "ast_hash": "8a2098af9ee744b1ff9b97a151df5808",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0018_events_source_indexes.sql": {
+    "mtime": 1778600781.7352114,
+    "ast_hash": "56a2d8bad8e2d67d445ef4245bd9ec36",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0001_panoramic_edwin_jarvis.sql": {
+    "mtime": 1778159283.5842154,
+    "ast_hash": "d2f1c5664bf2ae5d2aec1f1e0447f806",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0020_events_plugin_loaded_partial_idx.sql": {
+    "mtime": 1778844131.9185088,
+    "ast_hash": "537579a7d5aae6b5262c31104b4e2f86",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0010_skills.sql": {
+    "mtime": 1778421561.234146,
+    "ast_hash": "6341d798adea3ae9ece8303ce850c918",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0013_events_dedup_idx.sql": {
+    "mtime": 1778499197.4030879,
+    "ast_hash": "445e77a7b66835a51ba50f98543d421f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0016_plugins_source.sql": {
+    "mtime": 1778589463.075862,
+    "ast_hash": "22d3b6be1d6aeb597121b93b00c4b5b8",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0002_puzzling_giant_man.sql": {
+    "mtime": 1778160926.5304956,
+    "ast_hash": "6c880ffa2c077910df333ffe9d7353bd",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0004_marketplace_sources.sql": {
+    "mtime": 1778423115.6104765,
+    "ast_hash": "2d7131d4e8c6a835833e82cecbc61964",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0006_plugin_skills.sql": {
+    "mtime": 1778185115.1378214,
+    "ast_hash": "393c2280ebb64ae393ba6926445b4fed",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0007_default_loki_query.sql": {
+    "mtime": 1778185685.061099,
+    "ast_hash": "13b807a42aa678b75c231dc1076ae29e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0021_packmind_marketplace.sql": {
+    "mtime": 1779352502.582513,
+    "ast_hash": "90b129e769de380407f6d4166d8ca516",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0003_plugins.sql": {
+    "mtime": 1778162761.0870867,
+    "ast_hash": "23292bbfa666cfe68ed9f6ab34104b47",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0019_add_plugin_versions.sql": {
+    "mtime": 1778688881.68667,
+    "ast_hash": "a47d7bc221d1593610f916e5d6223a56",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0000_empty_zodiak.sql": {
+    "mtime": 1778148727.1586106,
+    "ast_hash": "db231428784eeb023a9ee471366a7ecc",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0009_audit_indexes.sql": {
+    "mtime": 1778421561.2339103,
+    "ast_hash": "3eaa4dd381984c8e074e7be1c10e413c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0002_marketplace.sql": {
+    "mtime": 1778160024.3406134,
+    "ast_hash": "ea0539dba3fda3547a0fb4811f64d70b",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0014_repurge_inline_marketplace.sql": {
+    "mtime": 1778502848.9280655,
+    "ast_hash": "eef7e6ef3adbdcce3a65752e9f9d398d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0017_events_source_integration_fk.sql": {
+    "mtime": 1778597681.7179475,
+    "ast_hash": "dcfbfe84a48d4e1bc85205af52875633",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0005_import_plugins_and_skills.sql": {
+    "mtime": 1778422114.2897532,
+    "ast_hash": "905d023d0ffb8c7507665e6d065a3bc4",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0011_loki_query_default_line_regex.sql": {
+    "mtime": 1778484547.2275758,
+    "ast_hash": "4385d0188bb0b1819040b392dcef6c33",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0015_status_to_review_default.sql": {
+    "mtime": 1778508033.9058406,
+    "ast_hash": "57a63c8d5d32b850d5797c183a4cb4b4",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0012_clear_inline_marketplace.sql": {
+    "mtime": 1778493132.9884193,
+    "ast_hash": "2f85cb8288ebfbbe58491314633de509",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0008_plugin_skills_skill_name_idx.sql": {
+    "mtime": 1778421561.2335215,
+    "ast_hash": "9f240830ef81d791fa01d23db2c3bcd5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/meta/0000_snapshot.json": {
+    "mtime": 1778148715.121546,
+    "ast_hash": "098bd79cd7525f19479ebfa7fa510133",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/meta/_journal.json": {
+    "mtime": 1780988841.934815,
+    "ast_hash": "029f6721985775e11e83f049a8c536e7",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/meta/0001_snapshot.json": {
+    "mtime": 1778159283.583911,
+    "ast_hash": "1934114defe9eb6eb99e1d375c380061",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/meta/0002_snapshot.json": {
+    "mtime": 1778160847.4015257,
+    "ast_hash": "9625d3c7c01d974645306d6aadf4e41d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplace-sources/sync-marketplace-source.ts": {
+    "mtime": 1780989742.663257,
+    "ast_hash": "c72a0889838142708dc2b95e40c83eb1",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplace-sources/test-marketplace-source-connection.ts": {
+    "mtime": 1779353022.0587165,
+    "ast_hash": "9518f57328e73faa139dc888a55be16d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplace-sources/sync-marketplace-source.types.ts": {
+    "mtime": 1779352970.8291554,
+    "ast_hash": "4bc1ddc7ed13e79524eefda4b2a6c0fe",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplace-sources/update-marketplace-source.test.ts": {
+    "mtime": 1779353642.686855,
+    "ast_hash": "6c3a6aae2e38d05d381b9e07713d29a0",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplace-sources/list-marketplace-sources.ts": {
+    "mtime": 1779353263.472755,
+    "ast_hash": "189b81524d31f541e23790de9c079557",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplace-sources/delete-marketplace-source.ts": {
+    "mtime": 1778421561.228601,
+    "ast_hash": "a7a9dbd50aa05ac1014c8c978dc66b62",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplace-sources/create-marketplace-source.ts": {
+    "mtime": 1779352829.9995694,
+    "ast_hash": "66498e462526a07f6a8d1d5b67d2af32",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplace-sources/sync-marketplace-source.test.ts": {
+    "mtime": 1780991371.0089467,
+    "ast_hash": "b8def04b59a648414a0f976a9fec5a19",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplace-sources/create-marketplace-source.test.ts": {
+    "mtime": 1779353624.072757,
+    "ast_hash": "1e11b7be15d4a418470a2ba8c84c7ae0",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplace-sources/update-marketplace-source.ts": {
+    "mtime": 1779352837.857533,
+    "ast_hash": "9973349abe3475f38458ad0d6a0ecf18",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplace-sources/sync-packmind-marketplace-source.ts": {
+    "mtime": 1780989726.176043,
+    "ast_hash": "d0de89f3d1238a1ab8070b20776667b9",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplace-sources/test-marketplace-source-connection.test.ts": {
+    "mtime": 1779354533.1066577,
+    "ast_hash": "f67028f18dcb3c4dc748c6773f3207ba",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplace-sources/delete-marketplace-source.test.ts": {
+    "mtime": 1779353636.0182145,
+    "ast_hash": "643746dcf7a0425b409a888fd39eb6da",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/auth/login.ts": {
+    "mtime": 1778831687.9059672,
+    "ast_hash": "aea5a3c606528e1076da95f4d9d19d93",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/auth/complete-onboarding.ts": {
+    "mtime": 1778161858.7487803,
+    "ast_hash": "3e0d84b89c7398c1dc95e3912e1666dc",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/auth/get-current-user.ts": {
+    "mtime": 1778161851.116718,
+    "ast_hash": "00d99a6fd00838c843e24dca5f76877a",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/plugins/sync-plugin-statuses.ts": {
+    "mtime": 1778421561.230817,
+    "ast_hash": "ccc5141be2ad83e04b8422c07a26fdad",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/plugins/get-plugin-weekly-loaders.ts": {
+    "mtime": 1778831687.9062707,
+    "ast_hash": "dfd9724515f90c343ef577f987911150",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/plugins/sync-plugin-statuses.test.ts": {
+    "mtime": 1778677721.864618,
+    "ast_hash": "0107d7eb24b13d1d3792f51ab7932161",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/plugins/list-plugin-skills.ts": {
+    "mtime": 1780996109.0417309,
+    "ast_hash": "22cde75ede72c30548ed53fb20d1a7ee",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/plugins/list-plugins.ts": {
+    "mtime": 1778592397.584229,
+    "ast_hash": "2f8125f578b59d3c3ffb286cdaf2fb61",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/plugins/update-plugin.ts": {
+    "mtime": 1778491765.425637,
+    "ast_hash": "f3ba8667e7de3b87c2a320d8eb69a82e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/plugins/get-plugin-weekly-loaders.test.ts": {
+    "mtime": 1778831687.9061332,
+    "ast_hash": "5a09d7ca05a7ad1b59847bf9045ac840",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/cohorts/get-cohorts.ts": {
+    "mtime": 1778574014.9688783,
+    "ast_hash": "39fe9b0c8d2d015d38566c11ae4587aa",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/cohorts/get-cohorts.test.ts": {
+    "mtime": 1778574201.674337,
+    "ast_hash": "2060caca65d59e9fa699ad1c474bf4b4",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/integrations/get-direct-stats.ts": {
+    "mtime": 1778597458.969497,
+    "ast_hash": "69859660b66576e80d90de0736bcc447",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/integrations/update-integration.ts": {
+    "mtime": 1778421561.227468,
+    "ast_hash": "b500751188cb043936e8e55e74f27b93",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/integrations/clear-integration-data.ts": {
+    "mtime": 1778421561.2255032,
+    "ast_hash": "7a2827de250ed3a57351c02bbed468d3",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/integrations/delete-integration.ts": {
+    "mtime": 1778421561.2262335,
+    "ast_hash": "9e8d760a21cdc93fec7cc6927b608096",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/integrations/publish-integration-update.ts": {
+    "mtime": 1778502367.2100344,
+    "ast_hash": "109e8891906b7718f923264ca364a981",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/integrations/list-integrations.ts": {
+    "mtime": 1778161992.6245894,
+    "ast_hash": "64cac067fb66a032b0febf3d1125c59c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/integrations/clear-direct-data.ts": {
+    "mtime": 1778597478.360034,
+    "ast_hash": "0188056616c11d7228eace39eda40edd",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/integrations/create-integration.ts": {
+    "mtime": 1778421561.2257562,
+    "ast_hash": "f27ec8d990c9671406817408283309ed",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/integrations/sync-integration.ts": {
+    "mtime": 1779355212.526761,
+    "ast_hash": "fbbefa6f353087d1f48dd9d53394d5a6",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/integrations/preview-integration.ts": {
+    "mtime": 1778487014.5279179,
+    "ast_hash": "7da48c663c0ae674a05a23e178262434",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/integrations/sync-integration.test.ts": {
+    "mtime": 1779353408.7481155,
+    "ast_hash": "061b5eed7525f128c2be703ff5c50e08",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/audit/list-audit-events.ts": {
+    "mtime": 1778421561.2251623,
+    "ast_hash": "2f1228137f7f2b8da6733c5005877655",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/audit/record-audit.ts": {
+    "mtime": 1778421561.225259,
+    "ast_hash": "e5e099e2d6316a842d1d5cec05097045",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/audit/diff.ts": {
+    "mtime": 1778421561.2248483,
+    "ast_hash": "404ea60025567aee7d37ce5ec745a571",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/audit/diff.test.ts": {
+    "mtime": 1778421561.2247584,
+    "ast_hash": "bffb1e3cdeb637a25985937439b75bef",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/audit/export-audit-events.ts": {
+    "mtime": 1778421561.2250266,
+    "ast_hash": "ab2e7a3f3f1f0191f30f45a9820ea64d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/audit/export-audit-events.test.ts": {
+    "mtime": 1778421561.2249372,
+    "ast_hash": "0a58ea645dbaa221f0063a9c9e21fe73",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/skills/update-skill-status.ts": {
+    "mtime": 1780989553.5172482,
+    "ast_hash": "392781e1f8fd8e2e596a7c5c867b2041",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/skills/get-skill-detail.ts": {
+    "mtime": 1778611699.209702,
+    "ast_hash": "3513d6f0aeabb46b1631669ceab39fc0",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/skills/get-monthly-trends.ts": {
+    "mtime": 1778421561.231036,
+    "ast_hash": "996e637196b7845007bd09ab455c2a6d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/skills/get-monthly-trends.test.ts": {
+    "mtime": 1778574721.094314,
+    "ast_hash": "f5fda6734c460fe2c47aed74f7cfa76c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/skills/delete-skills.test.ts": {
+    "mtime": 1780991339.5024076,
+    "ast_hash": "e0a94fc42c4119c14b89400400a5bb65",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/skills/update-skills-status.test.ts": {
+    "mtime": 1778508101.3022084,
+    "ast_hash": "bd7c601f8468455cd7b55a83c2f2112e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/skills/update-skill-status.test.ts": {
+    "mtime": 1778592700.4739401,
+    "ast_hash": "0bbb26190b784ceb895a1760f47343d9",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/skills/get-skills-table.ts": {
+    "mtime": 1778611690.1839645,
+    "ast_hash": "7cd1dcefbd5e2fd5dbdd250a29dd9a6f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/skills/get-usage-stats.ts": {
+    "mtime": 1778685483.4989364,
+    "ast_hash": "4fdfbc05182746ac4e639bc74b104a2e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/skills/delete-skills.ts": {
+    "mtime": 1780991471.0881672,
+    "ast_hash": "d3793356b0c59ee7ebffa5b4eb21fe2e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/skills/update-skills-status.ts": {
+    "mtime": 1780991471.0967407,
+    "ast_hash": "3c843d8e6986fc5b5162198a65616db7",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/skills/get-skills-table.test.ts": {
+    "mtime": 1778664264.0020895,
+    "ast_hash": "b14c19ea1a849bbef995d5fcb585009f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/telemetry/ingest-events.test.ts": {
+    "mtime": 1780991295.7811325,
+    "ast_hash": "6e0ca6ce7fc25c0d2557d60eb478b5c8",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/telemetry/ingest-events.ts": {
+    "mtime": 1780989530.9421215,
+    "ast_hash": "3f11f92f109f0a3aa8759501e9b53cfb",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/external-skill-mappings/mapping-cache.ts": {
+    "mtime": 1779352847.8765223,
+    "ast_hash": "c5e2398ac87c836e2b434abcb4c0803f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/external-skill-mappings/mapping-cache.test.ts": {
+    "mtime": 1779354591.3955884,
+    "ast_hash": "2b615e03e9d270de8783ce80ee2df73e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/external-skill-mappings/resolve-skill-context.ts": {
+    "mtime": 1779355146.9970798,
+    "ast_hash": "ddea8dc70e5958b157a636a5ec40e4c1",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplaces/delete-marketplaces.ts": {
+    "mtime": 1778671990.654723,
+    "ast_hash": "247bbcc305ce153c27e9e26576f781f2",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplaces/delete-marketplace.test.ts": {
+    "mtime": 1778509997.6344202,
+    "ast_hash": "8de4366487e60c13f792d2b035b8367b",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplaces/delete-marketplace.ts": {
+    "mtime": 1778492797.258555,
+    "ast_hash": "ec08b1ebda683fc0b0d0d950002c65cf",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplaces/update-marketplaces-status.ts": {
+    "mtime": 1778672056.9299216,
+    "ast_hash": "c485b40e9e8a8e15b30613306a2c371e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplaces/update-marketplace.ts": {
+    "mtime": 1778421561.2305262,
+    "ast_hash": "4f9fb929cffa2908aebe6a0168036adc",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplaces/list-marketplaces.ts": {
+    "mtime": 1778592399.2541602,
+    "ast_hash": "e010d4c275b1c03683616f7b28b2c470",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplaces/list-marketplace-detail.ts": {
+    "mtime": 1778421561.2303925,
+    "ast_hash": "5c79535e29795a022cb13af620375b2f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplaces/update-marketplaces-status.test.ts": {
+    "mtime": 1778672115.0534933,
+    "ast_hash": "5cabc502d92561e2ba53120493e7973c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/marketplaces/delete-marketplaces.test.ts": {
+    "mtime": 1778672035.5683737,
+    "ast_hash": "f993e80f07389a456c28b739d0f35ded",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/co-usage/get-session-timeline.ts": {
+    "mtime": 1779785377.333949,
+    "ast_hash": "8208575246c5d322beb6234000b254e7",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/co-usage/get-co-usage.ts": {
+    "mtime": 1779179697.2428946,
+    "ast_hash": "094e1495a208622bde4550f62f68cc43",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/crypto/jwt.ts": {
+    "mtime": 1778831687.9148397,
+    "ast_hash": "3bf28a4067e085a5211c92c58532ac46",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/crypto/jwt.test.ts": {
+    "mtime": 1778421561.2409396,
+    "ast_hash": "98e9ed68ab9128396d5ce26efe57c83b",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/crypto/encrypt.ts": {
+    "mtime": 1778161440.015624,
+    "ast_hash": "775973bdad4766a83b75a09f146b5f7c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/scheduler/marketplace-source-scheduler.ts": {
+    "mtime": 1778421561.2441556,
+    "ast_hash": "80e0c7afc6f7bc6af47446c3ea26596e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/scheduler/sync-scheduler.ts": {
+    "mtime": 1778578146.8785942,
+    "ast_hash": "1c6956a4f05dde88618f79c3dc13369f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/repositories/drizzle-plugin-skill-repository.ts": {
+    "mtime": 1778489618.4990587,
+    "ast_hash": "3aa87cc2d34cbb4d244b6100d16200d0",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/repositories/drizzle-event-repository.ts": {
+    "mtime": 1780989708.879773,
+    "ast_hash": "7e3f8212de51234ecd5847f7369cc5e1",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/repositories/drizzle-marketplace-source-repository.ts": {
+    "mtime": 1779352630.0766473,
+    "ast_hash": "fa01d38bec980528d85f90907a387692",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/repositories/drizzle-plugin-repository.ts": {
+    "mtime": 1780996083.7514553,
+    "ast_hash": "60a56f8218eb1adc7d731aaf8fdaf516",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/repositories/drizzle-user-repository.ts": {
+    "mtime": 1778161613.1241262,
+    "ast_hash": "8c36eeb811b8464fbeec805f1a0e7d67",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/repositories/drizzle-external-skill-plugin-mapping-repository.ts": {
+    "mtime": 1780988214.8000243,
+    "ast_hash": "ab75fc5667fd1fa2ddce4a9b36fc3baf",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/repositories/drizzle-marketplace-repository.ts": {
+    "mtime": 1779352674.6517816,
+    "ast_hash": "09b088c6b2441f8b98cccd1d2702511e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/repositories/drizzle-audit-repository.ts": {
+    "mtime": 1778421561.2421637,
+    "ast_hash": "56f056c731b9f44cec21605da712c35e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/repositories/drizzle-plugin-version-repository.ts": {
+    "mtime": 1778689027.354064,
+    "ast_hash": "a57e0475f4b3fcfc8d77b5d3c4d9a7c2",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/repositories/drizzle-integration-repository.ts": {
+    "mtime": 1778601339.5129356,
+    "ast_hash": "5dee6449ee4304240cecc65794e0cb0a",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/repositories/drizzle-skill-repository.ts": {
+    "mtime": 1780991471.0766966,
+    "ast_hash": "571323452f2682ccc2fddef3ebd52a1d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/audit/redact.ts": {
+    "mtime": 1778421561.2408464,
+    "ast_hash": "3d8dc19517960f1e67e5b2d4f6329bce",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/audit/redact.test.ts": {
+    "mtime": 1778421561.2407594,
+    "ast_hash": "ee9435d66eb4fb7e7c5933a6ea53bc85",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/gateways/git-marketplace-http-gateway.ts": {
+    "mtime": 1778668075.8397496,
+    "ast_hash": "04a3b05474eb3b695c6746af339a7618",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/gateways/packmind-cli-gateway.test.ts": {
+    "mtime": 1779352759.9652743,
+    "ast_hash": "a0cc4ea3db28d66f001319a58844bb80",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/gateways/packmind-cli-gateway.ts": {
+    "mtime": 1779365864.4107547,
+    "ast_hash": "46b59025a8f95babf6b0e72c0e466de4",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/gateways/loki-http-gateway.ts": {
+    "mtime": 1778489287.6267016,
+    "ast_hash": "5a1570329147ccb602831b340122053b",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/gateways/git-browse-url.ts": {
+    "mtime": 1778589598.3280714,
+    "ast_hash": "f4d354c214194476322b4e95c8ea8936",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/gateways/git-marketplace-http-gateway.test.ts": {
+    "mtime": 1778668246.981389,
+    "ast_hash": "704b3fd5075eb54631ffa66c55eac042",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/infrastructure/gateways/git-browse-url.test.ts": {
+    "mtime": 1778589619.56492,
+    "ast_hash": "81b8cd961dc65e5d99a2ed8d1bc0e383",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/domain/marketplace-source.ts": {
+    "mtime": 1779352568.306553,
+    "ast_hash": "047f68fc57dc6355c4d292dde861612e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/domain/marketplace.ts": {
+    "mtime": 1779352574.0188,
+    "ast_hash": "9a6df016842e791711a144461b2ca0dd",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/domain/plugin.ts": {
+    "mtime": 1780996031.3324585,
+    "ast_hash": "9f3a90674d7f859687d26d0b21ecfe57",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/domain/integration.ts": {
+    "mtime": 1778161289.873616,
+    "ast_hash": "37bc7f023b8c5a6a1f60fd5f36a7c25a",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/domain/external-skill-mapping.ts": {
+    "mtime": 1779352589.2786074,
+    "ast_hash": "830fc8fe3eae101dac38698a93e17e63",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/domain/plugin.test.ts": {
+    "mtime": 1778493150.2149768,
+    "ast_hash": "db852f8e3c9c46feb4329185837b8c06",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/domain/audit.ts": {
+    "mtime": 1778672069.947399,
+    "ast_hash": "0d98ee10eb27f3bf2a4967a82ef53e59",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/domain/event.ts": {
+    "mtime": 1778697431.4724422,
+    "ast_hash": "fb70d721ecbc2ea85c8380a152f385b5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/domain/user.ts": {
+    "mtime": 1778161252.9706364,
+    "ast_hash": "e6ecc7690851e7a0fe83534c0c317f29",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/domain/skill.ts": {
+    "mtime": 1780989081.2354887,
+    "ast_hash": "cae03be6fb885d8cdc2e077529eff647",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/domain/ports/git-marketplace-gateway.ts": {
+    "mtime": 1778589530.9687328,
+    "ast_hash": "2cd21bc5d94bfe3bb7ba300146da011d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/domain/ports/plugin-repository.ts": {
+    "mtime": 1780996089.1350343,
+    "ast_hash": "5d899ecabddfd7bc00d14aa8db4d8256",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/domain/ports/marketplace-repository.ts": {
+    "mtime": 1779352648.6949632,
+    "ast_hash": "1cde0252c2790b1f5a1bd75ce4b3740d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/domain/ports/marketplace-source-repository.ts": {
+    "mtime": 1779352603.6872532,
+    "ast_hash": "5f86a9049c388697ff348dc44c8a8db7",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/domain/ports/event-repository.ts": {
+    "mtime": 1780989701.5645218,
+    "ast_hash": "e8a1c20dab41dd5c79a5a1c3ad0044bc",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/domain/ports/plugin-version-repository.ts": {
+    "mtime": 1778689010.0023484,
+    "ast_hash": "ab5be22c7e8b14f75d40f841cca94bf7",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/domain/ports/packmind-cli-gateway.ts": {
+    "mtime": 1779352584.2871025,
+    "ast_hash": "b482c195a90af1141baf9c998e5cb47e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/domain/ports/user-repository.ts": {
+    "mtime": 1778161828.4303634,
+    "ast_hash": "f1a80f92a7cc0050bac063d7c596aa7f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/domain/ports/skill-repository.ts": {
+    "mtime": 1780989019.4626248,
+    "ast_hash": "717b1a71e8b9a6b6258a5fcbeb653c3d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/domain/ports/plugin-skill-repository.ts": {
+    "mtime": 1778426447.0336058,
+    "ast_hash": "a88a660e4bcc516597ba37c84c6114d8",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/domain/ports/integration-repository.ts": {
+    "mtime": 1778502346.1903389,
+    "ast_hash": "d99d3a8696fce50d948d3656fbe0027d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/domain/ports/audit-repository.ts": {
+    "mtime": 1778421561.2361355,
+    "ast_hash": "6f029ab20c317c51fead566207b0bd07",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/domain/ports/external-skill-plugin-mapping-repository.ts": {
+    "mtime": 1779352595.1526074,
+    "ast_hash": "c1fe5af8287dca1385c52a5cc8d7876d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/domain/ports/loki-gateway.ts": {
+    "mtime": 1778484252.5068634,
+    "ast_hash": "907582b23730039f05ab9f20f7ba98c3",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/scripts/sync-version.mjs": {
+    "mtime": 1778575506.4680455,
+    "ast_hash": "e0d47409a1493adbd7de2e67a49b3783",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/Changelog.md": {
+    "mtime": 1780998385.155091,
+    "ast_hash": "00f2b9ba6d8d91878b8deaab116c1ca0",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/docker-compose.dev.yml": {
+    "mtime": 1778596740.3733191,
+    "ast_hash": "b15084f018a5c1e8bbc8893581cf3243",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/README.md": {
+    "mtime": 1778677684.349544,
+    "ast_hash": "54f605f0853a70376081738dec5f2a33",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/CONTRIBUTING.md": {
+    "mtime": 1778577473.6733809,
+    "ast_hash": "8dbae0562277f2f9d54f3543779d7b41",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/docker-compose.yml": {
+    "mtime": 1778679016.254443,
+    "ast_hash": "0effb52b9f50aeaf2d8988169b05bf1c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/CLAUDE.md": {
+    "mtime": 1779785377.372659,
+    "ast_hash": "acb8582aa5b31138fe33932e3fdafaf9",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/index.html": {
+    "mtime": 1778509379.0498521,
+    "ast_hash": "5b4cc46aa5cc267b4bcf3c4f646b52c2",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/skill-creator/SKILL.md": {
+    "mtime": 1778422371.316922,
+    "ast_hash": "a1277b9e97e7a84dbd80a984164ad373",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/skill-creator/LICENSE.txt": {
+    "mtime": 1778422371.317331,
+    "ast_hash": "0ee6429f4c66920b6744d818225fb58f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/skill-creator/eval-viewer/viewer.html": {
+    "mtime": 1778422371.307276,
+    "ast_hash": "bef0b26fd04ee3a25344b7ae361a5bd1",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/skill-creator/references/schemas.md": {
+    "mtime": 1778422371.308562,
+    "ast_hash": "466f2adac472716df6867541ff75c462",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/skill-creator/agents/grader.md": {
+    "mtime": 1778422371.309531,
+    "ast_hash": "c8913119223249181559ec9cf9a5e8c6",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/skill-creator/agents/comparator.md": {
+    "mtime": 1778422371.3102827,
+    "ast_hash": "1b3e8695c8a40d1ad7af30b622190c99",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/skill-creator/agents/analyzer.md": {
+    "mtime": 1778422371.310743,
+    "ast_hash": "b78964a8d55ff0e038d657a9cb79f46a",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/skill-creator/assets/eval_review.html": {
+    "mtime": 1778422371.31843,
+    "ast_hash": "215a74d6269d72e8ffd254cedc1e0b0a",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/drizzle-migrations/SKILL.md": {
+    "mtime": 1778422806.5956748,
+    "ast_hash": "3b8529d2943b7448e840f4a81c53e5ca",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.github/pull_request_template.md": {
+    "mtime": 1778675180.7779682,
+    "ast_hash": "7fc58fff10f8284759792a4443859065",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.github/workflows/release.yml": {
+    "mtime": 1778679591.9985232,
+    "ast_hash": "a99d2fbaf44f8a5b4ec329ece917f673",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.github/workflows/ci.yml": {
+    "mtime": 1778600774.7949913,
+    "ast_hash": "d30b6ce5fc20526ab4fbba4e97892368",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.github/ISSUE_TEMPLATE/feature_request.md": {
+    "mtime": 1778675180.7774425,
+    "ast_hash": "d922e379bb6f89eee60efaa8b4ffdfc7",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.github/ISSUE_TEMPLATE/bug_report.md": {
+    "mtime": 1778675180.7768435,
+    "ast_hash": "d01a126e9f9db3482e9a77a6efe0c101",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-18T08-00-48-788Z.yml": {
+    "mtime": 1779091248.7890022,
+    "ast_hash": "b8a78e10f1e14cdd265a64599690f6fe",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-13T09-50-00-598Z.yml": {
+    "mtime": 1778665800.599116,
+    "ast_hash": "fef76ebc8cc54cd9e9e6620cd014fba5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-18T07-49-11-407Z.yml": {
+    "mtime": 1779090551.4084017,
+    "ast_hash": "3332ede3eb69815b24ef8b09c8cc5cc9",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-15T10-49-56-836Z.yml": {
+    "mtime": 1778842196.8367336,
+    "ast_hash": "5e177ebcba344c5b1a229a71752e6e61",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-13T12-05-51-234Z.yml": {
+    "mtime": 1778673951.2357686,
+    "ast_hash": "92f47f734864813e10190a84a91253db",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-18T07-44-05-325Z.yml": {
+    "mtime": 1779090245.329558,
+    "ast_hash": "505b899740ca0c431e61ab8b475302a4",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-15T08-04-15-476Z.yml": {
+    "mtime": 1778832255.478204,
+    "ast_hash": "fef76ebc8cc54cd9e9e6620cd014fba5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-18T08-01-23-364Z.yml": {
+    "mtime": 1779091283.3654318,
+    "ast_hash": "baa5686f13ccfbcbf8a80aeaad0dfe86",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-11T07-09-20-275Z.yml": {
+    "mtime": 1778483360.277106,
+    "ast_hash": "0766fa6a426cd88695300a7ecdb6e526",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-13T12-05-40-792Z.yml": {
+    "mtime": 1778673940.7933803,
+    "ast_hash": "2f939cebc27c22c4d49548bf6cc17c6a",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-11T07-10-27-767Z.yml": {
+    "mtime": 1778483427.7684264,
+    "ast_hash": "4703bcc7a539d91db4a7dfac73a6bb48",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-11T14-24-55-867Z.yml": {
+    "mtime": 1778509495.869038,
+    "ast_hash": "6389216aac0cc62379ff32e1f2d4bda7",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-15T10-59-40-821Z.yml": {
+    "mtime": 1778842780.8444755,
+    "ast_hash": "5e177ebcba344c5b1a229a71752e6e61",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-07T13-40-38-745Z.yml": {
+    "mtime": 1778161238.7463188,
+    "ast_hash": "bdf04759661de0f933147f036bb3c1fb",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-15T08-45-36-084Z.yml": {
+    "mtime": 1778834736.0848746,
+    "ast_hash": "6389216aac0cc62379ff32e1f2d4bda7",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-07T13-39-36-629Z.yml": {
+    "mtime": 1778161176.630541,
+    "ast_hash": "cdf3c226b7af5c1bf29acf361dac977b",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-15T10-49-29-950Z.yml": {
+    "mtime": 1778842169.986706,
+    "ast_hash": "447bc48f2cb5bd7d36e80a3536c6aaf1",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-15T08-05-06-122Z.yml": {
+    "mtime": 1778832306.1234128,
+    "ast_hash": "c319ebce1baa89bed49cb4a31f8a99e8",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-13T12-05-26-290Z.yml": {
+    "mtime": 1778673926.290714,
+    "ast_hash": "610084912ca1dce59688e82beef71767",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-07T14-04-49-779Z.yml": {
+    "mtime": 1778162689.7811234,
+    "ast_hash": "4311573616b7798d23057cc1acf028c3",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-18T07-47-55-192Z.yml": {
+    "mtime": 1779090475.1936035,
+    "ast_hash": "6c22557763c8f4ebec6eec8330c49434",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-11T07-10-02-286Z.yml": {
+    "mtime": 1778483402.2873175,
+    "ast_hash": "c4b5cc401410745221410c17b6c607fe",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-07T13-35-22-657Z.yml": {
+    "mtime": 1778160922.6583822,
+    "ast_hash": "4cf544aa6912c788243a18c8119818bf",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-07T14-57-12-380Z.yml": {
+    "mtime": 1778165832.3817456,
+    "ast_hash": "884cd762d353330a93c75565111a6d69",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-11T13-31-48-088Z.yml": {
+    "mtime": 1778506308.092802,
+    "ast_hash": "152213f97669b13d64b9e2250b0bbed2",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-12T15-15-24-241Z.yml": {
+    "mtime": 1778598924.2425613,
+    "ast_hash": "fef76ebc8cc54cd9e9e6620cd014fba5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-15T08-43-31-786Z.yml": {
+    "mtime": 1778834611.7972047,
+    "ast_hash": "46ef610a18413099f802d2b1efeecfb8",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-18T07-49-15-635Z.yml": {
+    "mtime": 1779090555.6359243,
+    "ast_hash": "505b899740ca0c431e61ab8b475302a4",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-15T10-59-15-762Z.yml": {
+    "mtime": 1778842755.763475,
+    "ast_hash": "2640abfd660de5e155f732b670475c8b",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-07T13-39-04-455Z.yml": {
+    "mtime": 1778161144.4563148,
+    "ast_hash": "4311573616b7798d23057cc1acf028c3",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-18T07-30-31-977Z.yml": {
+    "mtime": 1779089431.978765,
+    "ast_hash": "fef76ebc8cc54cd9e9e6620cd014fba5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-18T07-49-24-695Z.yml": {
+    "mtime": 1779090564.6962025,
+    "ast_hash": "932cb89d742c581bfbc5177850828248",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-15T10-50-53-977Z.yml": {
+    "mtime": 1778842253.9878001,
+    "ast_hash": "a96fa02bdc44e6557e86654cd23e1724",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-07T13-35-05-985Z.yml": {
+    "mtime": 1778160905.9873664,
+    "ast_hash": "f1c8e8c10537ac93ce772daacb130361",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-13T12-05-23-290Z.yml": {
+    "mtime": 1778673923.29187,
+    "ast_hash": "fc231f1e307900f2275bb85f9cfad6f9",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-07T13-38-25-498Z.yml": {
+    "mtime": 1778161105.499377,
+    "ast_hash": "0d857016d2c5f5285e4c60bb52787624",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-18T07-50-22-274Z.yml": {
+    "mtime": 1779090622.2754722,
+    "ast_hash": "ff5fb36d34b9ccc2eef916b813a31656",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-11T14-25-35-077Z.yml": {
+    "mtime": 1778509535.0798686,
+    "ast_hash": "547466fd90ff2e77c58a4b9fe66fe234",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-18T07-44-02-604Z.yml": {
+    "mtime": 1779090242.6062903,
+    "ast_hash": "393f914cbed4ebac8a0b8a76bb9013e3",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-11T07-10-43-351Z.yml": {
+    "mtime": 1778483443.3523529,
+    "ast_hash": "d59c814c79c8531488890358a03f5bd6",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-15T10-50-14-193Z.yml": {
+    "mtime": 1778842214.2179096,
+    "ast_hash": "2640abfd660de5e155f732b670475c8b",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-15T10-49-42-591Z.yml": {
+    "mtime": 1778842182.5919898,
+    "ast_hash": "2640abfd660de5e155f732b670475c8b",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-18T07-50-13-200Z.yml": {
+    "mtime": 1779090613.2011344,
+    "ast_hash": "6389216aac0cc62379ff32e1f2d4bda7",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-11T07-09-24-291Z.yml": {
+    "mtime": 1778483364.2918484,
+    "ast_hash": "2cb17ad26ed481d9dccf9dd8e63d84b8",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-07T13-38-03-005Z.yml": {
+    "mtime": 1778161083.0070028,
+    "ast_hash": "4cf544aa6912c788243a18c8119818bf",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-10T14-28-08-555Z.yml": {
+    "mtime": 1778423288.5562422,
+    "ast_hash": "849920731a7b11b14b42778fccdd5627",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-11T07-09-44-526Z.yml": {
+    "mtime": 1778483384.529995,
+    "ast_hash": "6389216aac0cc62379ff32e1f2d4bda7",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-18T07-48-52-309Z.yml": {
+    "mtime": 1779090532.3107142,
+    "ast_hash": "244d47dd57bf22f2a22b6dc7ed58cfd1",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-18T08-00-22-581Z.yml": {
+    "mtime": 1779091222.5829475,
+    "ast_hash": "f2fd74b408a5b85ad34014d1bb219078",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-13T12-04-46-838Z.yml": {
+    "mtime": 1778673886.8392138,
+    "ast_hash": "fef76ebc8cc54cd9e9e6620cd014fba5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-15T08-04-56-989Z.yml": {
+    "mtime": 1778832296.990514,
+    "ast_hash": "87afd566b04a7042045c75340da999fa",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-07T13-40-05-466Z.yml": {
+    "mtime": 1778161205.4672773,
+    "ast_hash": "72f628777c0a994767b00d6b9d3b1455",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-15T08-36-05-777Z.yml": {
+    "mtime": 1778834165.8736608,
+    "ast_hash": "35e1941faf5d274abd9cec4d773a3260",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-15T10-59-03-443Z.yml": {
+    "mtime": 1778842743.4439695,
+    "ast_hash": "6509331c2ea9a37a5630bcc1a9e58877",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-15T08-05-52-367Z.yml": {
+    "mtime": 1778832352.3688154,
+    "ast_hash": "2640abfd660de5e155f732b670475c8b",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-11T13-33-20-029Z.yml": {
+    "mtime": 1778506400.0304594,
+    "ast_hash": "1c3c1c42e7829b5eda4b2c84eea774ac",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-18T08-00-34-708Z.yml": {
+    "mtime": 1779091234.708847,
+    "ast_hash": "46b39b84a3d781d7c2257679e32db168",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-12T15-15-45-269Z.yml": {
+    "mtime": 1778598945.2708163,
+    "ast_hash": "4818c311431615ad7081273113e4c99f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-15T10-58-50-544Z.yml": {
+    "mtime": 1778842730.546566,
+    "ast_hash": "29bc4d50ca4309385ed58609d8e6ba39",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-13T09-51-14-719Z.yml": {
+    "mtime": 1778665874.7197819,
+    "ast_hash": "fef76ebc8cc54cd9e9e6620cd014fba5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-18T07-49-03-671Z.yml": {
+    "mtime": 1779090543.672115,
+    "ast_hash": "cee424aa208aa0714682c18c89df1793",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-15T08-04-05-886Z.yml": {
+    "mtime": 1778832245.8877964,
+    "ast_hash": "fef76ebc8cc54cd9e9e6620cd014fba5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-11T07-08-50-370Z.yml": {
+    "mtime": 1778483330.3713832,
+    "ast_hash": "fef76ebc8cc54cd9e9e6620cd014fba5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-07T13-34-16-417Z.yml": {
+    "mtime": 1778160856.4182973,
+    "ast_hash": "4cf544aa6912c788243a18c8119818bf",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-10T14-26-28-173Z.yml": {
+    "mtime": 1778423188.1740022,
+    "ast_hash": "fef76ebc8cc54cd9e9e6620cd014fba5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-11T13-36-51-429Z.yml": {
+    "mtime": 1778506611.4309409,
+    "ast_hash": "a4c98ebe6c98bb23b63f557d4e469b0f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-07T14-56-53-258Z.yml": {
+    "mtime": 1778165813.2601001,
+    "ast_hash": "32d614bae28c50a4909a5950b72b5c9e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/res/dashboard.png": {
+    "mtime": 1778675180.7985609,
+    "ast_hash": "ae01b4c2a99459e7a21469b1fda0dd8d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/res/marketplaces.png": {
+    "mtime": 1779087205.0494545,
+    "ast_hash": "3276e043545522d1a112390517bada80",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/res/skills.png": {
+    "mtime": 1779087192.8955128,
+    "ast_hash": "c1949e3adb94f7b7e92d17a47ba39f2d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/frontend/public/favicon.svg": {
+    "mtime": 1778509374.9580736,
+    "ast_hash": "a0fe44f66cf9994a69cbbce0346870e0",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/skills-stat-active-v2.png": {
+    "mtime": 1778834740.2000005,
+    "ast_hash": "4398194f66c361b4569b81a542701b59",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/marketplaces-recent.png": {
+    "mtime": 1778842785.0813107,
+    "ast_hash": "d0a3cf3e88d58b8658b798a781e4dba7",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/skills-header-after.png": {
+    "mtime": 1778832344.030863,
+    "ast_hash": "11ed54a2fee1833eba79165442b36ecb",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/skills-strip-5.png": {
+    "mtime": 1778842174.2094674,
+    "ast_hash": "967a69a8336e35af8a44596a42a0f3da",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/plugins-header-after.png": {
+    "mtime": 1778832356.1144087,
+    "ast_hash": "2e9627c396457aeaafa306bb9495bdde",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/marketplaces-strip-4.png": {
+    "mtime": 1778842201.9747648,
+    "ast_hash": "9bb49a9e642a24786792b3cd8deeaf0c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/skills-stat-active.png": {
+    "mtime": 1778834616.1613476,
+    "ast_hash": "890ba2338759f3a7769971abbf0b9a42",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/plugins-strip-5.png": {
+    "mtime": 1778842186.1221333,
+    "ast_hash": "9016a3a36d187da81159f7481fdcea49",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/page-2026-05-07T14-57-19-298Z.png": {
+    "mtime": 1778165839.2992568,
+    "ast_hash": "08ce488dc04a2418f52f02710842796c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.playwright-mcp/skills-stat-strip.png": {
+    "mtime": 1778834433.827388,
+    "ast_hash": "65d7d6ace917243299ea97e37adc0de5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/packmind.json": {
+    "mtime": 1780925886.0974061,
+    "ast_hash": "cc54ec9fd1ec755f5170e91e4e6290ca",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/packmind-lock.json": {
+    "mtime": 1780925890.4764447,
+    "ast_hash": "82d5c04e6b8d61ea1d409ffb6b1e683b",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0022_external_skill_mappings_composite_pk.sql": {
+    "mtime": 1780988344.3548865,
+    "ast_hash": "9e74aaf937f42115d84ad7215ebeeb30",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/db/migrations/0023_skills_identity_composite_pk.sql": {
+    "mtime": 1780988836.8789244,
+    "ast_hash": "f38a30f18a80853fb938368fc55ab2b5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/rules/packmind/standard-build-use-case-test-dependencies-with-a-local-makedeps-factory.md": {
+    "mtime": 1780925886.090587,
+    "ast_hash": "ffff33c6c68461f8021ba2841dafe4c5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/rules/packmind/standard-data-access-lives-behind-repository-ports.md": {
+    "mtime": 1780925886.090288,
+    "ast_hash": "50c972ffbc564e8583c89566fc681c29",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/rules/packmind/standard-array-membership-uses-drizzle-inarray-never-raw-anyunnest.md": {
+    "mtime": 1780925886.090462,
+    "ast_hash": "a27bf051cfdab94f2eed05f357517b55",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/rules/packmind/standard-application-use-cases-are-pure-functions.md": {
+    "mtime": 1780925886.090704,
+    "ast_hash": "2e1d55223d4421c4ba2347714baf9109",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/commands/create-drizzle-repository.md": {
+    "mtime": 1780925886.0899312,
+    "ast_hash": "f8d01b93000238168d9065b22f310ec5",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/commands/create-use-case.md": {
+    "mtime": 1780925886.089725,
+    "ast_hash": "9fdd7d89fed7fe9b78dde6018c071c0e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/commands/pre-pr-quality-check.md": {
+    "mtime": 1780925886.0898342,
+    "ast_hash": "261554f2d98410dc5f5c5f66f01d0018",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-update-playbook/SKILL.md": {
+    "mtime": 1780925890.4746552,
+    "ast_hash": "601a3c724fa70bafff617b4e99c44253",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-update-playbook/LICENSE.txt": {
+    "mtime": 1780925890.4748054,
+    "ast_hash": "2ee41112a44fe7014dce33e26468ba93",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-update-playbook/references/create-skill-procedure.md": {
+    "mtime": 1780925890.4761636,
+    "ast_hash": "cb14a042079b522ab665ae626e0b0571",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-update-playbook/references/agent-skills-specification.md": {
+    "mtime": 1780925890.4758153,
+    "ast_hash": "a5305b46ee01dd1cd9eb32117185f3fa",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-update-playbook/references/create-command-procedure.md": {
+    "mtime": 1780925890.4760349,
+    "ast_hash": "ca298e7e98d821ced5e846d7c31a83c3",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-update-playbook/references/create-standard-procedure.md": {
+    "mtime": 1780925890.4759119,
+    "ast_hash": "700b86b40d039fb948f6b5e0fa80aa9b",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-update-playbook/packmind-versions/0.23.0/apply-changes.md": {
+    "mtime": 1780925890.4756598,
+    "ast_hash": "1e7c2e51e8f30859c4ad33be0340c809",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-update-playbook/packmind-versions/0.21.0/apply-changes.md": {
+    "mtime": 1780925890.475483,
+    "ast_hash": "100afdaa70ba2ef5380b32faf0579c9a",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-update-playbook/steps/analyze-commands.md": {
+    "mtime": 1780925890.475116,
+    "ast_hash": "31fbee85c982a2881ef89c633149b1a8",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-update-playbook/steps/analyze-skills.md": {
+    "mtime": 1780925890.4753087,
+    "ast_hash": "ea4e7ae65a7b5f78513e7a4130328db8",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-update-playbook/steps/analyze-standards.md": {
+    "mtime": 1780925890.474983,
+    "ast_hash": "579fb65be621fdb4a4f0b78c3d30bb1d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-onboard/README.md": {
+    "mtime": 1780925890.470522,
+    "ast_hash": "e070340671f0635aeaaf75452cc5974f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-onboard/SKILL.md": {
+    "mtime": 1780925890.4703214,
+    "ast_hash": "0a613f282e06ccd2831f38d5746c795d",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-onboard/LICENSE.txt": {
+    "mtime": 1780925890.470701,
+    "ast_hash": "2ee41112a44fe7014dce33e26468ba93",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-onboard/references/ci-local-workflow-parity.md": {
+    "mtime": 1780925890.4709911,
+    "ast_hash": "9197ed9275ed3fd76dc7eb050a70f414",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-onboard/references/test-data-construction.md": {
+    "mtime": 1780925890.4713228,
+    "ast_hash": "5778b912628b5a2f30ce5453cfc911e0",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-onboard/references/role-taxonomy-drift.md": {
+    "mtime": 1780925890.4711702,
+    "ast_hash": "6f4379f8ae2e1b6b1b261125b822daf6",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-onboard/references/file-template-consistency.md": {
+    "mtime": 1780925890.4708786,
+    "ast_hash": "ac058cb5ff320b985ff633ce4a2cc3c7",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-onboard/packmind-versions/0.23.0/completion-summary.md": {
+    "mtime": 1780925890.4728835,
+    "ast_hash": "7507b62d8039e4e0d601314589673ab3",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-onboard/packmind-versions/0.23.0/list-packages.md": {
+    "mtime": 1780925890.472012,
+    "ast_hash": "6157adac35f54b9e9f4f10992faf51b6",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-onboard/packmind-versions/0.23.0/select-package.md": {
+    "mtime": 1780925890.4725473,
+    "ast_hash": "7a9930638ae69deb570fd47f391c914c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-onboard/packmind-versions/0.23.0/create-package.md": {
+    "mtime": 1780925890.4723213,
+    "ast_hash": "9b3d088c6bb321eb5faf37a9f409a075",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-onboard/packmind-versions/0.23.0/create-items.md": {
+    "mtime": 1780925890.471781,
+    "ast_hash": "f5afa867fea3fb7b471da54a3c8b3f30",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-onboard/packmind-versions/0.16.0/completion-summary.md": {
+    "mtime": 1780925890.4726589,
+    "ast_hash": "e5f28114d8e7bb579283d6b399e7ba6f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-onboard/packmind-versions/0.16.0/list-packages.md": {
+    "mtime": 1780925890.4719036,
+    "ast_hash": "14b5d41f7e166997c82cbeda41959efe",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-onboard/packmind-versions/0.16.0/select-package.md": {
+    "mtime": 1780925890.472445,
+    "ast_hash": "c6617b28bdbb1ac023b7920ae6a92fa8",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-onboard/packmind-versions/0.16.0/create-package.md": {
+    "mtime": 1780925890.4721272,
+    "ast_hash": "fa65e78683d6c451065eacb3d42e2b44",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.claude/skills/packmind-onboard/packmind-versions/0.16.0/create-items.md": {
+    "mtime": 1780925890.47157,
+    "ast_hash": "f941c84a90e62520f72679cfc99b7482",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.packmind/standards-index.md": {
+    "mtime": 1780925886.0895674,
+    "ast_hash": "7b413a06814552e891a1b31e754f1318",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.packmind/commands-index.md": {
+    "mtime": 1780925886.0889537,
+    "ast_hash": "66dd8e104e8669c8a77982d95e0c9648",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.packmind/commands/create-drizzle-repository.md": {
+    "mtime": 1780925886.088819,
+    "ast_hash": "d873d32ac262bb3c78a8927a1dfbe59c",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.packmind/commands/create-use-case.md": {
+    "mtime": 1780925886.0884056,
+    "ast_hash": "cc1615594817e19d93ba98d0fbf02e3e",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.packmind/commands/pre-pr-quality-check.md": {
+    "mtime": 1780925886.088629,
+    "ast_hash": "7d1d6238559a879ca9e6cbc71789b9bf",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.packmind/standards/build-use-case-test-dependencies-with-a-local-makedeps-factory.md": {
+    "mtime": 1780925886.0893364,
+    "ast_hash": "5cdfa7e79851ea98451518c955b2a8bc",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.packmind/standards/data-access-lives-behind-repository-ports.md": {
+    "mtime": 1780925886.0890827,
+    "ast_hash": "59df9dd5a5ca10f5c1ac59d85c3422eb",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.packmind/standards/array-membership-uses-drizzle-inarray-never-raw-anyunnest.md": {
+    "mtime": 1780925886.089194,
+    "ast_hash": "eacc40f5fa1df3c931bb4c76c82d2467",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/.packmind/standards/application-use-cases-are-pure-functions.md": {
+    "mtime": 1780925886.0894485,
+    "ast_hash": "2a1378e491836d15e857eb75f4d3350f",
+    "semantic_hash": ""
+  },
+  "/Users/cedricteyton/Code/skills-observability/backend/src/application/plugins/list-plugin-skills.test.ts": {
+    "mtime": 1780996350.8874934,
+    "ast_hash": "ebc9e970e3d188ca9745151ff5de5807",
+    "semantic_hash": ""
   }
 }

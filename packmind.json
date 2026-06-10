@@ -1,0 +1,8 @@
+{
+  "packages": {
+    "@backend/skills-observability-standards": "*"
+  },
+  "agents": [
+    "claude"
+  ]
+}

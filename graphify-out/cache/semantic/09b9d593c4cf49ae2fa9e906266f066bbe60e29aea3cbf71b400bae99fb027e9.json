@@ -1,0 +1,1 @@
+{"nodes": [{"id": "auth_complete_onboarding_completeOnboarding", "label": "completeOnboarding", "file_type": "code", "source_file": "backend/src/application/auth/complete-onboarding.ts"}], "edges": [], "hyperedges": []}
