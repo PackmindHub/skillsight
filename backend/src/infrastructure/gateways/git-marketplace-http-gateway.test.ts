@@ -370,6 +370,55 @@ describe("GitMarketplaceHttpGateway.fetchMarketplaceJson", () => {
 		expect(skillCallPrivateToken).toBeNull();
 	});
 
+	test("self-hosted gitlab: marketplace.json via API files endpoint, PRIVATE-TOKEN auth, skills API on the self-hosted origin", async () => {
+		let marketplaceUrl: string | null = null;
+		let marketplacePrivateToken: string | null | undefined;
+		let skillsUrl: string | null = null;
+		let skillsPrivateToken: string | null | undefined;
+		responder = ({ url, init }) => {
+			// marketplace.json is fetched through the REST "get raw file" endpoint, not
+			// the /-/raw/ web route (which ignores the PRIVATE-TOKEN header and 302s).
+			if (url.includes("/repository/files/")) {
+				marketplaceUrl = url;
+				marketplacePrivateToken = new Headers(init?.headers).get("private-token");
+				return {
+					body: {
+						name: "self-hosted-mp",
+						plugins: [{ name: "plugin-a", source: "./plugins/a" }],
+					},
+				};
+			}
+			if (url.includes("/repository/tree")) {
+				skillsUrl = url;
+				skillsPrivateToken = new Headers(init?.headers).get("private-token");
+				return { body: [{ type: "tree", name: "lint" }] };
+			}
+			return { status: 404 };
+		};
+		const data = await new GitMarketplaceHttpGateway().fetchMarketplaceJson({
+			gitUrl: "https://gitlab.example.com/group/repo",
+			accessToken: "glpat-secret",
+			branch: "main",
+		});
+
+		// marketplace.json is fetched from the self-hosted origin via the API files/raw
+		// endpoint, with the project path and file path URL-encoded, authed by PRIVATE-TOKEN.
+		expect(marketplaceUrl).toBe(
+			`https://gitlab.example.com/api/v4/projects/${encodeURIComponent("group/repo")}/repository/files/${encodeURIComponent(".claude-plugin/marketplace.json")}/raw?ref=main`,
+		);
+		expect(marketplacePrivateToken).toBe("glpat-secret");
+
+		// Skills are fetched via the GitLab REST API on the same self-hosted origin (not gitlab.com).
+		expect(skillsUrl).not.toBeNull();
+		expect(skillsUrl).toContain("https://gitlab.example.com/api/v4/projects/");
+		expect(skillsUrl).not.toContain("gitlab.com");
+		expect(skillsUrl).toContain(encodeURIComponent("group/repo"));
+		expect(skillsPrivateToken).toBe("glpat-secret");
+
+		expect(data.plugins).toHaveLength(1);
+		expect(data.plugins[0]).toMatchObject({ name: "plugin-a", skills: ["lint"] });
+	});
+
 	test("marketplace.json 404 throws a descriptive error", async () => {
 		responder = () => ({ status: 404 });
 		await expect(

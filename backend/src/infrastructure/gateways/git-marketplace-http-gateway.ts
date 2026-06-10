@@ -24,10 +24,17 @@ function resolveRawUrl(gitUrl: string, branch: string): { url: string; host: "gi
 			};
 		}
 
-		if (parsed.hostname === "gitlab.com") {
-			const repoPath = parsed.pathname.replace(/^\//, "");
+		// gitlab.com or any self-hosted GitLab (hostname heuristic mirrors detectHost).
+		if (parsed.hostname === "gitlab.com" || parsed.hostname === "gitlab" || parsed.hostname.includes("gitlab.")) {
+			// Fetch via the REST API "get raw file" endpoint rather than the web route:
+			// the web route authenticates only by browser session cookie and redirects
+			// token-based requests to sign-in (so private repos 404), whereas the API
+			// honors the PRIVATE-TOKEN header on every GitLab instance. parsed.origin
+			// keeps this working on self-hosted hosts, not just gitlab.com.
+			const project = encodeURIComponent(parsed.pathname.replace(/^\//, ""));
+			const file = encodeURIComponent(".claude-plugin/marketplace.json");
 			return {
-				url: `https://gitlab.com/${repoPath}/-/raw/${branch}/.claude-plugin/marketplace.json`,
+				url: `${parsed.origin}/api/v4/projects/${project}/repository/files/${file}/raw?ref=${encodeURIComponent(branch)}`,
 				host: "gitlab",
 			};
 		}
@@ -189,11 +196,14 @@ async function fetchPluginSkills(params: {
 	host: "github" | "gitlab" | "bitbucket" | "other";
 	owner: string;
 	repo: string;
+	// Provider origin (e.g. https://gitlab.com or https://gitlab.example.com). Used to
+	// reach the GitLab REST API on the same instance the marketplace was fetched from.
+	origin: string;
 	pluginPath: string;
 	branch: string;
 	accessToken?: string;
 }): Promise<string[]> {
-	const { host, owner, repo, pluginPath, branch, accessToken } = params;
+	const { host, owner, repo, origin, pluginPath, branch, accessToken } = params;
 	const headers = buildHeaders(host, accessToken);
 	const subPath = pluginPath ? `${pluginPath}/skills` : "skills";
 	const what = `fetching skills for ${owner}/${repo}/${subPath} at ${branch}`;
@@ -217,7 +227,7 @@ async function fetchPluginSkills(params: {
 	if (host === "gitlab") {
 		const encoded = encodeURIComponent(`${owner}/${repo}`);
 		const path = encodeURIComponent(subPath);
-		const url = `https://gitlab.com/api/v4/projects/${encoded}/repository/tree?path=${path}&ref=${encodeURIComponent(branch)}`;
+		const url = `${origin}/api/v4/projects/${encoded}/repository/tree?path=${path}&ref=${encodeURIComponent(branch)}`;
 		const res = await fetch(url, { headers, signal: AbortSignal.timeout(10_000) });
 		if (res.status === 404) return [];
 		if (!res.ok) throw new Error(await describeFetchFailure(res, { what, hadToken, url }));
@@ -245,7 +255,7 @@ export class GitMarketplaceHttpGateway implements IGitMarketplaceGateway {
 	}): Promise<MarketplaceJsonData> {
 		const branch = params.branch?.trim() || "main";
 		const { url } = resolveRawUrl(params.gitUrl, branch);
-		const { host, owner, repo } = parseGitUrl(params.gitUrl);
+		const { host, owner, repo, origin } = parseGitUrl(params.gitUrl);
 		const headers = buildHeaders(host, params.accessToken);
 
 		const res = await fetch(url, { headers, signal: AbortSignal.timeout(15_000) });
@@ -292,6 +302,7 @@ export class GitMarketplaceHttpGateway implements IGitMarketplaceGateway {
 					host,
 					owner,
 					repo,
+					origin,
 					pluginPath,
 					branch,
 					accessToken: params.accessToken,
@@ -305,14 +316,16 @@ export class GitMarketplaceHttpGateway implements IGitMarketplaceGateway {
 					return { name, description, version };
 				}
 				// Forward the marketplace's access token only when the external plugin lives on the
-				// same provider as the marketplace itself — a GitHub PAT cannot auth to GitLab and
-				// we must not leak the token by sending it to an unrelated host that a (potentially
-				// malicious) marketplace.json points to.
-				const forwardToken = ext.host === host ? params.accessToken : undefined;
+				// exact same instance (same origin) as the marketplace itself — a GitHub PAT cannot
+				// auth to GitLab, and a self-hosted GitLab PAT must not leak to gitlab.com (or any
+				// other GitLab host) that a (potentially malicious) marketplace.json points to.
+				// Comparing origin, not just host type, keeps this safe for self-hosted instances.
+				const forwardToken = ext.host === host && ext.origin === origin ? params.accessToken : undefined;
 				const skills = await fetchPluginSkills({
 					host: ext.host,
 					owner: ext.owner,
 					repo: ext.repo,
+					origin: ext.origin,
 					pluginPath: external.path,
 					branch: external.ref ?? "HEAD",
 					accessToken: forwardToken,
