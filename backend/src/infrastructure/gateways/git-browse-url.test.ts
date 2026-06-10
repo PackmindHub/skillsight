@@ -7,6 +7,7 @@ describe("parseGitUrl", () => {
 			host: "github",
 			owner: "anthropics",
 			repo: "claude-code",
+			origin: "https://github.com",
 		});
 	});
 
@@ -15,6 +16,7 @@ describe("parseGitUrl", () => {
 			host: "github",
 			owner: "anthropics",
 			repo: "claude-code",
+			origin: "https://github.com",
 		});
 	});
 
@@ -23,6 +25,25 @@ describe("parseGitUrl", () => {
 			host: "gitlab",
 			owner: "group",
 			repo: "sub/repo",
+			origin: "https://gitlab.com",
+		});
+	});
+
+	test("self-hosted gitlab is detected by hostname and keeps its origin", () => {
+		expect(parseGitUrl("https://gitlab.example.com/group/repo")).toEqual({
+			host: "gitlab",
+			owner: "group",
+			repo: "repo",
+			origin: "https://gitlab.example.com",
+		});
+	});
+
+	test("self-hosted gitlab preserves nested namespace and origin", () => {
+		expect(parseGitUrl("https://gitlab.example.com/group/sub/repo")).toEqual({
+			host: "gitlab",
+			owner: "group",
+			repo: "sub/repo",
+			origin: "https://gitlab.example.com",
 		});
 	});
 
@@ -31,19 +52,21 @@ describe("parseGitUrl", () => {
 			host: "bitbucket",
 			owner: "ws",
 			repo: "repo",
+			origin: "https://bitbucket.org",
 		});
 	});
 
-	test("unknown host falls back to other", () => {
+	test("unknown self-hosted host (no gitlab in name) falls back to other", () => {
 		expect(parseGitUrl("https://git.example.com/foo/bar")).toEqual({
 			host: "other",
 			owner: "",
 			repo: "",
+			origin: "",
 		});
 	});
 
 	test("invalid URL string falls back to other", () => {
-		expect(parseGitUrl("not a url")).toEqual({ host: "other", owner: "", repo: "" });
+		expect(parseGitUrl("not a url")).toEqual({ host: "other", owner: "", repo: "", origin: "" });
 	});
 });
 
@@ -99,6 +122,17 @@ describe("buildSkillRepoUrl", () => {
 				"s",
 			),
 		).toBe("https://gitlab.com/group/sub/repo/-/tree/main/plugin/skills/s");
+	});
+
+	test("self-hosted gitlab builds the tree URL from its own origin", () => {
+		expect(
+			buildSkillRepoUrl(
+				"https://gitlab.example.com/group/repo",
+				"main",
+				"plugin",
+				"s",
+			),
+		).toBe("https://gitlab.example.com/group/repo/-/tree/main/plugin/skills/s");
 	});
 
 	test("bitbucket uses /src/", () => {

@@ -1,22 +1,25 @@
 export type GitHost = "github" | "gitlab" | "bitbucket" | "other";
 
-export function parseGitUrl(gitUrl: string): { host: GitHost; owner: string; repo: string } {
+export type ParsedGitUrl = { host: GitHost; owner: string; repo: string; origin: string };
+
+export function parseGitUrl(gitUrl: string): ParsedGitUrl {
 	const trimmed = gitUrl.trim().replace(/\.git$/, "");
 	if (/^[\w.-]+\/[\w.-]+$/.test(trimmed)) {
 		const [owner, repo] = trimmed.split("/");
-		return { host: "github", owner, repo };
+		return { host: "github", owner, repo, origin: "https://github.com" };
 	}
 	try {
 		const parsed = new URL(trimmed);
 		const parts = parsed.pathname.replace(/^\//, "").split("/");
 		if (parsed.hostname === "github.com")
-			return { host: "github", owner: parts[0] ?? "", repo: parts[1] ?? "" };
-		if (parsed.hostname === "gitlab.com")
-			return { host: "gitlab", owner: parts[0] ?? "", repo: parts.slice(1).join("/") };
+			return { host: "github", owner: parts[0] ?? "", repo: parts[1] ?? "", origin: parsed.origin };
+		// gitlab.com or any self-hosted GitLab; derive every URL from parsed.origin.
+		if (parsed.hostname === "gitlab.com" || parsed.hostname === "gitlab" || parsed.hostname.includes("gitlab."))
+			return { host: "gitlab", owner: parts[0] ?? "", repo: parts.slice(1).join("/"), origin: parsed.origin };
 		if (parsed.hostname === "bitbucket.org")
-			return { host: "bitbucket", owner: parts[0] ?? "", repo: parts[1] ?? "" };
+			return { host: "bitbucket", owner: parts[0] ?? "", repo: parts[1] ?? "", origin: parsed.origin };
 	} catch {}
-	return { host: "other", owner: "", repo: "" };
+	return { host: "other", owner: "", repo: "", origin: "" };
 }
 
 /**
@@ -33,7 +36,7 @@ export function buildSkillRepoUrl(
 	skillSuffix: string,
 ): string | null {
 	if (!pluginPath || !skillSuffix) return null;
-	const { host, owner, repo } = parseGitUrl(gitUrl);
+	const { host, owner, repo, origin } = parseGitUrl(gitUrl);
 	if (host === "other" || !owner || !repo) return null;
 
 	const ref = branch && branch.length > 0 ? branch : "HEAD";
@@ -50,7 +53,9 @@ export function buildSkillRepoUrl(
 		return `https://github.com/${owner}/${repo}/tree/${refEncoded}/${path}`;
 	}
 	if (host === "gitlab") {
-		return `https://gitlab.com/${owner}/${repo}/-/tree/${refEncoded}/${path}`;
+		// `origin` is the GitLab instance (gitlab.com or a self-hosted host); the
+		// `/-/tree/` path layout is identical across installs.
+		return `${origin}/${owner}/${repo}/-/tree/${refEncoded}/${path}`;
 	}
 	if (host === "bitbucket") {
 		return `https://bitbucket.org/${owner}/${repo}/src/${refEncoded}/${path}`;
