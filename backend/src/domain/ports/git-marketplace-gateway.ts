@@ -12,10 +12,13 @@ export interface MarketplaceJsonData {
 	plugins: MarketplacePluginEntry[];
 }
 
+import type { GitProvider } from "@/domain/marketplace-source";
+
 export interface IGitMarketplaceGateway {
 	fetchMarketplaceJson(params: {
 		gitUrl: string;
 		accessToken?: string;
 		branch?: string;
+		provider?: GitProvider;
 	}): Promise<MarketplaceJsonData>;
 }

@@ -440,4 +440,65 @@ describe("GitMarketplaceHttpGateway.fetchMarketplaceJson", () => {
 		expect(err.message).toContain("Resource not accessible");
 		expect(err.message).not.toContain("Anonymous rate limit");
 	});
+
+	test("self-hosted GitLab: marketplace.json + skills fetched via the REST API on the source's own origin", async () => {
+		let mpUrl: string | null = null;
+		let mpPrivateToken: string | null | undefined;
+		let skillUrl: string | null = null;
+		responder = ({ url, init }) => {
+			if (
+				url.includes("gitlab.example.com/api/v4/projects/") &&
+				url.includes("/repository/files/")
+			) {
+				mpUrl = url;
+				mpPrivateToken = new Headers(init?.headers).get("private-token");
+				return {
+					body: { name: "self-hosted", plugins: [{ name: "plugin-a", source: "./plugins/a" }] },
+				};
+			}
+			if (
+				url.includes("gitlab.example.com/api/v4/projects/") &&
+				url.includes("/repository/tree")
+			) {
+				skillUrl = url;
+				return {
+					body: [
+						{ type: "tree", name: "lint" },
+						{ type: "blob", name: "README.md" },
+					],
+				};
+			}
+			return { status: 404 };
+		};
+		const data = await new GitMarketplaceHttpGateway().fetchMarketplaceJson({
+			gitUrl: "https://gitlab.example.com/group/repo",
+			accessToken: "glpat-secret",
+			provider: "gitlab",
+		});
+		// Project id is the URL-encoded full path; file path is URL-encoded too.
+		expect(mpUrl).toContain("/api/v4/projects/group%2Frepo/repository/files/");
+		expect(mpUrl).toContain("marketplace.json/raw?ref=main");
+		// PRIVATE-TOKEN must be honored — that's the whole point of the API route.
+		expect(mpPrivateToken).toBe("glpat-secret");
+		// The web `/-/raw/` route must never be used (it 302s token auth to login).
+		expect(calls.every((c) => !c.url.includes("/-/raw/"))).toBe(true);
+		expect(skillUrl).toContain("gitlab.example.com/api/v4/projects/group%2Frepo/repository/tree");
+		expect(data.plugins[0]).toMatchObject({ name: "plugin-a", skills: ["lint"] });
+	});
+
+	test("gitlab.com: marketplace.json now uses the REST raw-file API (fixes private-repo 302), not /-/raw/", async () => {
+		let mpUrl: string | null = null;
+		responder = ({ url }) => {
+			if (url.includes("gitlab.com/api/v4/projects/") && url.includes("/repository/files/")) {
+				mpUrl = url;
+				return { body: { name: "mp", plugins: [] } };
+			}
+			return { status: 404 };
+		};
+		await new GitMarketplaceHttpGateway().fetchMarketplaceJson({
+			gitUrl: "https://gitlab.com/acme/marketplace",
+		});
+		expect(mpUrl).toContain("gitlab.com/api/v4/projects/acme%2Fmarketplace/repository/files/");
+		expect(calls.every((c) => !c.url.includes("/-/raw/"))).toBe(true);
+	});
 });

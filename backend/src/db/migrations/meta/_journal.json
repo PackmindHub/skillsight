@@ -169,6 +169,13 @@
       "when": 1779040000000,
       "tag": "0023_skills_identity_composite_pk",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1779050000000,
+      "tag": "0024_marketplace_source_provider",
+      "breakpoints": true
     }
   ]
 }

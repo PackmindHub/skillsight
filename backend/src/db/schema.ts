@@ -119,6 +119,7 @@ export const marketplaceSources = pgTable("marketplace_sources", {
 	id: uuid("id").defaultRandom().primaryKey(),
 	kind: varchar("kind", { length: 20 }).notNull().default("git"),
 	gitUrl: varchar("git_url", { length: 1000 }),
+	provider: varchar("provider", { length: 20 }).notNull().default("auto"),
 	accessTokenEncrypted: text("access_token_encrypted"),
 	branch: varchar("branch", { length: 255 }),
 	marketplaceName: varchar("marketplace_name", { length: 255 }),

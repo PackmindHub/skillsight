@@ -1,0 +1,14 @@
+-- Hand-authored: drizzle-kit migrate:generate is non-functional in this repo
+-- (snapshot drift since 0002; see 0018/0019 headers). Continuing the established
+-- pattern of hand-rolled, idempotent SQL.
+--
+-- Adds the `provider` column to `marketplace_sources`. It pins which git host a
+-- source targets: 'auto' (default) keeps the legacy URL-based host detection,
+-- while 'github' | 'gitlab' | 'bitbucket' let self-hosted instances — chiefly
+-- self-hosted GitLab, whose hostname cannot be guessed from the URL — be
+-- recognized so content is fetched via the correct provider API. See
+-- domain/marketplace-source.ts (GitProvider) and issue #28.
+--
+-- NOT NULL with a DEFAULT is safe on a populated table: existing rows backfill
+-- to 'auto', preserving today's behavior. Idempotent — safe to re-run.
+ALTER TABLE "marketplace_sources" ADD COLUMN IF NOT EXISTS "provider" varchar(20) NOT NULL DEFAULT 'auto';

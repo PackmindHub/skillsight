@@ -1,53 +1,43 @@
 import type { IGitMarketplaceGateway, MarketplaceJsonData } from "@/domain/ports/git-marketplace-gateway";
-import { parseGitUrl } from "@/infrastructure/gateways/git-browse-url";
+import { type GitHost, type GitProvider, parseGitUrl } from "@/infrastructure/gateways/git-browse-url";
 
-function resolveRawUrl(gitUrl: string, branch: string): { url: string; host: "github" | "gitlab" | "bitbucket" | "other" } {
-	const trimmed = gitUrl.trim().replace(/\.git$/, "");
+const MARKETPLACE_JSON_PATH = ".claude-plugin/marketplace.json";
 
-	// GitHub shorthand: owner/repo (no https://, no extra slashes in the path beyond one)
-	if (/^[\w.-]+\/[\w.-]+$/.test(trimmed)) {
-		return {
-			url: `https://raw.githubusercontent.com/${trimmed}/${branch}/.claude-plugin/marketplace.json`,
-			host: "github",
-		};
+// Builds the URL that returns the raw marketplace.json for a parsed git source.
+//
+// GitLab is fetched through the REST API "get raw file" endpoint rather than the `/-/raw/`
+// web route: the web route only authenticates by browser session cookie and 302-redirects
+// PRIVATE-TOKEN requests to the sign-in page, so private repos 404 even with a valid token.
+// The API endpoint honors PRIVATE-TOKEN on every instance (gitlab.com and self-hosted), and
+// `origin` carries the actual host so self-hosted GitLab is targeted instead of gitlab.com.
+function buildMarketplaceJsonUrl(
+	parsed: { host: GitHost; owner: string; repo: string; origin: string },
+	branch: string,
+	gitUrl: string,
+): string {
+	const { host, owner, repo, origin } = parsed;
+
+	if (host === "github") {
+		return `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${MARKETPLACE_JSON_PATH}`;
+	}
+	if (host === "gitlab") {
+		const project = encodeURIComponent(`${owner}/${repo}`);
+		const file = encodeURIComponent(MARKETPLACE_JSON_PATH);
+		return `${origin}/api/v4/projects/${project}/repository/files/${file}/raw?ref=${encodeURIComponent(branch)}`;
+	}
+	if (host === "bitbucket") {
+		return `https://api.bitbucket.org/2.0/repositories/${owner}/${repo}/src/${branch}/${MARKETPLACE_JSON_PATH}`;
 	}
 
+	// Generic fallback for an unrecognized host (provider="auto" + unknown hostname). Validate
+	// the URL up front so we fail with a clear message instead of a bogus fetch.
+	const trimmed = gitUrl.trim().replace(/\.git$/, "");
 	try {
-		const parsed = new URL(trimmed);
-		const pathParts = parsed.pathname.replace(/^\//, "").split("/");
-
-		if (parsed.hostname === "github.com") {
-			const [owner, repo] = pathParts;
-			return {
-				url: `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/.claude-plugin/marketplace.json`,
-				host: "github",
-			};
-		}
-
-		if (parsed.hostname === "gitlab.com") {
-			const repoPath = parsed.pathname.replace(/^\//, "");
-			return {
-				url: `https://gitlab.com/${repoPath}/-/raw/${branch}/.claude-plugin/marketplace.json`,
-				host: "gitlab",
-			};
-		}
-
-		if (parsed.hostname === "bitbucket.org") {
-			const [workspace, repo] = pathParts;
-			return {
-				url: `https://api.bitbucket.org/2.0/repositories/${workspace}/${repo}/src/${branch}/.claude-plugin/marketplace.json`,
-				host: "bitbucket",
-			};
-		}
-
-		// Generic: append the standard path
-		return {
-			url: `${trimmed}/${branch}/.claude-plugin/marketplace.json`,
-			host: "other",
-		};
+		new URL(trimmed);
 	} catch {
 		throw new Error(`Invalid git URL: ${gitUrl}`);
 	}
+	return `${trimmed}/${branch}/${MARKETPLACE_JSON_PATH}`;
 }
 
 function buildHeaders(host: string, accessToken?: string): Record<string, string> {
@@ -186,14 +176,15 @@ async function mapWithConcurrency<T, R>(
 // surfaced to the caller so the whole sync is marked as failed rather than
 // silently dropping plugins as if they had no skills.
 async function fetchPluginSkills(params: {
-	host: "github" | "gitlab" | "bitbucket" | "other";
+	host: GitHost;
 	owner: string;
 	repo: string;
+	origin: string;
 	pluginPath: string;
 	branch: string;
 	accessToken?: string;
 }): Promise<string[]> {
-	const { host, owner, repo, pluginPath, branch, accessToken } = params;
+	const { host, owner, repo, origin, pluginPath, branch, accessToken } = params;
 	const headers = buildHeaders(host, accessToken);
 	const subPath = pluginPath ? `${pluginPath}/skills` : "skills";
 	const what = `fetching skills for ${owner}/${repo}/${subPath} at ${branch}`;
@@ -217,7 +208,7 @@ async function fetchPluginSkills(params: {
 	if (host === "gitlab") {
 		const encoded = encodeURIComponent(`${owner}/${repo}`);
 		const path = encodeURIComponent(subPath);
-		const url = `https://gitlab.com/api/v4/projects/${encoded}/repository/tree?path=${path}&ref=${encodeURIComponent(branch)}`;
+		const url = `${origin}/api/v4/projects/${encoded}/repository/tree?path=${path}&ref=${encodeURIComponent(branch)}`;
 		const res = await fetch(url, { headers, signal: AbortSignal.timeout(10_000) });
 		if (res.status === 404) return [];
 		if (!res.ok) throw new Error(await describeFetchFailure(res, { what, hadToken, url }));
@@ -242,10 +233,11 @@ export class GitMarketplaceHttpGateway implements IGitMarketplaceGateway {
 		gitUrl: string;
 		accessToken?: string;
 		branch?: string;
+		provider?: GitProvider;
 	}): Promise<MarketplaceJsonData> {
 		const branch = params.branch?.trim() || "main";
-		const { url } = resolveRawUrl(params.gitUrl, branch);
-		const { host, owner, repo } = parseGitUrl(params.gitUrl);
+		const { host, owner, repo, origin } = parseGitUrl(params.gitUrl, params.provider ?? "auto");
+		const url = buildMarketplaceJsonUrl({ host, owner, repo, origin }, branch, params.gitUrl);
 		const headers = buildHeaders(host, params.accessToken);
 
 		const res = await fetch(url, { headers, signal: AbortSignal.timeout(15_000) });
@@ -292,6 +284,7 @@ export class GitMarketplaceHttpGateway implements IGitMarketplaceGateway {
 					host,
 					owner,
 					repo,
+					origin,
 					pluginPath,
 					branch,
 					accessToken: params.accessToken,
@@ -300,19 +293,23 @@ export class GitMarketplaceHttpGateway implements IGitMarketplaceGateway {
 			}
 			const external = parseExternalPluginSource(p.source);
 			if (external) {
+				// External plugin URLs are arbitrary, so they are always auto-detected (the
+				// source's pinned provider does not apply to them). Self-hosted external plugins
+				// therefore remain unsupported and fall through to "other" → no skills.
 				const ext = parseGitUrl(external.url);
 				if (ext.host === "other" || !ext.owner || !ext.repo) {
 					return { name, description, version };
 				}
 				// Forward the marketplace's access token only when the external plugin lives on the
-				// same provider as the marketplace itself — a GitHub PAT cannot auth to GitLab and
-				// we must not leak the token by sending it to an unrelated host that a (potentially
-				// malicious) marketplace.json points to.
-				const forwardToken = ext.host === host ? params.accessToken : undefined;
+				// exact same host AND origin as the marketplace itself — a GitHub PAT cannot auth to
+				// GitLab, and a token for one GitLab instance must not leak to another. We must not
+				// send it to an unrelated host that a (potentially malicious) marketplace.json names.
+				const forwardToken = ext.host === host && ext.origin === origin ? params.accessToken : undefined;
 				const skills = await fetchPluginSkills({
 					host: ext.host,
 					owner: ext.owner,
 					repo: ext.repo,
+					origin: ext.origin,
 					pluginPath: external.path,
 					branch: external.ref ?? "HEAD",
 					accessToken: forwardToken,

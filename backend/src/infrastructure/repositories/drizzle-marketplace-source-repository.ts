@@ -3,6 +3,7 @@ import type { AppDb } from "@/db/client";
 import { marketplaceSources } from "@/db/schema";
 import type { IMarketplaceSourceRepository } from "@/domain/ports/marketplace-source-repository";
 import type {
+	GitProvider,
 	MarketplaceSource,
 	MarketplaceSourceKind,
 	MarketplaceSourceWithSecret,
@@ -13,6 +14,7 @@ function toPublic(row: typeof marketplaceSources.$inferSelect): MarketplaceSourc
 		id: row.id,
 		kind: (row.kind as MarketplaceSourceKind) ?? "git",
 		gitUrl: row.gitUrl,
+		provider: (row.provider as GitProvider) ?? "auto",
 		hasToken: row.accessTokenEncrypted !== null,
 		branch: row.branch,
 		marketplaceName: row.marketplaceName,
@@ -57,6 +59,7 @@ export class DrizzleMarketplaceSourceRepository implements IMarketplaceSourceRep
 	async create(data: {
 		kind: MarketplaceSourceKind;
 		gitUrl?: string | null;
+		provider?: GitProvider;
 		marketplaceName?: string | null;
 		accessTokenEncrypted?: string | null;
 		branch?: string | null;
@@ -69,6 +72,7 @@ export class DrizzleMarketplaceSourceRepository implements IMarketplaceSourceRep
 			.values({
 				kind: data.kind,
 				gitUrl: data.gitUrl ?? null,
+				provider: data.provider ?? "auto",
 				marketplaceName: data.marketplaceName ?? null,
 				accessTokenEncrypted: data.accessTokenEncrypted ?? null,
 				branch: data.branch ?? null,
@@ -84,6 +88,7 @@ export class DrizzleMarketplaceSourceRepository implements IMarketplaceSourceRep
 		id: string,
 		data: {
 			gitUrl?: string | null;
+			provider?: GitProvider;
 			marketplaceName?: string | null;
 			accessTokenEncrypted?: string | null;
 			branch?: string | null;
@@ -96,6 +101,7 @@ export class DrizzleMarketplaceSourceRepository implements IMarketplaceSourceRep
 			updatedAt: new Date(),
 		};
 		if ("gitUrl" in data) updates.gitUrl = data.gitUrl;
+		if (data.provider !== undefined) updates.provider = data.provider;
 		if ("marketplaceName" in data) updates.marketplaceName = data.marketplaceName;
 		if ("accessTokenEncrypted" in data) updates.accessTokenEncrypted = data.accessTokenEncrypted;
 		if ("branch" in data) updates.branch = data.branch;

@@ -1,10 +1,11 @@
 import type {
 	AuditFilters,
 	AuditResponse,
-	CohortsResponse,
 	CoUsageResponse,
 	CoUsageTimelineResponse,
+	CohortsResponse,
 	DashboardPeriod,
+	GitProvider,
 	Integration,
 	IntegrationPreviewEvent,
 	LiveEventsResponse,
@@ -143,8 +144,7 @@ export const api = {
 		get: () => apiFetch<{ baseUrl: string }>("/api/config"),
 	},
 	events: {
-		recent: (limit = 100) =>
-			apiFetch<LiveEventsResponse>(`/api/events/recent?limit=${limit}`),
+		recent: (limit = 100) => apiFetch<LiveEventsResponse>(`/api/events/recent?limit=${limit}`),
 		openStream: (handlers: {
 			onEvent?: (event: LiveSkillActivatedEvent) => void;
 			onError?: () => void;
@@ -154,9 +154,7 @@ export const api = {
 			});
 			source.addEventListener("skill.activated", (event) => {
 				try {
-					handlers.onEvent?.(
-						JSON.parse((event as MessageEvent).data) as LiveSkillActivatedEvent,
-					);
+					handlers.onEvent?.(JSON.parse((event as MessageEvent).data) as LiveSkillActivatedEvent);
 				} catch {
 					// ignore malformed payload
 				}
@@ -211,9 +209,7 @@ export const api = {
 			return apiFetch<{ marketplaces: Marketplace[] }>(`/api/marketplaces${qs}`);
 		},
 		detail: (name: string) =>
-			apiFetch<MarketplaceDetailResponse>(
-				`/api/marketplaces/${encodeURIComponent(name)}/detail`,
-			),
+			apiFetch<MarketplaceDetailResponse>(`/api/marketplaces/${encodeURIComponent(name)}/detail`),
 		update: (
 			name: string,
 			body: { status?: string; url?: string | null; description?: string | null },
@@ -222,21 +218,14 @@ export const api = {
 				method: "PATCH",
 				body: JSON.stringify(body),
 			}),
-		remove: (
-			name: string,
-			opts?: { mode?: "orphan" | "cascade"; withSources?: boolean },
-		) => {
+		remove: (name: string, opts?: { mode?: "orphan" | "cascade"; withSources?: boolean }) => {
 			const params = new URLSearchParams({ mode: opts?.mode ?? "orphan" });
 			if (opts?.withSources) params.set("withSources", "true");
-			return apiFetch<void>(
-				`/api/marketplaces/${encodeURIComponent(name)}?${params.toString()}`,
-				{ method: "DELETE" },
-			);
+			return apiFetch<void>(`/api/marketplaces/${encodeURIComponent(name)}?${params.toString()}`, {
+				method: "DELETE",
+			});
 		},
-		removeMany: (
-			names: string[],
-			opts: { mode: "orphan" | "cascade"; withSources: boolean },
-		) =>
+		removeMany: (names: string[], opts: { mode: "orphan" | "cascade"; withSources: boolean }) =>
 			apiFetch<{
 				deleted: number;
 				notFound: number;
@@ -297,24 +286,21 @@ export const api = {
 			}),
 		remove: (id: string) => apiFetch<void>(`/api/integrations/${id}`, { method: "DELETE" }),
 		syncNow: (id: string) =>
-			apiFetch<{ syncedAt: string | null; error: string | null }>(
-				`/api/integrations/${id}/sync`,
-				{ method: "POST" },
-			),
+			apiFetch<{ syncedAt: string | null; error: string | null }>(`/api/integrations/${id}/sync`, {
+				method: "POST",
+			}),
 		pause: (id: string) =>
 			apiFetch<Integration>(`/api/integrations/${id}/pause`, { method: "POST" }),
 		resume: (id: string) =>
 			apiFetch<Integration>(`/api/integrations/${id}/resume`, { method: "POST" }),
 		resetCursor: (id: string) =>
 			apiFetch<void>(`/api/integrations/${id}/reset-cursor`, { method: "POST" }),
-		clearData: (id: string) =>
-			apiFetch<void>(`/api/integrations/${id}/data`, { method: "DELETE" }),
+		clearData: (id: string) => apiFetch<void>(`/api/integrations/${id}/data`, { method: "DELETE" }),
 		getDirectStats: () =>
 			apiFetch<{ eventCount: number; lastEventAt: string | null }>(
 				"/api/integrations/direct/stats",
 			),
-		clearDirectData: () =>
-			apiFetch<void>("/api/integrations/direct/events", { method: "DELETE" }),
+		clearDirectData: () => apiFetch<void>("/api/integrations/direct/events", { method: "DELETE" }),
 		openStream: (handlers: {
 			onUpdate?: (integration: Integration) => void;
 			onDelete?: (id: string) => void;
@@ -369,6 +355,7 @@ export const api = {
 				| {
 						kind?: "git";
 						gitUrl: string;
+						provider?: GitProvider;
 						accessToken?: string | null;
 						branch?: string | null;
 						syncIntervalMs?: number;
@@ -400,6 +387,7 @@ export const api = {
 			id: string,
 			data: {
 				gitUrl?: string;
+				provider?: GitProvider;
 				marketplaceName?: string;
 				accessToken?: string | null;
 				apiKey?: string | null;
@@ -415,10 +403,12 @@ export const api = {
 			}),
 		remove: (id: string) => apiFetch<void>(`/api/marketplace-sources/${id}`, { method: "DELETE" }),
 		syncNow: (id: string) =>
-			apiFetch<{ syncedAt: string | null; pluginCount: number; skillCount: number; error: string | null }>(
-				`/api/marketplace-sources/${id}/sync`,
-				{ method: "POST" },
-			),
+			apiFetch<{
+				syncedAt: string | null;
+				pluginCount: number;
+				skillCount: number;
+				error: string | null;
+			}>(`/api/marketplace-sources/${id}/sync`, { method: "POST" }),
 		pause: (id: string) =>
 			apiFetch<MarketplaceSource>(`/api/marketplace-sources/${id}/pause`, { method: "POST" }),
 		resume: (id: string) =>
@@ -428,6 +418,7 @@ export const api = {
 				| {
 						kind?: "git";
 						gitUrl: string;
+						provider?: GitProvider;
 						accessToken?: string | null;
 						branch?: string | null;
 						sourceId?: string | null;

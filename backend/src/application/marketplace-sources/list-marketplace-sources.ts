@@ -9,6 +9,7 @@ export async function listMarketplaceSources(deps: {
 		id: s.id,
 		kind: s.kind,
 		gitUrl: s.gitUrl,
+		provider: s.provider,
 		hasToken: s.hasToken,
 		branch: s.branch,
 		marketplaceName: s.marketplaceName,

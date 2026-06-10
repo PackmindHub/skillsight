@@ -13,6 +13,7 @@ export async function createMarketplaceSource(
 	const created = await deps.marketplaceSources.create({
 		kind,
 		gitUrl: data.gitUrl ?? null,
+		provider: data.provider ?? "auto",
 		marketplaceName: data.marketplaceName ?? null,
 		accessTokenEncrypted,
 		branch: data.branch ?? null,
@@ -28,6 +29,7 @@ export async function createMarketplaceSource(
 		metadata: {
 			kind: created.kind,
 			gitUrl: created.gitUrl,
+			provider: created.provider,
 			marketplaceName: created.marketplaceName,
 			branch: created.branch,
 			syncIntervalMs: created.syncIntervalMs,

@@ -16,6 +16,7 @@ import type {
 	SkillStatus,
 	SkillTableRow,
 } from "@/domain/skill";
+import type { GitProvider } from "@/domain/marketplace-source";
 import { buildSkillRepoUrl } from "@/infrastructure/gateways/git-browse-url";
 import { maxSemver } from "@/lib/semver";
 
@@ -573,13 +574,14 @@ export class DrizzleSkillRepository implements ISkillRepository {
 				  p.plugin_version      AS catalog_version,
 				  ms.git_url            AS git_url,
 				  ms.branch             AS branch,
+				  ms.provider           AS provider,
 				  COALESCE(l.load_count, 0)::int     AS load_count,
 				  COALESCE(l.unique_loaders, 0)::int AS unique_loader_count,
 				  COALESCE(v.versions, ARRAY[]::text[]) AS version_strings
 				FROM plugin_skills ps
 				LEFT JOIN plugins p ON p.plugin_name = ps.plugin_name
 				LEFT JOIN LATERAL (
-				  SELECT git_url, branch
+				  SELECT git_url, branch, provider
 				  FROM marketplace_sources
 				  WHERE marketplace_name = p.marketplace_name
 				  ORDER BY created_at ASC
@@ -669,6 +671,7 @@ export class DrizzleSkillRepository implements ISkillRepository {
 			catalog_version: string | null;
 			git_url: string | null;
 			branch: string | null;
+			provider: string | null;
 			load_count: number;
 			unique_loader_count: number;
 			version_strings: string[] | null;
@@ -680,7 +683,13 @@ export class DrizzleSkillRepository implements ISkillRepository {
 				status: r.status ?? "to_review",
 				skillRepoUrl:
 					r.git_url && r.plugin_source && skillSuffix
-						? buildSkillRepoUrl(r.git_url, r.branch, r.plugin_source, skillSuffix)
+						? buildSkillRepoUrl(
+								r.git_url,
+								r.branch,
+								r.plugin_source,
+								skillSuffix,
+								(r.provider as GitProvider | null) ?? "auto",
+							)
 						: null,
 				loadCount: r.load_count ?? 0,
 				uniqueLoaderCount: r.unique_loader_count ?? 0,

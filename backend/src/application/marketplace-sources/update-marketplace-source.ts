@@ -8,6 +8,7 @@ import { buildDiff } from "@/application/audit/diff";
 
 const DIFF_FIELDS = [
 	"gitUrl",
+	"provider",
 	"branch",
 	"syncIntervalMs",
 	"enabled",
@@ -30,6 +31,7 @@ export async function updateMarketplaceSource(
 
 	const updates: Parameters<IMarketplaceSourceRepository["update"]>[1] = {};
 	if (data.gitUrl !== undefined) updates.gitUrl = data.gitUrl;
+	if (data.provider !== undefined) updates.provider = data.provider;
 	if (data.marketplaceName !== undefined) updates.marketplaceName = data.marketplaceName || null;
 	if (data.branch !== undefined) updates.branch = data.branch || null;
 	if (data.syncIntervalMs !== undefined) updates.syncIntervalMs = data.syncIntervalMs;
@@ -49,6 +51,7 @@ export async function updateMarketplaceSource(
 
 	const beforeView = {
 		gitUrl: existing.gitUrl,
+		provider: existing.provider,
 		branch: existing.branch,
 		syncIntervalMs: existing.syncIntervalMs,
 		enabled: existing.enabled,
@@ -57,6 +60,7 @@ export async function updateMarketplaceSource(
 	};
 	const afterView = {
 		gitUrl: updated.gitUrl,
+		provider: updated.provider,
 		branch: updated.branch,
 		syncIntervalMs: updated.syncIntervalMs,
 		enabled: updated.enabled,

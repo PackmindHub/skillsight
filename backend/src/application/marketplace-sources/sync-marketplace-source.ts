@@ -90,6 +90,7 @@ async function syncGitMarketplaceSource(
 			gitUrl,
 			accessToken,
 			branch: source.branch ?? undefined,
+			provider: source.provider,
 		});
 
 		await deps.marketplaces.upsertFromImport({

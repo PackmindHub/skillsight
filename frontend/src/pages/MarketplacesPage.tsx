@@ -10,17 +10,19 @@ import {
 	Input,
 	PageHeader,
 	SegmentedControl,
+	Select,
 	StatusChip,
 	type StatusChipOption,
 	StatusFilter,
 } from "@/components/ui";
 import { useMarketplaceSourcesHealth } from "@/context/MarketplaceSourcesHealthContext";
 import { api } from "@/lib/api";
+import { sourceDisplayLabel } from "@/lib/marketplace-source-label";
 import { useIncludeIgnored } from "@/lib/use-include-ignored";
 import { useStatusFilter } from "@/lib/use-status-filter";
-import { sourceDisplayLabel } from "@/lib/marketplace-source-label";
 import { cn, formatRelativeShort, repoSlugFromGitUrl } from "@/lib/utils";
 import {
+	type GitProvider,
 	MARKETPLACE_STATUSES,
 	type Marketplace,
 	type MarketplaceSource,
@@ -171,9 +173,7 @@ function MarketplaceSourceLine({
 }) {
 	const isPackmind = source.kind === "packmind";
 	const displayUrl = source.gitUrl ?? "";
-	const label = isPackmind
-		? sourceDisplayLabel(source)
-		: repoSlugFromGitUrl(displayUrl);
+	const label = isPackmind ? sourceDisplayLabel(source) : repoSlugFromGitUrl(displayUrl);
 	const hasError = source.lastSyncError !== null;
 	const paused = !source.enabled;
 	const syncState: "syncing" | "error" | "paused" | "ok" | "never" = syncing
@@ -339,6 +339,7 @@ type SourceFormKind = "git" | "packmind";
 interface SourceForm {
 	kind: SourceFormKind;
 	gitUrl: string;
+	provider: GitProvider;
 	accessToken: string;
 	branch: string;
 	marketplaceName: string;
@@ -351,6 +352,7 @@ interface SourceForm {
 const defaultSourceForm: SourceForm = {
 	kind: "git",
 	gitUrl: "",
+	provider: "auto",
 	accessToken: "",
 	branch: "",
 	marketplaceName: "",
@@ -456,7 +458,14 @@ export default function MarketplacesPage() {
 	const [resumingSourceIds, setResumingSourceIds] = useState<Set<string>>(() => new Set());
 	const [testingConnection, setTestingConnection] = useState(false);
 	const [connectionTestResult, setConnectionTestResult] = useState<
-		| { ok: true; kind: "git"; name: string; description?: string; pluginCount: number; skillCount: number }
+		| {
+				ok: true;
+				kind: "git";
+				name: string;
+				description?: string;
+				pluginCount: number;
+				skillCount: number;
+		  }
 		| { ok: true; kind: "packmind"; user: string; org: string; host: string }
 		| { ok: false; error: string }
 		| null
@@ -542,7 +551,7 @@ export default function MarketplacesPage() {
 
 	function updateSourceField<K extends keyof SourceForm>(key: K, value: SourceForm[K]) {
 		setSourceForm((f) => ({ ...f, [key]: value }));
-		if (key === "gitUrl" || key === "accessToken" || key === "branch") {
+		if (key === "gitUrl" || key === "accessToken" || key === "branch" || key === "provider") {
 			setConnectionTestResult(null);
 			setSubmitError(null);
 		}
@@ -562,6 +571,7 @@ export default function MarketplacesPage() {
 						})
 					: await api.marketplaceSources.testConnection({
 							gitUrl: sourceForm.gitUrl.trim(),
+							provider: sourceForm.provider,
 							accessToken: sourceForm.accessToken || null,
 							branch: sourceForm.branch.trim() || null,
 							sourceId: editingSourceId,
@@ -705,6 +715,7 @@ export default function MarketplacesPage() {
 							}
 						: {
 								gitUrl: sourceForm.gitUrl.trim(),
+								provider: sourceForm.provider,
 								accessToken: sourceForm.accessToken || null,
 								branch: sourceForm.branch.trim() || null,
 								syncIntervalMs: Number(sourceForm.syncIntervalSecs) * 1000,
@@ -726,6 +737,7 @@ export default function MarketplacesPage() {
 							} as const)
 						: ({
 								gitUrl: sourceForm.gitUrl.trim(),
+								provider: sourceForm.provider,
 								accessToken: sourceForm.accessToken || null,
 								branch: sourceForm.branch.trim() || null,
 								syncIntervalMs: Number(sourceForm.syncIntervalSecs) * 1000,
@@ -1035,6 +1047,24 @@ export default function MarketplacesPage() {
 											onChange={(e) => updateSourceField("gitUrl", e.target.value)}
 											placeholder="owner/repo  or  https://github.com/owner/repo"
 										/>
+									</FormField>
+
+									<FormField
+										label="Provider"
+										htmlFor="ms-provider"
+										helper="Auto-detect works for github.com / gitlab.com / bitbucket.org. Pick GitLab for a self-hosted GitLab instance (e.g. https://gitlab.example.com)."
+									>
+										<Select
+											id="ms-provider"
+											size="sm"
+											value={sourceForm.provider}
+											onChange={(e) => updateSourceField("provider", e.target.value as GitProvider)}
+										>
+											<option value="auto">Auto-detect</option>
+											<option value="github">GitHub</option>
+											<option value="gitlab">GitLab</option>
+											<option value="bitbucket">Bitbucket</option>
+										</Select>
 									</FormField>
 
 									<div className="grid grid-cols-2 gap-3">

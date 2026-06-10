@@ -1,9 +1,15 @@
 export type MarketplaceSourceKind = "git" | "packmind";
 
+// Which git host the source points at. "auto" detects the host from the URL (the legacy
+// behavior); the explicit values let self-hosted instances — chiefly self-hosted GitLab,
+// whose hostname cannot be guessed — be recognized so content is fetched via the right API.
+export type GitProvider = "auto" | "github" | "gitlab" | "bitbucket";
+
 export interface MarketplaceSource {
 	id: string;
 	kind: MarketplaceSourceKind;
 	gitUrl: string | null;
+	provider: GitProvider;
 	hasToken: boolean;
 	branch: string | null;
 	marketplaceName: string | null;
@@ -23,6 +29,7 @@ export interface MarketplaceSourceWithSecret extends MarketplaceSource {
 export interface CreateMarketplaceSourceData {
 	kind?: MarketplaceSourceKind;
 	gitUrl?: string;
+	provider?: GitProvider;
 	marketplaceName?: string;
 	accessToken?: string;
 	branch?: string;
@@ -33,6 +40,7 @@ export interface CreateMarketplaceSourceData {
 
 export interface UpdateMarketplaceSourceData {
 	gitUrl?: string;
+	provider?: GitProvider;
 	marketplaceName?: string;
 	accessToken?: string | null;
 	branch?: string;

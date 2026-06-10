@@ -7,6 +7,7 @@ describe("parseGitUrl", () => {
 			host: "github",
 			owner: "anthropics",
 			repo: "claude-code",
+			origin: "https://github.com",
 		});
 	});
 
@@ -15,6 +16,7 @@ describe("parseGitUrl", () => {
 			host: "github",
 			owner: "anthropics",
 			repo: "claude-code",
+			origin: "https://github.com",
 		});
 	});
 
@@ -23,6 +25,7 @@ describe("parseGitUrl", () => {
 			host: "gitlab",
 			owner: "group",
 			repo: "sub/repo",
+			origin: "https://gitlab.com",
 		});
 	});
 
@@ -31,19 +34,48 @@ describe("parseGitUrl", () => {
 			host: "bitbucket",
 			owner: "ws",
 			repo: "repo",
+			origin: "https://bitbucket.org",
 		});
 	});
 
-	test("unknown host falls back to other", () => {
+	test("unknown host falls back to other (auto)", () => {
 		expect(parseGitUrl("https://git.example.com/foo/bar")).toEqual({
 			host: "other",
 			owner: "",
 			repo: "",
+			origin: "",
 		});
 	});
 
 	test("invalid URL string falls back to other", () => {
-		expect(parseGitUrl("not a url")).toEqual({ host: "other", owner: "", repo: "" });
+		expect(parseGitUrl("not a url")).toEqual({ host: "other", owner: "", repo: "", origin: "" });
+	});
+
+	test("explicit gitlab provider recognizes a self-hosted host and derives the origin", () => {
+		expect(parseGitUrl("https://gitlab.example.com/group/sub/repo", "gitlab")).toEqual({
+			host: "gitlab",
+			owner: "group",
+			repo: "sub/repo",
+			origin: "https://gitlab.example.com",
+		});
+	});
+
+	test("explicit gitlab provider keeps the port in the origin", () => {
+		expect(parseGitUrl("https://git.company.com:8443/team/app", "gitlab")).toEqual({
+			host: "gitlab",
+			owner: "team",
+			repo: "app",
+			origin: "https://git.company.com:8443",
+		});
+	});
+
+	test("explicit github provider on a non-github host still splits owner/repo", () => {
+		expect(parseGitUrl("https://ghe.example.com/org/repo", "github")).toEqual({
+			host: "github",
+			owner: "org",
+			repo: "repo",
+			origin: "https://ghe.example.com",
+		});
 	});
 });
 
@@ -99,6 +131,18 @@ describe("buildSkillRepoUrl", () => {
 				"s",
 			),
 		).toBe("https://gitlab.com/group/sub/repo/-/tree/main/plugin/skills/s");
+	});
+
+	test("self-hosted gitlab (explicit provider) builds a browse URL on the right origin", () => {
+		expect(
+			buildSkillRepoUrl(
+				"https://gitlab.example.com/group/sub/repo",
+				"main",
+				"plugin",
+				"s",
+				"gitlab",
+			),
+		).toBe("https://gitlab.example.com/group/sub/repo/-/tree/main/plugin/skills/s");
 	});
 
 	test("bitbucket uses /src/", () => {

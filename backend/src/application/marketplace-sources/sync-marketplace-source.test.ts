@@ -25,6 +25,7 @@ const BASE_SOURCE: MarketplaceSourceWithSecret = {
 	id: "src-1",
 	kind: "git",
 	gitUrl: "github.com/org/repo",
+	provider: "auto",
 	accessTokenEncrypted: null,
 	hasToken: false,
 	branch: null,
@@ -215,6 +216,38 @@ function makeGateway(
 // --- tests ---
 
 describe("syncMarketplaceSource", () => {
+	it("forwards the source's provider to the marketplace gateway", async () => {
+		let received: { provider?: string } | null = null;
+		const capturingGateway: IGitMarketplaceGateway = {
+			fetchMarketplaceJson: async (params) => {
+				received = params;
+				return BASE_MARKETPLACE_DATA;
+			},
+		};
+		await syncMarketplaceSource(
+			{
+				marketplaceSources: makeMarketplaceSources(),
+				marketplaces: makeMarketplaces(),
+				plugins: makePlugins().repo,
+				pluginSkills: makePluginSkills(),
+				pluginVersions: {
+					upsertSeen: async () => {},
+					listForPlugin: async () => [],
+					listVersionStrings: async () => [],
+				},
+				skills: makeSkills().repo,
+				gitMarketplace: capturingGateway,
+				packmindCli: makePackmindCli(),
+				externalSkillMappings: makeMappingRepo(),
+				mappingCache: await makeMappingCache(),
+				audit: makeAudit(),
+			},
+			{ ...BASE_SOURCE, provider: "gitlab" },
+			{ mode: "manual" },
+		);
+		expect(received?.provider).toBe("gitlab");
+	});
+
 	describe("markRemovedByMarketplace", () => {
 		it("is called with marketplace name and active plugin names after a successful sync", async () => {
 			const { repo: plugins, markRemovedCalls } = makePlugins();

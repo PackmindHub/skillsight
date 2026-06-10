@@ -1,3 +1,4 @@
+import type { GitProvider } from "@/domain/marketplace-source";
 import type { IGitMarketplaceGateway } from "@/domain/ports/git-marketplace-gateway";
 import type { IMarketplaceSourceRepository } from "@/domain/ports/marketplace-source-repository";
 import type { IPackmindCliGateway } from "@/domain/ports/packmind-cli-gateway";
@@ -7,6 +8,7 @@ export type TestConnectionInput =
 	| {
 			kind?: "git";
 			gitUrl: string;
+			provider?: GitProvider | null;
 			accessToken?: string | null;
 			branch?: string | null;
 			sourceId?: string | null;
@@ -70,6 +72,7 @@ export async function testMarketplaceSourceConnection(
 
 	const gitInput = input as Extract<TestConnectionInput, { kind?: "git" }>;
 	let token: string | undefined;
+	let provider: GitProvider = gitInput.provider ?? "auto";
 	if (typeof gitInput.accessToken === "string" && gitInput.accessToken.length > 0) {
 		token = gitInput.accessToken;
 	} else if (gitInput.sourceId) {
@@ -77,6 +80,8 @@ export async function testMarketplaceSourceConnection(
 		if (existing?.accessTokenEncrypted) {
 			token = decrypt(existing.accessTokenEncrypted);
 		}
+		// Fall back to the saved provider when the caller didn't pin one inline.
+		if (!gitInput.provider && existing) provider = existing.provider;
 	}
 
 	try {
@@ -84,6 +89,7 @@ export async function testMarketplaceSourceConnection(
 			gitUrl: gitInput.gitUrl,
 			accessToken: token,
 			branch: gitInput.branch ?? undefined,
+			provider,
 		});
 		return {
 			ok: true,

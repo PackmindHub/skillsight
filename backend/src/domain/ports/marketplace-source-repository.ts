@@ -1,4 +1,5 @@
 import type {
+	GitProvider,
 	MarketplaceSource,
 	MarketplaceSourceKind,
 	MarketplaceSourceWithSecret,
@@ -11,6 +12,7 @@ export interface IMarketplaceSourceRepository {
 	create(data: {
 		kind: MarketplaceSourceKind;
 		gitUrl?: string | null;
+		provider?: GitProvider;
 		marketplaceName?: string | null;
 		accessTokenEncrypted?: string | null;
 		branch?: string | null;
@@ -22,6 +24,7 @@ export interface IMarketplaceSourceRepository {
 		id: string,
 		data: {
 			gitUrl?: string | null;
+			provider?: GitProvider;
 			marketplaceName?: string | null;
 			accessTokenEncrypted?: string | null;
 			branch?: string | null;

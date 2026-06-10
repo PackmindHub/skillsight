@@ -16,9 +16,12 @@ import {
 	cancelMarketplaceSource,
 } from "@/infrastructure/scheduler/marketplace-source-scheduler";
 
+const providerSchema = z.enum(["auto", "github", "gitlab", "bitbucket"]);
+
 const gitCreateSchema = z.object({
 	kind: z.literal("git").optional(),
 	gitUrl: z.string().min(1).max(1000),
+	provider: providerSchema.default("auto"),
 	accessToken: z.string().optional().nullable(),
 	branch: z.string().max(255).optional().nullable(),
 	syncIntervalMs: z.number().int().min(60000).default(3600000),
@@ -39,6 +42,7 @@ const createSchema = z.union([packmindCreateSchema, gitCreateSchema]);
 
 const updateSchema = z.object({
 	gitUrl: z.string().min(1).max(1000).optional(),
+	provider: providerSchema.optional(),
 	marketplaceName: z.string().min(1).max(255).optional(),
 	accessToken: z.string().optional().nullable(),
 	apiKey: z.string().optional().nullable(),
@@ -52,6 +56,7 @@ const testConnectionSchema = z.union([
 	z.object({
 		kind: z.literal("git").optional(),
 		gitUrl: z.string().min(1).max(1000),
+		provider: providerSchema.nullable().optional(),
 		accessToken: z.string().nullable().optional(),
 		branch: z.string().max(255).nullable().optional(),
 		sourceId: z.string().uuid().nullable().optional(),
@@ -157,6 +162,7 @@ export function createMarketplaceSourcesRoute(
 		// Git path (default).
 		const test = await testMarketplaceSourceConnection(deps, {
 			gitUrl: body.gitUrl,
+			provider: body.provider,
 			accessToken: body.accessToken ?? null,
 			branch: body.branch ?? null,
 		});
@@ -165,6 +171,7 @@ export function createMarketplaceSourcesRoute(
 		const source = await createMarketplaceSource(deps, {
 			kind: "git",
 			gitUrl: body.gitUrl,
+			provider: body.provider,
 			accessToken: body.accessToken ?? undefined,
 			branch: body.branch ?? undefined,
 			syncIntervalMs: body.syncIntervalMs,
@@ -219,6 +226,7 @@ export function createMarketplaceSourcesRoute(
 		} else {
 			const test = await testMarketplaceSourceConnection(deps, {
 				gitUrl: body.gitUrl ?? existing.gitUrl ?? "",
+				provider: body.provider ?? existing.provider,
 				accessToken: body.accessToken ?? null,
 				branch: body.branch !== undefined ? body.branch : existing.branch,
 				sourceId: id,
@@ -233,6 +241,7 @@ export function createMarketplaceSourcesRoute(
 
 		const result = await updateMarketplaceSource(deps, id, {
 			gitUrl: body.gitUrl,
+			provider: body.provider,
 			marketplaceName: body.marketplaceName,
 			accessToken: credential as string | null | undefined,
 			branch: body.branch ?? undefined,

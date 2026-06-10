@@ -326,10 +326,13 @@ export interface AuditDiffMetadata {
 
 export type MarketplaceSourceKind = "git" | "packmind";
 
+export type GitProvider = "auto" | "github" | "gitlab" | "bitbucket";
+
 export interface MarketplaceSource {
 	id: string;
 	kind: MarketplaceSourceKind;
 	gitUrl: string | null;
+	provider: GitProvider;
 	hasToken: boolean;
 	branch: string | null;
 	marketplaceName: string | null;
